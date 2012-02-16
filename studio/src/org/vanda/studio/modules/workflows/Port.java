@@ -6,10 +6,24 @@ package org.vanda.studio.modules.workflows;
 public class Port {
 	private String name;
 	private EPortType type;
+	private boolean inUse;
 		
 	public Port(String name, EPortType type) {
 		this.name = name;
 		this.type = type;
+		this.inUse = false;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public EPortType getType() {
+		return this.type;
+	}
+	
+	public boolean isInUse() {
+		return this.inUse;
 	}
 	
 	/**

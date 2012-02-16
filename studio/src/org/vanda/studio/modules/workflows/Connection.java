@@ -4,16 +4,17 @@ package org.vanda.studio.modules.workflows;
  * @author afischer
  */
 public class Connection {
-	private Tool source;
+	private Hyperworkflow source;
 	private Port srcPort;
-	private Tool target;
+	private Hyperworkflow target;
 	private Port targPort;
 		
-	public Connection(Tool source, Port srcPort, Tool target, Port targPort) {
+	public Connection(Hyperworkflow source, Port srcPort, Hyperworkflow target, Port targPort) {
 		this.source = source;
 		this.srcPort = srcPort;
 		this.target = target;
 		this.targPort = targPort;
+		//FIXME ensure port compatibility; keep inner ports of NestedHyperworkflows in mind; ensure port existence at source and target
 	}
 	
 	@Override
@@ -22,35 +23,41 @@ public class Connection {
 		if (result) {
 			Connection oc = (Connection)other;
 			result = srcPort.equals(oc.srcPort) && targPort.equals(oc.targPort) && source.equals(oc.source) && target.equals(oc.target);
+			//FIXME: make sure that ports exist at source and target
 		}
 		return result;
 	}
 
 	/**
-	 * @return the source Tool
+	 * @return the source Hyperworkflow
 	 */
-	public Tool getSource() {
+	public Hyperworkflow getSource() {
 		return source;
 	}
 
 	/**
-	 * @return the output port of the source Tool
+	 * @return the output port of the source Hyperworkflow
 	 */
 	public Port getSrcPort() {
 		return srcPort;
 	}
 
 	/**
-	 * @return the target Tool
+	 * @return the target Hyperworkflow
 	 */
-	public Tool getTarget() {
+	public Hyperworkflow getTarget() {
 		return target;
 	}
 
 	/**
-	 * @return the input port of the target Tool
+	 * @return the input port of the target Hyperworkflow
 	 */
 	public Port getTargPort() {
 		return targPort;
+	}
+	
+	@Override
+	public String toString() {
+		return source.getName() + "." + srcPort.getName() + " -> " + target.getName() + "." + targPort.getName();
 	}
 }
