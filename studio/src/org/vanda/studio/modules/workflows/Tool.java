@@ -12,13 +12,13 @@ public class Tool extends Hyperworkflow {
 
 	private List<Port> inputPorts;
 	private List<Port> outputPorts;
-	private Map<Port, Connection> inputBlockageMap;
+	private Map<Port, Connection> inputConnectionMap;
 
 	public Tool(NestedHyperworkflow parent, String name, int id) {
 		super(parent, name, id);
 		inputPorts = new ArrayList<Port>();
 		outputPorts = new ArrayList<Port>();
-		inputBlockageMap = new HashMap<Port, Connection>();
+		inputConnectionMap = new HashMap<Port, Connection>();
 	}
 	
 	/**
@@ -40,7 +40,7 @@ public class Tool extends Hyperworkflow {
 	 * @return 
 	 */
 	public Map<Port, Connection> getInputBlockageMap() {
-		return inputBlockageMap;
+		return inputConnectionMap;
 	}
 
 	@Override
