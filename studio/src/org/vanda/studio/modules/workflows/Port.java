@@ -6,12 +6,10 @@ package org.vanda.studio.modules.workflows;
 public class Port {
 	private String name;
 	private EPortType type;
-	private boolean inUse;
 		
 	public Port(String name, EPortType type) {
 		this.name = name;
 		this.type = type;
-		this.inUse = false;
 	}
 	
 	public String getName() {
@@ -22,10 +20,6 @@ public class Port {
 		return this.type;
 	}
 	
-	public boolean isInUse() {
-		return this.inUse;
-	}
-	
 	/**
 	 * Checks whether the current port and the specified port are compatible, 
 	 * i.e. they share the same type
@@ -34,7 +28,7 @@ public class Port {
 	 * @return true iff both ports are compatible
 	 */
 	public boolean isCompatibleTo(Port otherPort) {
-		return name.equals(otherPort.name) && type.equals(otherPort.type);
+		return type.equals(otherPort.type);
 	}
 		
 	@Override

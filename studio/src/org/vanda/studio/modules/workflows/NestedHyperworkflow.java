@@ -1,18 +1,33 @@
 package org.vanda.studio.modules.workflows;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author afischer
  */
 public class NestedHyperworkflow extends Hyperworkflow{
 
+	private NestedHyperworkflow parent;
+	private String name;
+	private int id;
+	private List<Port> inputPorts;
+	private List<Port> outputPorts;
+	private Map<Port, Connection> portIncomingConnectionMap;
+	
 	private List<Connection> connections;
 	private List<Hyperworkflow> children;
 	
 	public NestedHyperworkflow(NestedHyperworkflow parent, String name, int id, List<Port> inputPorts, List<Port> outputPorts) {
 		super(parent, name, id, inputPorts, outputPorts);
+//		this.parent = parent;
+//		this.name = name;
+//		this.id = id;
+//		this.inputPorts = inputPorts;
+//		this.outputPorts = outputPorts;
+//		this.portIncomingConnectionMap = new HashMap<Port, Connection>();
 		connections = new ArrayList<Connection>();
 		children = new ArrayList<Hyperworkflow>();
 	}
@@ -43,38 +58,43 @@ public class NestedHyperworkflow extends Hyperworkflow{
 	 * @return true, if adding was successful
 	 */
 	public boolean addConnection(Connection conn) {
-		//check for null reference and if connection does not already exist
-		if (conn != null && !connections.contains(conn)) {
+		//check for null reference, ensure connection does not already exist, check port compatibility
+		if (conn != null && !connections.contains(conn) && conn.getSrcPort().isCompatibleTo(conn.getTargPort())) {
 			
-			//ensure that source is NestedHyperworkflow itself or a child
-			if (children.contains(conn.getSource()) || conn.getSource().equals(this)) {
-				//ensure target is a child or current NestedHyperworkflow itself
-				if (children.contains(conn.getTarget()) || conn.getTarget().equals(this)) {
+			//ensure that source is NestedHyperworkflow itself or a child and has the specified source port
+			if ((children.contains(conn.getSource()) && conn.getSource().getOutputPorts().contains(conn.getSrcPort())) || 
+					(conn.getSource().equals(this) && this.getInputPorts().contains(conn.getSrcPort()))) {
+				//ensure target is a child or current NestedHyperworkflow itself and has the specified target port
+				if ((children.contains(conn.getTarget()) && conn.getTarget().getInputPorts().contains(conn.getTargPort())) || 
+						(conn.getTarget().equals(this) && this.getOutputPorts().contains(conn.getTargPort()))) {
 					//check if target port is not blocked already
 					Connection targetBlocked = conn.getTarget().getPortIncomingConnectionMap().get(conn.getTargPort());
 					//if targetBlocked is null, the port is still open
 					if (targetBlocked == null) {
 						
-						//FIXME first add connection, if successful block port, then propagate blocked ports, undo if problem occurs
-						
-						//if the connection is only between two simple Elements remove the now occupied ports from current NestedHyperworkflow
-						if (conn.getSource() instanceof Element && conn.getTarget() instanceof Element) {
-							List<Port> emptyList = new ArrayList<Port>();
-							List<Port> inputs = new ArrayList<Port>();
-							inputs.add(conn.getTargPort());
-							List<Port> outputs = new ArrayList<Port>();
-							outputs.add(conn.getSrcPort());
-							//actual port removal from parent Hyperworkflows
-							if (!this.propagatePortRemoval(conn.getSource(), emptyList, outputs) || !(this.propagatePortRemoval(conn.getTarget(), inputs, emptyList)))
-								//if there occurs a problem, prevent further adding of child node 
-								return false;
+						//try to add connection and block the previously free target input port
+						if (connections.add(conn) && conn.getTarget().getPortIncomingConnectionMap().put(conn.getTargPort(), conn) == null) {
+							
+							//if the connection is only between two simple Elements remove the now occupied ports from current NestedHyperworkflow
+							if (conn.getSource() instanceof Element && conn.getTarget() instanceof Element) {
+								List<Port> emptyList = new ArrayList<Port>();
+								List<Port> inputs = new ArrayList<Port>();
+								inputs.add(conn.getTargPort());
+								List<Port> outputs = new ArrayList<Port>();
+								outputs.add(conn.getSrcPort());
+								//actual port removal from parent Hyperworkflows
+								if (!(this.propagatePortRemoval(conn.getSource(), emptyList, outputs) && this.propagatePortRemoval(conn.getTarget(), inputs, emptyList))) {
+									//propagation failed -> undo everything
+									this.propagateAdditionalPorts(conn.getSource(), emptyList, outputs);
+									this.propagateAdditionalPorts(conn.getTarget(), inputs, emptyList);
+									conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort());
+									connections.remove(conn);
+									return false;
+								}
+							}
+
+							return true;
 						}
-						
-						//block input port of target tool
-						conn.getTarget().getPortIncomingConnectionMap().put(conn.getTargPort(), conn);
-												
-						//add connection to list
-						return connections.add(conn);
 					}
 				}
 			}
@@ -92,25 +112,29 @@ public class NestedHyperworkflow extends Hyperworkflow{
 		//check for null reference and make sure the connection exists
 		if (conn != null && connections.contains(conn)) {
 			
-			//FIXME first removal of connection, if successful free blocked port, then propagate free ports, undo if problem occurs
-			
-			//if the connection is only between two simple Elements add the now free ports to current NestedHyperworkflow
-			if (conn.getSource() instanceof Element && conn.getTarget() instanceof Element) {
-				List<Port> emptyList = new ArrayList<Port>();
-				List<Port> inputs = new ArrayList<Port>();
-				inputs.add(conn.getTargPort());
-				List<Port> outputs = new ArrayList<Port>();
-				outputs.add(conn.getSrcPort());
-				//actual port adding to parent Hyperworkflows
-				if (!this.propagateAdditionalPorts(conn.getSource(), emptyList, outputs) || !(this.propagateAdditionalPorts(conn.getTarget(), inputs, emptyList)))
-					//if there occurs a problem, prevent further adding of child node 
-					return false;
+			//try to remove connection and free the previously blocked target input port
+			if (connections.remove(conn) && conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort()) != null) {
+				
+				//if the connection is only between two simple Elements add the now free ports to current NestedHyperworkflow
+				if (conn.getSource() instanceof Element && conn.getTarget() instanceof Element) {
+					List<Port> emptyList = new ArrayList<Port>();
+					List<Port> inputs = new ArrayList<Port>();
+					inputs.add(conn.getTargPort());
+					List<Port> outputs = new ArrayList<Port>();
+					outputs.add(conn.getSrcPort());
+					//actual port adding to parent Hyperworkflows
+					if (!(this.propagateAdditionalPorts(conn.getSource(), emptyList, outputs) && this.propagateAdditionalPorts(conn.getTarget(), inputs, emptyList))) {
+						//propagation failed -> undo everything
+						this.propagatePortRemoval(conn.getSource(), emptyList, outputs);
+						this.propagatePortRemoval(conn.getTarget(), inputs, emptyList);
+						conn.getTarget().getPortIncomingConnectionMap().put(conn.getTargPort(), conn);
+						connections.add(conn);
+						return false;
+					}
+				}
+				
+				return true;
 			}
-			
-			//remove target port blockage
-			conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort());
-			//remove connection itself
-			return connections.remove(conn);
 		}
 		return false;
 	}
@@ -246,6 +270,18 @@ public class NestedHyperworkflow extends Hyperworkflow{
 	}
 	
 	@Override
+	public boolean equals(Object other) {
+		//FIXME think of something more reasonable to find equal NestedHyperworkflows
+		//NestedHyperworkflows are equal if they have the same id
+		boolean result = (other != null && other instanceof NestedHyperworkflow);
+		if (result) {
+			NestedHyperworkflow oh = (NestedHyperworkflow)other;
+			result = (this.getId() == oh.getId());
+		}
+		return result;
+	}
+	
+	@Override
 	public void unfold() {
 		//TODO
 	}
@@ -274,20 +310,12 @@ public class NestedHyperworkflow extends Hyperworkflow{
 		
 		System.out.println("Add children: ");
 		System.out.println("t1: " + root.addChild(t1));
-		System.out.println(t1.getInputPorts() + " & " + t1.getOutputPorts());
 		System.out.println("t2: " + root.addChild(t2));
-		System.out.println(t2.getInputPorts() + " & " + t2.getOutputPorts());
 		System.out.println("t3: " + root.addChild(t3));
-		System.out.println(t3.getInputPorts() + " & " + t3.getOutputPorts());
 		System.out.println("t4: " + root.addChild(t4));
-		System.out.println(t4.getInputPorts() + " & " + t4.getOutputPorts());
 		System.out.println("nested: " + root.addChild(nested));
-		System.out.println("nested: " + nested.getInputPorts() + " & " + nested.getOutputPorts());
 		System.out.println("nested.t5: " + nested.addChild(t5));
-		System.out.println(t5.getInputPorts() + " & " + t5.getOutputPorts());
 		System.out.println("nested.t6: " + nested.addChild(t6));
-		System.out.println(t6.getInputPorts() + " & " + t6.getOutputPorts());
-		System.out.println("nested: " + nested.getInputPorts() + " & " + nested.getOutputPorts());
 		
 		System.out.println("\nAdd connections: ");
 		System.out.println("t1 -> nested: " + root.addConnection(new Connection(t1, t1.getOutputPorts().get(0), nested, nested.getInputPorts().get(1))));
@@ -300,9 +328,12 @@ public class NestedHyperworkflow extends Hyperworkflow{
 		System.out.println("nested.t5 -> nested.t6: " + nested.addConnection(new Connection(t5, t5.getOutputPorts().get(0), t6, t6.getInputPorts().get(0))));
 		System.out.println("nested.t6 -> nested: " + nested.addConnection(new Connection(t6, t6.getOutputPorts().get(0), nested, nested.getOutputPorts().get(0))));
 		
-		
 		System.out.println("\nExisting connections: ");
 		System.out.println(root.getConnections());
+		System.out.println(nested.getConnections());
+		
+		System.out.println("\nRemove connections: ");
+		System.out.println("nested.t5 -> nested.t6: " + nested.removeConnection(new Connection(t5, t5.getOutputPorts().get(0), t6, t6.getInputPorts().get(0))));
 		System.out.println(nested.getConnections());
 	}
 }

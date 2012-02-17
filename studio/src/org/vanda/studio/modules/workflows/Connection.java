@@ -14,7 +14,6 @@ public class Connection {
 		this.srcPort = srcPort;
 		this.target = target;
 		this.targPort = targPort;
-		//FIXME ensure port compatibility; keep inner ports of NestedHyperworkflows in mind; ensure port existence at source and target
 	}
 	
 	@Override
@@ -23,7 +22,6 @@ public class Connection {
 		if (result) {
 			Connection oc = (Connection)other;
 			result = srcPort.equals(oc.srcPort) && targPort.equals(oc.targPort) && source.equals(oc.source) && target.equals(oc.target);
-			//FIXME: make sure that ports exist at source and target
 		}
 		return result;
 	}
