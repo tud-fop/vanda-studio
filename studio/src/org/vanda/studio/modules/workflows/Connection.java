@@ -4,12 +4,12 @@ package org.vanda.studio.modules.workflows;
  * @author afischer
  */
 public class Connection {
-	private Hyperworkflow source;
+	private IHyperworkflow source;
 	private Port srcPort;
-	private Hyperworkflow target;
+	private IHyperworkflow target;
 	private Port targPort;
 		
-	public Connection(Hyperworkflow source, Port srcPort, Hyperworkflow target, Port targPort) {
+	public Connection(IHyperworkflow source, Port srcPort, IHyperworkflow target, Port targPort) {
 		this.source = source;
 		this.srcPort = srcPort;
 		this.target = target;
@@ -29,7 +29,7 @@ public class Connection {
 	/**
 	 * @return the source Hyperworkflow
 	 */
-	public Hyperworkflow getSource() {
+	public IHyperworkflow getSource() {
 		return source;
 	}
 
@@ -43,7 +43,7 @@ public class Connection {
 	/**
 	 * @return the target Hyperworkflow
 	 */
-	public Hyperworkflow getTarget() {
+	public IHyperworkflow getTarget() {
 		return target;
 	}
 

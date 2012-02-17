@@ -1,14 +1,17 @@
 package org.vanda.studio.modules.workflows;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
+ * Nested composite of IHyperworkflow composite pattern
  * @author afischer
+ *
  */
-public class NestedHyperworkflow extends Hyperworkflow{
+public class NestedHyperworkflow implements IHyperworkflow{
 
 	private NestedHyperworkflow parent;
 	private String name;
@@ -18,37 +21,35 @@ public class NestedHyperworkflow extends Hyperworkflow{
 	private Map<Port, Connection> portIncomingConnectionMap;
 	
 	private List<Connection> connections;
-	private List<Hyperworkflow> children;
+	private List<IHyperworkflow> children;
 	
 	public NestedHyperworkflow(NestedHyperworkflow parent, String name, int id, List<Port> inputPorts, List<Port> outputPorts) {
-		super(parent, name, id, inputPorts, outputPorts);
-//		this.parent = parent;
-//		this.name = name;
-//		this.id = id;
-//		this.inputPorts = inputPorts;
-//		this.outputPorts = outputPorts;
-//		this.portIncomingConnectionMap = new HashMap<Port, Connection>();
+		this.parent = parent;
+		this.name = name;
+		this.id = id;
+		this.inputPorts = inputPorts;
+		this.outputPorts = outputPorts;
+		this.portIncomingConnectionMap = new HashMap<Port, Connection>();
 		connections = new ArrayList<Connection>();
-		children = new ArrayList<Hyperworkflow>();
+		children = new ArrayList<IHyperworkflow>();
 	}
 	
 	public NestedHyperworkflow(NestedHyperworkflow parent, String name, int id) {
 		this(parent, name, id, new ArrayList<Port>(), new ArrayList<Port>());
 	}
 	
-	/**
-	 * @return a list of connections
-	 */
-	public List<Connection> getConnections() {
-		return connections;
-	}
+	public NestedHyperworkflow getParent() { return parent; }
+	public List<Port> getOutputPorts() {	return outputPorts; }
+	public Map<Port, Connection> getPortIncomingConnectionMap() { return portIncomingConnectionMap; }
+	public int getId() {	return id; }
+	public List<Port> getInputPorts() { return inputPorts;	}
+	public String getName() { return name; }
+	
+	/** @return a list of connections */
+	public List<Connection> getConnections() { return connections; 	}
 
-	/**
-	 * @return a list of direct Hyperworkflow children of the current NestedHyperworkflow
-	 */
-	public List<Hyperworkflow> getChildren() {
-		return children;
-	}
+	/** @return a list of direct Hyperworkflow children of the current NestedHyperworkflow */
+	public List<IHyperworkflow> getChildren() {	return children; }
 	
 	/**
 	 * Adds a new connection to the NestedHyperworkflow's connections-List.
@@ -58,6 +59,8 @@ public class NestedHyperworkflow extends Hyperworkflow{
 	 * @return true, if adding was successful
 	 */
 	public boolean addConnection(Connection conn) {
+		//TODO infer types as far as possible if conn now blocks a generic port
+		
 		//check for null reference, ensure connection does not already exist, check port compatibility
 		if (conn != null && !connections.contains(conn) && conn.getSrcPort().isCompatibleTo(conn.getTargPort())) {
 			
@@ -76,7 +79,7 @@ public class NestedHyperworkflow extends Hyperworkflow{
 						if (connections.add(conn) && conn.getTarget().getPortIncomingConnectionMap().put(conn.getTargPort(), conn) == null) {
 							
 							//if the connection is only between two simple Elements remove the now occupied ports from current NestedHyperworkflow
-							if (conn.getSource() instanceof Element && conn.getTarget() instanceof Element) {
+							if (conn.getSource() instanceof IElement && conn.getTarget() instanceof IElement) {
 								List<Port> emptyList = new ArrayList<Port>();
 								List<Port> inputs = new ArrayList<Port>();
 								inputs.add(conn.getTargPort());
@@ -109,6 +112,8 @@ public class NestedHyperworkflow extends Hyperworkflow{
 	 * @return true, if removal was successful
 	 */
 	public boolean removeConnection(Connection conn) {
+		//TODO infer types as far as possible if the removal of conn frees an otherwise generic port
+		
 		//check for null reference and make sure the connection exists
 		if (conn != null && connections.contains(conn)) {
 			
@@ -116,7 +121,7 @@ public class NestedHyperworkflow extends Hyperworkflow{
 			if (connections.remove(conn) && conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort()) != null) {
 				
 				//if the connection is only between two simple Elements add the now free ports to current NestedHyperworkflow
-				if (conn.getSource() instanceof Element && conn.getTarget() instanceof Element) {
+				if (conn.getSource() instanceof IElement && conn.getTarget() instanceof IElement) {
 					List<Port> emptyList = new ArrayList<Port>();
 					List<Port> inputs = new ArrayList<Port>();
 					inputs.add(conn.getTargPort());
@@ -144,7 +149,7 @@ public class NestedHyperworkflow extends Hyperworkflow{
 	 * @param hwf - child to add
 	 * @return true, if adding was successful
 	 */
-	public boolean addChild(Hyperworkflow hwf) {
+	public boolean addChild(IHyperworkflow hwf) {
 		//check for null reference and make sure the new child does not exist already
 		if (hwf != null && !children.contains(hwf)) {
 			
@@ -168,7 +173,7 @@ public class NestedHyperworkflow extends Hyperworkflow{
 	 * @param hwf- child to remove
 	 * @return true, if removal was successful
 	 */
-	public boolean removeChild(Hyperworkflow hwf) {
+	public boolean removeChild(IHyperworkflow hwf) {
 		if (hwf != null && children.contains(hwf)) {
 			
 			//remove outgoing connections
@@ -208,7 +213,7 @@ public class NestedHyperworkflow extends Hyperworkflow{
 	 * @param hwf
 	 * @return true, if propagation process is successful. On occurrence of any problem the whole adding process is undone
 	 */
-	private boolean propagateAdditionalPorts(Hyperworkflow hwf, List<Port> additionalInputs, List<Port> additionalOutputs) {
+	private boolean propagateAdditionalPorts(IHyperworkflow hwf, List<Port> additionalInputs, List<Port> additionalOutputs) {
 		List<Port> innerInputPorts = new ArrayList<Port>();
 		List<Port> innerOutputPorts = new ArrayList<Port>();
 		
@@ -240,7 +245,7 @@ public class NestedHyperworkflow extends Hyperworkflow{
 	 * @param hwf
 	 * @return true, if propagation process is successful. On occurrence of any problem the whole removal process is undone
 	 */
-	private boolean propagatePortRemoval(Hyperworkflow hwf, List<Port> removedInputs, List<Port> removedOutputs) {
+	private boolean propagatePortRemoval(IHyperworkflow hwf, List<Port> removedInputs, List<Port> removedOutputs) {
 		List<Port> innerInputPorts = new ArrayList<Port>();
 		List<Port> innerOutputPorts = new ArrayList<Port>();
 		
@@ -282,29 +287,30 @@ public class NestedHyperworkflow extends Hyperworkflow{
 	}
 	
 	@Override
-	public void unfold() {
-		//TODO
+	public Collection<IHyperworkflow> unfold() {
+		//TODO unfold children and then do what?
+		return null;
 	}
 	
 	public static void main(String[] args) {
 		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
 		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 7);
-		Element t1 = new Element(root, "t1", 1);
+		IElement t1 = new Tool(root, "t1", 1);
 		t1.getOutputPorts().add(new Port("out", EPortType.FILE));
-		Element t2 = new Element(root, "t2", 2);
+		IElement t2 = new Tool(root, "t2", 2);
 		t2.getOutputPorts().add(new Port("out1", EPortType.FILE));
 		t2.getOutputPorts().add(new Port("out2", EPortType.FILE));
-		Element t3 = new Element(root, "t3", 3);
+		IElement t3 = new Tool(root, "t3", 3);
 		t3.getInputPorts().add(new Port("in", EPortType.FILE));
 		t3.getOutputPorts().add(new Port("out", EPortType.FILE));
-		Element t4 = new Element(root, "t4", 4);
+		IElement t4 = new Tool(root, "t4", 4);
 		t4.getInputPorts().add(new Port("in1", EPortType.FILE));
 		t4.getInputPorts().add(new Port("in2", EPortType.FILE));
-		Element t5 = new Element(root, "t5", 5);
+		IElement t5 = new Tool(root, "t5", 5);
 		t5.getInputPorts().add(new Port("in1", EPortType.FILE));
 		t5.getInputPorts().add(new Port("in2", EPortType.FILE));
 		t5.getOutputPorts().add(new Port("out", EPortType.FILE));
-		Element t6 = new Element(root, "t6", 6);
+		IElement t6 = new Tool(root, "t6", 6);
 		t6.getInputPorts().add(new Port("in", EPortType.FILE));
 		t6.getOutputPorts().add(new Port("out", EPortType.FILE));
 		

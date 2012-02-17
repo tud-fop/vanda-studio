@@ -7,5 +7,5 @@ package org.vanda.studio.modules.workflows;
  *
  */
 public enum EPortType {
-	FILE, HASKELL;
+	FILE, GENERIC, HASKELL;
 }

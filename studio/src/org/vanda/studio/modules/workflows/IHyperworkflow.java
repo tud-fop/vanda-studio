@@ -4,12 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Superclass component of IHyperworkflow composite pattern
+ * @author afischer
+ *
+ */
 public interface IHyperworkflow {
 
-	/** @return an instance of IHyperworkflow */
-	public IHyperworkflow createHyperworkflowInstance(NestedHyperworkflow parent, String name, int id, List<Port> inputPorts, List<Port> outputPorts);
-	/** @return an instance of IHyperworkflow */
-	public IHyperworkflow createHyperworkflowInstance(NestedHyperworkflow parent, String name, int id);
 	public boolean equals(Object other);
 	/** @return the id of the current Hyperworkflow */
 	public int getId();
@@ -24,5 +25,5 @@ public interface IHyperworkflow {
 	/** @return the map that contains for every blocked input port its incoming connection */
 	public Map<Port, Connection> getPortIncomingConnectionMap();
 	/** @return a collection of NestedHyperworkflows where all OR nodes have been removed */
-	public Collection<NestedHyperworkflow> unfold();
+	public Collection<IHyperworkflow> unfold();
 }

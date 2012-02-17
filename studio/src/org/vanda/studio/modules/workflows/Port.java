@@ -22,13 +22,13 @@ public class Port {
 	
 	/**
 	 * Checks whether the current port and the specified port are compatible, 
-	 * i.e. they share the same type
+	 * i.e. they share the same type or at least one type is generic
 	 * 
 	 * @param otherPort
 	 * @return true iff both ports are compatible
 	 */
 	public boolean isCompatibleTo(Port otherPort) {
-		return type.equals(otherPort.type);
+		return type.equals(otherPort.type) || (type == EPortType.GENERIC || otherPort.type == EPortType.GENERIC);
 	}
 		
 	@Override
