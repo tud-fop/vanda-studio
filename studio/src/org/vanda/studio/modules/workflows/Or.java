@@ -64,9 +64,12 @@ public class Or implements IElement{
 			NestedHyperworkflow parentCopy = new NestedHyperworkflow(parent);	//copy parent NestedHyperworkflow of current or node
 			parentCopy.removeChild(this);	//remove or node
 			
-			//TODO add connection between or input and our output
+			// add connection between or-input and or-output
+			//TODO get incoming connection
+			//TODO get outgoing connections
 			
 			hwfList.add(parentCopy);		//add unfolded copy to result list
+			
 		}
 		
 		return hwfList;

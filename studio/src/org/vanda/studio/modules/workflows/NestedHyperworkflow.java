@@ -49,7 +49,12 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		connections = new ArrayList<Connection>(toCopy.connections);
 		children = new ArrayList<IHyperworkflow>(toCopy.children);
 //!		portIncomingConnectionMap = new HashMap<Port, Connection>(toCopy.getPortIncomingConnectionMap());
-		portBlockageMap = new HashMap<IHyperworkflow, List<Port>>(toCopy.portBlockageMap);
+		
+		//copy the portBlockageMap, has to be done semi-manually since "new HashMap(toCopy.portBlockageMap)" only does a shallow copy and thus, refers to the SAME entry lists 
+		portBlockageMap = new HashMap<IHyperworkflow, List<Port>>();
+		for (IHyperworkflow hwf : toCopy.portBlockageMap.keySet()) {
+			portBlockageMap.put(hwf, new ArrayList<Port>(toCopy.portBlockageMap.get(hwf)));
+		}
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
@@ -111,10 +116,17 @@ public class NestedHyperworkflow implements IHyperworkflow{
 								outputs.add(conn.getSrcPort());
 								//actual port removal from parent Hyperworkflows
 								if (!(this.propagatePortRemoval(conn.getSource(), emptyList, outputs) && this.propagatePortRemoval(conn.getTarget(), inputs, emptyList))) {
-									//propagation failed -> undo everything
+									//propagation failed -> UNDO EVERYTHING
 									this.propagateAdditionalPorts(conn.getSource(), emptyList, outputs);
 									this.propagateAdditionalPorts(conn.getTarget(), inputs, emptyList);
+									
+									//remove previously blocked port from portBlockageMap
 									portBlockageMap.get(conn.getTarget()).remove(conn.getTargPort());
+									
+									//if there are no more blocked ports for the target tool, remove its map entries completely
+									if (portBlockageMap.get(conn.getTarget()) != null && portBlockageMap.get(conn.getTarget()).isEmpty())
+										portBlockageMap.remove(conn.getTarget());
+
 //!-								portIncomingConnectionMap.remove(conn.getTargPort());
 //!									conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort());
 									connections.remove(conn);
@@ -157,7 +169,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 					outputs.add(conn.getSrcPort());
 					//actual port adding to parent Hyperworkflows
 					if (!(this.propagateAdditionalPorts(conn.getSource(), emptyList, outputs) && this.propagateAdditionalPorts(conn.getTarget(), inputs, emptyList))) {
-						//propagation failed -> undo everything
+						//propagation failed -> UNDO EVERYTHING
 						this.propagatePortRemoval(conn.getSource(), emptyList, outputs);
 						this.propagatePortRemoval(conn.getTarget(), inputs, emptyList);
 						portBlockageMap.get(conn.getTarget()).add(conn.getTargPort());
@@ -167,6 +179,10 @@ public class NestedHyperworkflow implements IHyperworkflow{
 						return false;
 					}
 				}
+				
+				//if there are no more blocked ports for the target tool, remove its map entries completely
+				if (portBlockageMap.get(conn.getTarget()) != null && portBlockageMap.get(conn.getTarget()).isEmpty())
+					portBlockageMap.remove(conn.getTarget());
 				
 				return true;
 			}
@@ -350,7 +366,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		System.out.println("t2 -> or: " + root.addConnection(new Connection(t2, t2.getOutputPorts().get(0), or, or.getInputPorts().get(1))));
 		System.out.println("or -> t3: " + root.addConnection(new Connection(or, or.getOutputPorts().get(0), t3, t3.getInputPorts().get(0))));
 		
-		System.out.println(root.getPortBlockageMap().entrySet());
 		Collection<IHyperworkflow> results = or.unfold();
 		System.out.println(results);
 		
