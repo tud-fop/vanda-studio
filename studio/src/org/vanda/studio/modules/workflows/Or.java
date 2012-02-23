@@ -2,9 +2,7 @@ package org.vanda.studio.modules.workflows;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 
@@ -18,7 +16,6 @@ public class Or implements IElement{
 	private int id;
 	private List<Port> inputPorts;
 	private List<Port> outputPorts;
-	private Map<Port, Connection> portIncomingConnectionMap;
 	
 	public Or(NestedHyperworkflow parent, String name, int id, List<Port> inputPorts, List<Port> outputPorts) {
 		this.parent = parent;
@@ -26,7 +23,6 @@ public class Or implements IElement{
 		this.id = id;
 		this.inputPorts = inputPorts;
 		this.outputPorts = outputPorts;
-		this.portIncomingConnectionMap = new HashMap<Port, Connection>();
 	}
 	
 	//creates two inputs and one output by default
@@ -39,7 +35,6 @@ public class Or implements IElement{
 	
 	public NestedHyperworkflow getParent() { return parent; }
 	public List<Port> getOutputPorts() {	return outputPorts; }
-	public Map<Port, Connection> getPortIncomingConnectionMap() { return portIncomingConnectionMap; }
 	public int getId() {	return id; }
 	public List<Port> getInputPorts() { return inputPorts;	}
 	public String getName() { return name; }

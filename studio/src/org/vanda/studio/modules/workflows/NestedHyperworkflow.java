@@ -18,7 +18,8 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	private int id;
 	private List<Port> inputPorts;
 	private List<Port> outputPorts;
-	private Map<Port, Connection> portIncomingConnectionMap;
+//!	private Map<Port, Connection> portIncomingConnectionMap;
+	private Map<IHyperworkflow, List<Port>> portBlockageMap;
 	
 	private List<Connection> connections;
 	private List<IHyperworkflow> children;
@@ -29,7 +30,8 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		this.id = id;
 		this.inputPorts = inputPorts;
 		this.outputPorts = outputPorts;
-		this.portIncomingConnectionMap = new HashMap<Port, Connection>();
+//!		this.portIncomingConnectionMap = new HashMap<Port, Connection>();
+		this.portBlockageMap = new HashMap<IHyperworkflow, List<Port>>();
 		connections = new ArrayList<Connection>();
 		children = new ArrayList<IHyperworkflow>();
 	}
@@ -46,12 +48,14 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		this(toCopy.parent, toCopy.name, toCopy.id, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
 		connections = new ArrayList<Connection>(toCopy.connections);
 		children = new ArrayList<IHyperworkflow>(toCopy.children);
-		portIncomingConnectionMap = new HashMap<Port, Connection>(toCopy.getPortIncomingConnectionMap());
+//!		portIncomingConnectionMap = new HashMap<Port, Connection>(toCopy.getPortIncomingConnectionMap());
+		portBlockageMap = new HashMap<IHyperworkflow, List<Port>>(toCopy.portBlockageMap);
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
 	public List<Port> getOutputPorts() {	return outputPorts; }
-	public Map<Port, Connection> getPortIncomingConnectionMap() { return portIncomingConnectionMap; }
+//!	public Map<Port, Connection> getPortIncomingConnectionMap() { return portIncomingConnectionMap; }
+	public Map<IHyperworkflow, List<Port>> getPortBlockageMap() { return portBlockageMap; }
 	public int getId() {	return id; }
 	public List<Port> getInputPorts() { return inputPorts;	}
 	public String getName() { return name; }
@@ -82,13 +86,22 @@ public class NestedHyperworkflow implements IHyperworkflow{
 				if ((children.contains(conn.getTarget()) && conn.getTarget().getInputPorts().contains(conn.getTargPort())) || 
 						(conn.getTarget().equals(this) && this.getOutputPorts().contains(conn.getTargPort()))) {
 					//check if target port is not blocked already
-					Connection targetBlocked = conn.getTarget().getPortIncomingConnectionMap().get(conn.getTargPort());
+					
+					Connection targetBlocked;
+					if (!portBlockageMap.containsKey(conn.getTarget())) portBlockageMap.put(conn.getTarget(), new ArrayList<Port>());
+					List<Port> blockedPorts = portBlockageMap.get(conn.getTarget());
+					if (!blockedPorts.contains(conn.getTargPort())) targetBlocked = null;
+					else targetBlocked = new Connection(null, null, null, null); 
+					
+//!-				Connection targetBlocked = portIncomingConnectionMap.get(conn.getTargPort());
+//!					Connection targetBlocked = conn.getTarget().getPortIncomingConnectionMap().get(conn.getTargPort());
 					//if targetBlocked is null, the port is still open
 					if (targetBlocked == null) {
 						
 						//try to add connection and block the previously free target input port
-						if (connections.add(conn) && conn.getTarget().getPortIncomingConnectionMap().put(conn.getTargPort(), conn) == null) {
-							
+						if (connections.add(conn) && portBlockageMap.get(conn.getTarget()).add(conn.getTargPort())) {
+//!-					if (connections.add(conn) && portIncomingConnectionMap.put(conn.getTargPort(), conn) == null) {
+//!						if (connections.add(conn) && conn.getTarget().getPortIncomingConnectionMap().put(conn.getTargPort(), conn) == null) {
 							//if the connection is only between two simple Elements remove the now occupied ports from current NestedHyperworkflow
 							if (conn.getSource() instanceof IElement && conn.getTarget() instanceof IElement) {
 								List<Port> emptyList = new ArrayList<Port>();
@@ -101,7 +114,9 @@ public class NestedHyperworkflow implements IHyperworkflow{
 									//propagation failed -> undo everything
 									this.propagateAdditionalPorts(conn.getSource(), emptyList, outputs);
 									this.propagateAdditionalPorts(conn.getTarget(), inputs, emptyList);
-									conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort());
+									portBlockageMap.get(conn.getTarget()).remove(conn.getTargPort());
+//!-								portIncomingConnectionMap.remove(conn.getTargPort());
+//!									conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort());
 									connections.remove(conn);
 									return false;
 								}
@@ -129,7 +144,9 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		if (conn != null && connections.contains(conn)) {
 			
 			//try to remove connection and free the previously blocked target input port
-			if (connections.remove(conn) && conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort()) != null) {
+			if (connections.remove(conn) && portBlockageMap.get(conn.getTarget()).remove(conn.getTargPort())) {
+//!-		if (connections.remove(conn) && portIncomingConnectionMap.remove(conn.getTargPort()) != null) {
+//!			if (connections.remove(conn) && conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort()) != null) {
 				
 				//if the connection is only between two simple Elements add the now free ports to current NestedHyperworkflow
 				if (conn.getSource() instanceof IElement && conn.getTarget() instanceof IElement) {
@@ -143,7 +160,9 @@ public class NestedHyperworkflow implements IHyperworkflow{
 						//propagation failed -> undo everything
 						this.propagatePortRemoval(conn.getSource(), emptyList, outputs);
 						this.propagatePortRemoval(conn.getTarget(), inputs, emptyList);
-						conn.getTarget().getPortIncomingConnectionMap().put(conn.getTargPort(), conn);
+						portBlockageMap.get(conn.getTarget()).add(conn.getTargPort());
+//!-					portIncomingConnectionMap.put(conn.getTargPort(), conn);
+//!						conn.getTarget().getPortIncomingConnectionMap().put(conn.getTargPort(), conn);
 						connections.add(conn);
 						return false;
 					}
@@ -331,7 +350,9 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		System.out.println("t2 -> or: " + root.addConnection(new Connection(t2, t2.getOutputPorts().get(0), or, or.getInputPorts().get(1))));
 		System.out.println("or -> t3: " + root.addConnection(new Connection(or, or.getOutputPorts().get(0), t3, t3.getInputPorts().get(0))));
 		
-		System.out.println(or.unfold());
+		System.out.println(root.getPortBlockageMap().entrySet());
+		Collection<IHyperworkflow> results = or.unfold();
+		System.out.println(results);
 		
 //		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
 //		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 7);
