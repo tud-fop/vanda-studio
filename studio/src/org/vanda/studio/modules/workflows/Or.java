@@ -11,7 +11,7 @@ import java.util.Map;
  * @author afischer
  *
  */
-public class Tool implements IElement{
+public class Or implements IElement{
 
 	private NestedHyperworkflow parent;
 	private String name;
@@ -20,7 +20,7 @@ public class Tool implements IElement{
 	private List<Port> outputPorts;
 	private Map<Port, Connection> portIncomingConnectionMap;
 	
-	public Tool(NestedHyperworkflow parent, String name, int id, List<Port> inputPorts, List<Port> outputPorts) {
+	public Or(NestedHyperworkflow parent, String name, int id, List<Port> inputPorts, List<Port> outputPorts) {
 		this.parent = parent;
 		this.name = name;
 		this.id = id;
@@ -29,17 +29,12 @@ public class Tool implements IElement{
 		this.portIncomingConnectionMap = new HashMap<Port, Connection>();
 	}
 	
-	public Tool(NestedHyperworkflow parent, String name, int id) {
+	//creates two inputs and one output by default
+	public Or(NestedHyperworkflow parent, String name, int id) {
 		this(parent, name, id, new ArrayList<Port>(), new ArrayList<Port>());
-	}
-	
-	/** 
-	 * Copy constructor
-	 * @param toCopy
-	 */
-	public Tool(Tool toCopy) {
-		this(toCopy.parent, toCopy.name, toCopy.id, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
-		portIncomingConnectionMap = new HashMap<Port, Connection>(toCopy.getPortIncomingConnectionMap());
+		inputPorts.add(new Port("in"+inputPorts.size(), EPortType.GENERIC));
+		inputPorts.add(new Port("in"+inputPorts.size(), EPortType.GENERIC));
+		outputPorts.add(new Port("out"+outputPorts.size(), EPortType.GENERIC));
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
@@ -53,9 +48,9 @@ public class Tool implements IElement{
 	public boolean equals(Object other) {
 		//FIXME think of something more reasonable to find equal Tools
 		//Tools are equal if they have the same id
-		boolean result = (other != null && other instanceof Tool);
+		boolean result = (other != null && other instanceof Or);
 		if (result) {
-			Tool oh = (Tool)other;
+			Or oh = (Or)other;
 			result = (this.getId() == oh.getId());
 		}
 		return result;
@@ -68,8 +63,17 @@ public class Tool implements IElement{
 	
 	@Override
 	public Collection<IHyperworkflow> unfold() {
-		List<IHyperworkflow> singletonToolList = new ArrayList<IHyperworkflow>();
-		singletonToolList.add(this);
-		return singletonToolList;
+		List<IHyperworkflow> hwfList = new ArrayList<IHyperworkflow>();
+
+		for (int i = 0; i < inputPorts.size(); i++) {
+			NestedHyperworkflow parentCopy = new NestedHyperworkflow(parent);	//copy parent NestedHyperworkflow of current or node
+			parentCopy.removeChild(this);	//remove or node
+			
+			//TODO add connection between or input and our output
+			
+			hwfList.add(parentCopy);		//add unfolded copy to result list
+		}
+		
+		return hwfList;
 	}
 }
