@@ -18,7 +18,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	private int id;
 	private List<Port> inputPorts;
 	private List<Port> outputPorts;
-//!	private Map<Port, Connection> portIncomingConnectionMap;
 	private Map<IHyperworkflow, List<Port>> portBlockageMap;
 	
 	private List<Connection> connections;
@@ -30,7 +29,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		this.id = id;
 		this.inputPorts = inputPorts;
 		this.outputPorts = outputPorts;
-//!		this.portIncomingConnectionMap = new HashMap<Port, Connection>();
 		this.portBlockageMap = new HashMap<IHyperworkflow, List<Port>>();
 		connections = new ArrayList<Connection>();
 		children = new ArrayList<IHyperworkflow>();
@@ -48,8 +46,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		this(toCopy.parent, toCopy.name, toCopy.id, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
 		connections = new ArrayList<Connection>(toCopy.connections);
 		children = new ArrayList<IHyperworkflow>(toCopy.children);
-//!		portIncomingConnectionMap = new HashMap<Port, Connection>(toCopy.getPortIncomingConnectionMap());
-		
+
 		//copy the portBlockageMap, has to be done semi-manually since "new HashMap(toCopy.portBlockageMap)" only does a shallow copy and thus, refers to the SAME entry lists 
 		portBlockageMap = new HashMap<IHyperworkflow, List<Port>>();
 		for (IHyperworkflow hwf : toCopy.portBlockageMap.keySet()) {
@@ -59,7 +56,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	
 	public NestedHyperworkflow getParent() { return parent; }
 	public List<Port> getOutputPorts() {	return outputPorts; }
-//!	public Map<Port, Connection> getPortIncomingConnectionMap() { return portIncomingConnectionMap; }
 	public Map<IHyperworkflow, List<Port>> getPortBlockageMap() { return portBlockageMap; }
 	public int getId() {	return id; }
 	public List<Port> getInputPorts() { return inputPorts;	}
@@ -98,15 +94,12 @@ public class NestedHyperworkflow implements IHyperworkflow{
 					if (!blockedPorts.contains(conn.getTargPort())) targetBlocked = null;
 					else targetBlocked = new Connection(null, null, null, null); 
 					
-//!-				Connection targetBlocked = portIncomingConnectionMap.get(conn.getTargPort());
-//!					Connection targetBlocked = conn.getTarget().getPortIncomingConnectionMap().get(conn.getTargPort());
 					//if targetBlocked is null, the port is still open
 					if (targetBlocked == null) {
 						
 						//try to add connection and block the previously free target input port
 						if (connections.add(conn) && portBlockageMap.get(conn.getTarget()).add(conn.getTargPort())) {
-//!-					if (connections.add(conn) && portIncomingConnectionMap.put(conn.getTargPort(), conn) == null) {
-//!						if (connections.add(conn) && conn.getTarget().getPortIncomingConnectionMap().put(conn.getTargPort(), conn) == null) {
+
 							//if the connection is only between two simple Elements remove the now occupied ports from current NestedHyperworkflow
 							if (conn.getSource() instanceof IElement && conn.getTarget() instanceof IElement) {
 								List<Port> emptyList = new ArrayList<Port>();
@@ -127,8 +120,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 									if (portBlockageMap.get(conn.getTarget()) != null && portBlockageMap.get(conn.getTarget()).isEmpty())
 										portBlockageMap.remove(conn.getTarget());
 
-//!-								portIncomingConnectionMap.remove(conn.getTargPort());
-//!									conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort());
 									connections.remove(conn);
 									return false;
 								}
@@ -157,8 +148,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			
 			//try to remove connection and free the previously blocked target input port
 			if (connections.remove(conn) && portBlockageMap.get(conn.getTarget()).remove(conn.getTargPort())) {
-//!-		if (connections.remove(conn) && portIncomingConnectionMap.remove(conn.getTargPort()) != null) {
-//!			if (connections.remove(conn) && conn.getTarget().getPortIncomingConnectionMap().remove(conn.getTargPort()) != null) {
 				
 				//if the connection is only between two simple Elements add the now free ports to current NestedHyperworkflow
 				if (conn.getSource() instanceof IElement && conn.getTarget() instanceof IElement) {
@@ -173,8 +162,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 						this.propagatePortRemoval(conn.getSource(), emptyList, outputs);
 						this.propagatePortRemoval(conn.getTarget(), inputs, emptyList);
 						portBlockageMap.get(conn.getTarget()).add(conn.getTargPort());
-//!-					portIncomingConnectionMap.put(conn.getTargPort(), conn);
-//!						conn.getTarget().getPortIncomingConnectionMap().put(conn.getTargPort(), conn);
 						connections.add(conn);
 						return false;
 					}
@@ -267,29 +254,36 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		
 		if (this.getParent() == null) return true;
 		
+		//create new input ports based on the specified ports of a child node
 		for (Port p : additionalInputs) {
 			Port newPort = new Port(hwf.getName()+"."+p.getName(), p.getType());
 			if (!this.getInputPorts().contains(newPort)) innerInputPorts.add(newPort);
 		}
+		//create new output ports based on the specified ports of a child node
 		for (Port p : additionalOutputs) {
 			Port newPort = new Port(hwf.getName()+"."+p.getName(), p.getType());
 			if (!this.getOutputPorts().contains(newPort)) innerOutputPorts.add(newPort);
 		}
 		
+		//add the new input and output ports
 		this.getInputPorts().addAll(innerInputPorts);
 		this.getOutputPorts().addAll(innerOutputPorts);
 		
+		//propagate the port adding to own parent
 		if (getParent().propagateAdditionalPorts(this, innerInputPorts, innerOutputPorts)) {
+			//all went well, thus the port adding was successful
 			return true;
 		} else {
-			this.getInputPorts().removeAll(innerInputPorts);
-			this.getOutputPorts().removeAll(innerOutputPorts);
+			//some parent had a problem with the adding propagation -> UNDO EVERYTHING
+			this.getInputPorts().removeAll(innerInputPorts);		//remove previously added input ports
+			this.getOutputPorts().removeAll(innerOutputPorts);	//remove previously added output ports
 			return false;
 		}
 	}
 	
 	/**
-	 * Removes the specified ports of a given Hyperworkflow hwf from the current NestedHyperworkflow and all its parents
+	 * Removes the specified ports of a given Hyperworkflow hwf from the current NestedHyperworkflow and all its parents 
+	 * (along with all connections that are somehow linked to those ports)
 	 * @param hwf
 	 * @return true, if propagation process is successful. On occurrence of any problem the whole removal process is undone
 	 */
@@ -299,26 +293,51 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		
 		if (this.getParent() == null) return true;
 		
+		//find inner input ports that will be removed
 		for (Port p : removedInputs) {
 			Port newPort = new Port(hwf.getName()+"."+p.getName(), p.getType());
 			if (this.getInputPorts().contains(newPort)) innerInputPorts.add(newPort);
 			else return false;
 		}
+		//find inner output ports that will be removed
 		for (Port p : removedOutputs) {
 			Port newPort = new Port(hwf.getName()+"."+p.getName(), p.getType());
 			if (this.getOutputPorts().contains(newPort)) innerOutputPorts.add(newPort);
 			else return false;
 		}
 		
+		//get all incoming and outgoing connections that are linked to the soon-to-be-removed ports
+		List<Connection> incoming = new ArrayList<Connection>();
+		List<Connection> outgoing = new ArrayList<Connection>();
+		for (Connection c : parent.getConnections()) {
+			if (c.getTarget().equals(this) && innerInputPorts.contains(c.getTargPort())) incoming.add(c);
+			if (c.getSource().equals(this) && innerOutputPorts.contains(c.getSrcPort())) outgoing.add(c);
+		}
+		
+		//delete incoming connection to input ports that will be removed
+		for (Connection c : incoming) {
+			parent.removeConnection(c);
+		}
+		//delete outgoing connections from output ports that will be removed
+		for (Connection c : outgoing) {
+			parent.removeConnection(c);
+		}
+		
+		//remove inner input and output ports
 		this.getInputPorts().removeAll(innerInputPorts);
 		this.getOutputPorts().removeAll(innerOutputPorts);
 		
+		//propagate the port removal to own parent
 		if (getParent().propagateAdditionalPorts(this, innerInputPorts, innerOutputPorts)) {
+			//all went well, thus the port removal was successful
 			return true;
 		} else {
-			this.getInputPorts().addAll(innerInputPorts);
-			this.getOutputPorts().addAll(innerOutputPorts);
-			return false;
+			//some parent had a problem with the removal propagation -> UNDO EVERYTHING
+			this.getInputPorts().addAll(innerInputPorts);	//add previously removed input ports
+			this.getOutputPorts().addAll(innerOutputPorts);	//add previously removed output ports
+			for (Connection c : incoming) parent.addConnection(c);	//add previously removed incoming connections
+			for (Connection c : outgoing) parent.addConnection(c);	//add previously removed outgoing connections
+			return false;	//report failure
 		}
 	}
 	

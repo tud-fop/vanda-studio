@@ -60,7 +60,6 @@ public class Or implements IElement{
 	public Collection<IHyperworkflow> unfold() {
 		//TODO generalize, works only for minimal example so far: t1->OR, t2->OR, OR->t3
 		
-		
 		List<IHyperworkflow> hwfList = new ArrayList<IHyperworkflow>();
 
 		//get incoming and outgoing connections
@@ -75,6 +74,7 @@ public class Or implements IElement{
 			NestedHyperworkflow parentCopy = new NestedHyperworkflow(parent);	//copy parent NestedHyperworkflow of current or node
 			parentCopy.removeChild(this);	//remove or node
 			
+			//connect i-th OR-input with all OR-outputs
 			for (int j = 0; j < outgoing.size(); j++) {
 				parentCopy.addConnection(new Connection(incoming.get(i).getSource(), incoming.get(i).getSrcPort(), outgoing.get(j).getTarget(), outgoing.get(j).getTargPort()));
 			}
