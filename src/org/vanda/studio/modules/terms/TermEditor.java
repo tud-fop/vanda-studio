@@ -4,8 +4,13 @@
 package org.vanda.studio.modules.terms;
 
 import java.awt.datatransfer.DataFlavor;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,6 +21,7 @@ import javax.swing.JComponent;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
+import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxGraphTransferable;
@@ -141,6 +147,7 @@ public class TermEditor implements Editor<VTerm> {
 			component.setDragEnabled(false);
 			component.getGraphControl().addMouseListener(
 				new EditMouseAdapter(app, component));
+			component.getGraphControl().addMouseWheelListener(new MouseZoomAdapter(app, component));
 			updatePalette();
 			mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component, palette);
 			mainpane.setOneTouchExpandable(true);
@@ -173,11 +180,12 @@ public class TermEditor implements Editor<VTerm> {
 							return o1.getCategory().compareTo(o2.getCategory());
 						}
 					});
-				double[] d = { 10, 10, 100, 80 };
+				//top left corner of first palette tool, width, height
+				double[] d = { 10, 10, 100, 80 };	
 				for (VObject item : items) {
 					TermObject to = new Term.VOTermObject(item);
 					if (to.getInputPorts().length > 0)
-						d[1] += 20;
+						d[1] += 20;	//length of a port
 					to.setDimensions(d);
 					JGraphRendering.render(to, palettegraph);
 					d[1] += 90;
@@ -227,7 +235,8 @@ public class TermEditor implements Editor<VTerm> {
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			if (e.getClickCount() == 2) {
+			//double click using left mouse button
+			if (e.getButton() == 1 && e.getClickCount() == 2) {
 				Object cell = component.getCellAt(e.getX(), e.getY());
 				Object value = component.getGraph().getModel().getValue(cell);
 				
@@ -239,6 +248,27 @@ public class TermEditor implements Editor<VTerm> {
 					}
 				}
 			}
+		}
+	}
+	
+	/**
+	 * enables mouse wheel zooming function within graph editor window
+	 * @author afischer
+	 *
+	 */
+	protected static class MouseZoomAdapter implements MouseWheelListener {
+		protected Application app;
+		protected mxGraphComponent component;
+		
+		public MouseZoomAdapter(Application app, mxGraphComponent component) {
+			this.app = app;
+			this.component = component;
+		}
+		
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			if (e.getWheelRotation() > 0) component.zoomOut();
+			else component.zoomIn();
 		}
 	}
 }
