@@ -87,8 +87,8 @@ public class NestedHyperworkflow implements IHyperworkflow{
 				//ensure target is a child or current NestedHyperworkflow itself and has the specified target port
 				if ((children.contains(conn.getTarget()) && conn.getTarget().getInputPorts().contains(conn.getTargPort())) || 
 						(conn.getTarget().equals(this) && this.getOutputPorts().contains(conn.getTargPort()))) {
-					//check if target port is not blocked already
 					
+					//check if target port is not blocked already
 					Connection targetBlocked;
 					if (!portBlockageMap.containsKey(conn.getTarget())) portBlockageMap.put(conn.getTarget(), new ArrayList<Port>());
 					List<Port> blockedPorts = portBlockageMap.get(conn.getTarget());
@@ -400,7 +400,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		for (NestedHyperworkflow nested : unfoldMap.keySet()) {
 			//current size of working list
 			int workingListSize = hwfList.size();
-			//iterate over all elements (intermediate results) of the working list in reverse order
+			//iterate over all elements (intermediate results) of the working list in reverse order (allows manipulation of the list during iteration)
 			for (int i = workingListSize - 1; i >= 0; i--) {
 					
 				//get incoming and outgoing connections
@@ -448,7 +448,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		//iterate x times over the working list where x is the number of or nodes in the original NestedHyperworkflow
 		for (int x = 0; x < orCount; x++) {
 			int workingListSize = hwfList.size();
-			//iterate over working list elements in reverse order
+			//iterate over working list elements in reverse order (allows manipulation of the list during iteration)
 			for (int i = workingListSize - 1; i >= 0; i--) {
 				//get first or-node of current element
 				Or firstOr = null;
@@ -504,7 +504,15 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		System.out.println("nested.t1.in -> t1.in: " + nested.addConnection(new Connection(nested, nested.getInputPorts().get(0), t1, t1.getInputPorts().get(0))));
 		
 		System.out.println("\nUnfold root: ");
-		System.out.println(root.unfold());
+		for (IHyperworkflow hwf : root.unfold()) {
+			System.out.println(hwf + "\n");
+			for (IHyperworkflow child : ((NestedHyperworkflow)hwf).getChildren()) {
+				System.out.println(child);
+				System.out.println("inputPorts: " + child.getInputPorts());
+				System.out.println("outputPorts: " + child.getOutputPorts() + "\n");
+			}
+			System.out.println("----------------------------");
+		}
 		
 //		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
 //		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 7);

@@ -60,9 +60,6 @@ public class Or implements IElement{
 	
 	@Override
 	public Collection<IHyperworkflow> unfold() {
-		
-		//FIXME once or node is removed and new connections are drawn there MIGHT be useless tools flying around! remove them!!!
-		
 		List<IHyperworkflow> hwfList = new ArrayList<IHyperworkflow>();
 
 		//get incoming and outgoing connections
@@ -73,13 +70,19 @@ public class Or implements IElement{
 			if (c.getSource().equals(this)) outgoing.add(c);
 		}
 		
-		for (int i = 0; i < inputPorts.size(); i++) {
+		for (int i = 0; i < incoming.size(); i++) {
 			NestedHyperworkflow parentCopy = new NestedHyperworkflow(parent);	//copy parent NestedHyperworkflow of current or node
 			parentCopy.removeChild(this);	//remove or node
 			
 			//connect i-th OR-input with all OR-outputs
 			for (int j = 0; j < outgoing.size(); j++) {
 				parentCopy.addConnection(new Connection(incoming.get(i).getSource(), incoming.get(i).getSrcPort(), outgoing.get(j).getTarget(), outgoing.get(j).getTargPort()));
+			}
+			
+			//remove the other inputs from the parent NestedHyperworkflow
+			//FIXME is this behavior even wanted?! -> number of ports of nested nodes may change due to tool removal
+			for (int j = incoming.size() - 1; j >= 0; j--) {
+				if (j != i) parentCopy.removeChild(incoming.get(j).getSource());
 			}
 			
 			if (!hwfList.contains(parentCopy)) hwfList.add(parentCopy);		//add unfolded copy to result list
