@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.thoughtworks.xstream.XStream;
+
 /**
  * Nested composite of IHyperworkflow composite pattern
  * @author afischer
@@ -514,6 +516,11 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			System.out.println("----------------------------");
 		}
 		
+		//Serialization and Deserialization of root
+		XStream xs = new XStream();
+		NestedHyperworkflow object = (NestedHyperworkflow)(xs.fromXML(xs.toXML(root)));
+		System.out.println(object.unfold());
+		
 //		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
 //		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 7);
 //		IElement t1 = new Tool(root, "t1", 1);
@@ -564,6 +571,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 //		System.out.println(nested.getConnections());
 //		
 //		System.out.println("\nUnfold root: ");
-//		System.out.println(root.unfold());
+//		System.out.println(root.unfold());		
 	}
 }

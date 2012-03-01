@@ -10,7 +10,7 @@
 
 	<property name="dir.src" value="src" />
 	<property name="dir.dst" value="bin" />
-	<property name="classpath" value="lib/jgraphx.jar: lib/xstream-1.4.1.jar: lib/xpp3_min-1.1.4c.jar: kxml2-min-2.3.0.jar" />
+	<property name="classpath" value="lib/jgraphx.jar: lib/xstream-1.4.1.jar: lib/xpp3_min-1.1.4c.jar: lib/kxml2-min-2.3.0.jar: lib/xmlpull-1.1.3.1.jar" />
 	<!--lib/mydoggy-api-1.4.2.jar: lib/mydoggy-plaf-1.4.2.jar: lib/mydoggy-res-1.4.2.jar: lib/TableLayout-20050920.jar: lib/log4j-1.2.16.jar: lib/batik-transcoder.jar lib/pdf-transcoder.jar lib/batik-dom.jar lib/batik-bridge.jar lib/batik-css.jar lib/batik-util.jar lib/batik-svg-dom.jar lib/batik-xml.jar lib/xml-apis-ext.jar lib/batik-ext.jar lib/batik-parser.jar lib/batik-anim.jar lib/batik-script.jar lib/batik-gvt.jar lib/batik-awt-util.jar -->
 
 	<!-- ================================= 
