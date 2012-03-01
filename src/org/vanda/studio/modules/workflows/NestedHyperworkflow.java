@@ -76,6 +76,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	 */
 	public boolean addConnection(Connection conn) {
 		//TODO infer types as far as possible if conn now blocks a generic port
+		//TODO prevent cycles by connection adding
 		
 		//check for null reference, ensure connection does not already exist, check port compatibility
 		if (conn != null && !connections.contains(conn) && conn.getSrcPort().isCompatibleTo(conn.getTargPort())) {
@@ -343,12 +344,17 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	
 	@Override
 	public boolean equals(Object other) {
-		//FIXME think of something more reasonable to find equal NestedHyperworkflows
-		//NestedHyperworkflows are equal if they have the same id
+		//NestedHyperworkflows are equal if they have the same attributes (parent is ignored and not compared)
 		boolean result = (other != null && other instanceof NestedHyperworkflow);
 		if (result) {
 			NestedHyperworkflow oh = (NestedHyperworkflow)other;
-			result = (this.getId() == oh.getId());
+			result = (	getId() == oh.getId() &&
+							getName().equals(oh.getName()) &&
+							getChildren().equals(oh.getChildren()) &&
+							getConnections().equals(oh.getConnections()) &&
+							getInputPorts().equals(oh.getInputPorts()) &&
+							getOutputPorts().equals(oh.getOutputPorts()) &&
+							getPortBlockageMap().equals(oh.getPortBlockageMap())	);
 		}
 		return result;
 	}
@@ -360,33 +366,145 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	
 	@Override
 	public Collection<IHyperworkflow> unfold() {
-		//TODO unfold Or nodes and NestedHyperworkflow children
-		return null;
+		Map<NestedHyperworkflow, Collection<IHyperworkflow>> unfoldMap = new HashMap<NestedHyperworkflow, Collection<IHyperworkflow>>();
+		int orCount = 0;
+		
+		for (IHyperworkflow child : this.children) {
+			//unfold all nested children and write results into a map
+			if (child instanceof NestedHyperworkflow) unfoldMap.put((NestedHyperworkflow)child, child.unfold());
+			//count number of or-nodes
+			if (child instanceof Or) orCount++;
+		}
+		
+		//-------------------------------------------------------------------------------------------------------------
+		//--------- remove nested children and replace them by there unfolded versions ---------
+		//-------------------------------------------------------------------------------------------------------------
+		/*				-----		---------		----
+		 * 	hwf1 = | a |-----| 3x b |----| c |	where b is a nested child that represents 3 different workflows
+		 * 				-----		---------		----
+		 * 		|
+		 * 		|
+		 * 		--->	-----		---------		----
+		 * 				| a |-----|   b1  |----| c |	= hwf1_1
+		 * 				-----		---------		----
+		 * 				-----		---------		----
+		 * 				| a |-----|   b2  |----| c |	= hwf1_2
+		 * 				-----		---------		----
+		 * 				-----		---------		----
+		 * 				| a |-----|   b3  |----| c |	= hwf1_3
+		 * 				-----		---------		----
+		 */
+		List<IHyperworkflow> hwfList = new ArrayList<IHyperworkflow>();	//working list that contains intermediate unfolding results
+		hwfList.add(new NestedHyperworkflow(this));	//put current NestedHyperworkflow in the list to start unfolding
+		//iterate over all nested children
+		for (NestedHyperworkflow nested : unfoldMap.keySet()) {
+			//current size of working list
+			int workingListSize = hwfList.size();
+			//iterate over all elements (intermediate results) of the working list in reverse order
+			for (int i = workingListSize - 1; i >= 0; i--) {
+					
+				//get incoming and outgoing connections
+				List<Connection> incoming = new ArrayList<Connection>();
+				List<Connection> outgoing = new ArrayList<Connection>();
+				for (Connection c : ((NestedHyperworkflow)(hwfList.get(i))).getConnections()) {
+					if (c.getTarget().equals(nested)) incoming.add(c);
+					if (c.getSource().equals(nested)) outgoing.add(c);
+				}
+					
+				//iterate over all unfolding results of the current nested child
+				for (IHyperworkflow unfoldedChild : unfoldMap.get(nested)) {
+					NestedHyperworkflow copy = new NestedHyperworkflow((NestedHyperworkflow)hwfList.get(i)); //create copy of original workflow
+						
+					copy.removeChild(nested);		//remove folded child from current copy
+					copy.addChild(unfoldedChild);	//add unfolded child to replace the removed original
+					for (Connection c : incoming) {
+						//add input connections
+						copy.addConnection(new Connection(c.getSource(), c.getSrcPort(), unfoldedChild, c.getTargPort()));
+					}
+					for (Connection c : outgoing) {
+						//add output connections
+						copy.addConnection(new Connection(unfoldedChild, c.getSrcPort(), c.getTarget(), c.getTargPort()));
+					}
+					
+					//add changed copy (see hwf1_i in the figure above) to the end of the result list if it does not already exist
+					if (!hwfList.contains(copy)) hwfList.add(copy);	
+				}
+				
+				//remove original (folded) workflow from list (see hwf1 in the figure above)
+				hwfList.remove(i);	
+			}
+		}
+		
+		//-------------------------------------------------------------------------------------------------------------
+		//----------------------------------------- unfold Or nodes ---------------------------------------------
+		//-------------------------------------------------------------------------------------------------------------
+		/*				-----		-----------									-----		----
+		 * 	hwf1 = | a |-----|			|		-----						| a |-----| c |	= hwf1_1
+		 * 				-----		|			|------| c |			=>		-----		----
+		 * 				-----		| OR_1	|		-----						-----		----
+		 * 				| b |-----|			|									| b |-----| c |	= hwf1_2
+		 * 				-----		-----------									-----		----
+		 */
+		//iterate x times over the working list where x is the number of or nodes in the original NestedHyperworkflow
+		for (int x = 0; x < orCount; x++) {
+			int workingListSize = hwfList.size();
+			//iterate over working list elements in reverse order
+			for (int i = workingListSize - 1; i >= 0; i--) {
+				//get first or-node of current element
+				Or firstOr = null;
+				for (IHyperworkflow node : ((NestedHyperworkflow)(hwfList.get(i))).getChildren()){
+					if (node instanceof Or) {
+						firstOr = (Or)node;
+						break;
+					}
+				}
+				//there is at least one or node (OR_1 in picture above)
+				if (firstOr != null) {
+					//unfold the or-node of the current IHyperworkflow copy (return the list containing hwf1_1 and hwf1_2 from picture above)
+					for (IHyperworkflow instance : firstOr.unfold()) {
+						//add all unfold() results that do not already exist
+						if (!hwfList.contains(instance)) hwfList.add(instance);
+					}
+					//remove the original IHyperworkflow from the working list (hwf1 from picture above)
+					hwfList.remove(i);
+				}
+			}
+		}
+		
+		return hwfList;
 	}
 	
 	public static void main(String[] args) {
 		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
-		IElement t1 = new Tool(root, "t1", 1);
-		IElement t2 = new Tool(root, "t2", 2);
-		IElement t3 = new Tool(root, "t3", 3);
-		IElement or = new Or(root, "or", 4);
+		IElement t0 = new Tool(root, "t0", 6);
+		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 1);
+		IElement t1 = new Tool(nested, "t1", 2);
+		IElement t2 = new Tool(nested, "t2", 3);
+		IElement t3 = new Tool(nested, "t3", 4);
+		IElement or = new Or(nested, "or", 5);
+		t1.getInputPorts().add(new Port("in", EPortType.FILE));
 		t1.getOutputPorts().add(new Port("out", EPortType.FILE));
 		t2.getOutputPorts().add(new Port("out", EPortType.FILE));
 		t3.getInputPorts().add(new Port("in", EPortType.FILE));
+		t0.getOutputPorts().add(new Port("out", EPortType.FILE));
 		
 		System.out.println("Add children: ");
-		System.out.println("t1: " + root.addChild(t1));
-		System.out.println("t2: " + root.addChild(t2));
-		System.out.println("t3: " + root.addChild(t3));
-		System.out.println("or: " + root.addChild(or));
+		System.out.println("t1: " + nested.addChild(t1));
+		System.out.println("t2: " + nested.addChild(t2));
+		System.out.println("t3: " + nested.addChild(t3));
+		System.out.println("or: " + nested.addChild(or));
+		System.out.println("nested: " + root.addChild(nested));
+		System.out.println("t0: " + root.addChild(t0));
 		
 		System.out.println("\nAdd connections: ");
-		System.out.println("t1 -> or: " + root.addConnection(new Connection(t1, t1.getOutputPorts().get(0), or, or.getInputPorts().get(0))));
-		System.out.println("t2 -> or: " + root.addConnection(new Connection(t2, t2.getOutputPorts().get(0), or, or.getInputPorts().get(1))));
-		System.out.println("or -> t3: " + root.addConnection(new Connection(or, or.getOutputPorts().get(0), t3, t3.getInputPorts().get(0))));
+		System.out.println("t1 -> or: " + nested.addConnection(new Connection(t1, t1.getOutputPorts().get(0), or, or.getInputPorts().get(0))));
+		System.out.println("t2 -> or: " + nested.addConnection(new Connection(t2, t2.getOutputPorts().get(0), or, or.getInputPorts().get(1))));
+		System.out.println("or -> t3: " + nested.addConnection(new Connection(or, or.getOutputPorts().get(0), t3, t3.getInputPorts().get(0))));
+		System.out.println("t0 -> nested: " + root.addConnection(new Connection(t0, t0.getOutputPorts().get(0), nested, nested.getInputPorts().get(0))));
+		System.out.println("nested.t1.in -> t1.in: " + nested.addConnection(new Connection(nested, nested.getInputPorts().get(0), t1, t1.getInputPorts().get(0))));
 		
-		Collection<IHyperworkflow> results = or.unfold();
-		System.out.println(results);
+		System.out.println("\nUnfold root: ");
+		System.out.println(root.unfold());
 		
 //		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
 //		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 7);
@@ -436,5 +554,8 @@ public class NestedHyperworkflow implements IHyperworkflow{
 //		System.out.println("\nRemove connections: ");
 //		System.out.println("nested.t5 -> nested.t6: " + nested.removeConnection(new Connection(t5, t5.getOutputPorts().get(0), t6, t6.getInputPorts().get(0))));
 //		System.out.println(nested.getConnections());
+//		
+//		System.out.println("\nUnfold root: ");
+//		System.out.println(root.unfold());
 	}
 }

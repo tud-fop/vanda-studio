@@ -41,12 +41,14 @@ public class Or implements IElement{
 	
 	@Override
 	public boolean equals(Object other) {
-		//FIXME think of something more reasonable to find equal Tools
-		//Tools are equal if they have the same id
+		//Tools are equal if they have the same attributes (parent is ignored and not compared)
 		boolean result = (other != null && other instanceof Or);
 		if (result) {
 			Or oh = (Or)other;
-			result = (this.getId() == oh.getId());
+			result = (	getId() == oh.getId() &&
+							getName().equals(oh.getName()) &&
+							getInputPorts().equals(oh.getInputPorts()) &&
+							getOutputPorts().equals(oh.getOutputPorts())	);
 		}
 		return result;
 	}
@@ -58,7 +60,8 @@ public class Or implements IElement{
 	
 	@Override
 	public Collection<IHyperworkflow> unfold() {
-		//TODO generalize, works only for minimal example so far: t1->OR, t2->OR, OR->t3
+		
+		//FIXME once or node is removed and new connections are drawn there MIGHT be useless tools flying around! remove them!!!
 		
 		List<IHyperworkflow> hwfList = new ArrayList<IHyperworkflow>();
 
@@ -79,7 +82,7 @@ public class Or implements IElement{
 				parentCopy.addConnection(new Connection(incoming.get(i).getSource(), incoming.get(i).getSrcPort(), outgoing.get(j).getTarget(), outgoing.get(j).getTargPort()));
 			}
 			
-			hwfList.add(parentCopy);		//add unfolded copy to result list
+			if (!hwfList.contains(parentCopy)) hwfList.add(parentCopy);		//add unfolded copy to result list
 		}
 		
 		return hwfList;

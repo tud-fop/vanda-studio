@@ -45,12 +45,14 @@ public class Tool implements IElement{
 	
 	@Override
 	public boolean equals(Object other) {
-		//FIXME think of something more reasonable to find equal Tools
-		//Tools are equal if they have the same id
+		//Tools are equal if they have the same attributes (parent is ignored and not compared)
 		boolean result = (other != null && other instanceof Tool);
 		if (result) {
 			Tool oh = (Tool)other;
-			result = (this.getId() == oh.getId());
+			result = (	getId() == oh.getId() &&
+					getName().equals(oh.getName()) &&
+					getInputPorts().equals(oh.getInputPorts()) &&
+					getOutputPorts().equals(oh.getOutputPorts())	);
 		}
 		return result;
 	}
@@ -63,7 +65,7 @@ public class Tool implements IElement{
 	@Override
 	public Collection<IHyperworkflow> unfold() {
 		List<IHyperworkflow> singletonToolList = new ArrayList<IHyperworkflow>();
-		singletonToolList.add(this);
+		singletonToolList.add(new Tool(this));
 		return singletonToolList;
 	}
 }

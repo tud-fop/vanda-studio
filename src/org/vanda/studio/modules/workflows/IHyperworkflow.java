@@ -21,8 +21,6 @@ public interface IHyperworkflow {
 	public List<Port> getOutputPorts();
 	/** @return the NestedHyperworkflow that contains the current Hyperworkflow */
 	public NestedHyperworkflow getParent();
-//	/** @return the map that contains for every blocked input port its incoming connection */
-//	public Map<Port, Connection> getPortIncomingConnectionMap();
-	/** @return a collection of NestedHyperworkflows where all OR nodes have been removed */
+	/** @return a (duplicate-free) collection of NestedHyperworkflows where all OR nodes have been removed */
 	public Collection<IHyperworkflow> unfold();
 }
