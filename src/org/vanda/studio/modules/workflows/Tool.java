@@ -37,6 +37,15 @@ public class Tool implements IElement{
 		this(toCopy.parent, toCopy.name, toCopy.id, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
 	}
 	
+	/** 
+	 * Copy constructor that sets the parent of the copy to another NestedHyperworkflow
+	 * @param toCopy
+	 */
+	public Tool(Tool toCopy, NestedHyperworkflow newParent) {
+		this(toCopy);
+		parent = newParent;
+	}
+	
 	public NestedHyperworkflow getParent() { return parent; }
 	public List<Port> getOutputPorts() {	return outputPorts; }
 	public int getId() {	return id; }

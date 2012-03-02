@@ -46,14 +46,33 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	 */
 	public NestedHyperworkflow(NestedHyperworkflow toCopy) {
 		this(toCopy.parent, toCopy.name, toCopy.id, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
+		
+//		children = new ArrayList<IHyperworkflow>(toCopy.children);
+		children = new ArrayList<IHyperworkflow>();
+		for (IHyperworkflow child : toCopy.children) {
+			IHyperworkflow childCopy = null;
+			//ensure that an or-child is copied and gets the current NestedHyperworkflow copy as parent
+			if (child instanceof Or) childCopy = new Or((Or)child, this);	
+			else childCopy = child;		//other children are just re-used
+			children.add(childCopy);
+		}
+		
 		connections = new ArrayList<Connection>(toCopy.connections);
-		children = new ArrayList<IHyperworkflow>(toCopy.children);
-
+		
 		//copy the portBlockageMap, has to be done semi-manually since "new HashMap(toCopy.portBlockageMap)" only does a shallow copy and thus, refers to the SAME entry lists 
 		portBlockageMap = new HashMap<IHyperworkflow, List<Port>>();
 		for (IHyperworkflow hwf : toCopy.portBlockageMap.keySet()) {
 			portBlockageMap.put(hwf, new ArrayList<Port>(toCopy.portBlockageMap.get(hwf)));
 		}
+	}
+	
+	/** 
+	 * Copy constructor that sets the parent of the copy to another NestedHyperworkflow
+	 * @param toCopy
+	 */
+	public NestedHyperworkflow(NestedHyperworkflow toCopy, NestedHyperworkflow newParent) {
+		this(toCopy);
+		parent = newParent;
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
@@ -366,6 +385,8 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		return name + ": " + children + ", " + connections;
 	}
 	
+	//Map<NestedHyperworkflow, Collection<IHyperworkflow>> unfoldMap;
+	
 	@Override
 	public Collection<IHyperworkflow> unfold() {
 		Map<NestedHyperworkflow, Collection<IHyperworkflow>> unfoldMap = new HashMap<NestedHyperworkflow, Collection<IHyperworkflow>>();
@@ -373,13 +394,16 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		
 		for (IHyperworkflow child : this.children) {
 			//unfold all nested children and write results into a map
-			if (child instanceof NestedHyperworkflow) unfoldMap.put((NestedHyperworkflow)child, child.unfold());
+			if (child instanceof NestedHyperworkflow) {
+				Collection<IHyperworkflow> unfoldResult = child.unfold();
+				unfoldMap.put((NestedHyperworkflow)child, unfoldResult);
+			}
 			//count number of or-nodes
 			if (child instanceof Or) orCount++;
 		}
 		
 		//-------------------------------------------------------------------------------------------------------------
-		//--------- remove nested children and replace them by there unfolded versions ---------
+		//--------- remove nested children and replace them by their unfolded versions ---------
 		//-------------------------------------------------------------------------------------------------------------
 		/*				-----		---------		----
 		 * 	hwf1 = | a |-----| 3x b |----| c |	where b is a nested child that represents 3 different workflows
@@ -417,7 +441,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 				for (IHyperworkflow unfoldedChild : unfoldMap.get(nested)) {
 					NestedHyperworkflow copy = new NestedHyperworkflow((NestedHyperworkflow)hwfList.get(i)); //create copy of original workflow
 						
-					copy.removeChild(nested);		//remove folded child from current copy
+					copy.removeChild(nested);		//remove original folded child from current copy
 					copy.addChild(unfoldedChild);	//add unfolded child to replace the removed original
 					for (Connection c : incoming) {
 						//add input connections
@@ -460,10 +484,11 @@ public class NestedHyperworkflow implements IHyperworkflow{
 						break;
 					}
 				}
-				//there is at least one or node (OR_1 in picture above)
+				//there is at least one or-node (OR_1 in picture above)
 				if (firstOr != null) {
 					//unfold the or-node of the current IHyperworkflow copy (return the list containing hwf1_1 and hwf1_2 from picture above)
-					for (IHyperworkflow instance : firstOr.unfold()) {
+					Collection<IHyperworkflow> orUnfold = firstOr.unfold();
+					for (IHyperworkflow instance : orUnfold) {
 						//add all unfold() results that do not already exist
 						if (!hwfList.contains(instance)) hwfList.add(instance);
 					}
@@ -477,50 +502,133 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	}
 	
 	public static void main(String[] args) {
+		//Hyperworkflow parts
 		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
-		IElement t0 = new Tool(root, "t0", 6);
-		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 1);
-		IElement t1 = new Tool(nested, "t1", 2);
-		IElement t2 = new Tool(nested, "t2", 3);
-		IElement t3 = new Tool(nested, "t3", 4);
-		IElement or = new Or(nested, "or", 5);
-		t1.getInputPorts().add(new Port("in", EPortType.FILE));
-		t1.getOutputPorts().add(new Port("out", EPortType.FILE));
-		t2.getOutputPorts().add(new Port("out", EPortType.FILE));
-		t3.getInputPorts().add(new Port("in", EPortType.FILE));
-		t0.getOutputPorts().add(new Port("out", EPortType.FILE));
+			IElement alpha = new Tool(root, "alpha", 1);
+				alpha.getOutputPorts().add(new Port("out", EPortType.FILE));
+			NestedHyperworkflow beta = new NestedHyperworkflow(root, "beta", 2);
+				IElement beta1 = new Tool(beta, "beta1", 21);
+					beta1.getInputPorts().add(new Port("in", EPortType.FILE));
+					beta1.getOutputPorts().add(new Port("out", EPortType.FILE));
+				IElement beta2 = new Tool(beta, "beta2", 22);
+					beta2.getOutputPorts().add(new Port("out", EPortType.FILE));
+				IElement beta3 = new Tool(beta, "beta3", 23);
+					beta3.getOutputPorts().add(new Port("out", EPortType.FILE));
+				IElement orBeta = new Or(beta, "orBeta", 24);
+					orBeta.getInputPorts().add(new Port("in3", EPortType.GENERIC));
+				IElement beta4 = new Tool(beta, "beta4", 25);
+					beta4.getInputPorts().add(new Port("in", EPortType.FILE));
+					beta4.getOutputPorts().add(new Port("out", EPortType.FILE));
+				beta.addChild(beta1);
+				beta.addChild(beta2);
+				beta.addChild(beta3);
+				beta.addChild(orBeta);
+				beta.addChild(beta4);
+			IElement gamma = new Tool(root, "gamma", 3);
+				gamma.getOutputPorts().add(new Port("out", EPortType.FILE));
+			IElement or1 = new Or(root, "or1", 4);
+			NestedHyperworkflow delta = new NestedHyperworkflow(root, "delta", 5);
+				IElement delta1 = new Tool(delta, "delta1", 51);
+					delta1.getInputPorts().add(new Port("in", EPortType.FILE));
+					delta1.getOutputPorts().add(new Port("out", EPortType.FILE));
+				IElement delta2 = new Tool(delta, "delta2", 52);
+					delta2.getOutputPorts().add(new Port("out", EPortType.FILE));
+				IElement orDelta = new Or(delta, "orDelta", 53);
+				IElement delta3 = new Tool(delta, "delta3", 54);
+					delta3.getInputPorts().add(new Port("in", EPortType.FILE));
+					delta3.getOutputPorts().add(new Port("out", EPortType.FILE));
+				delta.addChild(delta1);
+				delta.addChild(delta2);
+				delta.addChild(orDelta);
+				delta.addChild(delta3);
+			IElement epsilon = new Tool(root, "epsilon", 6);
+				epsilon.getOutputPorts().add(new Port("out", EPortType.FILE));
+			IElement or2 = new Or(root, "or2", 7);
+			IElement eta = new Tool(root, "eta", 8);
+				eta.getInputPorts().add(new Port("in", EPortType.FILE));
+			root.addChild(alpha);
+			root.addChild(beta);
+			root.addChild(gamma);
+			root.addChild(or1);
+			root.addChild(delta);
+			root.addChild(epsilon);
+			root.addChild(or2);
+			root.addChild(eta);
+			
+		//Connections within beta		
+		System.out.println(beta.addConnection(new Connection(beta, beta.getInputPorts().get(0), beta1, beta1.getInputPorts().get(0))));
+		System.out.println(beta.addConnection(new Connection(beta1, beta1.getOutputPorts().get(0), orBeta, orBeta.getInputPorts().get(0))));
+		System.out.println(beta.addConnection(new Connection(beta2, beta2.getOutputPorts().get(0), orBeta, orBeta.getInputPorts().get(1))));
+		System.out.println(beta.addConnection(new Connection(beta3, beta3.getOutputPorts().get(0), orBeta, orBeta.getInputPorts().get(2))));
+		System.out.println(beta.addConnection(new Connection(orBeta, orBeta.getOutputPorts().get(0), beta4, beta4.getInputPorts().get(0))));
+		System.out.println(beta.addConnection(new Connection(beta4, beta4.getOutputPorts().get(0), beta, beta.getOutputPorts().get(0))));
 		
-		System.out.println("Add children: ");
-		System.out.println("t1: " + nested.addChild(t1));
-		System.out.println("t2: " + nested.addChild(t2));
-		System.out.println("t3: " + nested.addChild(t3));
-		System.out.println("or: " + nested.addChild(or));
-		System.out.println("nested: " + root.addChild(nested));
-		System.out.println("t0: " + root.addChild(t0));
+		//Connections within delta
+		System.out.println(delta.addConnection(new Connection(delta, delta.getInputPorts().get(0), delta1, delta1.getInputPorts().get(0))));
+		System.out.println(delta.addConnection(new Connection(delta1, delta1.getOutputPorts().get(0), orDelta, orDelta.getInputPorts().get(0))));
+		System.out.println(delta.addConnection(new Connection(delta2, delta2.getOutputPorts().get(0), orDelta, orDelta.getInputPorts().get(1))));
+		System.out.println(delta.addConnection(new Connection(orDelta, orDelta.getOutputPorts().get(0), delta3, delta3.getInputPorts().get(0))));
+		System.out.println(delta.addConnection(new Connection(delta3, delta3.getOutputPorts().get(0), delta, delta.getOutputPorts().get(0))));
 		
-		System.out.println("\nAdd connections: ");
-		System.out.println("t1 -> or: " + nested.addConnection(new Connection(t1, t1.getOutputPorts().get(0), or, or.getInputPorts().get(0))));
-		System.out.println("t2 -> or: " + nested.addConnection(new Connection(t2, t2.getOutputPorts().get(0), or, or.getInputPorts().get(1))));
-		System.out.println("or -> t3: " + nested.addConnection(new Connection(or, or.getOutputPorts().get(0), t3, t3.getInputPorts().get(0))));
-		System.out.println("t0 -> nested: " + root.addConnection(new Connection(t0, t0.getOutputPorts().get(0), nested, nested.getInputPorts().get(0))));
-		System.out.println("nested.t1.in -> t1.in: " + nested.addConnection(new Connection(nested, nested.getInputPorts().get(0), t1, t1.getInputPorts().get(0))));
+		//Connections within root
+		System.out.println(root.addConnection(new Connection(alpha, alpha.getOutputPorts().get(0), beta, beta.getInputPorts().get(0))));
+		System.out.println(root.addConnection(new Connection(beta, beta.getOutputPorts().get(0), or1, or1.getInputPorts().get(0))));
+		System.out.println(root.addConnection(new Connection(gamma, gamma.getOutputPorts().get(0), or1, or1.getInputPorts().get(1))));
+		System.out.println(root.addConnection(new Connection(or1, or1.getOutputPorts().get(0), delta, delta.getInputPorts().get(0))));
+		System.out.println(root.addConnection(new Connection(epsilon, epsilon.getOutputPorts().get(0), or2, or2.getInputPorts().get(0))));
+		System.out.println(root.addConnection(new Connection(delta, delta.getOutputPorts().get(0), or2, or2.getInputPorts().get(1))));
+		System.out.println(root.addConnection(new Connection(or2, or2.getOutputPorts().get(0), eta, eta.getInputPorts().get(0))));
 		
-		System.out.println("\nUnfold root: ");
 		for (IHyperworkflow hwf : root.unfold()) {
-			System.out.println(hwf + "\n");
-			for (IHyperworkflow child : ((NestedHyperworkflow)hwf).getChildren()) {
-				System.out.println(child);
-				System.out.println("inputPorts: " + child.getInputPorts());
-				System.out.println("outputPorts: " + child.getOutputPorts() + "\n");
-			}
-			System.out.println("----------------------------");
+			System.out.println(hwf);
 		}
 		
-		//Serialization and Deserialization of root
-		XStream xs = new XStream();
-		NestedHyperworkflow object = (NestedHyperworkflow)(xs.fromXML(xs.toXML(root)));
-		System.out.println(object.unfold());
-		
+//		//-------------------------------------------------------------------------------------------------------------
+//		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
+//		IElement t0 = new Tool(root, "t0", 6);
+//		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 1);
+//		IElement t1 = new Tool(nested, "t1", 2);
+//		IElement t2 = new Tool(nested, "t2", 3);
+//		IElement t3 = new Tool(nested, "t3", 4);
+//		IElement or = new Or(nested, "or", 5);
+//		t1.getInputPorts().add(new Port("in", EPortType.FILE));
+//		t1.getOutputPorts().add(new Port("out", EPortType.FILE));
+//		t2.getOutputPorts().add(new Port("out", EPortType.FILE));
+//		t3.getInputPorts().add(new Port("in", EPortType.FILE));
+//		t0.getOutputPorts().add(new Port("out", EPortType.FILE));
+//		
+//		System.out.println("Add children: ");
+//		System.out.println("t1: " + nested.addChild(t1));
+//		System.out.println("t2: " + nested.addChild(t2));
+//		System.out.println("t3: " + nested.addChild(t3));
+//		System.out.println("or: " + nested.addChild(or));
+//		System.out.println("nested: " + root.addChild(nested));
+//		System.out.println("t0: " + root.addChild(t0));
+//		
+//		System.out.println("\nAdd connections: ");
+//		System.out.println("t1 -> or: " + nested.addConnection(new Connection(t1, t1.getOutputPorts().get(0), or, or.getInputPorts().get(0))));
+//		System.out.println("t2 -> or: " + nested.addConnection(new Connection(t2, t2.getOutputPorts().get(0), or, or.getInputPorts().get(1))));
+//		System.out.println("or -> t3: " + nested.addConnection(new Connection(or, or.getOutputPorts().get(0), t3, t3.getInputPorts().get(0))));
+//		System.out.println("t0 -> nested: " + root.addConnection(new Connection(t0, t0.getOutputPorts().get(0), nested, nested.getInputPorts().get(0))));
+//		System.out.println("nested.t1.in -> t1.in: " + nested.addConnection(new Connection(nested, nested.getInputPorts().get(0), t1, t1.getInputPorts().get(0))));
+//		
+//		System.out.println("\nUnfold root: ");
+//		for (IHyperworkflow hwf : root.unfold()) {
+//			System.out.println(hwf + "\n");
+//			for (IHyperworkflow child : ((NestedHyperworkflow)hwf).getChildren()) {
+//				System.out.println(child);
+//				System.out.println("inputPorts: " + child.getInputPorts());
+//				System.out.println("outputPorts: " + child.getOutputPorts() + "\n");
+//			}
+//			System.out.println("----------------------------");
+//		}
+//		
+//		//Serialization and Deserialization of root
+//		XStream xs = new XStream();
+//		NestedHyperworkflow object = (NestedHyperworkflow)(xs.fromXML(xs.toXML(root)));
+//		System.out.println(object.unfold());
+
+//		//-------------------------------------------------------------------------------------------------------------
 //		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
 //		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 7);
 //		IElement t1 = new Tool(root, "t1", 1);
