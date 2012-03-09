@@ -1,5 +1,10 @@
 package org.vanda.studio.modules.workflows;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,7 +52,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	public NestedHyperworkflow(NestedHyperworkflow toCopy) {
 		this(toCopy.parent, toCopy.name, toCopy.id, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
 		
-//		children = new ArrayList<IHyperworkflow>(toCopy.children);
 		children = new ArrayList<IHyperworkflow>();
 		for (IHyperworkflow child : toCopy.children) {
 			IHyperworkflow childCopy = null;
@@ -64,15 +68,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		for (IHyperworkflow hwf : toCopy.portBlockageMap.keySet()) {
 			portBlockageMap.put(hwf, new ArrayList<Port>(toCopy.portBlockageMap.get(hwf)));
 		}
-	}
-	
-	/** 
-	 * Copy constructor that sets the parent of the copy to another NestedHyperworkflow
-	 * @param toCopy
-	 */
-	public NestedHyperworkflow(NestedHyperworkflow toCopy, NestedHyperworkflow newParent) {
-		this(toCopy);
-		parent = newParent;
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
@@ -228,7 +223,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	 * @param hwf- child to remove
 	 * @return true, if removal was successful
 	 */
-	public boolean removeChild(IHyperworkflow hwf) {
+	public boolean removeChild(IHyperworkflow hwf, boolean removeNonconnectedChildren) {
 		if (hwf != null && children.contains(hwf)) {
 			
 			//partition connections into incoming and outgoing
@@ -252,7 +247,10 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			//remove child if possible
 			if (children.remove(hwf)) {
 				//check for necessary removal of new inner ports
-				if (propagatePortRemoval(hwf, hwf.getInputPorts(), hwf.getOutputPorts())) return true;
+				if (propagatePortRemoval(hwf, hwf.getInputPorts(), hwf.getOutputPorts())) {
+					if (removeNonconnectedChildren) removeDisconnectedChildren();
+					return true;
+				}
 				else {
 					//undo everything
 					children.add(hwf);
@@ -263,6 +261,63 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Removes all children of the current NestedHyperworkflow that are not connected in a reasonable manner,
+	 * i.e. <br/>
+	 * a) algorithms with inputs and outputs where only one side is connected (then they don't have inputs which is useless or their results are not connected to
+	 * 		any other node which is also useless)<br/>
+	 * b) sources (a tool that only has output ports) that are not connected to any target tool<br/>
+	 * c) sinks (a tool that only has input ports) that are not connected to anything, thus there is no input argument to save, display, etc.
+	 */
+	private void removeDisconnectedChildren() {
+		List<IHyperworkflow> childrenToRemove = new ArrayList<IHyperworkflow>(children);
+		List<IHyperworkflow> furtherChecking = new ArrayList<IHyperworkflow>();
+		
+		//iterate over all connections and find reasonably connected tools to keep them
+		for (Connection c : connections) {
+			
+			IHyperworkflow source = c.getSource();
+			if (childrenToRemove.contains(source)) {
+				
+				//if the source has no input ports (is a source) or its input ports are connected to something
+				if (source.getInputPorts().isEmpty() || furtherChecking.contains(source)) {
+					//keep the child, a.k.a. remove it from the list of soon-to-be-removed nodes
+					childrenToRemove.remove(source);
+					//and remove it from the list that saves nodes for double checking
+					furtherChecking.remove(source);
+				}
+				//the source has input ports and we do not know if they are connected -> inspect the node later
+				else furtherChecking.add(source);
+			}
+			
+			IHyperworkflow target = c.getTarget();
+			if (childrenToRemove.contains(target)) {
+				
+				//if the target has no output ports (is a sink) or its outputs are connected to something
+				if (target.getOutputPorts().isEmpty() || furtherChecking.contains(target)) {
+					//keep the child, a.k.a. remove it from the list of soon-to-be-removed nodes
+					childrenToRemove.remove(target);
+					//and remove it from the list that saves nodes for double checking
+					furtherChecking.remove(target);
+				}
+				//the target has output ports and we do not know if they are connected -> inspect the node later
+				else furtherChecking.add(target);
+			}
+		}
+		
+		//iterate over all useless tools
+		for (int i = 0; i < childrenToRemove.size(); i++) {
+			boolean removeNonconnected = false;
+			
+			//if we handle the last remaining entry of the list, set a flag to call this function recursively via removeChild()
+			if (i == childrenToRemove.size() - 1) 
+				removeNonconnected = true;
+			
+			//remove the first tool of the list
+			removeChild(childrenToRemove.get(0), removeNonconnected);
+		}
 	}
 	
 	/**
@@ -385,8 +440,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		return name + ": " + children + ", " + connections;
 	}
 	
-	//Map<NestedHyperworkflow, Collection<IHyperworkflow>> unfoldMap;
-	
 	@Override
 	public Collection<IHyperworkflow> unfold() {
 		Map<NestedHyperworkflow, Collection<IHyperworkflow>> unfoldMap = new HashMap<NestedHyperworkflow, Collection<IHyperworkflow>>();
@@ -441,7 +494,8 @@ public class NestedHyperworkflow implements IHyperworkflow{
 				for (IHyperworkflow unfoldedChild : unfoldMap.get(nested)) {
 					NestedHyperworkflow copy = new NestedHyperworkflow((NestedHyperworkflow)hwfList.get(i)); //create copy of original workflow
 						
-					copy.removeChild(nested);		//remove original folded child from current copy
+					//!!!
+					copy.removeChild(nested,false);		//remove original folded child from current copy
 					copy.addChild(unfoldedChild);	//add unfolded child to replace the removed original
 					for (Connection c : incoming) {
 						//add input connections
@@ -499,6 +553,42 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		}
 		
 		return hwfList;
+	}
+	
+	/**
+	 * Saves the current NestedHyperworkflow to the specified file
+	 * @param pathToFile
+	 * @return true, if saving the NestedHyperworkflow was successful
+	 */
+	public boolean save(String pathToFile) {
+		//TODO revise
+		FileWriter fileWriter = null;
+		try {
+			fileWriter = new FileWriter(pathToFile);
+		} catch (IOException e) {}
+		
+		if (fileWriter != null){
+			Writer output = new BufferedWriter(fileWriter);
+			XStream xs = new XStream();
+			xs.toXML(this, output);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Loads a NestedHyperworkflow from a specified file
+	 * @param pathToFile
+	 * @return the NestedHyperworkflow contained within the file
+	 */
+	public static NestedHyperworkflow load(String pathToFile) {
+		//TODO revise
+		File file = new File(pathToFile);
+		XStream xs = new XStream();
+		Object result = xs.fromXML(file);
+		if (result instanceof NestedHyperworkflow) return (NestedHyperworkflow)result;
+		else	return null;
 	}
 	
 	public static void main(String[] args) {
@@ -582,103 +672,12 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		for (IHyperworkflow hwf : root.unfold()) {
 			System.out.println(hwf);
 		}
+		System.out.println();
 		
-//		//-------------------------------------------------------------------------------------------------------------
-//		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
-//		IElement t0 = new Tool(root, "t0", 6);
-//		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 1);
-//		IElement t1 = new Tool(nested, "t1", 2);
-//		IElement t2 = new Tool(nested, "t2", 3);
-//		IElement t3 = new Tool(nested, "t3", 4);
-//		IElement or = new Or(nested, "or", 5);
-//		t1.getInputPorts().add(new Port("in", EPortType.FILE));
-//		t1.getOutputPorts().add(new Port("out", EPortType.FILE));
-//		t2.getOutputPorts().add(new Port("out", EPortType.FILE));
-//		t3.getInputPorts().add(new Port("in", EPortType.FILE));
-//		t0.getOutputPorts().add(new Port("out", EPortType.FILE));
-//		
-//		System.out.println("Add children: ");
-//		System.out.println("t1: " + nested.addChild(t1));
-//		System.out.println("t2: " + nested.addChild(t2));
-//		System.out.println("t3: " + nested.addChild(t3));
-//		System.out.println("or: " + nested.addChild(or));
-//		System.out.println("nested: " + root.addChild(nested));
-//		System.out.println("t0: " + root.addChild(t0));
-//		
-//		System.out.println("\nAdd connections: ");
-//		System.out.println("t1 -> or: " + nested.addConnection(new Connection(t1, t1.getOutputPorts().get(0), or, or.getInputPorts().get(0))));
-//		System.out.println("t2 -> or: " + nested.addConnection(new Connection(t2, t2.getOutputPorts().get(0), or, or.getInputPorts().get(1))));
-//		System.out.println("or -> t3: " + nested.addConnection(new Connection(or, or.getOutputPorts().get(0), t3, t3.getInputPorts().get(0))));
-//		System.out.println("t0 -> nested: " + root.addConnection(new Connection(t0, t0.getOutputPorts().get(0), nested, nested.getInputPorts().get(0))));
-//		System.out.println("nested.t1.in -> t1.in: " + nested.addConnection(new Connection(nested, nested.getInputPorts().get(0), t1, t1.getInputPorts().get(0))));
-//		
-//		System.out.println("\nUnfold root: ");
-//		for (IHyperworkflow hwf : root.unfold()) {
-//			System.out.println(hwf + "\n");
-//			for (IHyperworkflow child : ((NestedHyperworkflow)hwf).getChildren()) {
-//				System.out.println(child);
-//				System.out.println("inputPorts: " + child.getInputPorts());
-//				System.out.println("outputPorts: " + child.getOutputPorts() + "\n");
-//			}
-//			System.out.println("----------------------------");
+//		root.save("~/test.xml");
+//		NestedHyperworkflow blub = NestedHyperworkflow.load("~/test.xml");
+//		for (IHyperworkflow hwf : blub.unfold()) {
+//			System.out.println(hwf);
 //		}
-//		
-//		//Serialization and Deserialization of root
-//		XStream xs = new XStream();
-//		NestedHyperworkflow object = (NestedHyperworkflow)(xs.fromXML(xs.toXML(root)));
-//		System.out.println(object.unfold());
-
-//		//-------------------------------------------------------------------------------------------------------------
-//		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
-//		NestedHyperworkflow nested = new NestedHyperworkflow(root, "nested", 7);
-//		IElement t1 = new Tool(root, "t1", 1);
-//		t1.getOutputPorts().add(new Port("out", EPortType.FILE));
-//		IElement t2 = new Tool(root, "t2", 2);
-//		t2.getOutputPorts().add(new Port("out1", EPortType.FILE));
-//		t2.getOutputPorts().add(new Port("out2", EPortType.FILE));
-//		IElement t3 = new Tool(root, "t3", 3);
-//		t3.getInputPorts().add(new Port("in", EPortType.FILE));
-//		t3.getOutputPorts().add(new Port("out", EPortType.FILE));
-//		IElement t4 = new Tool(root, "t4", 4);
-//		t4.getInputPorts().add(new Port("in1", EPortType.FILE));
-//		t4.getInputPorts().add(new Port("in2", EPortType.FILE));
-//		IElement t5 = new Tool(root, "t5", 5);
-//		t5.getInputPorts().add(new Port("in1", EPortType.FILE));
-//		t5.getInputPorts().add(new Port("in2", EPortType.FILE));
-//		t5.getOutputPorts().add(new Port("out", EPortType.FILE));
-//		IElement t6 = new Tool(root, "t6", 6);
-//		t6.getInputPorts().add(new Port("in", EPortType.FILE));
-//		t6.getOutputPorts().add(new Port("out", EPortType.FILE));
-//		
-//		System.out.println("Add children: ");
-//		System.out.println("t1: " + root.addChild(t1));
-//		System.out.println("t2: " + root.addChild(t2));
-//		System.out.println("t3: " + root.addChild(t3));
-//		System.out.println("t4: " + root.addChild(t4));
-//		System.out.println("nested: " + root.addChild(nested));
-//		System.out.println("nested.t5: " + nested.addChild(t5));
-//		System.out.println("nested.t6: " + nested.addChild(t6));
-//		
-//		System.out.println("\nAdd connections: ");
-//		System.out.println("t1 -> nested: " + root.addConnection(new Connection(t1, t1.getOutputPorts().get(0), nested, nested.getInputPorts().get(1))));
-//		System.out.println("t2 -> t3: " + root.addConnection(new Connection(t2, t2.getOutputPorts().get(0), t3, t3.getInputPorts().get(0))));
-//		System.out.println("t2 -> nested: " + root.addConnection(new Connection(t2, t2.getOutputPorts().get(1), nested, nested.getInputPorts().get(0))));
-//		System.out.println("t3 -> t4: " + root.addConnection(new Connection(t3, t3.getOutputPorts().get(0), t4, t4.getInputPorts().get(0))));
-//		System.out.println("nested -> t4: " + root.addConnection(new Connection(nested, nested.getOutputPorts().get(1), t4, t4.getInputPorts().get(1))));
-//		System.out.println("nested -> t5: " + nested.addConnection(new Connection(nested, nested.getInputPorts().get(0), t5, t5.getInputPorts().get(0))));
-//		System.out.println("nested -> t5: " + nested.addConnection(new Connection(nested, nested.getInputPorts().get(1), t5, t5.getInputPorts().get(1))));
-//		System.out.println("nested.t5 -> nested.t6: " + nested.addConnection(new Connection(t5, t5.getOutputPorts().get(0), t6, t6.getInputPorts().get(0))));
-//		System.out.println("nested.t6 -> nested: " + nested.addConnection(new Connection(t6, t6.getOutputPorts().get(0), nested, nested.getOutputPorts().get(0))));
-//		
-//		System.out.println("\nExisting connections: ");
-//		System.out.println(root.getConnections());
-//		System.out.println(nested.getConnections());
-//		
-//		System.out.println("\nRemove connections: ");
-//		System.out.println("nested.t5 -> nested.t6: " + nested.removeConnection(new Connection(t5, t5.getOutputPorts().get(0), t6, t6.getInputPorts().get(0))));
-//		System.out.println(nested.getConnections());
-//		
-//		System.out.println("\nUnfold root: ");
-//		System.out.println(root.unfold());		
 	}
 }

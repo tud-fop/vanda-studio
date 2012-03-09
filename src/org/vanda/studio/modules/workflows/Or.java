@@ -78,8 +78,8 @@ public class Or implements IElement{
 	@Override
 	public Collection<IHyperworkflow> unfold() {
 		List<IHyperworkflow> hwfList = new ArrayList<IHyperworkflow>();
-
-		//get incoming and outgoing connections
+		
+		//get incoming and outgoing connections that are connected to current OR node
 		List<Connection> incoming = new ArrayList<Connection>();
 		List<Connection> outgoing = new ArrayList<Connection>();
 		for (Connection c : parent.getConnections()) {
@@ -89,7 +89,7 @@ public class Or implements IElement{
 		
 		for (int i = 0; i < incoming.size(); i++) {
 			NestedHyperworkflow parentCopy = new NestedHyperworkflow(parent);	//copy parent NestedHyperworkflow of current or node
-			parentCopy.removeChild(this);	//remove or node
+			parentCopy.removeChild(this, false);	//remove or node
 			
 			//connect i-th OR-input with all OR-outputs
 			for (int j = 0; j < outgoing.size(); j++) {
@@ -99,7 +99,7 @@ public class Or implements IElement{
 			//remove the other inputs from the parent NestedHyperworkflow
 			//FIXME is this behavior even wanted?! -> number of ports of nested nodes may change due to tool removal
 			for (int j = incoming.size() - 1; j >= 0; j--) {
-				if (j != i) parentCopy.removeChild(incoming.get(j).getSource());
+				if (j != i) parentCopy.removeChild(incoming.get(j).getSource(), true);
 			}
 			
 			if (!hwfList.contains(parentCopy)) hwfList.add(parentCopy);		//add unfolded copy to result list
