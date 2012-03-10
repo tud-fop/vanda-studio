@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
 
 /**
  * Nested composite of IHyperworkflow composite pattern
@@ -19,7 +20,7 @@ import com.thoughtworks.xstream.XStream;
  *
  */
 public class NestedHyperworkflow implements IHyperworkflow{
-
+	
 	private NestedHyperworkflow parent;
 	private String name;
 	private int id;
@@ -559,9 +560,13 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	 * Saves the current NestedHyperworkflow to the specified file
 	 * @param pathToFile
 	 * @return true, if saving the NestedHyperworkflow was successful
+	 * @throws NullPointerException if the specified file path is <code>null</code>
 	 */
 	public boolean save(String pathToFile) {
-		//TODO revise
+		if (pathToFile == null) 
+			throw new NullPointerException("File path is set to " + pathToFile + "!");
+		
+		//TODO revise an do some basic exception handling: ask user if specified file exists already and so on
 		FileWriter fileWriter = null;
 		try {
 			fileWriter = new FileWriter(pathToFile);
@@ -581,14 +586,27 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	 * Loads a NestedHyperworkflow from a specified file
 	 * @param pathToFile
 	 * @return the NestedHyperworkflow contained within the file
+	 * @throws IllegalArgumentException if the specified file is not a saved NestedHyperworkflow
+	 * @throws NullPointerException if the specified file path is <code>null</code>
 	 */
 	public static NestedHyperworkflow load(String pathToFile) {
-		//TODO revise
+		if (pathToFile == null) 
+			throw new NullPointerException("File path is set to " + pathToFile + "!");
+		
 		File file = new File(pathToFile);
 		XStream xs = new XStream();
-		Object result = xs.fromXML(file);
-		if (result instanceof NestedHyperworkflow) return (NestedHyperworkflow)result;
-		else	return null;
+		Object result = null;
+		try {
+			result = xs.fromXML(file);
+		} catch (XStreamException xe) {
+			throw new IllegalArgumentException("The specified file does not contain a NestedHyperworkflow! - " + pathToFile);
+		}
+		
+		//loading and deserialization was successful, check if file contains a NestedHyperworkflow
+		if (result != null && result instanceof NestedHyperworkflow) 
+			return (NestedHyperworkflow)result;
+		else
+			return null;
 	}
 	
 	public static void main(String[] args) {
@@ -674,10 +692,11 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		}
 		System.out.println();
 		
-//		root.save("~/test.xml");
-//		NestedHyperworkflow blub = NestedHyperworkflow.load("~/test.xml");
-//		for (IHyperworkflow hwf : blub.unfold()) {
-//			System.out.println(hwf);
-//		}
+		String filename = "/home/anja/test.hwf"; 
+		root.save(filename);
+		NestedHyperworkflow blub = NestedHyperworkflow.load(filename);
+		for (IHyperworkflow hwf : blub.unfold()) {
+			System.out.println(hwf);
+		}
 	}
 }

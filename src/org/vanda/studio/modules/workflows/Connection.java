@@ -4,11 +4,15 @@ package org.vanda.studio.modules.workflows;
  * @author afischer
  */
 public class Connection {
+	
 	private IHyperworkflow source;
 	private Port srcPort;
 	private IHyperworkflow target;
 	private Port targPort;
 		
+	public Connection() {
+	}
+	
 	public Connection(IHyperworkflow source, Port srcPort, IHyperworkflow target, Port targPort) {
 		this.source = source;
 		this.srcPort = srcPort;

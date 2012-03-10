@@ -8,7 +8,7 @@ import java.util.List;
  * @author afischer
  *
  */
-public interface IHyperworkflow {
+public interface IHyperworkflow extends Cloneable{
 
 	public boolean equals(Object other);
 	/** @return the id of the current IHyperworkflow */
