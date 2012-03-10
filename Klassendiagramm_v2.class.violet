@@ -5,24 +5,28 @@
    <object id="ClassNode0" class="com.horstmann.violet.ClassNode">
     <void property="attributes">
      <void property="text">
-      <string>-children: List&lt;IHyperworkflow&gt;
--connections: List&lt;Connection&gt;
--id: int
--inputPorts: List&lt;Port&gt;
--name: String
--outputPorts: List&lt;Port&gt;
--parent: NestedHyperworkflow
--portIncomingConnectionMap: Map&lt;Port, Connection&gt;</string>
+      <string>- children: List&lt;IHyperworkflow&gt;
+- connections: List&lt;Connection&gt;
+- id: String
+- inputPorts: List&lt;Port&gt;
+- name: String
+- outputPorts: List&lt;Port&gt;
+- parent: NestedHyperworkflow
+- portIncomingConnectionMap: Map&lt;Port, Connection&gt;
+- spareIds: List&lt;String&gt;</string>
      </void>
     </void>
     <void property="methods">
      <void property="text">
-      <string>-propagateAdditionalPorts(IHyperworkflow child, List&lt;Port&gt; additionalInputPorts, List&lt;Port&gt; additionalOutputPorts)
--propagatePortRemoval(IHyperworkflow child, List&lt;Port&gt; removeInputPorts, List&lt;Port&gt; removeOutputPorts)
-+addConnection(Connection conn):boolean
-+removeConnection(Connection conn):boolean
+      <string>- propagateAdditionalPorts(IHyperworkflow child, List&lt;Port&gt; additionalInputPorts, List&lt;Port&gt; additionalOutputPorts)
+- propagatePortRemoval(IHyperworkflow child, List&lt;Port&gt; removeInputPorts, List&lt;Port&gt; removeOutputPorts)
 +addChild(IHyperworkflow hwf):boolean
-+removeChild(IHyperworkflow hwf):boolean</string>
++addConnection(Connection conn):boolean
++load(String pathToFile): NestedHyperworkflow
++removeChild(IHyperworkflow hwf):boolean
++removeConnection(Connection conn):boolean
++removeDisconnectedChildren(): boolean
++save(String pathToFile): boolean</string>
      </void>
     </void>
     <void property="name">
@@ -48,8 +52,8 @@
    </object>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>984.0</double>
-     <double>660.0</double>
+     <double>1031.0</double>
+     <double>683.0</double>
     </void>
    </object>
   </void>
@@ -57,12 +61,11 @@
    <object id="ClassNode2" class="com.horstmann.violet.ClassNode">
     <void property="attributes">
      <void property="text">
-      <string>-id: int
--inputPorts: List&lt;Port&gt;
--name: String
--outputPorts: List&lt;Port&gt;
--parent: NestedHyperworkflow
--portIncomingConnectionMap: Map&lt;Port, Connection&gt;</string>
+      <string>- id: String
+- inputPorts: List&lt;Port&gt;
+- name: String
+- outputPorts: List&lt;Port&gt;
+- parent: NestedHyperworkflow</string>
      </void>
     </void>
     <void property="name">
@@ -80,6 +83,15 @@
   </void>
   <void method="addNode">
    <object id="ClassNode3" class="com.horstmann.violet.ClassNode">
+    <void property="attributes">
+     <void property="text">
+      <string>- id: String
+- inputPorts: List&lt;Port&gt;
+- name: String
+- outputPorts: List&lt;Port&gt;
+- parent: NestedHyperworkflow</string>
+     </void>
+    </void>
     <void property="name">
      <void property="text">
       <string>OR</string>
@@ -110,8 +122,7 @@ targPort: Port</string>
 +getSrcPort(): Port
 +getTarget(): IHyperworkflow
 +getTargPort(): Port
-+toString(): String
-TODO insertChoice()</string>
++toString(): String</string>
      </void>
     </void>
     <void property="name">
@@ -122,8 +133,8 @@ TODO insertChoice()</string>
    </object>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>1566.0</double>
-     <double>360.0</double>
+     <double>1567.0</double>
+     <double>398.0</double>
     </void>
    </object>
   </void>
@@ -151,8 +162,8 @@ type: EPortType</string>
    </object>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>1236.0</double>
-     <double>115.0</double>
+     <double>1162.0</double>
+     <double>125.0</double>
     </void>
    </object>
   </void>
@@ -167,8 +178,8 @@ EPortType</string>
    </object>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>1585.0</double>
-     <double>163.0</double>
+     <double>1500.0</double>
+     <double>156.0</double>
     </void>
    </object>
   </void>
@@ -188,8 +199,8 @@ BoxType</string>
    </object>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>1167.0</double>
-     <double>652.0</double>
+     <double>1215.0</double>
+     <double>664.0</double>
     </void>
    </object>
   </void>
@@ -203,8 +214,8 @@ BoxType</string>
    </object>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>1170.0</double>
-     <double>773.0</double>
+     <double>1227.0</double>
+     <double>780.0</double>
     </void>
    </object>
   </void>
@@ -218,8 +229,8 @@ BoxType</string>
    </object>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>1364.0</double>
-     <double>769.0</double>
+     <double>1405.0</double>
+     <double>776.0</double>
     </void>
    </object>
   </void>
@@ -234,8 +245,8 @@ ToolType</string>
    </object>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>807.0</double>
-     <double>630.0</double>
+     <double>694.0</double>
+     <double>670.0</double>
     </void>
    </object>
   </void>
@@ -249,8 +260,8 @@ ToolType</string>
    </object>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>707.0</double>
-     <double>754.0</double>
+     <double>606.0</double>
+     <double>771.0</double>
     </void>
    </object>
   </void>
@@ -264,8 +275,8 @@ ToolType</string>
    </object>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>859.0</double>
-     <double>746.0</double>
+     <double>763.0</double>
+     <double>773.0</double>
     </void>
    </object>
   </void>
@@ -274,13 +285,15 @@ ToolType</string>
     <void property="methods">
      <void property="text">
       <string>+equals(Object other): boolean
-+getId(): int
++getId(): String
 +getInputPorts(): List&lt;Port&gt;
 +getName(): String
 +getOutputPorts(): List&lt;Port&gt;
 +getParent(): NestedHyperworkflow
 +getPortIncomingConnection(): Map&lt;Port, Connection&gt;
-TODO +unfold(): Collection&lt;NestedHyperworkflow&gt;</string>
++setId(String newId): boolean
++toString(): String
++unfold(): Collection&lt;NestedHyperworkflow&gt;</string>
      </void>
     </void>
     <void property="name">

@@ -7,27 +7,26 @@ import java.util.List;
 /**
  * 
  * @author afischer
- *
  */
 public class Or implements IElement{
 	
 	private NestedHyperworkflow parent;
 	private String name;
-	private int id;
+	private String id;
 	private List<Port> inputPorts;
 	private List<Port> outputPorts;
 	
-	public Or(NestedHyperworkflow parent, String name, int id, List<Port> inputPorts, List<Port> outputPorts) {
+	public Or(NestedHyperworkflow parent, String name, List<Port> inputPorts, List<Port> outputPorts) {
 		this.parent = parent;
 		this.name = name;
-		this.id = id;
+		this.id = "0";
 		this.inputPorts = inputPorts;
 		this.outputPorts = outputPorts;
 	}
 	
 	//creates two inputs and one output by default
-	public Or(NestedHyperworkflow parent, String name, int id) {
-		this(parent, name, id, new ArrayList<Port>(), new ArrayList<Port>());
+	public Or(NestedHyperworkflow parent, String name) {
+		this(parent, name, new ArrayList<Port>(), new ArrayList<Port>());
 		inputPorts.add(new Port("in"+inputPorts.size(), EPortType.GENERIC));
 		inputPorts.add(new Port("in"+inputPorts.size(), EPortType.GENERIC));
 		outputPorts.add(new Port("out"+outputPorts.size(), EPortType.GENERIC));
@@ -38,7 +37,8 @@ public class Or implements IElement{
 	 * @param toCopy
 	 */
 	public Or(Or toCopy) {
-		this(toCopy.parent, toCopy.name, toCopy.id, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
+		this(toCopy.parent, toCopy.name, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
+		this.id = toCopy.getId();
 	}
 	
 	/** 
@@ -47,12 +47,19 @@ public class Or implements IElement{
 	 */
 	public Or(Or toCopy, NestedHyperworkflow newParent) {
 		this(toCopy);
-		parent = newParent;
+		this.parent = newParent;
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
 	public List<Port> getOutputPorts() {	return outputPorts; }
-	public int getId() {	return id; }
+	public String getId() {	return id; }
+	public boolean setId(String newId) { 
+		if (newId != null) {
+			id = newId;
+			return true;
+		}
+		return false; 
+	}
 	public List<Port> getInputPorts() { return inputPorts;	}
 	public String getName() { return name; }
 	

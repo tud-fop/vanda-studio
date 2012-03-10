@@ -7,26 +7,25 @@ import java.util.List;
 /**
  * 
  * @author afischer
- *
  */
 public class Tool implements IElement{
 	
 	private NestedHyperworkflow parent;
 	private String name;
-	private int id;
+	private String id;
 	private List<Port> inputPorts;
 	private List<Port> outputPorts;
 	
-	public Tool(NestedHyperworkflow parent, String name, int id, List<Port> inputPorts, List<Port> outputPorts) {
+	public Tool(NestedHyperworkflow parent, String name, List<Port> inputPorts, List<Port> outputPorts) {
 		this.parent = parent;
 		this.name = name;
-		this.id = id;
+		this.id = "0";
 		this.inputPorts = inputPorts;
 		this.outputPorts = outputPorts;
 	}
 	
-	public Tool(NestedHyperworkflow parent, String name, int id) {
-		this(parent, name, id, new ArrayList<Port>(), new ArrayList<Port>());
+	public Tool(NestedHyperworkflow parent, String name) {
+		this(parent, name, new ArrayList<Port>(), new ArrayList<Port>());
 	}
 	
 	/** 
@@ -34,12 +33,20 @@ public class Tool implements IElement{
 	 * @param toCopy
 	 */
 	public Tool(Tool toCopy) {
-		this(toCopy.parent, toCopy.name, toCopy.id, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
+		this(toCopy.parent, toCopy.name, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
+		this.id = toCopy.getId();
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
 	public List<Port> getOutputPorts() {	return outputPorts; }
-	public int getId() {	return id; }
+	public String getId() {	return id; }
+	public boolean setId(String newId) { 
+		if (newId != null) {
+			id = newId;
+			return true;
+		}
+		return false; 
+	}
 	public List<Port> getInputPorts() { return inputPorts;	}
 	public String getName() { return name; }
 	

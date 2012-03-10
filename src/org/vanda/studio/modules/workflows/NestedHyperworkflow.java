@@ -17,33 +17,34 @@ import com.thoughtworks.xstream.XStreamException;
 /**
  * Nested composite of IHyperworkflow composite pattern
  * @author afischer
- *
  */
 public class NestedHyperworkflow implements IHyperworkflow{
 	
 	private NestedHyperworkflow parent;
 	private String name;
-	private int id;
+	private String id;
 	private List<Port> inputPorts;
 	private List<Port> outputPorts;
 	private Map<IHyperworkflow, List<Port>> portBlockageMap;
+	private List<String> spareIds;
 	
 	private List<Connection> connections;
 	private List<IHyperworkflow> children;
 	
-	public NestedHyperworkflow(NestedHyperworkflow parent, String name, int id, List<Port> inputPorts, List<Port> outputPorts) {
+	public NestedHyperworkflow(NestedHyperworkflow parent, String name, List<Port> inputPorts, List<Port> outputPorts) {
 		this.parent = parent;
 		this.name = name;
-		this.id = id;
+		this.id = "0";
 		this.inputPorts = inputPorts;
 		this.outputPorts = outputPorts;
 		this.portBlockageMap = new HashMap<IHyperworkflow, List<Port>>();
-		connections = new ArrayList<Connection>();
-		children = new ArrayList<IHyperworkflow>();
+		this.connections = new ArrayList<Connection>();
+		this.children = new ArrayList<IHyperworkflow>();
+		this.spareIds = new ArrayList<String>();
 	}
 	
-	public NestedHyperworkflow(NestedHyperworkflow parent, String name, int id) {
-		this(parent, name, id, new ArrayList<Port>(), new ArrayList<Port>());
+	public NestedHyperworkflow(NestedHyperworkflow parent, String name) {
+		this(parent, name, new ArrayList<Port>(), new ArrayList<Port>());
 	}
 	
 	/**
@@ -51,9 +52,11 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	 * @param toCopy
 	 */
 	public NestedHyperworkflow(NestedHyperworkflow toCopy) {
-		this(toCopy.parent, toCopy.name, toCopy.id, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
+		this(toCopy.parent, toCopy.name, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
 		
-		children = new ArrayList<IHyperworkflow>();
+		this.id = toCopy.getId();
+		
+		this.children = new ArrayList<IHyperworkflow>();
 		for (IHyperworkflow child : toCopy.children) {
 			IHyperworkflow childCopy = null;
 			//ensure that an or-child is copied and gets the current NestedHyperworkflow copy as parent
@@ -62,19 +65,34 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			children.add(childCopy);
 		}
 		
-		connections = new ArrayList<Connection>(toCopy.connections);
+		this.connections = new ArrayList<Connection>(toCopy.connections);
 		
 		//copy the portBlockageMap, has to be done semi-manually since "new HashMap(toCopy.portBlockageMap)" only does a shallow copy and thus, refers to the SAME entry lists 
-		portBlockageMap = new HashMap<IHyperworkflow, List<Port>>();
+		this.portBlockageMap = new HashMap<IHyperworkflow, List<Port>>();
 		for (IHyperworkflow hwf : toCopy.portBlockageMap.keySet()) {
-			portBlockageMap.put(hwf, new ArrayList<Port>(toCopy.portBlockageMap.get(hwf)));
+			this.portBlockageMap.put(hwf, new ArrayList<Port>(toCopy.portBlockageMap.get(hwf)));
 		}
+		
+		this.spareIds = new ArrayList<String>(toCopy.spareIds);
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
 	public List<Port> getOutputPorts() {	return outputPorts; }
 	public Map<IHyperworkflow, List<Port>> getPortBlockageMap() { return portBlockageMap; }
-	public int getId() {	return id; }
+	public String getId() {	return id; }
+	public boolean setId(String newId) {
+		if (newId != null) { 
+			id = newId;
+			//update children's ids as well
+			for (IHyperworkflow child : children) {
+				String[] idParts = child.getId().split("-");
+				String newChildId = child.getParent().id + "-" + idParts[idParts.length - 1];
+				child.setId(newChildId);
+			}
+			return true;
+		}
+		return false;
+	}
 	public List<Port> getInputPorts() { return inputPorts;	}
 	public String getName() { return name; }
 	
@@ -206,6 +224,16 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			
 			//add child if possible
 			if (children.add(hwf)) {
+				
+				//re-set the child's id
+				if (!spareIds.isEmpty()) {
+					//replace it with an id of a previously removed child (if there are any within spareIds-list)
+					hwf.setId(spareIds.remove(0));
+				} else {
+					//create new id based on current child count
+					hwf.setId(id + "-" + children.size());
+				}
+				
 				//check for necessary creation of new inner ports
 				if (propagateAdditionalPorts(hwf, hwf.getInputPorts(), hwf.getOutputPorts())) return true;
 				else {
@@ -247,6 +275,10 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			
 			//remove child if possible
 			if (children.remove(hwf)) {
+				
+				//save the id of the just removed child for later re-use
+				spareIds.add(hwf.getId());
+				
 				//check for necessary removal of new inner ports
 				if (propagatePortRemoval(hwf, hwf.getInputPorts(), hwf.getOutputPorts())) {
 					if (removeNonconnectedChildren) removeDisconnectedChildren();
@@ -431,7 +463,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 							getConnections().equals(oh.getConnections()) &&
 							getInputPorts().equals(oh.getInputPorts()) &&
 							getOutputPorts().equals(oh.getOutputPorts()) &&
-							getPortBlockageMap().equals(oh.getPortBlockageMap())	);
+							getPortBlockageMap().equals(oh.getPortBlockageMap()));
 		}
 		return result;
 	}
@@ -455,6 +487,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			//count number of or-nodes
 			if (child instanceof Or) orCount++;
 		}
+		unfoldMap.keySet();
 		
 		//-------------------------------------------------------------------------------------------------------------
 		//--------- remove nested children and replace them by their unfolded versions ---------
@@ -566,7 +599,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		if (pathToFile == null) 
 			throw new NullPointerException("File path is set to " + pathToFile + "!");
 		
-		//TODO revise an do some basic exception handling: ask user if specified file exists already and so on
+		//TODO revise an do some basic exception handling: ask user if specified file exists already and so on, move method somewhere else?
 		FileWriter fileWriter = null;
 		try {
 			fileWriter = new FileWriter(pathToFile);
@@ -593,6 +626,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		if (pathToFile == null) 
 			throw new NullPointerException("File path is set to " + pathToFile + "!");
 		
+		//TODO revise and add more exception handling, move method somewhere else?
 		File file = new File(pathToFile);
 		XStream xs = new XStream();
 		Object result = null;
@@ -611,20 +645,20 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	
 	public static void main(String[] args) {
 		//Hyperworkflow parts
-		NestedHyperworkflow root = new NestedHyperworkflow(null, "root", 0);
-			IElement alpha = new Tool(root, "alpha", 1);
+		NestedHyperworkflow root = new NestedHyperworkflow(null, "root");
+			IElement alpha = new Tool(root, "alpha");
 				alpha.getOutputPorts().add(new Port("out", EPortType.FILE));
-			NestedHyperworkflow beta = new NestedHyperworkflow(root, "beta", 2);
-				IElement beta1 = new Tool(beta, "beta1", 21);
+			NestedHyperworkflow beta = new NestedHyperworkflow(root, "beta");
+				IElement beta1 = new Tool(beta, "beta1");
 					beta1.getInputPorts().add(new Port("in", EPortType.FILE));
 					beta1.getOutputPorts().add(new Port("out", EPortType.FILE));
-				IElement beta2 = new Tool(beta, "beta2", 22);
+				IElement beta2 = new Tool(beta, "beta2");
 					beta2.getOutputPorts().add(new Port("out", EPortType.FILE));
-				IElement beta3 = new Tool(beta, "beta3", 23);
+				IElement beta3 = new Tool(beta, "beta3");
 					beta3.getOutputPorts().add(new Port("out", EPortType.FILE));
-				IElement orBeta = new Or(beta, "orBeta", 24);
+				IElement orBeta = new Or(beta, "orBeta");
 					orBeta.getInputPorts().add(new Port("in3", EPortType.GENERIC));
-				IElement beta4 = new Tool(beta, "beta4", 25);
+				IElement beta4 = new Tool(beta, "beta4");
 					beta4.getInputPorts().add(new Port("in", EPortType.FILE));
 					beta4.getOutputPorts().add(new Port("out", EPortType.FILE));
 				beta.addChild(beta1);
@@ -632,27 +666,27 @@ public class NestedHyperworkflow implements IHyperworkflow{
 				beta.addChild(beta3);
 				beta.addChild(orBeta);
 				beta.addChild(beta4);
-			IElement gamma = new Tool(root, "gamma", 3);
+			IElement gamma = new Tool(root, "gamma");
 				gamma.getOutputPorts().add(new Port("out", EPortType.FILE));
-			IElement or1 = new Or(root, "or1", 4);
-			NestedHyperworkflow delta = new NestedHyperworkflow(root, "delta", 5);
-				IElement delta1 = new Tool(delta, "delta1", 51);
+			IElement or1 = new Or(root, "or1");
+			NestedHyperworkflow delta = new NestedHyperworkflow(root, "delta");
+				IElement delta1 = new Tool(delta, "delta1");
 					delta1.getInputPorts().add(new Port("in", EPortType.FILE));
 					delta1.getOutputPorts().add(new Port("out", EPortType.FILE));
-				IElement delta2 = new Tool(delta, "delta2", 52);
+				IElement delta2 = new Tool(delta, "delta2");
 					delta2.getOutputPorts().add(new Port("out", EPortType.FILE));
-				IElement orDelta = new Or(delta, "orDelta", 53);
-				IElement delta3 = new Tool(delta, "delta3", 54);
+				IElement orDelta = new Or(delta, "orDelta");
+				IElement delta3 = new Tool(delta, "delta3");
 					delta3.getInputPorts().add(new Port("in", EPortType.FILE));
 					delta3.getOutputPorts().add(new Port("out", EPortType.FILE));
 				delta.addChild(delta1);
 				delta.addChild(delta2);
 				delta.addChild(orDelta);
 				delta.addChild(delta3);
-			IElement epsilon = new Tool(root, "epsilon", 6);
+			IElement epsilon = new Tool(root, "epsilon");
 				epsilon.getOutputPorts().add(new Port("out", EPortType.FILE));
-			IElement or2 = new Or(root, "or2", 7);
-			IElement eta = new Tool(root, "eta", 8);
+			IElement or2 = new Or(root, "or2");
+			IElement eta = new Tool(root, "eta");
 				eta.getInputPorts().add(new Port("in", EPortType.FILE));
 			root.addChild(alpha);
 			root.addChild(beta);
@@ -692,11 +726,11 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		}
 		System.out.println();
 		
-		String filename = "/home/anja/test.hwf"; 
-		root.save(filename);
-		NestedHyperworkflow blub = NestedHyperworkflow.load(filename);
-		for (IHyperworkflow hwf : blub.unfold()) {
-			System.out.println(hwf);
-		}
+//		String filename = "/home/anja/test.hwf"; 
+//		root.save(filename);
+//		NestedHyperworkflow blub = NestedHyperworkflow.load(filename);
+//		for (IHyperworkflow hwf : blub.unfold()) {
+//			System.out.println(hwf);
+//		}
 	}
 }
