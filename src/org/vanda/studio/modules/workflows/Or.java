@@ -4,11 +4,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.vanda.studio.modules.workflows.gui.JGraphRendering.JGraphRendererSelection;
+
 /**
  * 
  * @author afischer
  */
 public class Or implements IElement{
+	
+	//gui stuff
+	private double[] dimensions;
+	private JGraphRendererSelection renderer;
+	public double getX() { return dimensions[0]; }
+	public double getY() { return dimensions[1]; }
+	public double getWidth() { return dimensions[2]; }
+	public double getHeight() { return dimensions[3]; }
+	public void selectRenderer(JGraphRendererSelection rs) { this.renderer = rs; }
+	public IHyperworkflow clone() { return this; }
+	public void setDimensions(double[] dim) { if (dim.length == 4)this.dimensions = dim; }
+	//-------------------------------------------------------------------------
 	
 	private NestedHyperworkflow parent;
 	private String name;

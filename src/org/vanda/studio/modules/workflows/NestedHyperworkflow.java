@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.vanda.studio.modules.workflows.gui.JGraphRendering.JGraphRendererSelection;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 
@@ -19,6 +21,18 @@ import com.thoughtworks.xstream.XStreamException;
  * @author afischer
  */
 public class NestedHyperworkflow implements IHyperworkflow{
+	
+	//gui stuff
+	private double[] dimensions;
+	private JGraphRendererSelection renderer;
+	public double getX() { return dimensions[0]; }
+	public double getY() { return dimensions[1]; }
+	public double getWidth() { return dimensions[2]; }
+	public double getHeight() { return dimensions[3]; }
+	public void selectRenderer(JGraphRendererSelection rs) { this.renderer = rs; }
+	public IHyperworkflow clone() { return this; }
+	public void setDimensions(double[] dim) { if (dim.length == 4)this.dimensions = dim; }
+	//-------------------------------------------------------------------------
 	
 	private NestedHyperworkflow parent;
 	private String name;
@@ -490,22 +504,22 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		unfoldMap.keySet();
 		
 		//-------------------------------------------------------------------------------------------------------------
-		//--------- remove nested children and replace them by their unfolded versions ---------
+		//------------------ remove nested children and replace them by their unfolded versions -----------------------
 		//-------------------------------------------------------------------------------------------------------------
-		/*				-----		---------		----
-		 * 	hwf1 = | a |-----| 3x b |----| c |	where b is a nested child that represents 3 different workflows
-		 * 				-----		---------		----
+		/*			-----	--------	----
+		 * 	hwf1 = 	| a |---| 3x b |----| c |	where b is a nested child that represents 3 different workflows
+		 * 			-----	--------	----
 		 * 		|
 		 * 		|
-		 * 		--->	-----		---------		----
-		 * 				| a |-----|   b1  |----| c |	= hwf1_1
-		 * 				-----		---------		----
-		 * 				-----		---------		----
-		 * 				| a |-----|   b2  |----| c |	= hwf1_2
-		 * 				-----		---------		----
-		 * 				-----		---------		----
-		 * 				| a |-----|   b3  |----| c |	= hwf1_3
-		 * 				-----		---------		----
+		 * 		--->	-----	---------	----
+		 * 				| a |---|   b1  |---| c |	= hwf1_1
+		 * 				-----	---------	----
+		 * 				-----	---------	----
+		 * 				| a |---|   b2  |---| c |	= hwf1_2
+		 * 				-----	---------	----
+		 * 				-----	---------	----
+		 * 				| a |---|   b3  |---| c |	= hwf1_3
+		 * 				-----	---------	----
 		 */
 		List<IHyperworkflow> hwfList = new ArrayList<IHyperworkflow>();	//working list that contains intermediate unfolding results
 		hwfList.add(new NestedHyperworkflow(this));	//put current NestedHyperworkflow in the list to start unfolding
@@ -550,14 +564,14 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		}
 		
 		//-------------------------------------------------------------------------------------------------------------
-		//----------------------------------------- unfold Or nodes ---------------------------------------------
+		//------------------------------------------- unfold Or nodes -------------------------------------------------
 		//-------------------------------------------------------------------------------------------------------------
-		/*				-----		-----------									-----		----
-		 * 	hwf1 = | a |-----|			|		-----						| a |-----| c |	= hwf1_1
-		 * 				-----		|			|------| c |			=>		-----		----
-		 * 				-----		| OR_1	|		-----						-----		----
-		 * 				| b |-----|			|									| b |-----| c |	= hwf1_2
-		 * 				-----		-----------									-----		----
+		/*			-----	---------						-----	----
+		 * 	hwf1 = 	| a |---|		|	-----				| a |---| c |	= hwf1_1
+		 * 			-----	|		|---| c |		=>		-----	----
+		 * 			-----	| OR_1	|	-----				-----	----
+		 * 			| b |---|		|						| b |---| c |	= hwf1_2
+		 * 			-----	---------						-----	----
 		 */
 		//iterate x times over the working list where x is the number of or nodes in the original NestedHyperworkflow
 		for (int x = 0; x < orCount; x++) {

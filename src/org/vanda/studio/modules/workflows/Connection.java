@@ -37,6 +37,10 @@ public class Connection {
 		return source;
 	}
 
+	public void setSource(IHyperworkflow source) {
+		this.source = source;
+	}
+	
 	/**
 	 * @return the output port of the source Hyperworkflow
 	 */
@@ -44,6 +48,10 @@ public class Connection {
 		return srcPort;
 	}
 
+	public void setSrcPort(Port srcPort) {
+		this.srcPort = srcPort;
+	}
+	
 	/**
 	 * @return the target Hyperworkflow
 	 */
@@ -51,11 +59,19 @@ public class Connection {
 		return target;
 	}
 
+	public void setTarget(IHyperworkflow target) {
+		this.target = target;
+	}
+	
 	/**
 	 * @return the input port of the target Hyperworkflow
 	 */
 	public Port getTargPort() {
 		return targPort;
+	}
+	
+	public void setTargPort(Port targPort) {
+		this.targPort = targPort;
 	}
 	
 	@Override
