@@ -61,8 +61,12 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		this(parent, name, new ArrayList<Port>(), new ArrayList<Port>());
 	}
 	
+	public NestedHyperworkflow(String name) {
+		this(null, name);
+	}
+	
 	/**
-	 * Copy constructor
+	 * Copy constructor - creates a new NestedHyperworkflow instance (shallow copy of the original, except OR-nodes (deep copy))
 	 * @param toCopy
 	 */
 	public NestedHyperworkflow(NestedHyperworkflow toCopy) {
@@ -91,6 +95,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
+	public void setParent(NestedHyperworkflow newParent) { this.parent = newParent; }
 	public List<Port> getOutputPorts() {	return outputPorts; }
 	public Map<IHyperworkflow, List<Port>> getPortBlockageMap() { return portBlockageMap; }
 	public String getId() {	return id; }
@@ -239,6 +244,9 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			//add child if possible
 			if (children.add(hwf)) {
 				
+				//set parent of added child to be the current NestedHyperworkflow
+				hwf.setParent(this);
+				
 				//re-set the child's id
 				if (!spareIds.isEmpty()) {
 					//replace it with an id of a previously removed child (if there are any within spareIds-list)
@@ -376,8 +384,6 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		List<Port> innerInputPorts = new ArrayList<Port>();
 		List<Port> innerOutputPorts = new ArrayList<Port>();
 		
-		if (this.getParent() == null) return true;
-		
 		//create new input ports based on the specified ports of a child node
 		for (Port p : additionalInputs) {
 			Port newPort = new Port(hwf.getName()+"."+p.getName(), p.getType());
@@ -392,6 +398,11 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		//add the new input and output ports
 		this.getInputPorts().addAll(innerInputPorts);
 		this.getOutputPorts().addAll(innerOutputPorts);
+		
+		//stop propagation if there is no more parent
+		//FIXME: even the top most NestedHyperworkflow has input and output ports now!
+		// -> this super-parent should not be shown to the user
+		if (this.getParent() == null) return true;
 		
 		//propagate the port adding to own parent
 		if (getParent().propagateAdditionalPorts(this, innerInputPorts, innerOutputPorts)) {
@@ -659,20 +670,20 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	
 	public static void main(String[] args) {
 		//Hyperworkflow parts
-		NestedHyperworkflow root = new NestedHyperworkflow(null, "root");
-			IElement alpha = new Tool(root, "alpha");
+		NestedHyperworkflow root = new NestedHyperworkflow("root");
+			IElement alpha = new Tool("alpha");
 				alpha.getOutputPorts().add(new Port("out", EPortType.FILE));
-			NestedHyperworkflow beta = new NestedHyperworkflow(root, "beta");
-				IElement beta1 = new Tool(beta, "beta1");
+			NestedHyperworkflow beta = new NestedHyperworkflow("beta");
+				IElement beta1 = new Tool("beta1");
 					beta1.getInputPorts().add(new Port("in", EPortType.FILE));
 					beta1.getOutputPorts().add(new Port("out", EPortType.FILE));
-				IElement beta2 = new Tool(beta, "beta2");
+				IElement beta2 = new Tool("beta2");
 					beta2.getOutputPorts().add(new Port("out", EPortType.FILE));
-				IElement beta3 = new Tool(beta, "beta3");
+				IElement beta3 = new Tool("beta3");
 					beta3.getOutputPorts().add(new Port("out", EPortType.FILE));
-				IElement orBeta = new Or(beta, "orBeta");
+				IElement orBeta = new Or("orBeta");
 					orBeta.getInputPorts().add(new Port("in3", EPortType.GENERIC));
-				IElement beta4 = new Tool(beta, "beta4");
+				IElement beta4 = new Tool("beta4");
 					beta4.getInputPorts().add(new Port("in", EPortType.FILE));
 					beta4.getOutputPorts().add(new Port("out", EPortType.FILE));
 				beta.addChild(beta1);
@@ -680,27 +691,27 @@ public class NestedHyperworkflow implements IHyperworkflow{
 				beta.addChild(beta3);
 				beta.addChild(orBeta);
 				beta.addChild(beta4);
-			IElement gamma = new Tool(root, "gamma");
+			IElement gamma = new Tool("gamma");
 				gamma.getOutputPorts().add(new Port("out", EPortType.FILE));
-			IElement or1 = new Or(root, "or1");
-			NestedHyperworkflow delta = new NestedHyperworkflow(root, "delta");
-				IElement delta1 = new Tool(delta, "delta1");
+			IElement or1 = new Or("or1");
+			NestedHyperworkflow delta = new NestedHyperworkflow("delta");
+				IElement delta1 = new Tool("delta1");
 					delta1.getInputPorts().add(new Port("in", EPortType.FILE));
 					delta1.getOutputPorts().add(new Port("out", EPortType.FILE));
-				IElement delta2 = new Tool(delta, "delta2");
+				IElement delta2 = new Tool("delta2");
 					delta2.getOutputPorts().add(new Port("out", EPortType.FILE));
-				IElement orDelta = new Or(delta, "orDelta");
-				IElement delta3 = new Tool(delta, "delta3");
+				IElement orDelta = new Or("orDelta");
+				IElement delta3 = new Tool("delta3");
 					delta3.getInputPorts().add(new Port("in", EPortType.FILE));
 					delta3.getOutputPorts().add(new Port("out", EPortType.FILE));
 				delta.addChild(delta1);
 				delta.addChild(delta2);
 				delta.addChild(orDelta);
 				delta.addChild(delta3);
-			IElement epsilon = new Tool(root, "epsilon");
+			IElement epsilon = new Tool("epsilon");
 				epsilon.getOutputPorts().add(new Port("out", EPortType.FILE));
-			IElement or2 = new Or(root, "or2");
-			IElement eta = new Tool(root, "eta");
+			IElement or2 = new Or("or2");
+			IElement eta = new Tool("eta");
 				eta.getInputPorts().add(new Port("in", EPortType.FILE));
 			root.addChild(alpha);
 			root.addChild(beta);
@@ -711,7 +722,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			root.addChild(or2);
 			root.addChild(eta);
 			
-		//Connections within beta		
+		//Connections within beta
 		System.out.println(beta.addConnection(new Connection(beta, beta.getInputPorts().get(0), beta1, beta1.getInputPorts().get(0))));
 		System.out.println(beta.addConnection(new Connection(beta1, beta1.getOutputPorts().get(0), orBeta, orBeta.getInputPorts().get(0))));
 		System.out.println(beta.addConnection(new Connection(beta2, beta2.getOutputPorts().get(0), orBeta, orBeta.getInputPorts().get(1))));

@@ -34,6 +34,11 @@ public interface IHyperworkflow {
 	 */
 	public boolean setId(String newId);
 	
+	/**
+	 * @param newParent - replaces the current parent
+	 */
+	public void setParent(NestedHyperworkflow newParent);
+	
 	public String toString();
 	
 	/** @return a (duplicate-free) collection of IHyperworkflows where all OR nodes have been removed */

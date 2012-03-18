@@ -46,6 +46,10 @@ public class Or implements IElement{
 		outputPorts.add(new Port("out"+outputPorts.size(), EPortType.GENERIC));
 	}
 	
+	public Or(String name) {
+		this(null, name);
+	}
+	
 	/**
 	 * Copy constructor
 	 * @param toCopy
@@ -65,6 +69,7 @@ public class Or implements IElement{
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
+	public void setParent(NestedHyperworkflow newParent) { this.parent = newParent; }
 	public List<Port> getOutputPorts() {	return outputPorts; }
 	public String getId() {	return id; }
 	public boolean setId(String newId) { 

@@ -42,6 +42,10 @@ public class Tool implements IElement{
 		this(parent, name, new ArrayList<Port>(), new ArrayList<Port>());
 	}
 	
+	public Tool(String name) {
+		this(null, name);
+	}
+	
 	/** 
 	 * Copy constructor
 	 * @param toCopy
@@ -52,6 +56,7 @@ public class Tool implements IElement{
 	}
 	
 	public NestedHyperworkflow getParent() { return parent; }
+	public void setParent(NestedHyperworkflow newParent) { this.parent = newParent; }
 	public List<Port> getOutputPorts() {	return outputPorts; }
 	public String getId() {	return id; }
 	public boolean setId(String newId) { 
