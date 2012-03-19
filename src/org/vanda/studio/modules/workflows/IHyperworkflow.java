@@ -3,7 +3,7 @@ package org.vanda.studio.modules.workflows;
 import java.util.Collection;
 import java.util.List;
 
-import org.vanda.studio.modules.workflows.gui.JGraphRendering.JGraphRendererSelection;
+import org.vanda.studio.model.RendererSelection;
 
 /**
  * Superclass component of IHyperworkflow composite pattern
@@ -45,7 +45,7 @@ public interface IHyperworkflow {
 	public Collection<IHyperworkflow> unfold();
 	
 	//methods required for gui stuff
-	public void selectRenderer(JGraphRendererSelection rs);
+	public void selectRenderer(RendererSelection rs);
 	public double getX();
 	public double getY();
 	public double getWidth();

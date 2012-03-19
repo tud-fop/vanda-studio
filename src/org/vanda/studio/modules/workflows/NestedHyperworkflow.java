@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.modules.workflows.gui.JGraphRendering.JGraphRendererSelection;
+import org.vanda.studio.model.RendererSelection;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
@@ -24,13 +24,13 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	
 	//gui stuff
 	private double[] dimensions;
-	private JGraphRendererSelection renderer;
+	private RendererSelection renderer;
 	public double getX() { return dimensions[0]; }
 	public double getY() { return dimensions[1]; }
 	public double getWidth() { return dimensions[2]; }
 	public double getHeight() { return dimensions[3]; }
-	public void selectRenderer(JGraphRendererSelection rs) { this.renderer = rs; }
-	public IHyperworkflow clone() { return this; }
+	public void selectRenderer(RendererSelection rs) { this.renderer = rs; }
+	public IHyperworkflow clone() { return new NestedHyperworkflow(this); }
 	public void setDimensions(double[] dim) { if (dim.length == 4)this.dimensions = dim; }
 	//-------------------------------------------------------------------------
 	
