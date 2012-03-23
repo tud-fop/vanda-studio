@@ -33,4 +33,17 @@ public abstract class IElement extends IHyperworkflow {
 		this(toCopy.getParent(), toCopy.getName(), new ArrayList<Port>(toCopy.getInputPorts()), new ArrayList<Port>(toCopy.getOutputPorts()));
 		setId(toCopy.getId());
 	}
+	
+	public boolean equals(Object other) {
+		//Tools are equal if they have the same attributes (parent is ignored and not compared)
+		boolean result = (other != null && other.getClass().equals(this.getClass()));
+		if (result) {
+			IElement oh = (IElement)other;
+			result = (	getId() == oh.getId() &&
+					getName().equals(oh.getName()) &&
+					getInputPorts().equals(oh.getInputPorts()) &&
+					getOutputPorts().equals(oh.getOutputPorts())	);
+		}
+		return result;
+	}
 }

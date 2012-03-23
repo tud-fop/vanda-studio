@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.vanda.studio.util.MultiplexObserver;
+import org.vanda.studio.util.Observable;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 
@@ -23,13 +26,55 @@ public class NestedHyperworkflow extends IHyperworkflow{
 	//TODO implement real cloning, a full deep copy
 	public Object clone() throws CloneNotSupportedException { return new NestedHyperworkflow(this); }
 	
-	//-------------------------------------------------------------------------
+	private MultiplexObserver<IHyperworkflow> addObservable;
+	private MultiplexObserver<IHyperworkflow> modifyObservable;
+	private MultiplexObserver<IHyperworkflow> removeObservable;
+	private MultiplexObserver<Connection> connectObservable;
+	private MultiplexObserver<Connection> disconnectObservable;
 	
+	public Observable<IHyperworkflow> getAddObservable() {return addObservable;}
+	public Observable<Connection> getConnectObservable() {return connectObservable;}
+	public Observable<Connection> getDisconnectObservable() {return disconnectObservable;}
+	public Observable<IHyperworkflow> getModifyObservable() {return modifyObservable;}
+	public Observable<IHyperworkflow> getRemoveObservable() {return removeObservable;}
+	
+	public void setDimensions(IHyperworkflow o, double[] d) {
+		assert(children.contains(o));
+		
+		if (d[0] != o.getX() || d[1] != o.getY() || d[2] != o.getWidth() || d[3] != o.getHeight()) {
+			o.setDimensions(d);
+			modifyObservable.notify(o);
+		}
+	}
+	
+	//TODO reference add/remove child/connection methods somehow
+	public void ensureAbsence(IHyperworkflow o) {
+		if (children.remove(o)) {
+			removeObservable.notify(o);
+		}
+	}
+	public void ensureConnected(Connection c) {
+		if (!connections.add(c)) {
+			connectObservable.notify(c);
+		}
+	}
+	public void ensureDisconnected(Connection c) {
+		if (!connections.remove(c)) {
+			connectObservable.notify(c);
+		}
+	}
+	public void ensurePresence(IHyperworkflow o) {
+		if (!children.add(o)) {
+			addObservable.notify(o);
+		}
+	}
+	
+	//-------------------------------------------------------------------------
+
+	private List<IHyperworkflow> children;
+	private List<Connection> connections;
 	private Map<IHyperworkflow, List<Port>> portBlockageMap;
 	private List<String> spareIds;
-	
-	private List<Connection> connections;
-	private List<IHyperworkflow> children;
 	
 	//-------------------------------------------------------------------------
 	//----------------------------- constructors ------------------------------
@@ -41,6 +86,13 @@ public class NestedHyperworkflow extends IHyperworkflow{
 		this.connections = new ArrayList<Connection>();
 		this.children = new ArrayList<IHyperworkflow>();
 		this.spareIds = new ArrayList<String>();
+		
+		//TODO involve these attributes in copy construction and cloning at some point
+		this.addObservable = new MultiplexObserver<IHyperworkflow>();
+		this.modifyObservable = new MultiplexObserver<IHyperworkflow>();
+		this.removeObservable = new MultiplexObserver<IHyperworkflow>();
+		this.connectObservable = new MultiplexObserver<Connection>();
+		this.disconnectObservable = new MultiplexObserver<Connection>();
 	}
 	
 	public NestedHyperworkflow(NestedHyperworkflow parent, String name) {

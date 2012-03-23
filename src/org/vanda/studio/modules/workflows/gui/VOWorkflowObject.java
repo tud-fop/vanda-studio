@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.workflows.gui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,10 +10,12 @@ import org.vanda.studio.model.RendererSelection;
 import org.vanda.studio.model.VObject;
 import org.vanda.studio.model.VObjectInstance;
 import org.vanda.studio.modules.workflows.EPortType;
+import org.vanda.studio.modules.workflows.IElement;
+import org.vanda.studio.modules.workflows.IHyperworkflow;
 import org.vanda.studio.modules.workflows.Port;
-import org.vanda.studio.modules.workflows.Tool;
 
-public class VOWorkflowObject extends Tool {
+//oder doch von Tool erben lassen?
+public class VOWorkflowObject extends IElement {
 	VObject object;
 	VObjectInstance instance;
 	
@@ -33,7 +36,8 @@ public class VOWorkflowObject extends Tool {
 	public Object clone() throws CloneNotSupportedException {
 		HashMap<String,Object> m = new HashMap<String,Object>();
 		instance.saveToMap(m);
-		VOWorkflowObject c = (VOWorkflowObject)super.clone();
+//		VOWorkflowObject c = (VOWorkflowObject)super.clone();
+		VOWorkflowObject c = new VOWorkflowObject(object);
 		c.instance = object.createInstance();
 		c.instance.loadFromMap(m);
 		return c;
@@ -65,5 +69,12 @@ public class VOWorkflowObject extends Tool {
 	@Override
 	public void selectRenderer(RendererSelection rs) {
 		object.selectRenderer(rs);
+	}
+	
+	@Override
+	public Collection<IHyperworkflow> unfold() {
+		List<IHyperworkflow> singletonToolList = new ArrayList<IHyperworkflow>();
+		singletonToolList.add(new VOWorkflowObject(object));
+		return singletonToolList;
 	}
 }

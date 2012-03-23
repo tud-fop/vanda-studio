@@ -41,20 +41,6 @@ public class Tool extends IElement{
 	public Object clone() throws CloneNotSupportedException { return new Tool(this); }
 	
 	@Override
-	public boolean equals(Object other) {
-		//Tools are equal if they have the same attributes (parent is ignored and not compared)
-		boolean result = (other != null && other instanceof Tool);
-		if (result) {
-			Tool oh = (Tool)other;
-			result = (	getId() == oh.getId() &&
-					getName().equals(oh.getName()) &&
-					getInputPorts().equals(oh.getInputPorts()) &&
-					getOutputPorts().equals(oh.getOutputPorts())	);
-		}
-		return result;
-	}
-	
-	@Override
 	public Collection<IHyperworkflow> unfold() {
 		List<IHyperworkflow> singletonToolList = new ArrayList<IHyperworkflow>();
 		singletonToolList.add(new Tool(this));

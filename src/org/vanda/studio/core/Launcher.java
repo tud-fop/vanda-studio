@@ -29,7 +29,8 @@ public final class Launcher implements Runnable {
 			new org.vanda.studio.modules.algorithms.AlgorithmsModule(),
 			new org.vanda.studio.modules.dictionaries.DictionaryModule(),
 			new org.vanda.studio.modules.wrtgs.WrtgModule(),
-			new org.vanda.studio.modules.terms.TermModule()
+			new org.vanda.studio.modules.terms.TermModule(),
+			new org.vanda.studio.modules.workflows.gui.WorkflowModule()
 		};
 
 		ModuleManager moduleManager = new ModuleManager(app);

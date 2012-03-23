@@ -8,7 +8,7 @@ import java.util.List;
  * 
  * @author afischer
  */
-public class Or extends IElement {
+public final class Or extends IElement {
 		
 	//-------------------------------------------------------------------------
 	//----------------------------- constructors ------------------------------
@@ -55,20 +55,6 @@ public class Or extends IElement {
 	public Object clone() throws CloneNotSupportedException { return new Or(this); }
 	
 	@Override
-	public boolean equals(Object other) {
-		//Tools are equal if they have the same attributes (parent is ignored and not compared)
-		boolean result = (other != null && other instanceof Or);
-		if (result) {
-			Or oh = (Or)other;
-			result = (	getId() == oh.getId() &&
-							getName().equals(oh.getName()) &&
-							getInputPorts().equals(oh.getInputPorts()) &&
-							getOutputPorts().equals(oh.getOutputPorts())	);
-		}
-		return result;
-	}
-	
-	@Override
 	public Collection<IHyperworkflow> unfold() {
 		List<IHyperworkflow> hwfList = new ArrayList<IHyperworkflow>();
 		
@@ -95,7 +81,7 @@ public class Or extends IElement {
 				if (j != i) parentCopy.removeChild(incoming.get(j).getSource(), true);
 			}
 			
-			if (!hwfList.contains(parentCopy)) hwfList.add(parentCopy);		//add unfolded copy to result list
+			if (!hwfList.contains(parentCopy)) hwfList.add(parentCopy);	//add unfolded copy to result list
 		}
 		
 		return hwfList;
