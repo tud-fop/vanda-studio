@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.model.RendererSelection;
-
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 
@@ -20,37 +18,25 @@ import com.thoughtworks.xstream.XStreamException;
  * Nested composite of IHyperworkflow composite pattern
  * @author afischer
  */
-public class NestedHyperworkflow implements IHyperworkflow{
+public class NestedHyperworkflow extends IHyperworkflow{
 	
 	//gui stuff
-	private double[] dimensions;
-	private RendererSelection renderer;
-	public double getX() { return dimensions[0]; }
-	public double getY() { return dimensions[1]; }
-	public double getWidth() { return dimensions[2]; }
-	public double getHeight() { return dimensions[3]; }
-	public void selectRenderer(RendererSelection rs) { this.renderer = rs; }
-	public IHyperworkflow clone() { return new NestedHyperworkflow(this); }
-	public void setDimensions(double[] dim) { if (dim.length == 4)this.dimensions = dim; }
+	public Object clone() throws CloneNotSupportedException { return new NestedHyperworkflow(this); }
+	
 	//-------------------------------------------------------------------------
 	
-	private NestedHyperworkflow parent;
-	private String name;
-	private String id;
-	private List<Port> inputPorts;
-	private List<Port> outputPorts;
 	private Map<IHyperworkflow, List<Port>> portBlockageMap;
 	private List<String> spareIds;
 	
 	private List<Connection> connections;
 	private List<IHyperworkflow> children;
 	
+	//-------------------------------------------------------------------------
+	//----------------------------- constructors ------------------------------
+	//-------------------------------------------------------------------------
+	
 	public NestedHyperworkflow(NestedHyperworkflow parent, String name, List<Port> inputPorts, List<Port> outputPorts) {
-		this.parent = parent;
-		this.name = name;
-		this.id = "0";
-		this.inputPorts = inputPorts;
-		this.outputPorts = outputPorts;
+		super(parent, name, inputPorts, outputPorts);
 		this.portBlockageMap = new HashMap<IHyperworkflow, List<Port>>();
 		this.connections = new ArrayList<Connection>();
 		this.children = new ArrayList<IHyperworkflow>();
@@ -70,9 +56,9 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	 * @param toCopy
 	 */
 	public NestedHyperworkflow(NestedHyperworkflow toCopy) {
-		this(toCopy.parent, toCopy.name, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
+		this(toCopy.getParent(), toCopy.getName(), new ArrayList<Port>(toCopy.getInputPorts()), new ArrayList<Port>(toCopy.getOutputPorts()));
 		
-		this.id = toCopy.getId();
+		setId(toCopy.getId());
 		
 		this.children = new ArrayList<IHyperworkflow>();
 		for (IHyperworkflow child : toCopy.children) {
@@ -93,33 +79,36 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		
 		this.spareIds = new ArrayList<String>(toCopy.spareIds);
 	}
+
+	//-------------------------------------------------------------------------
+	//-------------------------- getters/setters ------------------------------
+	//-------------------------------------------------------------------------
 	
-	public NestedHyperworkflow getParent() { return parent; }
-	public void setParent(NestedHyperworkflow newParent) { this.parent = newParent; }
-	public List<Port> getOutputPorts() {	return outputPorts; }
 	public Map<IHyperworkflow, List<Port>> getPortBlockageMap() { return portBlockageMap; }
-	public String getId() {	return id; }
 	public boolean setId(String newId) {
 		if (newId != null) { 
-			id = newId;
+			super.setId(newId);
 			//update children's ids as well
 			for (IHyperworkflow child : children) {
 				String[] idParts = child.getId().split("-");
-				String newChildId = child.getParent().id + "-" + idParts[idParts.length - 1];
+				String newChildId = child.getParent().getId() + "-" + idParts[idParts.length - 1];
 				child.setId(newChildId);
 			}
 			return true;
 		}
 		return false;
 	}
-	public List<Port> getInputPorts() { return inputPorts;	}
-	public String getName() { return name; }
+
 	
 	/** @return a list of connections */
 	public List<Connection> getConnections() { return connections; 	}
 
 	/** @return a list of direct Hyperworkflow children of the current NestedHyperworkflow */
 	public List<IHyperworkflow> getChildren() {	return children; }
+	
+	//-------------------------------------------------------------------------
+	//--------------------------- functionality -------------------------------
+	//-------------------------------------------------------------------------
 	
 	/**
 	 * Adds a new connection to the NestedHyperworkflow's connections-List.
@@ -253,7 +242,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 					hwf.setId(spareIds.remove(0));
 				} else {
 					//create new id based on current child count
-					hwf.setId(id + "-" + children.size());
+					hwf.setId(getId() + "-" + children.size());
 				}
 				
 				//check for necessary creation of new inner ports
@@ -444,18 +433,18 @@ public class NestedHyperworkflow implements IHyperworkflow{
 		//get all incoming and outgoing connections that are linked to the soon-to-be-removed ports
 		List<Connection> incoming = new ArrayList<Connection>();
 		List<Connection> outgoing = new ArrayList<Connection>();
-		for (Connection c : parent.getConnections()) {
+		for (Connection c : getParent().getConnections()) {
 			if (c.getTarget().equals(this) && innerInputPorts.contains(c.getTargPort())) incoming.add(c);
 			if (c.getSource().equals(this) && innerOutputPorts.contains(c.getSrcPort())) outgoing.add(c);
 		}
 		
 		//delete incoming connection to input ports that will be removed
 		for (Connection c : incoming) {
-			parent.removeConnection(c);
+			getParent().removeConnection(c);
 		}
 		//delete outgoing connections from output ports that will be removed
 		for (Connection c : outgoing) {
-			parent.removeConnection(c);
+			getParent().removeConnection(c);
 		}
 		
 		//remove inner input and output ports
@@ -470,8 +459,8 @@ public class NestedHyperworkflow implements IHyperworkflow{
 			//some parent had a problem with the removal propagation -> UNDO EVERYTHING
 			this.getInputPorts().addAll(innerInputPorts);	//add previously removed input ports
 			this.getOutputPorts().addAll(innerOutputPorts);	//add previously removed output ports
-			for (Connection c : incoming) parent.addConnection(c);	//add previously removed incoming connections
-			for (Connection c : outgoing) parent.addConnection(c);	//add previously removed outgoing connections
+			for (Connection c : incoming) getParent().addConnection(c);	//add previously removed incoming connections
+			for (Connection c : outgoing) getParent().addConnection(c);	//add previously removed outgoing connections
 			return false;	//report failure
 		}
 	}
@@ -495,7 +484,7 @@ public class NestedHyperworkflow implements IHyperworkflow{
 	
 	@Override
 	public String toString() {
-		return name + ": " + children + ", " + connections;
+		return getName() + ": " + children + ", " + connections;
 	}
 	
 	@Override

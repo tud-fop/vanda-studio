@@ -4,38 +4,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.vanda.studio.model.RendererSelection;
-
 /**
  * 
  * @author afischer
  */
-public class Tool implements IElement{
+public class Tool extends IElement{
 	
 	//gui stuff
-	private double[] dimensions;
-	private RendererSelection renderer;
-	public double getX() { return dimensions[0]; }
-	public double getY() { return dimensions[1]; }
-	public double getWidth() { return dimensions[2]; }
-	public double getHeight() { return dimensions[3]; }
-	public void selectRenderer(RendererSelection rs) { this.renderer = rs; }
-	public IHyperworkflow clone() { return new Tool(this); }
-	public void setDimensions(double[] dim) { if (dim.length == 4)this.dimensions = dim; }
+	public Object clone() throws CloneNotSupportedException { return new Tool(this); }
+	
 	//-------------------------------------------------------------------------
 	
-	private NestedHyperworkflow parent;
-	private String name;
-	private String id;
-	private List<Port> inputPorts;
-	private List<Port> outputPorts;
+	//-------------------------------------------------------------------------
+	//----------------------------- constructors ------------------------------
+	//-------------------------------------------------------------------------
 	
 	public Tool(NestedHyperworkflow parent, String name, List<Port> inputPorts, List<Port> outputPorts) {
-		this.parent = parent;
-		this.name = name;
-		this.id = "0";
-		this.inputPorts = inputPorts;
-		this.outputPorts = outputPorts;
+		super(parent, name, inputPorts, outputPorts);
 	}
 	
 	public Tool(NestedHyperworkflow parent, String name) {
@@ -47,27 +32,16 @@ public class Tool implements IElement{
 	}
 	
 	/** 
-	 * Copy constructor
+	 * Copy constructor - makes a shallow copy of the specified Tool (new instance but attributes reference original attributes)
 	 * @param toCopy
 	 */
 	public Tool(Tool toCopy) {
-		this(toCopy.parent, toCopy.name, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
-		this.id = toCopy.getId();
+		super(toCopy);
 	}
-	
-	public NestedHyperworkflow getParent() { return parent; }
-	public void setParent(NestedHyperworkflow newParent) { this.parent = newParent; }
-	public List<Port> getOutputPorts() {	return outputPorts; }
-	public String getId() {	return id; }
-	public boolean setId(String newId) { 
-		if (newId != null) {
-			id = newId;
-			return true;
-		}
-		return false; 
-	}
-	public List<Port> getInputPorts() { return inputPorts;	}
-	public String getName() { return name; }
+
+	//-------------------------------------------------------------------------
+	//--------------------------- functionality -------------------------------
+	//-------------------------------------------------------------------------
 	
 	@Override
 	public boolean equals(Object other) {
@@ -81,11 +55,6 @@ public class Tool implements IElement{
 					getOutputPorts().equals(oh.getOutputPorts())	);
 		}
 		return result;
-	}
-	
-	@Override
-	public String toString() {
-		return name;
 	}
 	
 	@Override

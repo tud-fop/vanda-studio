@@ -4,46 +4,31 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.vanda.studio.model.RendererSelection;
-
 /**
  * 
  * @author afischer
  */
-public class Or implements IElement{
+public class Or extends IElement {
 	
 	//gui stuff
-	private double[] dimensions;
-	private RendererSelection renderer;
-	public double getX() { return dimensions[0]; }
-	public double getY() { return dimensions[1]; }
-	public double getWidth() { return dimensions[2]; }
-	public double getHeight() { return dimensions[3]; }
-	public void selectRenderer(RendererSelection rs) { this.renderer = rs; }
-	public IHyperworkflow clone() { return new Or(this); }
-	public void setDimensions(double[] dim) { if (dim.length == 4)this.dimensions = dim; }
+	public Object clone() throws CloneNotSupportedException { return new Or(this); }
+	
 	//-------------------------------------------------------------------------
 	
-	private NestedHyperworkflow parent;
-	private String name;
-	private String id;
-	private List<Port> inputPorts;
-	private List<Port> outputPorts;
+	//-------------------------------------------------------------------------
+	//----------------------------- constructors ------------------------------
+	//-------------------------------------------------------------------------
 	
 	public Or(NestedHyperworkflow parent, String name, List<Port> inputPorts, List<Port> outputPorts) {
-		this.parent = parent;
-		this.name = name;
-		this.id = "0";
-		this.inputPorts = inputPorts;
-		this.outputPorts = outputPorts;
+		super(parent, name, inputPorts, outputPorts);
 	}
 	
 	//creates two inputs and one output by default
 	public Or(NestedHyperworkflow parent, String name) {
 		this(parent, name, new ArrayList<Port>(), new ArrayList<Port>());
-		inputPorts.add(new Port("in"+inputPorts.size(), EPortType.GENERIC));
-		inputPorts.add(new Port("in"+inputPorts.size(), EPortType.GENERIC));
-		outputPorts.add(new Port("out"+outputPorts.size(), EPortType.GENERIC));
+		getInputPorts().add(new Port("in"+getInputPorts().size(), EPortType.GENERIC));
+		getInputPorts().add(new Port("in"+getInputPorts().size(), EPortType.GENERIC));
+		getOutputPorts().add(new Port("out"+getOutputPorts().size(), EPortType.GENERIC));
 	}
 	
 	public Or(String name) {
@@ -51,36 +36,26 @@ public class Or implements IElement{
 	}
 	
 	/**
-	 * Copy constructor
+	 * Copy constructor - makes a shallow copy of the specified Or (new instance but attributes reference original attributes)
 	 * @param toCopy
 	 */
 	public Or(Or toCopy) {
-		this(toCopy.parent, toCopy.name, new ArrayList<Port>(toCopy.inputPorts), new ArrayList<Port>(toCopy.outputPorts));
-		this.id = toCopy.getId();
+		super(toCopy);
 	}
 	
 	/** 
-	 * Copy constructor that sets the parent of the copy to another NestedHyperworkflow
+	 * Copy constructor - makes a shallow copy of the specified Or (new instance but attributes reference original attributes)
+	 * In addition, the parent of the returned copy is set to another NestedHyperworkflow.
 	 * @param toCopy
 	 */
 	public Or(Or toCopy, NestedHyperworkflow newParent) {
 		this(toCopy);
-		this.parent = newParent;
+		setParent(newParent);
 	}
 	
-	public NestedHyperworkflow getParent() { return parent; }
-	public void setParent(NestedHyperworkflow newParent) { this.parent = newParent; }
-	public List<Port> getOutputPorts() {	return outputPorts; }
-	public String getId() {	return id; }
-	public boolean setId(String newId) { 
-		if (newId != null) {
-			id = newId;
-			return true;
-		}
-		return false; 
-	}
-	public List<Port> getInputPorts() { return inputPorts;	}
-	public String getName() { return name; }
+	//-------------------------------------------------------------------------
+	//--------------------------- functionality -------------------------------
+	//-------------------------------------------------------------------------
 	
 	@Override
 	public boolean equals(Object other) {
@@ -97,24 +72,19 @@ public class Or implements IElement{
 	}
 	
 	@Override
-	public String toString() {
-		return name;
-	}
-	
-	@Override
 	public Collection<IHyperworkflow> unfold() {
 		List<IHyperworkflow> hwfList = new ArrayList<IHyperworkflow>();
 		
 		//get incoming and outgoing connections that are connected to current OR node
 		List<Connection> incoming = new ArrayList<Connection>();
 		List<Connection> outgoing = new ArrayList<Connection>();
-		for (Connection c : parent.getConnections()) {
+		for (Connection c : getParent().getConnections()) {
 			if (c.getTarget().equals(this)) incoming.add(c);
 			if (c.getSource().equals(this)) outgoing.add(c);
 		}
 		
 		for (int i = 0; i < incoming.size(); i++) {
-			NestedHyperworkflow parentCopy = new NestedHyperworkflow(parent);	//copy parent NestedHyperworkflow of current or node
+			NestedHyperworkflow parentCopy = new NestedHyperworkflow(getParent());	//copy parent NestedHyperworkflow of current or node
 			parentCopy.removeChild(this, false);	//remove or node
 			
 			//connect i-th OR-input with all OR-outputs
