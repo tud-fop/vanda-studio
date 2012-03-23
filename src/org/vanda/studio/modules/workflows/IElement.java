@@ -26,7 +26,7 @@ public abstract class IElement extends IHyperworkflow {
 	}
 	
 	/**
-	 * Copy constructor - makes a shallow copy of the specified IElement (new instance but attributes reference original attributes)
+	 * Copy constructor - makes a deep copy of the specified IElement except for the parent attribute where only its reference is copied
 	 * @param toCopy
 	 */
 	public IElement(IElement toCopy) {

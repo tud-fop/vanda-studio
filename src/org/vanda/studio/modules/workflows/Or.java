@@ -9,12 +9,7 @@ import java.util.List;
  * @author afischer
  */
 public class Or extends IElement {
-	
-	//gui stuff
-	public Object clone() throws CloneNotSupportedException { return new Or(this); }
-	
-	//-------------------------------------------------------------------------
-	
+		
 	//-------------------------------------------------------------------------
 	//----------------------------- constructors ------------------------------
 	//-------------------------------------------------------------------------
@@ -36,7 +31,7 @@ public class Or extends IElement {
 	}
 	
 	/**
-	 * Copy constructor - makes a shallow copy of the specified Or (new instance but attributes reference original attributes)
+	 * Copy constructor - makes a deep copy of the specified Or except for the parent attribute where only its reference is copied
 	 * @param toCopy
 	 */
 	public Or(Or toCopy) {
@@ -44,7 +39,7 @@ public class Or extends IElement {
 	}
 	
 	/** 
-	 * Copy constructor - makes a shallow copy of the specified Or (new instance but attributes reference original attributes)
+	 * Copy constructor - makes a deep copy of the specified Or except for the parent attribute where only its reference is copied
 	 * In addition, the parent of the returned copy is set to another NestedHyperworkflow.
 	 * @param toCopy
 	 */
@@ -56,6 +51,8 @@ public class Or extends IElement {
 	//-------------------------------------------------------------------------
 	//--------------------------- functionality -------------------------------
 	//-------------------------------------------------------------------------
+	
+	public Object clone() throws CloneNotSupportedException { return new Or(this); }
 	
 	@Override
 	public boolean equals(Object other) {

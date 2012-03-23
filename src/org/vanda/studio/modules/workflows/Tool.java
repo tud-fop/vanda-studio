@@ -10,11 +10,6 @@ import java.util.List;
  */
 public class Tool extends IElement{
 	
-	//gui stuff
-	public Object clone() throws CloneNotSupportedException { return new Tool(this); }
-	
-	//-------------------------------------------------------------------------
-	
 	//-------------------------------------------------------------------------
 	//----------------------------- constructors ------------------------------
 	//-------------------------------------------------------------------------
@@ -32,7 +27,7 @@ public class Tool extends IElement{
 	}
 	
 	/** 
-	 * Copy constructor - makes a shallow copy of the specified Tool (new instance but attributes reference original attributes)
+	 * Copy constructor - makes a deep copy of the specified Tool except for the parent attribute where only its reference is copied
 	 * @param toCopy
 	 */
 	public Tool(Tool toCopy) {
@@ -42,6 +37,8 @@ public class Tool extends IElement{
 	//-------------------------------------------------------------------------
 	//--------------------------- functionality -------------------------------
 	//-------------------------------------------------------------------------
+	
+	public Object clone() throws CloneNotSupportedException { return new Tool(this); }
 	
 	@Override
 	public boolean equals(Object other) {

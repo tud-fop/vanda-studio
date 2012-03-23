@@ -20,7 +20,7 @@ import com.thoughtworks.xstream.XStreamException;
  */
 public class NestedHyperworkflow extends IHyperworkflow{
 	
-	//gui stuff
+	//TODO implement real cloning, a full deep copy
 	public Object clone() throws CloneNotSupportedException { return new NestedHyperworkflow(this); }
 	
 	//-------------------------------------------------------------------------
@@ -57,7 +57,6 @@ public class NestedHyperworkflow extends IHyperworkflow{
 	 */
 	public NestedHyperworkflow(NestedHyperworkflow toCopy) {
 		this(toCopy.getParent(), toCopy.getName(), new ArrayList<Port>(toCopy.getInputPorts()), new ArrayList<Port>(toCopy.getOutputPorts()));
-		
 		setId(toCopy.getId());
 		
 		this.children = new ArrayList<IHyperworkflow>();
@@ -85,8 +84,15 @@ public class NestedHyperworkflow extends IHyperworkflow{
 	//-------------------------------------------------------------------------
 	
 	public Map<IHyperworkflow, List<Port>> getPortBlockageMap() { return portBlockageMap; }
+	
+	/** Sets the NestedHyperworkflow's id to the new value.
+	 * If there was a change, the new Id is propagated so that the children can also reset their ids.
+	 * @param newId - replaces the current id
+	 * @return true if replacement was successful
+	 */
+	@Override
 	public boolean setId(String newId) {
-		if (newId != null) { 
+		if (newId != null && getId() != newId) { 
 			super.setId(newId);
 			//update children's ids as well
 			for (IHyperworkflow child : children) {
@@ -103,7 +109,7 @@ public class NestedHyperworkflow extends IHyperworkflow{
 	/** @return a list of connections */
 	public List<Connection> getConnections() { return connections; 	}
 
-	/** @return a list of direct Hyperworkflow children of the current NestedHyperworkflow */
+	/** @return a list of direct IHyperworkflow children of the current NestedHyperworkflow */
 	public List<IHyperworkflow> getChildren() {	return children; }
 	
 	//-------------------------------------------------------------------------
