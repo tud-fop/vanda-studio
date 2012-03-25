@@ -18,6 +18,7 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.VObject;
 import org.vanda.studio.modules.common.Editor;
+import org.vanda.studio.modules.workflows.Connection;
 import org.vanda.studio.modules.workflows.IHyperworkflow;
 import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 import org.vanda.studio.util.Observer;
@@ -111,10 +112,11 @@ public class WorkflowEditor implements Editor<VWorkflow>{
 		protected mxGraphComponent palette;
 		protected JSplitPane mainpane;
 		
-		public WorkflowEditorTab(VWorkflow t) {
+		public WorkflowEditorTab(VWorkflow t) {			
 			vworkflow = t;
 			renderer = new JGraphRenderer();
 			nhwf = vworkflow.load();
+			
 			// create renderer
 			nhwf.getAddObservable().addObserver(
 				new Observer<IHyperworkflow>() {
@@ -123,8 +125,61 @@ public class WorkflowEditor implements Editor<VWorkflow>{
 						renderer.ensurePresence(o);
 					}
 				});
+			
+			//!!!
+			for (IHyperworkflow hwf : nhwf.getChildren()) {
+				nhwf.ensurePresence(hwf);
+//				renderer.ensurePresence(hwf);
+			}
+			
 			// add listeners to renderer
 			// ...
+			
+			//!!!
+			renderer.getObjectAddObservable().addObserver(
+					new Observer<IHyperworkflow>() {
+						@Override
+						public void notify(IHyperworkflow o) {
+							System.out.println("addObject" + o.getName());
+							nhwf.ensurePresence(o);
+						}
+					});
+			renderer.getObjectModifyObservable().addObserver(
+					new Observer<IHyperworkflow>() {
+						@Override
+						public void notify(IHyperworkflow o) {
+							System.out.println("modifyObject" + o.getName());
+						}
+					});
+			renderer.getObjectRemoveObservable().addObserver(
+					new Observer<IHyperworkflow>() {
+						@Override
+						public void notify(IHyperworkflow o) {
+							System.out.println("removeObject" + o.getName());
+						}
+					});
+			renderer.getConnectionAddObservable().addObserver(
+					new Observer<Connection>() {
+						@Override
+						public void notify(Connection c) {
+							System.out.println("addConnection" + c);
+						}
+					});
+			renderer.getConnectionModifyObservable().addObserver(
+					new Observer<Connection>() {
+						@Override
+						public void notify(Connection c) {
+							System.out.println("modifyConnection" + c);
+						}
+					});
+			renderer.getConnectionRemoveObservable().addObserver(
+					new Observer<Connection>() {
+						@Override
+						public void notify(Connection c) {
+							System.out.println("removeConnection" + c);
+						}
+					});
+			
 			palettegraph = JGraphRendering.createGraph();
 			palettegraph.setCellsLocked(true);
 			palette = new mxGraphComponent(palettegraph);

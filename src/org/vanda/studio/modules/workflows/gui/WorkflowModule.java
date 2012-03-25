@@ -1,5 +1,7 @@
 package org.vanda.studio.modules.workflows.gui;
 
+import java.io.File;
+
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
 import org.vanda.studio.modules.common.Editor;
@@ -27,7 +29,7 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 	
 	@Override
 	public String getExtension() {
-		return ".workflow";
+		return ".hwf";
 	}
 
 	@Override
@@ -42,6 +44,7 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 			super(a, m);
 			
 			app.getWindowSystem().addAction(new NewWorkflowAction());
+			app.getWindowSystem().addAction(new OpenWorkflowAction());
 		}
 		
 		protected class NewWorkflowAction implements Action {
@@ -54,6 +57,25 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 			public void invoke() {
 				// create term (file)
 				VWorkflow t = factory.createInstance(WorkflowModuleInstance.this, null);
+				// do something with the repository
+				//repository.addItem(t); FIXME
+				// open editor for term
+				openEditor(t);
+			}
+		}
+		
+		protected class OpenWorkflowAction implements Action {
+			@Override
+			public String getName() {
+				return "Open Hyperworkflow";
+			}
+			
+			@Override
+			public void invoke() {
+				//FIXME: open file dialog and let user choose the file
+				
+				// create term (file)
+				VWorkflow t = factory.createInstance(WorkflowModuleInstance.this, new File("/home/anja/test-load.hwf"));
 				// do something with the repository
 				//repository.addItem(t); FIXME
 				// open editor for term

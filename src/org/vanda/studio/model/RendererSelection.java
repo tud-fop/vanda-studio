@@ -15,6 +15,8 @@ public interface RendererSelection {
 	
 	void selectGrammarRenderer();
 	
+	void selectOrRenderer();
+	
 	void selectSinkRenderer();
 	
 	void selectTermRenderer();

@@ -22,6 +22,7 @@ public class JGraphRendering {
 	protected static Renderer algorithmRenderer = new AlgorithmRenderer();
 	protected static Renderer corpusRenderer = new CorpusRenderer();
 	protected static Renderer grammarRenderer = new GrammarRenderer();
+	protected static Renderer orRenderer = new ChoiceNodeRenderer();
 	protected static Renderer sinkRenderer = new SinkRenderer();
 	protected static Renderer termRenderer = new TermRenderer();
 	protected static Renderer textRenderer = new TextRenderer();
@@ -30,6 +31,7 @@ public class JGraphRendering {
 		algorithmRenderer,
 		corpusRenderer,
 		grammarRenderer,
+		orRenderer,
 		sinkRenderer,
 		termRenderer,
 		textRenderer
@@ -134,6 +136,11 @@ public class JGraphRendering {
 		}
 		
 		@Override
+		public void selectOrRenderer() {
+			renderer = JGraphRendering.orRenderer;
+		}
+		
+		@Override
 		public void selectSinkRenderer() {
 			renderer = JGraphRendering.sinkRenderer;
 		}
@@ -218,6 +225,18 @@ public class JGraphRendering {
 		}
 	}
 
+	protected static class ChoiceNodeRenderer extends DefaultRenderer {
+		@Override
+		public void addStyle(Map<String,Object> style) {
+			style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
+		}
+		
+		@Override
+		public String getStyleName() {
+			return "or";
+		}
+	}
+	
 	protected static class GrammarRenderer extends DefaultRenderer {
 		@Override
 		public void addStyle(Map<String,Object> style) {

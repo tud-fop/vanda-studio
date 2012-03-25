@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.RendererSelection;
+import org.vanda.studio.modules.workflows.gui.JGraphRendering;
+import org.vanda.studio.modules.workflows.gui.JGraphRendering.JGraphRendererSelection;
 
 /**
  * Superclass component of IHyperworkflow composite pattern
@@ -102,6 +104,6 @@ public abstract class IHyperworkflow {
 	public double getY() { return dimensions[1]; }
 	public double getWidth() { return dimensions[2]; }
 	public double getHeight() { return dimensions[3]; }
-	public void selectRenderer(RendererSelection rs) {}
+	public void selectRenderer(RendererSelection rs) {rs.selectTermRenderer();}
 	public void setDimensions(double[] dim) { if (dim.length == 4) this.dimensions = dim; }
 }

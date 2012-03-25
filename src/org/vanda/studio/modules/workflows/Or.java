@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.vanda.studio.model.RendererSelection;
+
 /**
  * 
  * @author afischer
@@ -52,7 +54,14 @@ public final class Or extends IElement {
 	//--------------------------- functionality -------------------------------
 	//-------------------------------------------------------------------------
 	
+	@Override
 	public Object clone() throws CloneNotSupportedException { return new Or(this); }
+	
+	
+	@Override
+	public void selectRenderer(RendererSelection rs) {
+		rs.selectOrRenderer();
+	}
 	
 	@Override
 	public Collection<IHyperworkflow> unfold() {

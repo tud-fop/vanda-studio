@@ -46,25 +46,27 @@ public class NestedHyperworkflow extends IHyperworkflow{
 			modifyObservable.notify(o);
 		}
 	}
-	
-	//TODO reference add/remove child/connection methods somehow
 	public void ensureAbsence(IHyperworkflow o) {
-		if (children.remove(o)) {
+//		if (children.remove(o)) {
+		if (removeChild(o, false)) {
 			removeObservable.notify(o);
 		}
 	}
 	public void ensureConnected(Connection c) {
-		if (!connections.add(c)) {
+//		if (!connections.add(c)) {
+		if (!addConnection(c)) {
 			connectObservable.notify(c);
 		}
 	}
 	public void ensureDisconnected(Connection c) {
-		if (!connections.remove(c)) {
+//		if (!connections.remove(c)) {
+		if (!removeConnection(c)) {
 			connectObservable.notify(c);
 		}
 	}
 	public void ensurePresence(IHyperworkflow o) {
-		if (!children.add(o)) {
+//		if (!children.add(o)) {
+		if (!addChild(o)) {
 			addObservable.notify(o);
 		}
 	}
@@ -680,6 +682,8 @@ public class NestedHyperworkflow extends IHyperworkflow{
 		if (fileWriter != null){
 			Writer output = new BufferedWriter(fileWriter);
 			XStream xs = new XStream();
+			
+			//TODO do NOT save whole NestedHyperworkflow! Only save a map of necessary attributes and load nhwf from this map upon loading
 			xs.toXML(this, output);
 			return true;
 		}
@@ -804,5 +808,22 @@ public class NestedHyperworkflow extends IHyperworkflow{
 //		for (IHyperworkflow hwf : blub.unfold()) {
 //			System.out.println(hwf);
 //		}
+		
+		NestedHyperworkflow test = new NestedHyperworkflow("testroot");
+		IElement tool = new Tool("tool");
+		tool.getOutputPorts().add(new Port("out", EPortType.GENERIC));
+		IElement tool2 = new Tool("tool2");
+		tool2.getInputPorts().add(new Port("in", EPortType.GENERIC));
+		IElement or = new Or("or");
+		test.addChild(tool);
+		test.addChild(or);
+		test.addChild(tool2);
+		test.addConnection(new Connection(tool, tool.getOutputPorts().get(0), or, or.getInputPorts().get(0)));
+		test.addConnection(new Connection(or, or.getOutputPorts().get(0), tool2, tool2.getInputPorts().get(0)));
+		test.save("/home/anja/test-load.hwf");
+		
+		NestedHyperworkflow loadtest = NestedHyperworkflow.load("/home/anja/test-load.hwf");
+		System.out.println(loadtest);
+		
 	}
 }

@@ -137,6 +137,11 @@ public class JGraphRendering {
 		}
 		
 		@Override
+		public void selectOrRenderer() {
+			renderer = JGraphRendering.grammarRenderer;
+		}
+		
+		@Override
 		public void selectSinkRenderer() {
 			renderer = JGraphRendering.sinkRenderer;
 		}
