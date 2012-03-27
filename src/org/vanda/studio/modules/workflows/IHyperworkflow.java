@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.RendererSelection;
-import org.vanda.studio.modules.workflows.gui.JGraphRendering;
-import org.vanda.studio.modules.workflows.gui.JGraphRendering.JGraphRendererSelection;
 
 /**
  * Superclass component of IHyperworkflow composite pattern

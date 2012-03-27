@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.vanda.studio.model.RendererSelection;
+import org.vanda.studio.modules.workflows.Connection;
 import org.vanda.studio.modules.workflows.IHyperworkflow;
+import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxEdgeStyle;
@@ -49,6 +52,15 @@ public class JGraphRendering {
 		JGraphRendering.Renderer r = rs.getRenderer();
 		r.render(to, g);
 	}
+	
+	public static void render(Connection conn, Graph g) {
+		JGraphRendererSelection rs = JGraphRendering.newRendererSelection();
+		//use arbitrary renderer, style is irrelevant for edge rendring
+		rs.selectAlgorithmRenderer();
+		JGraphRendering.Renderer r = rs.getRenderer();
+		r.render(conn, g);
+	}
+	
 	
 	public static Graph createGraph() {
 		return new Graph();
@@ -162,6 +174,8 @@ public class JGraphRendering {
 		String getStyleName();
 		
 		void render(IHyperworkflow to, Graph g);
+		
+		void render(Connection c, Graph g);
 	}
 	
 	protected abstract static class DefaultRenderer implements Renderer {
@@ -174,7 +188,7 @@ public class JGraphRendering {
 			Object parent = g.getDefaultParent();
 			g.getModel().beginUpdate();
 			try
-			{
+			{				
 				mxCell v = (mxCell) g.insertVertex(parent, null, hwf, hwf.getX(),
 						hwf.getY(), hwf.getWidth(), hwf.getHeight(), this.getStyleName());
 				v.setConnectable(false);
@@ -203,6 +217,58 @@ public class JGraphRendering {
 					port.setVertex(true);
 					
 					g.addCell(port, v);
+				}
+				
+				//render NestedHyperworkflow children and connections
+				if (hwf instanceof NestedHyperworkflow) {
+					//TODO
+				}
+			}
+			finally {
+				g.getModel().endUpdate();
+			}
+		}
+		
+		@Override
+		public void render(Connection c, Graph g) {
+			Object parent = g.getDefaultParent();
+			g.getModel().beginUpdate();
+			try {
+				mxICell source = null;
+				mxICell target = null;
+				
+				//get all child vertices of the graph
+				Object[] childVertices = g.getChildCells(parent, true, false);
+				for (Object o : childVertices) {
+					//check if vertice's values equal the source or target of the connection 
+					if (((mxCell)o).getValue().equals(c.getSource())) source = (mxICell)o;
+					if (((mxCell)o).getValue().equals(c.getTarget())) target = (mxICell)o;
+				}
+				
+				if (source != null && target != null) {
+					IHyperworkflow src = (IHyperworkflow)source.getValue();
+					IHyperworkflow trg = (IHyperworkflow)target.getValue();
+				
+					//TODO port calculation has to be changed when nested children are allowed
+				
+					//determine port id of srcPort
+					for (int i = 0; i < src.getOutputPorts().size(); i++) {
+						if (src.getOutputPorts().get(i).equals(c.getSrcPort())) {
+							//a vertice's ports are children of that node, first input ports, then output ports
+							source = source.getChildAt(i + src.getInputPorts().size());
+							break;
+						}
+					}
+					//determine port id of targPort
+					for (int i = 0; i < trg.getInputPorts().size(); i++) {
+						if (trg.getInputPorts().get(i).equals(c.getTargPort())) {
+							target = target.getChildAt(i);
+							break;
+						}
+					}
+				
+					//add edge to the graph
+					g.insertEdge(parent, null, c, source, target);
 				}
 			}
 			finally {
@@ -397,6 +463,13 @@ public class JGraphRendering {
 		@Override
 		public boolean isCellFoldable(Object cell, boolean collapse)
 		{
+			//allow NestedHyperworkflow with children to be foldable
+			mxCell c = (mxCell)cell;
+			if (c.getValue() instanceof NestedHyperworkflow) {
+				if (!((NestedHyperworkflow)c.getValue()).getChildren().isEmpty()) return true;
+			}
+			
+			
 			return false;
 		}
 	}

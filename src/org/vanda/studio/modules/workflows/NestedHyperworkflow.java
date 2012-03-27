@@ -47,25 +47,25 @@ public class NestedHyperworkflow extends IHyperworkflow{
 		}
 	}
 	public void ensureAbsence(IHyperworkflow o) {
-//		if (children.remove(o)) {
+		System.out.println("NHWF: ensureAbsence - " + o);
 		if (removeChild(o, false)) {
 			removeObservable.notify(o);
 		}
 	}
 	public void ensureConnected(Connection c) {
-//		if (!connections.add(c)) {
+		System.out.println("NHWF: ensureConnected - " + c);
 		if (!addConnection(c)) {
 			connectObservable.notify(c);
 		}
 	}
 	public void ensureDisconnected(Connection c) {
-//		if (!connections.remove(c)) {
+		System.out.println("NHWF: ensureDisconnected - " + c);
 		if (!removeConnection(c)) {
 			connectObservable.notify(c);
 		}
 	}
 	public void ensurePresence(IHyperworkflow o) {
-//		if (!children.add(o)) {
+		System.out.println("NHWF: ensurePresence - " + o);
 		if (!addChild(o)) {
 			addObservable.notify(o);
 		}
@@ -818,11 +818,20 @@ public class NestedHyperworkflow extends IHyperworkflow{
 		test.addChild(tool);
 		test.addChild(or);
 		test.addChild(tool2);
+		
+		NestedHyperworkflow nested = new NestedHyperworkflow("nested");
+		IElement nestedTool = new Tool("nestedTool");
+		nestedTool.getInputPorts().add(new Port("in", EPortType.GENERIC));
+		nested.addChild(nestedTool);
+		test.addChild(nested);
+		
 		test.addConnection(new Connection(tool, tool.getOutputPorts().get(0), or, or.getInputPorts().get(0)));
 		test.addConnection(new Connection(or, or.getOutputPorts().get(0), tool2, tool2.getInputPorts().get(0)));
-		test.save("/home/anja/test-load.hwf");
+		nested.addConnection(new Connection(nested, nested.getInputPorts().get(0), nestedTool, nestedTool.getInputPorts().get(0)));
+		test.addConnection(new Connection(or, or.getOutputPorts().get(0), nested, nested.getInputPorts().get(0)));
+		test.save("/home/student/afischer/test-load.hwf");
 		
-		NestedHyperworkflow loadtest = NestedHyperworkflow.load("/home/anja/test-load.hwf");
+		NestedHyperworkflow loadtest = NestedHyperworkflow.load("/home/student/afischer/test-load.hwf");
 		System.out.println(loadtest);
 		
 	}

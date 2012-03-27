@@ -75,7 +75,7 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 				//FIXME: open file dialog and let user choose the file
 				
 				// create term (file)
-				VWorkflow t = factory.createInstance(WorkflowModuleInstance.this, new File("/home/anja/test-load.hwf"));
+				VWorkflow t = factory.createInstance(WorkflowModuleInstance.this, new File("/home/student/afischer/test-load.hwf"));
 				// do something with the repository
 				//repository.addItem(t); FIXME
 				// open editor for term

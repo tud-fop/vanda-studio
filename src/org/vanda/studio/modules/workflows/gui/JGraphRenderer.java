@@ -85,6 +85,23 @@ public class JGraphRenderer {
 		}
 	}
 	
+	public void ensureConnected(Connection conn) {
+		Object cell = edges.get(conn);
+		if (cell == null) {
+			JGraphRendering.render(conn, graph);
+		}else {
+			System.out.println("TODO: modify edge to match intended geometry...");
+			//TODO
+		}
+	}
+	
+	public void ensureDisconnected(Connection conn) {
+		Object cell = edges.remove(conn);
+		if (cell != null) {
+			graph.removeCells(new Object[] {cell});
+		}
+	}
+	
 	public Observable<Connection> getConnectionAddObservable() {
 		return connectionAddObservable;
 	}
@@ -118,8 +135,8 @@ public class JGraphRenderer {
 		Object value = model.getValue(cell);
 		Connection conn = null;
 		assert (model.isEdge(cell));
-		Object source = model.getTerminal(value, true);
-		Object target = model.getTerminal(value, false);
+		Object source = model.getTerminal(cell, true);
+		Object target = model.getTerminal(cell, false);
 		// ignore "unfinished" edges
 		if (source != null && target != null) {
 			Object sval = model.getValue(source);
@@ -138,25 +155,26 @@ public class JGraphRenderer {
 				&& ((Port)tval).index < ((IHyperworkflow)tparval).getInputPorts().size()
 				&& ((Port)tval).input);
 			
-			if (value == null) {
+			if (value instanceof Connection)
+				conn = (Connection)value;
+			else {
 				// check if a new edge is added
 				conn = new Connection();
 				if (edges.put(conn, cell) != null) {
 					assert(false);
 				}
 			}
-			else {
-				conn = (Connection)value;
-			}
 			conn.setSource((IHyperworkflow)sparval);
 			conn.setTarget((IHyperworkflow)tparval);
 			conn.setSrcPort(conn.getSource().getOutputPorts().get(((Port)sval).index));
 			conn.setTargPort(conn.getTarget().getInputPorts().get(((Port)tval).index));
 			// notify
-			if (conn != value)
+			if (conn != value) {
+				model.setValue(cell, conn);
 				connectionAddObservable.notify(conn);
-			else
+			} else {
 				connectionModifyObservable.notify(conn);
+			}
 		}
 	}
 	

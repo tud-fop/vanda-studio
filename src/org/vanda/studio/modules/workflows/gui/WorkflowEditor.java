@@ -116,31 +116,45 @@ public class WorkflowEditor implements Editor<VWorkflow>{
 			vworkflow = t;
 			renderer = new JGraphRenderer();
 			nhwf = vworkflow.load();
+			System.out.println(nhwf);
 			
 			// create renderer
-			nhwf.getAddObservable().addObserver(
+			nhwf.getAddObservable().addObserver(		//new children of nhwf are propagated to the renderer
 				new Observer<IHyperworkflow>() {
 					@Override
 					public void notify(IHyperworkflow o) {
 						renderer.ensurePresence(o);
 					}
 				});
+			nhwf.getRemoveObservable().addObserver(		//removed children of nhwf are propagated to the renderer
+					new Observer<IHyperworkflow>() {
+						@Override
+						public void notify(IHyperworkflow o) {
+							renderer.ensureAbsence(o);
+						}
+					});
+			nhwf.getConnectObservable().addObserver(	//new edges of nhwf are propagated to the renderer
+					new Observer<Connection>() {
+						@Override
+						public void notify(Connection conn) {
+							renderer.ensureConnected(conn);
+						}
+					});
+			nhwf.getDisconnectObservable().addObserver(	//removed edges of nhwf are propagated to the renderer
+					new Observer<Connection>() {
+						@Override
+						public void notify(Connection conn) {
+							renderer.ensureDisconnected(conn);
+						}
+					});
 			
-			//!!!
-			for (IHyperworkflow hwf : nhwf.getChildren()) {
-				nhwf.ensurePresence(hwf);
-//				renderer.ensurePresence(hwf);
-			}
-			
-			// add listeners to renderer
-			// ...
-			
+			// add listeners to renderer - every change within the graph (renderer) is propagated to the model
 			//!!!
 			renderer.getObjectAddObservable().addObserver(
 					new Observer<IHyperworkflow>() {
 						@Override
 						public void notify(IHyperworkflow o) {
-							System.out.println("addObject" + o.getName());
+							System.out.println("renderer: addObject - " + o.getName());
 							nhwf.ensurePresence(o);
 						}
 					});
@@ -148,35 +162,38 @@ public class WorkflowEditor implements Editor<VWorkflow>{
 					new Observer<IHyperworkflow>() {
 						@Override
 						public void notify(IHyperworkflow o) {
-							System.out.println("modifyObject" + o.getName());
+							System.out.println("renderer: modifyObject - " + o.getName());
 						}
 					});
 			renderer.getObjectRemoveObservable().addObserver(
 					new Observer<IHyperworkflow>() {
 						@Override
 						public void notify(IHyperworkflow o) {
-							System.out.println("removeObject" + o.getName());
+							System.out.println("renderer: removeObject - " + o.getName());
+							nhwf.ensureAbsence(o);
 						}
 					});
 			renderer.getConnectionAddObservable().addObserver(
 					new Observer<Connection>() {
 						@Override
 						public void notify(Connection c) {
-							System.out.println("addConnection" + c);
+							System.out.println("renderer: addConnection - " + c);
+							nhwf.ensureConnected(c);
 						}
 					});
 			renderer.getConnectionModifyObservable().addObserver(
 					new Observer<Connection>() {
 						@Override
 						public void notify(Connection c) {
-							System.out.println("modifyConnection" + c);
+							System.out.println("renderer: modifyConnection - " + c);
 						}
 					});
 			renderer.getConnectionRemoveObservable().addObserver(
 					new Observer<Connection>() {
 						@Override
 						public void notify(Connection c) {
-							System.out.println("removeConnection" + c);
+							System.out.println("renderer: removeConnection - " + c);
+							nhwf.ensureDisconnected(c);
 						}
 					});
 			
@@ -197,6 +214,17 @@ public class WorkflowEditor implements Editor<VWorkflow>{
 			mainpane.setResizeWeight(1);
 			mainpane.setDividerSize(6);
 			mainpane.setBorder(null);
+			
+			//-------------------------------------------------------
+			//------ display nodes and edges of a loaded nhwf -------
+			//-------------------------------------------------------
+			
+			for (IHyperworkflow hwf : nhwf.getChildren()) {
+				nhwf.ensurePresence(hwf);
+			}
+			for (Connection c : nhwf.getConnections()) {
+				nhwf.ensureConnected(c);
+			}
 		}
 		
 		public JComponent getComponent() {
