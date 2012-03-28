@@ -46,11 +46,11 @@ public class JGraphRendering {
 	private JGraphRendering() {
 	}
 	
-	public static void render(IHyperworkflow to, Graph g) {
+	public static void render(IHyperworkflow to, Graph g, Object parentCell) {
 		JGraphRendererSelection rs = JGraphRendering.newRendererSelection();
 		to.selectRenderer(rs);
 		JGraphRendering.Renderer r = rs.getRenderer();
-		r.render(to, g);
+		r.render(to, g, parentCell);
 	}
 	
 	public static void render(Connection conn, Graph g) {
@@ -173,7 +173,7 @@ public class JGraphRendering {
 		
 		String getStyleName();
 		
-		void render(IHyperworkflow to, Graph g);
+		void render(IHyperworkflow to, Graph g, Object parentCell);
 		
 		void render(Connection c, Graph g);
 	}
@@ -184,8 +184,12 @@ public class JGraphRendering {
 		}
 		
 		@Override
-		public void render(IHyperworkflow hwf, Graph g) {
-			Object parent = g.getDefaultParent();
+		public void render(IHyperworkflow hwf, Graph g, Object parentCell) {
+//			Object parent = g.getDefaultParent();
+			
+			Object parent = parentCell;
+			if (parentCell == null) parent = g.getDefaultParent();
+			
 			g.getModel().beginUpdate();
 			try
 			{				
@@ -218,11 +222,6 @@ public class JGraphRendering {
 					
 					g.addCell(port, v);
 				}
-				
-				//render NestedHyperworkflow children and connections
-				if (hwf instanceof NestedHyperworkflow) {
-					//TODO
-				}
 			}
 			finally {
 				g.getModel().endUpdate();
@@ -250,19 +249,29 @@ public class JGraphRendering {
 					IHyperworkflow trg = (IHyperworkflow)target.getValue();
 				
 					//TODO port calculation has to be changed when nested children are allowed
+					//TODO inner ports!!!
 				
+					boolean innerSource = false;
+					boolean innerTarget = false;
+					
 					//determine port id of srcPort
-					for (int i = 0; i < src.getOutputPorts().size(); i++) {
-						if (src.getOutputPorts().get(i).equals(c.getSrcPort())) {
+					List<org.vanda.studio.modules.workflows.Port> portList = src.getOutputPorts();
+					if (innerSource) portList = src.getInputPorts();
+					for (int i = 0; i < portList.size(); i++) {
+						if (portList.get(i).equals(c.getSrcPort())) {
 							//a vertice's ports are children of that node, first input ports, then output ports
 							source = source.getChildAt(i + src.getInputPorts().size());
+							if (innerSource) source = source.getChildAt(i);
 							break;
 						}
 					}
 					//determine port id of targPort
-					for (int i = 0; i < trg.getInputPorts().size(); i++) {
-						if (trg.getInputPorts().get(i).equals(c.getTargPort())) {
+					portList = trg.getInputPorts();
+					if (innerTarget) portList = trg.getOutputPorts();
+					for (int i = 0; i < portList.size(); i++) {
+						if (portList.get(i).equals(c.getTargPort())) {
 							target = target.getChildAt(i);
+							if (innerTarget) target = target.getChildAt(trg.getInputPorts().size());
 							break;
 						}
 					}

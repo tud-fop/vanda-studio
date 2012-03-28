@@ -63,7 +63,7 @@ public class JGraphRenderer {
 	public void ensurePresence(IHyperworkflow to) {
 		Object cell = nodes.get(to);
 		if (cell == null) {
-			JGraphRendering.render(to, graph);
+			JGraphRendering.render(to, graph, nodes.get(to.getParent()));
 		}
 		else {
 			// make sure the cell has the same properties as the TermObject to

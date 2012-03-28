@@ -218,13 +218,54 @@ public class WorkflowEditor implements Editor<VWorkflow>{
 			//-------------------------------------------------------
 			//------ display nodes and edges of a loaded nhwf -------
 			//-------------------------------------------------------
+			renderRecursively(nhwf);
+			for (Connection conn : nhwf.getConnections()) {
+				nhwf.ensureConnected(conn);
+			}
+		}
+		
+		private void renderRecursively(NestedHyperworkflow nested) {
 			
-			for (IHyperworkflow hwf : nhwf.getChildren()) {
-				nhwf.ensurePresence(hwf);
+			nested.getAddObservable().addObserver(		//new children of nhwf are propagated to the renderer
+					new Observer<IHyperworkflow>() {
+						@Override
+						public void notify(IHyperworkflow o) {
+							renderer.ensurePresence(o);
+						}
+					});
+			nested.getRemoveObservable().addObserver(		//removed children of nhwf are propagated to the renderer
+						new Observer<IHyperworkflow>() {
+							@Override
+							public void notify(IHyperworkflow o) {
+								renderer.ensureAbsence(o);
+							}
+						});
+			nested.getConnectObservable().addObserver(	//new edges of nhwf are propagated to the renderer
+						new Observer<Connection>() {
+							@Override
+							public void notify(Connection conn) {
+								renderer.ensureConnected(conn);
+							}
+						});
+			nested.getDisconnectObservable().addObserver(	//removed edges of nhwf are propagated to the renderer
+						new Observer<Connection>() {
+							@Override
+							public void notify(Connection conn) {
+								renderer.ensureDisconnected(conn);
+							}
+						});
+			
+			for (IHyperworkflow child : nested.getChildren()) {
+				nested.ensurePresence(child);
+				if (child instanceof NestedHyperworkflow) {
+					renderRecursively((NestedHyperworkflow)child);
+				}
 			}
-			for (Connection c : nhwf.getConnections()) {
-				nhwf.ensureConnected(c);
+			for (Connection conn : nested.getConnections()) {
+//				nested.ensureConnected(conn);
 			}
+			
+			
 		}
 		
 		public JComponent getComponent() {
@@ -257,7 +298,7 @@ public class WorkflowEditor implements Editor<VWorkflow>{
 					if (to.getInputPorts().size() > 0)
 						d[1] += 20;	//length of a port
 					to.setDimensions(d);
-					JGraphRendering.render(to, palettegraph);
+					JGraphRendering.render(to, palettegraph, null);
 					d[1] += 90;
 					if (to.getOutputPorts().size() > 0)
 						d[1] += 20;
