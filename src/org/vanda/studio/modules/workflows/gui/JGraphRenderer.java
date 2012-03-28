@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.vanda.studio.modules.workflows.Connection;
 import org.vanda.studio.modules.workflows.IHyperworkflow;
+import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 import org.vanda.studio.modules.workflows.gui.JGraphRendering.Port;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
@@ -88,7 +89,20 @@ public class JGraphRenderer {
 	public void ensureConnected(Connection conn) {
 		Object cell = edges.get(conn);
 		if (cell == null) {
-			JGraphRendering.render(conn, graph);
+			
+			//determine the NestedHyperworkflow that contains the specified connection
+			Object parentCell = null;
+			if (conn.getSource() instanceof NestedHyperworkflow) {
+				
+				NestedHyperworkflow src = (NestedHyperworkflow)conn.getSource();
+				if (src.getChildren().contains(conn.getTarget()))
+					parentCell = nodes.get(conn.getSource());
+				
+			} else {
+				parentCell = nodes.get(conn.getSource().getParent());
+			}
+			
+			JGraphRendering.render(conn, graph, parentCell);
 		}else {
 			System.out.println("TODO: modify edge to match intended geometry...");
 			//TODO

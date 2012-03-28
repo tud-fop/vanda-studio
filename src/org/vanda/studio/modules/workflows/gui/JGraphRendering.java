@@ -53,12 +53,12 @@ public class JGraphRendering {
 		r.render(to, g, parentCell);
 	}
 	
-	public static void render(Connection conn, Graph g) {
+	public static void render(Connection conn, Graph g, Object parentCell) {
 		JGraphRendererSelection rs = JGraphRendering.newRendererSelection();
 		//use arbitrary renderer, style is irrelevant for edge rendring
 		rs.selectAlgorithmRenderer();
 		JGraphRendering.Renderer r = rs.getRenderer();
-		r.render(conn, g);
+		r.render(conn, g, parentCell);
 	}
 	
 	
@@ -175,7 +175,7 @@ public class JGraphRendering {
 		
 		void render(IHyperworkflow to, Graph g, Object parentCell);
 		
-		void render(Connection c, Graph g);
+		void render(Connection c, Graph g, Object parentCell);
 	}
 	
 	protected abstract static class DefaultRenderer implements Renderer {
@@ -229,30 +229,48 @@ public class JGraphRendering {
 		}
 		
 		@Override
-		public void render(Connection c, Graph g) {
-			Object parent = g.getDefaultParent();
+		public void render(Connection c, Graph g, Object parentCell) {
+//			Object parent = g.getDefaultParent();
+			
+			Object parent = parentCell;
+			if (parentCell == null) parent = g.getDefaultParent();
+			
 			g.getModel().beginUpdate();
 			try {
 				mxICell source = null;
 				mxICell target = null;
 				
+				if (c.getSource().getName().equals("nested"))
+					System.out.println("blubbidiblubb");
+				
+				boolean innerSource = false;
+				boolean innerTarget = false;
+				
+//				//check if source or target equal the parent (i.e. inner ports are used)
+//				if (((mxCell)parent).getValue().equals(c.getSource())) {
+//					source = (mxICell)parent;
+//					innerSource = true;
+//				}
+//				if (((mxCell)parent).getValue().equals(c.getTarget())) {
+//					target = (mxICell)parent;
+//					innerTarget = true;
+//				}
+				//FIXME (oberer Teil macht probleme!) fuer geschachtelte Knoten muss evtl anderer Graph als g geupdated werden!!!
+				//FIXME evtl den Port cells direkt einen workflows.Port als Value anhaengen...
+				
 				//get all child vertices of the graph
 				Object[] childVertices = g.getChildCells(parent, true, false);
 				for (Object o : childVertices) {
 					//check if vertice's values equal the source or target of the connection 
-					if (((mxCell)o).getValue().equals(c.getSource())) source = (mxICell)o;
-					if (((mxCell)o).getValue().equals(c.getTarget())) target = (mxICell)o;
+					if (source == null && ((mxCell)o).getValue().equals(c.getSource())) source = (mxICell)o;
+					if (target == null && ((mxCell)o).getValue().equals(c.getTarget())) target = (mxICell)o;
 				}
 				
 				if (source != null && target != null) {
 					IHyperworkflow src = (IHyperworkflow)source.getValue();
 					IHyperworkflow trg = (IHyperworkflow)target.getValue();
 				
-					//TODO port calculation has to be changed when nested children are allowed
-					//TODO inner ports!!!
-				
-					boolean innerSource = false;
-					boolean innerTarget = false;
+					//TODO port calculation (INDEX) has to be changed when nested children are allowed
 					
 					//determine port id of srcPort
 					List<org.vanda.studio.modules.workflows.Port> portList = src.getOutputPorts();
@@ -260,8 +278,8 @@ public class JGraphRendering {
 					for (int i = 0; i < portList.size(); i++) {
 						if (portList.get(i).equals(c.getSrcPort())) {
 							//a vertice's ports are children of that node, first input ports, then output ports
-							source = source.getChildAt(i + src.getInputPorts().size());
 							if (innerSource) source = source.getChildAt(i);
+							else source = source.getChildAt(i + src.getInputPorts().size());
 							break;
 						}
 					}
@@ -270,14 +288,15 @@ public class JGraphRendering {
 					if (innerTarget) portList = trg.getOutputPorts();
 					for (int i = 0; i < portList.size(); i++) {
 						if (portList.get(i).equals(c.getTargPort())) {
-							target = target.getChildAt(i);
 							if (innerTarget) target = target.getChildAt(trg.getInputPorts().size());
+							else target = target.getChildAt(i);
 							break;
 						}
 					}
 				
 					//add edge to the graph
 					g.insertEdge(parent, null, c, source, target);
+					System.out.println("huhu");
 				}
 			}
 			finally {

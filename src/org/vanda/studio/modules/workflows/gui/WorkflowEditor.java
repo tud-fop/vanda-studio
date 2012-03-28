@@ -219,9 +219,6 @@ public class WorkflowEditor implements Editor<VWorkflow>{
 			//------ display nodes and edges of a loaded nhwf -------
 			//-------------------------------------------------------
 			renderRecursively(nhwf);
-			for (Connection conn : nhwf.getConnections()) {
-				nhwf.ensureConnected(conn);
-			}
 		}
 		
 		private void renderRecursively(NestedHyperworkflow nested) {
@@ -262,10 +259,8 @@ public class WorkflowEditor implements Editor<VWorkflow>{
 				}
 			}
 			for (Connection conn : nested.getConnections()) {
-//				nested.ensureConnected(conn);
-			}
-			
-			
+				nested.ensureConnected(conn);
+			}			
 		}
 		
 		public JComponent getComponent() {
