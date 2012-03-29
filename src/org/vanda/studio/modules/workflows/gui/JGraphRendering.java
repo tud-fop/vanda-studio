@@ -191,10 +191,12 @@ public class JGraphRendering {
 			g.getModel().beginUpdate();
 			try
 			{				
+				//insert new node into the graph that has the specified hwf as value and that shared the same dimensions
 				mxCell v = (mxCell) g.insertVertex(parent, null, hwf, hwf.getX(),
 						hwf.getY(), hwf.getWidth(), hwf.getHeight(), this.getStyleName());
 				v.setConnectable(false);
 				
+				//insert a cell for every input port
 				List<org.vanda.studio.modules.workflows.Port> in = hwf.getInputPorts();
 				for (int i = 0; i < in.size(); i++) {
 					mxGeometry geo = new mxGeometry((i+1.0)/(in.size()+1.0), 0,
@@ -208,6 +210,7 @@ public class JGraphRendering {
 					g.addCell(port, v);
 				}
 				
+				//insert a cell for every output port
 				List<org.vanda.studio.modules.workflows.Port> out = hwf.getOutputPorts();
 				for (int i = 0; i < out.size(); i++) {
 					mxGeometry geo = new mxGeometry((i+1.0)/(out.size()+1.0), 1,

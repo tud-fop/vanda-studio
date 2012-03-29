@@ -102,6 +102,7 @@ public class JGraphRenderer {
 				parentCell = nodes.get(conn.getSource().getParent());
 			}
 			
+			//parentCell is the Graph-cell of the NestedHyperworkflow containing connection conn
 			JGraphRendering.render(conn, graph, parentCell);
 		}else {
 			System.out.println("TODO: modify edge to match intended geometry...");
