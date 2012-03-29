@@ -180,8 +180,29 @@ public class JGraphRenderer {
 			}
 			conn.setSource((IHyperworkflow)sparval);
 			conn.setTarget((IHyperworkflow)tparval);
-			conn.setSrcPort(conn.getSource().getOutputPorts().get(((Port)sval).index));
-			conn.setTargPort(conn.getTarget().getInputPorts().get(((Port)tval).index));
+				
+			//check if Connection starts/ends from/at inner port of a NestedHyperworkflow
+			boolean innerSource = false;
+			boolean innerTarget = false;
+			if (conn.getSource() instanceof NestedHyperworkflow && 
+					(
+							((NestedHyperworkflow)conn.getSource()).getChildren().contains(conn.getTarget()) ||
+							conn.getSource().equals(conn.getTarget())
+					)
+			) innerSource = true;
+			if (conn.getTarget() instanceof NestedHyperworkflow && 
+					(
+							((NestedHyperworkflow)conn.getTarget()).getChildren().contains(conn.getSource()) ||
+							conn.getTarget().equals(conn.getSource())
+					)
+			) innerTarget = true;
+			
+			//depending on whether source/target are inner ports use the correct portList
+			if (innerSource) conn.setSrcPort(conn.getSource().getInputPorts().get(((Port)sval).index));	
+			else conn.setSrcPort(conn.getSource().getOutputPorts().get(((Port)sval).index));			
+			if (innerTarget) conn.setTargPort(conn.getTarget().getOutputPorts().get(((Port)tval).index));
+			else conn.setTargPort(conn.getTarget().getInputPorts().get(((Port)tval).index));
+			
 			// notify
 			if (conn != value) {
 				model.setValue(cell, conn);

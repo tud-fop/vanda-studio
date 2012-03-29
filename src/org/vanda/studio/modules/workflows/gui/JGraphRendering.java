@@ -185,8 +185,6 @@ public class JGraphRendering {
 		
 		@Override
 		public void render(IHyperworkflow hwf, Graph g, Object parentCell) {
-//			Object parent = g.getDefaultParent();
-			
 			Object parent = parentCell;
 			if (parentCell == null) parent = g.getDefaultParent();
 			
@@ -230,8 +228,6 @@ public class JGraphRendering {
 		
 		@Override
 		public void render(Connection c, Graph g, Object parentCell) {
-//			Object parent = g.getDefaultParent();
-			
 			Object parent = parentCell;
 			if (parentCell == null) parent = g.getDefaultParent();
 			
@@ -240,37 +236,30 @@ public class JGraphRendering {
 				mxICell source = null;
 				mxICell target = null;
 				
-				if (c.getSource().getName().equals("nested"))
-					System.out.println("blubbidiblubb");
-				
 				boolean innerSource = false;
 				boolean innerTarget = false;
 				
-//				//check if source or target equal the parent (i.e. inner ports are used)
-//				if (((mxCell)parent).getValue().equals(c.getSource())) {
-//					source = (mxICell)parent;
-//					innerSource = true;
-//				}
-//				if (((mxCell)parent).getValue().equals(c.getTarget())) {
-//					target = (mxICell)parent;
-//					innerTarget = true;
-//				}
-				//FIXME (oberer Teil macht probleme!) fuer geschachtelte Knoten muss evtl anderer Graph als g geupdated werden!!!
-				//FIXME evtl den Port cells direkt einen workflows.Port als Value anhaengen...
+				//check if source or target equal the parent (i.e. inner ports are used)
+				if (parent instanceof mxCell && ((mxCell)parent).getValue() != null && ((mxCell)parent).getValue().equals(c.getSource())) {
+					source = (mxICell)parent;
+					innerSource = true;
+				}
+				if (parent instanceof mxCell && ((mxCell)parent).getValue() != null && ((mxCell)parent).getValue().equals(c.getTarget())) {
+					target = (mxICell)parent;
+					innerTarget = true;
+				}
 				
 				//get all child vertices of the graph
 				Object[] childVertices = g.getChildCells(parent, true, false);
 				for (Object o : childVertices) {
 					//check if vertice's values equal the source or target of the connection 
-					if (source == null && ((mxCell)o).getValue().equals(c.getSource())) source = (mxICell)o;
-					if (target == null && ((mxCell)o).getValue().equals(c.getTarget())) target = (mxICell)o;
+					if (!innerSource && ((mxCell)o).getValue().equals(c.getSource())) source = (mxICell)o;
+					if (!innerTarget && ((mxCell)o).getValue().equals(c.getTarget())) target = (mxICell)o;
 				}
 				
 				if (source != null && target != null) {
 					IHyperworkflow src = (IHyperworkflow)source.getValue();
 					IHyperworkflow trg = (IHyperworkflow)target.getValue();
-				
-					//TODO port calculation (INDEX) has to be changed when nested children are allowed
 					
 					//determine port id of srcPort
 					List<org.vanda.studio.modules.workflows.Port> portList = src.getOutputPorts();
@@ -294,9 +283,12 @@ public class JGraphRendering {
 						}
 					}
 				
+					System.out.println(source.getClass());
+					System.out.println(target.getClass());
+					
 					//add edge to the graph
+					System.out.println(g);
 					g.insertEdge(parent, null, c, source, target);
-					System.out.println("huhu");
 				}
 			}
 			finally {
