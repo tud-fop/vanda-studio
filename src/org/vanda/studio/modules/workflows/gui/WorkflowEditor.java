@@ -116,7 +116,6 @@ public class WorkflowEditor implements Editor<VWorkflow>{
 			vworkflow = t;
 			renderer = new JGraphRenderer();
 			nhwf = vworkflow.load();
-			System.out.println(nhwf);
 			
 			// add listeners to renderer - every change within the graph (renderer) is propagated to the model
 			//!!!

@@ -285,12 +285,8 @@ public class JGraphRendering {
 							break;
 						}
 					}
-				
-					System.out.println(source.getClass());
-					System.out.println(target.getClass());
-					
+
 					//add edge to the graph
-					System.out.println(g);
 					g.insertEdge(parent, null, c, source, target);
 				}
 			}
