@@ -280,17 +280,15 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	
 	@Override
 	public boolean equals(Object other) {
-		// NestedHyperworkflows are equal if they have the same attributes
-		// (parent is ignored and not compared)
-		boolean result = (other != null && other instanceof NestedHyperworkflow);
+		// super ensures that other object has same class and shares 
+		// equal attributes
+		boolean result = super.equals(other);
 		if (result) {
+			// compare additional attributes for equality
 			NestedHyperworkflow oh = (NestedHyperworkflow) other;
-			result = (getId() == oh.getId() && getName().equals(oh.getName())
-					&& getChildren().equals(oh.getChildren())
+			result = (getChildren().equals(oh.getChildren())
 					&& getConnections().equals(oh.getConnections())
-					&& getInputPorts().equals(oh.getInputPorts())
-					&& getOutputPorts().equals(oh.getOutputPorts()) && getPortBlockageMap()
-					.equals(oh.getPortBlockageMap()));
+					&& getPortBlockageMap().equals(oh.getPortBlockageMap()));
 		}
 		return result;
 	}

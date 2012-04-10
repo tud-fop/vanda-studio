@@ -45,7 +45,21 @@ public abstract class Hyperworkflow {
 	public abstract Object clone() throws CloneNotSupportedException;
 
 	@Override
-	public abstract boolean equals(Object other);
+	public boolean equals(Object other){
+		//check if both objects share a common class
+		boolean result = (other != null && other.getClass().equals(
+				this.getClass()));
+		if (result) {
+			Hyperworkflow oh = (Hyperworkflow) other;
+			
+			//make sure that all attributes are equal
+			result = (getId() == oh.getId() 
+					&& getName().equals(oh.getName())
+					&& getInputPorts().equals(oh.getInputPorts()) 
+					&& getOutputPorts().equals(oh.getOutputPorts()));
+		}
+		return result;
+	}
 
 	public double getHeight() {
 		return dimensions[3];

@@ -34,18 +34,4 @@ public abstract class Element extends Hyperworkflow {
 				.getInputPorts()), new ArrayList<Port>(toCopy.getOutputPorts()));
 		setId(toCopy.getId());
 	}
-
-	public boolean equals(Object other) {
-		// Tools are equal if they have the same attributes (parent is ignored
-		// and not compared)
-		boolean result = (other != null && other.getClass().equals(
-				this.getClass()));
-		if (result) {
-			Element oh = (Element) other;
-			result = (getId() == oh.getId() && getName().equals(oh.getName())
-					&& getInputPorts().equals(oh.getInputPorts()) && getOutputPorts()
-					.equals(oh.getOutputPorts()));
-		}
-		return result;
-	}
 }
