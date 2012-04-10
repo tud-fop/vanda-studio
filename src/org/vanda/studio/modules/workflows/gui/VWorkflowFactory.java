@@ -5,8 +5,7 @@ import java.io.File;
 import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.VObjectFactory;
 
-
-public class VWorkflowFactory implements VObjectFactory<VWorkflow>{
+public class VWorkflowFactory implements VObjectFactory<VWorkflow> {
 
 	@Override
 	public VWorkflow createInstance(ModuleInstance<VWorkflow> mod, File f) {

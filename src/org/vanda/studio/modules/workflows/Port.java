@@ -5,39 +5,39 @@ package org.vanda.studio.modules.workflows;
  */
 public class Port {
 	private String name;
-	private EPortType type;
-		
-	public Port(String name, EPortType type) {
+	private String type;
+
+	public Port(String name, String type) {
 		this.name = name;
 		this.type = type;
 	}
-	
+
+	@Override
+	public boolean equals(Object other) {
+		boolean result = (other != null && other instanceof Port);
+		if (result) {
+			Port op = (Port) other;
+			result = name.equals(op.name) && type.equals(op.type);
+		}
+		return result;
+	}
+
 	public String getName() {
 		return this.name;
 	}
-	
-	public EPortType getType() {
+
+	public String getType() {
 		return this.type;
 	}
-	
+
 	/**
-	 * Checks whether the current port and the specified port are compatible, 
-	 * i.e. they share the same type or at least one type is generic
+	 * Checks whether the current port and the specified port are compatible,
+	 * i.e. they share the same type
 	 * 
 	 * @param otherPort
 	 * @return true iff both ports are compatible
 	 */
 	public boolean isCompatibleTo(Port otherPort) {
-		return type.equals(otherPort.type) || (type == EPortType.GENERIC || otherPort.type == EPortType.GENERIC);
-	}
-		
-	@Override
-	public boolean equals(Object other) {
-		boolean result = (other != null && other instanceof Port);
-		if (result) {
-			Port op = (Port)other;
-			result = name.equals(op.name) && type.equals(op.type);
-		}
-		return result;
+		return type.equals(otherPort.type);
 	}
 }

@@ -10,10 +10,10 @@ import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.SimpleVObjectInstance;
 import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 
-public class VWorkflowImpl implements VWorkflow{
+public class VWorkflowImpl implements VWorkflow {
 
 	protected static final String[] ports = new String[0];
-	
+
 	ModuleInstance<VWorkflow> mod;
 	File file;
 	String author;
@@ -22,7 +22,7 @@ public class VWorkflowImpl implements VWorkflow{
 	String description;
 	String id;
 	String name;
-	
+
 	public VWorkflowImpl(ModuleInstance<VWorkflow> mod, File file) {
 		this.mod = mod;
 		this.file = file;
@@ -34,23 +34,23 @@ public class VWorkflowImpl implements VWorkflow{
 		category = "Workflows";
 		author = "afischer";
 	}
-	
+
 	@Override
 	public NestedHyperworkflow load() {
 		// open file as a ByteStream and construct the Term
 		// TODO
-		
-		//!!!
+
+		// !!!
 		NestedHyperworkflow nhwf = null;
 		if (file != null && file.exists()) {
 			nhwf = NestedHyperworkflow.load(file.getPath());
-		} 
+		}
 		if (nhwf == null)
 			nhwf = new NestedHyperworkflow("root");
-		
+
 		return nhwf;
 	}
-	
+
 	@Override
 	public void save(NestedHyperworkflow t) {
 		// open file as a ByteStream and so on
@@ -58,21 +58,20 @@ public class VWorkflowImpl implements VWorkflow{
 		// broadcast that this object has been modified
 		mod.getModifyObserver().notify(VWorkflowImpl.this);
 	}
-	
+
 	@Override
 	public void appendActions(List<Action> as) {
-		as.add(
-			new Action() {
-				@Override
-				public String getName() {
-					return "Edit";
-				}
-				
-				@Override
-				public void invoke() {
-					mod.openEditor(VWorkflowImpl.this);
-				}
-			});
+		as.add(new Action() {
+			@Override
+			public String getName() {
+				return "Edit";
+			}
+
+			@Override
+			public void invoke() {
+				mod.openEditor(VWorkflowImpl.this);
+			}
+		});
 	}
 
 	@Override
@@ -84,12 +83,12 @@ public class VWorkflowImpl implements VWorkflow{
 	public String getAuthor() {
 		return author;
 	}
-	
+
 	@Override
 	public String getCategory() {
 		return category;
 	}
-	
+
 	@Override
 	public String getDate() {
 		return date;
