@@ -10,10 +10,6 @@ import java.util.List;
  */
 public abstract class Element extends Hyperworkflow {
 
-	// -------------------------------------------------------------------------
-	// ----------------------------- constructors ------------------------------
-	// -------------------------------------------------------------------------
-
 	public Element(String name) {
 		this(null, name);
 	}

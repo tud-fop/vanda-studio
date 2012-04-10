@@ -2,6 +2,7 @@ package org.vanda.studio.modules.workflows;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,8 +40,6 @@ public class Tool extends Element {
 
 	@Override
 	public Collection<Hyperworkflow> unfold() {
-		List<Hyperworkflow> singletonToolList = new ArrayList<Hyperworkflow>();
-		singletonToolList.add(new Tool(this));
-		return singletonToolList;
+		return Collections.singletonList((Hyperworkflow)new Tool(this));
 	}
 }
