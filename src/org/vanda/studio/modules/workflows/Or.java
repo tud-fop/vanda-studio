@@ -8,10 +8,11 @@ import java.util.List;
 import org.vanda.studio.model.RendererSelection;
 
 /**
+ * Leaf of Hyperworkflow composite pattern
  * 
  * @author afischer
  */
-public final class Or extends Element {
+public final class Or extends Hyperworkflow {
 
 	public Or(String name) {
 		this(null, name);
@@ -60,6 +61,23 @@ public final class Or extends Element {
 		return new Or(this);
 	}
 
+	@Override
+	public boolean equals(Object other) {
+		// make sure other object is an OR node
+		boolean result = (other instanceof Or);
+		if (result) {
+			Or otherOr = (Or) other;
+			
+			// compare attributes (except parent)
+			//XXX maybe test for equal id is sufficient?
+			result = (getId() == otherOr.getId()
+					&& getName().equals(otherOr.getName())
+					&& getInputPorts().equals(otherOr.getInputPorts()) 
+					&& getOutputPorts().equals(otherOr.getOutputPorts()));
+		}
+		return result;
+	}
+	
 	@Override
 	public void selectRenderer(RendererSelection rs) {
 		rs.selectOrRenderer();

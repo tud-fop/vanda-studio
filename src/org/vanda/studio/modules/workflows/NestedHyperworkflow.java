@@ -18,7 +18,7 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 
 /**
- * Nested composite of IHyperworkflow composite pattern
+ * Nested composite of Hyperworkflow composite pattern
  * 
  * @author afischer
  */
@@ -100,8 +100,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	/**
 	 * Adds a Hyperworkflow child to the NestedHyperworkflow
 	 * 
-	 * @param hwf -
-	 *            child to add
+	 * @param hwf - child to add
 	 * @return true, if adding was successful
 	 */
 	public boolean addChild(Hyperworkflow hwf) {
@@ -147,8 +146,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	 * to be child of the current NestedHyperworkflow or the NestedHyperworkflow
 	 * itself and the target port must not be blocked by another connection
 	 * 
-	 * @param conn -
-	 *            the Connection to add
+	 * @param conn - the Connection to add
 	 * @return true, if adding was successful
 	 */
 	public boolean addConnection(Connection conn) {
@@ -196,8 +194,10 @@ public class NestedHyperworkflow extends Hyperworkflow {
 							// if the connection is only between two simple
 							// Elements remove the now occupied ports from
 							// current NestedHyperworkflow
-							if (conn.getSource() instanceof Element
-									&& conn.getTarget() instanceof Element) {
+							if ((conn.getSource() instanceof Tool 
+									|| conn.getSource() instanceof Or)
+									&& (conn.getTarget() instanceof Tool 
+											|| conn.getTarget() instanceof Or)) {
 								
 								List<Port> emptyList = new ArrayList<Port>();
 								List<Port> inputs = new ArrayList<Port>();
@@ -278,13 +278,16 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	
 	@Override
 	public boolean equals(Object other) {
-		// super ensures that other object has same class and shares 
-		// equal attributes
-		boolean result = super.equals(other);
+		// make sure other object is a NestedHyperworkflow
+		boolean result = (other instanceof NestedHyperworkflow);
 		if (result) {
-			// compare additional attributes for equality
+			// compare attributes (except parent)
 			NestedHyperworkflow oh = (NestedHyperworkflow) other;
-			result = (getChildren().equals(oh.getChildren())
+			result = (getId() == oh.getId()
+					&& getName().equals(oh.getName())
+					&& getInputPorts().equals(oh.getInputPorts()) 
+					&& getOutputPorts().equals(oh.getOutputPorts())
+					&& getChildren().equals(oh.getChildren())
 					&& getConnections().equals(oh.getConnections())
 					&& getPortBlockageMap().equals(oh.getPortBlockageMap()));
 		}
@@ -333,9 +336,9 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	 * 
 	 * @param pathToFile
 	 * @return the NestedHyperworkflow contained within the file
-	 * @throws IllegalArgumentException
+	 * @throws IllegalArgumentException - 
 	 *             if the specified file is not a saved NestedHyperworkflow
-	 * @throws NullPointerException
+	 * @throws NullPointerException - 
 	 *             if the specified file path is <code>null</code>
 	 */
 	public static NestedHyperworkflow load(String pathToFile) {
@@ -350,18 +353,18 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		Object result = null;
 		try {
 			result = xs.fromXML(file);
+			
+			// loading and deserialization was successful, check if file 
+			// contains a NestedHyperworkflow
+			if (result != null && result instanceof NestedHyperworkflow)
+				return (NestedHyperworkflow) result;
+			else
+				return null;
 		} catch (XStreamException xe) {
 			throw new IllegalArgumentException(
 					"The specified file does not contain a NestedHyperworkflow! - "
 							+ pathToFile);
-		}
-
-		// loading and deserialization was successful, check if file contains a
-		// NestedHyperworkflow
-		if (result != null && result instanceof NestedHyperworkflow)
-			return (NestedHyperworkflow) result;
-		else
-			return null;
+		}		
 	}
 	
 	/**
@@ -518,8 +521,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	 * Removes a Hyperworkflow child from the NestedHyperworkflow, all
 	 * associated connections, and, if present, nested children
 	 * 
-	 * @param hwf-
-	 *            child to remove
+	 * @param hwf- child to remove
 	 * @return true, if removal was successful
 	 */
 	public boolean removeChild(Hyperworkflow hwf) {
@@ -591,8 +593,10 @@ public class NestedHyperworkflow extends Hyperworkflow {
 
 				// if the connection is only between two simple Elements add the
 				// now free ports to current NestedHyperworkflow
-				if (conn.getSource() instanceof Element
-						&& conn.getTarget() instanceof Element) {
+				if ((conn.getSource() instanceof Tool 
+						|| conn.getSource() instanceof Or)
+						&& (conn.getTarget() instanceof Tool 
+								|| conn.getTarget() instanceof Or)) {
 					
 					List<Port> emptyList = new ArrayList<Port>();
 					List<Port> inputs = new ArrayList<Port>();
@@ -716,7 +720,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	 * 
 	 * @param pathToFile
 	 * @return true, if saving the NestedHyperworkflow was successful
-	 * @throws NullPointerException
+	 * @throws NullPointerException - 
 	 *             if the specified file path is <code>null</code>
 	 */
 	public boolean save(String pathToFile) {
@@ -724,8 +728,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 			throw new NullPointerException("File path is set to " + pathToFile
 					+ "!");
 
-		// TODO revise an do some basic exception handling: ask user if
-		// specified file exists already and so on, move method somewhere else?
+		// TODO revise an do some basic exception handling
 		FileWriter fileWriter = null;
 		try {
 			fileWriter = new FileWriter(pathToFile);
@@ -734,8 +737,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 				Writer output = new BufferedWriter(fileWriter);
 				XStream xs = new XStream();
 
-				// TODO do NOT save whole NestedHyperworkflow! Only save a map of
-				// necessary attributes and load nhwf from this map upon loading
+				// TODO do NOT save whole NestedHyperworkflow!
 				xs.toXML(this, output);
 				return true;
 			}
@@ -760,8 +762,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	 * change, the new Id is propagated so that the children can also reset
 	 * their ids.
 	 * 
-	 * @param newId -
-	 *            replaces the current id
+	 * @param newId - replaces the current id
 	 * @return true if replacement was successful
 	 */
 	@Override
@@ -964,7 +965,6 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		}
 
 		for (int i = 0; i < incoming.size(); i++) {
-			
 			// copy parent NestedHyperworkflow of current or node
 			NestedHyperworkflow parentCopy = new NestedHyperworkflow(
 					orNode.getParent()); 
@@ -980,8 +980,6 @@ public class NestedHyperworkflow extends Hyperworkflow {
 			}
 
 			// remove the other inputs from the parent NestedHyperworkflow
-			// FIXME is this behavior even wanted?! -> number of ports of nested
-			// nodes may change due to tool removal
 			for (int j = incoming.size() - 1; j >= 0; j--) {
 				if (j != i)
 					parentCopy.removeChild(incoming.get(j).getSource());
@@ -1002,19 +1000,19 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	
 	public static void main(String[] args) {
 		 NestedHyperworkflow root = new NestedHyperworkflow("root");
-		 Element alpha = new Tool("alpha");
+		 Hyperworkflow alpha = new Tool("alpha");
 		 alpha.getOutputPorts().add(new Port("out", "type"));
 		 NestedHyperworkflow beta = new NestedHyperworkflow("beta");
-		 Element beta1 = new Tool("beta1");
+		 Hyperworkflow beta1 = new Tool("beta1");
 		 beta1.getInputPorts().add(new Port("in", "type"));
 		 beta1.getOutputPorts().add(new Port("out", "type"));
-		 Element beta2 = new Tool("beta2");
+		 Hyperworkflow beta2 = new Tool("beta2");
 		 beta2.getOutputPorts().add(new Port("out", "type"));
-		 Element beta3 = new Tool("beta3");
+		 Hyperworkflow beta3 = new Tool("beta3");
 		 beta3.getOutputPorts().add(new Port("out", "type"));
-		 Element orBeta = new Or("orBeta");
+		 Hyperworkflow orBeta = new Or("orBeta");
 		 orBeta.getInputPorts().add(new Port("in3", "type"));
-		 Element beta4 = new Tool("beta4");
+		 Hyperworkflow beta4 = new Tool("beta4");
 		 beta4.getInputPorts().add(new Port("in", "type"));
 		 beta4.getOutputPorts().add(new Port("out", "type"));
 		 beta.addChild(beta1);
@@ -1022,27 +1020,27 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		 beta.addChild(beta3);
 		 beta.addChild(orBeta);
 		 beta.addChild(beta4);
-		 Element gamma = new Tool("gamma");
+		 Hyperworkflow gamma = new Tool("gamma");
 		 gamma.getOutputPorts().add(new Port("out", "type"));
-		 Element or1 = new Or("or1");
+		 Hyperworkflow or1 = new Or("or1");
 		 NestedHyperworkflow delta = new NestedHyperworkflow("delta");
-		 Element delta1 = new Tool("delta1");
+		 Hyperworkflow delta1 = new Tool("delta1");
 		 delta1.getInputPorts().add(new Port("in", "type"));
 		 delta1.getOutputPorts().add(new Port("out", "type"));
-		 Element delta2 = new Tool("delta2");
+		 Hyperworkflow delta2 = new Tool("delta2");
 		 delta2.getOutputPorts().add(new Port("out", "type"));
-		 Element orDelta = new Or("orDelta");
-		 Element delta3 = new Tool("delta3");
+		 Hyperworkflow orDelta = new Or("orDelta");
+		 Hyperworkflow delta3 = new Tool("delta3");
 		 delta3.getInputPorts().add(new Port("in", "type"));
 		 delta3.getOutputPorts().add(new Port("out", "type"));
 		 delta.addChild(delta1);
 		 delta.addChild(delta2);
 		 delta.addChild(orDelta);
 		 delta.addChild(delta3);
-		 Element epsilon = new Tool("epsilon");
+		 Hyperworkflow epsilon = new Tool("epsilon");
 		 epsilon.getOutputPorts().add(new Port("out", "type"));
-		 Element or2 = new Or("or2");
-		 Element eta = new Tool("eta");
+		 Hyperworkflow or2 = new Or("or2");
+		 Hyperworkflow eta = new Tool("eta");
 		 eta.getInputPorts().add(new Port("in", "type"));
 		 root.addChild(alpha);
 		 root.addChild(beta);

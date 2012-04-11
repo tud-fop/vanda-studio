@@ -6,10 +6,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * Leaf of Hyperworkflow composite pattern
  * 
  * @author afischer
  */
-public class Tool extends Element {
+public class Tool extends Hyperworkflow {
 
 	public Tool(String name) {
 		this(null, name);

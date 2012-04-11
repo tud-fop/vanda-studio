@@ -9,12 +9,11 @@ import org.vanda.studio.model.Action;
 import org.vanda.studio.model.RendererSelection;
 import org.vanda.studio.model.VObject;
 import org.vanda.studio.model.VObjectInstance;
-import org.vanda.studio.modules.workflows.Element;
 import org.vanda.studio.modules.workflows.Hyperworkflow;
 import org.vanda.studio.modules.workflows.Port;
 
-//oder doch von Tool erben lassen?
-public class VOWorkflowObject extends Element {
+//XXX oder doch von Tool erben lassen?
+public class VOWorkflowObject extends Hyperworkflow {
 	VObject object;
 	VObjectInstance instance;
 

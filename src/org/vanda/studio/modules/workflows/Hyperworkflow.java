@@ -8,7 +8,7 @@ import org.vanda.studio.model.Action;
 import org.vanda.studio.model.RendererSelection;
 
 /**
- * Superclass component of IHyperworkflow composite pattern
+ * Superclass component of Hyperworkflow composite pattern
  * 
  * @author afischer
  */
@@ -25,6 +25,18 @@ public abstract class Hyperworkflow {
 		this(null, name);
 	}
 
+	/**
+	 * Copy constructor - makes a deep copy of the specified Hyperworkflow 
+	 * except for the parent attribute where only its reference is copied
+	 * 
+	 * @param toCopy
+	 */
+	public Hyperworkflow(Hyperworkflow toCopy) {
+		this(toCopy.getParent(), toCopy.getName(), new ArrayList<Port>(toCopy
+				.getInputPorts()), new ArrayList<Port>(toCopy.getOutputPorts()));
+		setId(toCopy.getId());
+	}
+	
 	public Hyperworkflow(NestedHyperworkflow parent, String name) {
 		this(parent, name, new ArrayList<Port>(), new ArrayList<Port>());
 	}
@@ -43,23 +55,6 @@ public abstract class Hyperworkflow {
 
 	@Override
 	public abstract Object clone() throws CloneNotSupportedException;
-
-	@Override
-	public boolean equals(Object other){
-		//check if both objects share a common class
-		boolean result = (other != null && other.getClass().equals(
-				this.getClass()));
-		if (result) {
-			Hyperworkflow oh = (Hyperworkflow) other;
-			
-			//make sure that all attributes are equal
-			result = (getId() == oh.getId() 
-					&& getName().equals(oh.getName())
-					&& getInputPorts().equals(oh.getInputPorts()) 
-					&& getOutputPorts().equals(oh.getOutputPorts()));
-		}
-		return result;
-	}
 
 	public double getHeight() {
 		return dimensions[3];
