@@ -152,8 +152,6 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	 * @return true, if adding was successful
 	 */
 	public boolean addConnection(Connection conn) {
-		// TODO infer types as far as possible if conn now blocks a generic port
-		// TODO prevent cycles by connection adding
 
 		// check for null reference, ensure connection does not already exist,
 		// check port compatibility
@@ -255,7 +253,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	}
 	
 	public void ensureAbsence(Hyperworkflow o) {
-		if (removeChild(o, false)) {
+		if (removeChild(o)) {
 			removeObservable.notify(o);
 		}
 	}
@@ -524,8 +522,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	 *            child to remove
 	 * @return true, if removal was successful
 	 */
-	public boolean removeChild(Hyperworkflow hwf,
-			boolean removeNonconnectedChildren) {
+	public boolean removeChild(Hyperworkflow hwf) {
 		if (hwf != null && children.contains(hwf)) {
 
 			// partition connections into incoming and outgoing
@@ -557,8 +554,6 @@ public class NestedHyperworkflow extends Hyperworkflow {
 				// check for necessary removal of new inner ports
 				if (propagatePortRemoval(hwf, hwf.getInputPorts(), hwf
 						.getOutputPorts())) {
-					if (removeNonconnectedChildren)
-						removeDisconnectedChildren();
 					return true;
 				} else {
 					
@@ -580,14 +575,11 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	 * connections-List as well as the blockage flag of the connection's target
 	 * port
 	 * 
-	 * @param conn -
-	 *            the Connection to remove
+	 * @param conn - the Connection to remove
 	 * @return true, if removal was successful
 	 */
 	public boolean removeConnection(Connection conn) {
-		// TODO infer types as far as possible if the removal of conn frees an
-		// otherwise generic port
-
+		
 		// check for null reference and make sure the connection exists
 		if (conn != null && connections.contains(conn)) {
 
@@ -705,17 +697,17 @@ public class NestedHyperworkflow extends Hyperworkflow {
 			}
 		}
 
-		// iterate over all useless tools
+		// iterate over all useless tools, remove them
 		for (int i = 0; i < childrenToRemove.size(); i++) {
-			boolean removeNonconnected = false;
-
-			// if we handle the last remaining entry of the list, set a flag to
-			// call this function recursively via removeChild()
-			if (i == childrenToRemove.size() - 1)
-				removeNonconnected = true;
 
 			// remove the first tool of the list
-			removeChild(childrenToRemove.get(0), removeNonconnected);
+			removeChild(childrenToRemove.get(i));
+			
+			// once last node has been removed call removeDisconnectedChildren 
+			// again and check if there are more disconnected tools
+			if (i == childrenToRemove.size() - 1) {
+				removeDisconnectedChildren();
+			}
 		}
 	}
 	
@@ -737,17 +729,17 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		FileWriter fileWriter = null;
 		try {
 			fileWriter = new FileWriter(pathToFile);
+			
+			if (fileWriter != null) {
+				Writer output = new BufferedWriter(fileWriter);
+				XStream xs = new XStream();
+
+				// TODO do NOT save whole NestedHyperworkflow! Only save a map of
+				// necessary attributes and load nhwf from this map upon loading
+				xs.toXML(this, output);
+				return true;
+			}
 		} catch (IOException e) {
-		}
-
-		if (fileWriter != null) {
-			Writer output = new BufferedWriter(fileWriter);
-			XStream xs = new XStream();
-
-			// TODO do NOT save whole NestedHyperworkflow! Only save a map of
-			// necessary attributes and load nhwf from this map upon loading
-			xs.toXML(this, output);
-			return true;
 		}
 
 		return false;
@@ -867,7 +859,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 							(NestedHyperworkflow) hwfList.get(i)); 
 
 					// remove original folded child from current copy
-					copy.removeChild(nested, false); 
+					copy.removeChild(nested); 
 					// add unfolded child to replace the removed original
 					copy.addChild(unfoldedChild); 
 					
@@ -954,7 +946,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 				}
 			}
 		}
-
+		
 		return hwfList;
 	}
 
@@ -978,7 +970,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 					orNode.getParent()); 
 			
 			// remove or node
-			parentCopy.removeChild(orNode, false); 
+			parentCopy.removeChild(orNode); 
 
 			// connect i-th OR-input with all OR-outputs
 			for (int j = 0; j < outgoing.size(); j++) {
@@ -992,7 +984,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 			// nodes may change due to tool removal
 			for (int j = incoming.size() - 1; j >= 0; j--) {
 				if (j != i)
-					parentCopy.removeChild(incoming.get(j).getSource(), true);
+					parentCopy.removeChild(incoming.get(j).getSource());
 			}
 
 			if (!hwfList.contains(parentCopy))
@@ -1000,6 +992,11 @@ public class NestedHyperworkflow extends Hyperworkflow {
 				hwfList.add(parentCopy); 
 		}
 
+		// remove unconnected nodes from hyperworkflows
+		for (Hyperworkflow result : hwfList) {
+			((NestedHyperworkflow)result).removeDisconnectedChildren();
+		}
+		
 		return hwfList;
 	}
 	
