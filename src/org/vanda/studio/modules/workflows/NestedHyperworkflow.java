@@ -89,7 +89,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		this(parent, name, new ArrayList<Port>(), new ArrayList<Port>());
 	}
 	
-	public NestedHyperworkflow(NestedHyperworkflow parent, String name,
+	public NestedHyperworkflow(Hyperworkflow parent, String name,
 			List<Port> inputPorts, List<Port> outputPorts) {
 		super(parent, name, inputPorts, outputPorts);
 		this.portBlockageMap = new HashMap<Hyperworkflow, List<Port>>();
@@ -136,24 +136,13 @@ public class NestedHyperworkflow extends Hyperworkflow {
 				}
 
 				return true;
-
-				//XXX portPropagation 
-				// check for necessary creation of new inner ports
-//				if (propagateAdditionalPorts(hwf, hwf.getInputPorts(), hwf
-//						.getOutputPorts()))
-//					return true;
-//				else {
-//					// undo everything
-//					children.remove(hwf);
-//					return false;
-//				}
 			}
 		}
 		return false;
 	}
 	
 	/**
-	 * Adds a new connection to the NestedHyperworkflow's connections-List. The
+	 * Adds a new connection to the NestedHyperworkflow's connections list. The
 	 * connection must not exist already, the connection source and target has
 	 * to be child of the current NestedHyperworkflow or the NestedHyperworkflow
 	 * itself and the target port must not be blocked by another connection
@@ -165,93 +154,51 @@ public class NestedHyperworkflow extends Hyperworkflow {
 
 		// check for null reference, ensure connection does not already exist,
 		// check port compatibility
-		if (conn != null && !connections.contains(conn)
-				&& conn.getSrcPort().isCompatibleTo(conn.getTargPort())) {
+		if (conn == null) throw new NullPointerException("Connection has " +
+				"null value.");
+		if (connections.contains(conn)) 
+			throw new IllegalArgumentException("Connection " + conn 
+					+ "exists already.");
+		if (!conn.getSrcPort().isCompatibleTo(conn.getTargPort()))
+			throw new IllegalArgumentException("Input and output port are " +
+					"not compatible.");
+		
+		// ensure that source is NestedHyperworkflow itself or a child and
+		// has the specified source port
+		if ((children.contains(conn.getSource()) && conn.getSource()
+				.getOutputPorts().contains(conn.getSrcPort()))
+				|| (conn.getSource().equals(this) && this.getInputPorts()
+						.contains(conn.getSrcPort()))) {
 
-			// ensure that source is NestedHyperworkflow itself or a child and
-			// has the specified source port
-			if ((children.contains(conn.getSource()) && conn.getSource()
-					.getOutputPorts().contains(conn.getSrcPort()))
-					|| (conn.getSource().equals(this) && this.getInputPorts()
-							.contains(conn.getSrcPort()))) {
-				
-				// ensure target is a child or current NestedHyperworkflow
-				// itself and has the specified target port
-				if ((children.contains(conn.getTarget()) && conn.getTarget()
-						.getInputPorts().contains(conn.getTargPort()))
-						|| (conn.getTarget().equals(this) && this
-								.getOutputPorts().contains(conn.getTargPort()))) {
+			// ensure target is a child or current NestedHyperworkflow
+			// itself and has the specified target port
+			if ((children.contains(conn.getTarget()) && conn.getTarget()
+					.getInputPorts().contains(conn.getTargPort()))
+					|| (conn.getTarget().equals(this) && this
+							.getOutputPorts().contains(conn.getTargPort()))) {
 
-					// check if target port is not blocked already
-					Connection targetBlocked;
-					if (!portBlockageMap.containsKey(conn.getTarget()))
-						portBlockageMap.put(conn.getTarget(),
-								new ArrayList<Port>());
-					List<Port> blockedPorts = portBlockageMap.get(conn
-							.getTarget());
-					if (!blockedPorts.contains(conn.getTargPort()))
-						targetBlocked = null;
-					else
-						targetBlocked = new Connection(null, null, null, null);
+				// check if target port is not blocked already
+				Connection targetBlocked;
+				if (!portBlockageMap.containsKey(conn.getTarget()))
+					portBlockageMap.put(conn.getTarget(),
+							new ArrayList<Port>());
+				List<Port> blockedPorts = portBlockageMap.get(conn
+						.getTarget());
+				if (!blockedPorts.contains(conn.getTargPort()))
+					targetBlocked = null;
+				else
+					targetBlocked = new Connection(null, null, null, null);
 
-					// if targetBlocked is null, the port is still open
-					if (targetBlocked == null) {
+				// if targetBlocked is null, the port is still open
+				if (targetBlocked == null) {
 
-						// try to add connection and block the previously free
-						// target input port
-						if (connections.add(conn)
-								&& portBlockageMap.get(conn.getTarget()).add(
-										conn.getTargPort())) {
+					// try to add connection and block the previously free
+					// target input port
+					if (connections.add(conn)
+							&& portBlockageMap.get(conn.getTarget()).add(
+									conn.getTargPort())) {
 
-							//XXX portPropagation
-							// if the connection is only between two simple
-//							// Elements remove the now occupied ports from
-//							// current NestedHyperworkflow
-//							if ((conn.getSource() instanceof Tool 
-//									|| conn.getSource() instanceof Or)
-//									&& (conn.getTarget() instanceof Tool 
-//											|| conn.getTarget() instanceof Or)) {
-//								
-//								List<Port> emptyList = new ArrayList<Port>();
-//								List<Port> inputs = new ArrayList<Port>();
-//								inputs.add(conn.getTargPort());
-//								List<Port> outputs = new ArrayList<Port>();
-//								outputs.add(conn.getSrcPort());
-//								
-//								// actual port removal from parent
-//								// Hyperworkflows
-//								if (!(this.propagatePortRemoval(conn
-//										.getSource(), emptyList, outputs) && this
-//										.propagatePortRemoval(conn.getTarget(),
-//												inputs, emptyList))) {
-//									
-//									// propagation failed -> UNDO EVERYTHING
-//									this.propagateAdditionalPorts(conn
-//											.getSource(), emptyList, outputs);
-//									this.propagateAdditionalPorts(conn
-//											.getTarget(), inputs, emptyList);
-//
-//									// remove previously blocked port from
-//									// portBlockageMap
-//									portBlockageMap.get(conn.getTarget())
-//											.remove(conn.getTargPort());
-//
-//									// if there are no more blocked ports for
-//									// the target tool, remove its map entries
-//									// completely
-//									if (portBlockageMap.get(conn.getTarget()) != null
-//											&& portBlockageMap.get(
-//													conn.getTarget()).isEmpty())
-//										portBlockageMap
-//												.remove(conn.getTarget());
-//
-//									connections.remove(conn);
-//									return false;
-//								}
-//							}
-
-							return true;
-						}
+						return true;
 					}
 				}
 			}
@@ -380,157 +327,6 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		}		
 	}
 	
-//	/**
-//	 * Adds the specified ports of a given Hyperworkflow hwf to the current
-//	 * NestedHyperworkflow and all its parents
-//	 * 
-//	 * @param hwf
-//	 * @return true, if propagation process is successful. On occurrence of any
-//	 *         problem the whole adding process is undone
-//	 */
-//	private boolean propagateAdditionalPorts(Hyperworkflow hwf,
-//			List<Port> additionalInputs, List<Port> additionalOutputs) {
-//		
-//		List<Port> innerInputPorts = new ArrayList<Port>();
-//		List<Port> innerOutputPorts = new ArrayList<Port>();
-//
-//		// create new input ports based on the specified ports of a child node
-//		for (Port p : additionalInputs) {
-//			Port newPort = new Port(hwf.getName() + "." + p.getName(), p
-//					.getType());
-//			if (!this.getInputPorts().contains(newPort))
-//				innerInputPorts.add(newPort);
-//		}
-//		
-//		// create new output ports based on the specified ports of a child node
-//		for (Port p : additionalOutputs) {
-//			Port newPort = new Port(hwf.getName() + "." + p.getName(), p
-//					.getType());
-//			if (!this.getOutputPorts().contains(newPort))
-//				innerOutputPorts.add(newPort);
-//		}
-//
-//		// add the new input and output ports
-//		this.getInputPorts().addAll(innerInputPorts);
-//		this.getOutputPorts().addAll(innerOutputPorts);
-//
-//		// stop propagation if there is no more parent
-//		if (this.getParent() == null)
-//			return true;
-//
-//		// propagate the port adding to own parent
-//		if (getParent().propagateAdditionalPorts(this, innerInputPorts,
-//				innerOutputPorts)) {
-//			// all went well, thus the port adding was successful
-//			return true;
-//		} else {
-//			// some parent had a problem with the adding propagation 
-//			// -> UNDO EVERYTHING
-//			
-//			// remove previously added input ports
-//			this.getInputPorts().removeAll(innerInputPorts); 
-//			
-//			// remove previously added output ports
-//			this.getOutputPorts().removeAll(innerOutputPorts); 
-//			
-//			return false;
-//		}
-//	}
-//
-//	/**
-//	 * Removes the specified ports of a given Hyperworkflow hwf from the current
-//	 * NestedHyperworkflow and all its parents (along with all connections that
-//	 * are somehow linked to those ports)
-//	 * 
-//	 * @param hwf
-//	 * @return true, if propagation process is successful. On occurrence of any
-//	 *         problem the whole removal process is undone
-//	 */
-//	private boolean propagatePortRemoval(Hyperworkflow hwf,
-//			List<Port> removedInputs, List<Port> removedOutputs) {
-//		List<Port> innerInputPorts = new ArrayList<Port>();
-//		List<Port> innerOutputPorts = new ArrayList<Port>();
-//
-//		boolean isRoot = (this.getParent() == null);
-//		// if (this.getParent() == null) return true;
-//
-//		// find inner input ports that will be removed
-//		for (Port p : removedInputs) {
-//			Port newPort = new Port(hwf.getName() + "." + p.getName(), p
-//					.getType());
-//			if (this.getInputPorts().contains(newPort))
-//				innerInputPorts.add(newPort);
-//			else
-//				return false;
-//		}
-//		// find inner output ports that will be removed
-//		for (Port p : removedOutputs) {
-//			Port newPort = new Port(hwf.getName() + "." + p.getName(), p
-//					.getType());
-//			if (this.getOutputPorts().contains(newPort))
-//				innerOutputPorts.add(newPort);
-//			else
-//				return false;
-//		}
-//
-//		List<Connection> incoming = new ArrayList<Connection>();
-//		List<Connection> outgoing = new ArrayList<Connection>();
-//
-//		if (!isRoot) {
-//			// get all incoming and outgoing connections that are linked to the
-//			// soon-to-be-removed ports
-//			for (Connection c : getParent().getConnections()) {
-//				if (c.getTarget().equals(this)
-//						&& innerInputPorts.contains(c.getTargPort()))
-//					incoming.add(c);
-//				if (c.getSource().equals(this)
-//						&& innerOutputPorts.contains(c.getSrcPort()))
-//					outgoing.add(c);
-//			}
-//
-//			// delete incoming connection to input ports that will be removed
-//			for (Connection c : incoming) {
-//				getParent().removeConnection(c);
-//			}
-//			
-//			// delete outgoing connections from output ports that will be
-//			// removed
-//			for (Connection c : outgoing) {
-//				getParent().removeConnection(c);
-//			}
-//		}
-//
-//		// remove inner input and output ports
-//		this.getInputPorts().removeAll(innerInputPorts);
-//		this.getOutputPorts().removeAll(innerOutputPorts);
-//
-//		if (!isRoot) {
-//			// propagate the port removal to own parent 
-//			//FIXME propagateADDITIONAL???
-//			if (getParent().propagateAdditionalPorts(this, innerInputPorts,
-//					innerOutputPorts)) {
-//				// all went well, thus the port removal was successful
-//				return true;
-//			} else {
-//				// some parent had a problem with the removal propagation 
-//				// -> UNDO EVERYTHING
-//				
-//				// add previously removed input ports
-//				this.getInputPorts().addAll(innerInputPorts); 
-//				// add previously removed output ports
-//				this.getOutputPorts().addAll(innerOutputPorts); 
-//				for (Connection c : incoming)
-//					getParent().addConnection(c); // add previously removed
-//				// incoming connections
-//				for (Connection c : outgoing)
-//					getParent().addConnection(c); // add previously removed
-//				// outgoing connections
-//				return false; // report failure
-//			}
-//		} else
-//			return true;
-//	}
-	
 	/**
 	 * Removes a Hyperworkflow child from the NestedHyperworkflow, all
 	 * associated connections, and, if present, nested children
@@ -568,22 +364,6 @@ public class NestedHyperworkflow extends Hyperworkflow {
 				spareIds.add(hwf.getId());
 
 				return true;
-				
-				//XXX portPropagation			
-				// check for necessary removal of new inner ports
-//				if (propagatePortRemoval(hwf, hwf.getInputPorts(), hwf
-//						.getOutputPorts())) {
-//					return true;
-//				} else {
-//					
-//					// undo everything
-//					children.add(hwf);
-//					for (Connection c : incoming)
-//						this.addConnection(c);
-//					for (Connection c : outgoing)
-//						this.addConnection(c);
-//					return false;
-//				}
 			}
 		}
 		return false;
@@ -591,8 +371,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	
 	/**
 	 * Removes an existing connection from the NestedHyperworkflow's
-	 * connections-List as well as the blockage flag of the connection's target
-	 * port
+	 * connections list as frees the port from the portBlockageMap
 	 * 
 	 * @param conn - the Connection to remove
 	 * @return true, if removal was successful
@@ -607,38 +386,6 @@ public class NestedHyperworkflow extends Hyperworkflow {
 			if (connections.remove(conn)
 					&& portBlockageMap.get(conn.getTarget()).remove(
 							conn.getTargPort())) {
-
-				//XXX portPropagation			
-				// if the connection is only between two simple Elements add the
-//				// now free ports to current NestedHyperworkflow
-//				if ((conn.getSource() instanceof Tool 
-//						|| conn.getSource() instanceof Or)
-//						&& (conn.getTarget() instanceof Tool 
-//								|| conn.getTarget() instanceof Or)) {
-//					
-//					List<Port> emptyList = new ArrayList<Port>();
-//					List<Port> inputs = new ArrayList<Port>();
-//					inputs.add(conn.getTargPort());
-//					List<Port> outputs = new ArrayList<Port>();
-//					outputs.add(conn.getSrcPort());
-//					
-//					// actual port adding to parent Hyperworkflows
-//					if (!(this.propagateAdditionalPorts(conn.getSource(),
-//							emptyList, outputs) && this
-//							.propagateAdditionalPorts(conn.getTarget(), inputs,
-//									emptyList))) {
-//						
-//						// propagation failed -> UNDO EVERYTHING
-//						this.propagatePortRemoval(conn.getSource(), emptyList,
-//								outputs);
-//						this.propagatePortRemoval(conn.getTarget(), inputs,
-//								emptyList);
-//						portBlockageMap.get(conn.getTarget()).add(
-//								conn.getTargPort());
-//						connections.add(conn);
-//						return false;
-//					}
-//				}
 
 				// if there are no more blocked ports for the target tool,
 				// remove its map entries completely
@@ -809,7 +556,8 @@ public class NestedHyperworkflow extends Hyperworkflow {
 
 	@Override
 	public Collection<Hyperworkflow> unfold() {
-		Map<NestedHyperworkflow, Collection<Hyperworkflow>> unfoldMap = new HashMap<NestedHyperworkflow, Collection<Hyperworkflow>>();
+		Map<NestedHyperworkflow, Collection<Hyperworkflow>> unfoldMap 
+			= new HashMap<NestedHyperworkflow, Collection<Hyperworkflow>>();
 		int orCount = 0;
 
 		for (Hyperworkflow child : this.children) {
@@ -1004,7 +752,8 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		// get incoming and outgoing connections that are connected to orNode
 		List<Connection> incoming = new ArrayList<Connection>();
 		List<Connection> outgoing = new ArrayList<Connection>();
-		for (Connection c : orNode.getParent().getConnections()) {
+		for (Connection c : ((NestedHyperworkflow)orNode.getParent())
+				.getConnections()) {
 			if (c.getTarget().equals(orNode))
 				incoming.add(c);
 			if (c.getSource().equals(orNode))
@@ -1014,7 +763,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		for (int i = 0; i < incoming.size(); i++) {
 			// copy parent NestedHyperworkflow of current or node
 			NestedHyperworkflow parentCopy = new NestedHyperworkflow(
-					orNode.getParent()); 
+					(NestedHyperworkflow)orNode.getParent()); 
 			
 			// remove or node
 			parentCopy.removeChild(orNode); 

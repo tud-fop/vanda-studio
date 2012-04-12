@@ -19,7 +19,7 @@ public abstract class Hyperworkflow {
 	private List<Port> inputPorts;
 	private String name;
 	private List<Port> outputPorts;
-	private NestedHyperworkflow parent;
+	private Hyperworkflow parent;
 
 	public Hyperworkflow(String name) {
 		this(null, name);
@@ -37,11 +37,11 @@ public abstract class Hyperworkflow {
 		setId(toCopy.getId());
 	}
 	
-	public Hyperworkflow(NestedHyperworkflow parent, String name) {
+	public Hyperworkflow(Hyperworkflow parent, String name) {
 		this(parent, name, new ArrayList<Port>(), new ArrayList<Port>());
 	}
 
-	public Hyperworkflow(NestedHyperworkflow parent, String name,
+	public Hyperworkflow(Hyperworkflow parent, String name,
 			List<Port> inputPorts, List<Port> outputPorts) {
 		this.parent = parent;
 		this.name = name;
@@ -81,7 +81,7 @@ public abstract class Hyperworkflow {
 	}
 
 	/** @return the NestedHyperworkflow that contains the current IHyperworkflow */
-	public NestedHyperworkflow getParent() {
+	public Hyperworkflow getParent() {
 		return parent;
 	}
 
