@@ -1047,19 +1047,19 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	
 	public static void main(String[] args) {
 		 NestedHyperworkflow root = new NestedHyperworkflow("root");
-		 Hyperworkflow alpha = new Tool("alpha");
+		 Hyperworkflow alpha = new Job("alpha");
 		 alpha.getOutputPorts().add(new Port("out", "type"));
 		 NestedHyperworkflow beta = new NestedHyperworkflow("beta");
-		 Hyperworkflow beta1 = new Tool("beta1");
+		 Hyperworkflow beta1 = new Job("beta1");
 		 beta1.getInputPorts().add(new Port("in", "type"));
 		 beta1.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow beta2 = new Tool("beta2");
+		 Hyperworkflow beta2 = new Job("beta2");
 		 beta2.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow beta3 = new Tool("beta3");
+		 Hyperworkflow beta3 = new Job("beta3");
 		 beta3.getOutputPorts().add(new Port("out", "type"));
 		 Hyperworkflow orBeta = new Or("orBeta");
 		 orBeta.getInputPorts().add(new Port("in3", "type"));
-		 Hyperworkflow beta4 = new Tool("beta4");
+		 Hyperworkflow beta4 = new Job("beta4");
 		 beta4.getInputPorts().add(new Port("in", "type"));
 		 beta4.getOutputPorts().add(new Port("out", "type"));
 		 beta.addChild(beta1);
@@ -1067,33 +1067,31 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		 beta.addChild(beta3);
 		 beta.addChild(orBeta);
 		 beta.addChild(beta4);
-		 //XXX no portPropagation
 		 beta.getInputPorts().add(new Port("in", "type"));
 		 beta.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow gamma = new Tool("gamma");
+		 Hyperworkflow gamma = new Job("gamma");
 		 gamma.getOutputPorts().add(new Port("out", "type"));
 		 Hyperworkflow or1 = new Or("or1");
 		 NestedHyperworkflow delta = new NestedHyperworkflow("delta");
-		 Hyperworkflow delta1 = new Tool("delta1");
+		 Hyperworkflow delta1 = new Job("delta1");
 		 delta1.getInputPorts().add(new Port("in", "type"));
 		 delta1.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow delta2 = new Tool("delta2");
+		 Hyperworkflow delta2 = new Job("delta2");
 		 delta2.getOutputPorts().add(new Port("out", "type"));
 		 Hyperworkflow orDelta = new Or("orDelta");
-		 Hyperworkflow delta3 = new Tool("delta3");
+		 Hyperworkflow delta3 = new Job("delta3");
 		 delta3.getInputPorts().add(new Port("in", "type"));
 		 delta3.getOutputPorts().add(new Port("out", "type"));
 		 delta.addChild(delta1);
 		 delta.addChild(delta2);
 		 delta.addChild(orDelta);
 		 delta.addChild(delta3);
-		 //XXX no portPropagation
 		 delta.getInputPorts().add(new Port("in", "type"));
 		 delta.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow epsilon = new Tool("epsilon");
+		 Hyperworkflow epsilon = new Job("epsilon");
 		 epsilon.getOutputPorts().add(new Port("out", "type"));
 		 Hyperworkflow or2 = new Or("or2");
-		 Hyperworkflow eta = new Tool("eta");
+		 Hyperworkflow eta = new Job("eta");
 		 eta.getInputPorts().add(new Port("in", "type"));
 		 root.addChild(alpha);
 		 root.addChild(beta);
@@ -1172,23 +1170,24 @@ public class NestedHyperworkflow extends Hyperworkflow {
 //		 }
 
 //		NestedHyperworkflow test = new NestedHyperworkflow("testroot");
-//		Element tool = new Tool("tool");
+//		Hyperworkflow tool = new Job("tool");
 //		tool.getOutputPorts().add(new Port("out", "type"));
-//		Element tool2 = new Tool("tool2");
+//		Hyperworkflow tool2 = new Job("tool2");
 //		tool2.getInputPorts().add(new Port("in", "type"));
-//		Element or = new Or("or");
+//		Hyperworkflow or = new Or("or");
 //		test.addChild(tool);
 //		test.addChild(or);
 //		test.addChild(tool2);
 //
 //		NestedHyperworkflow nested = new NestedHyperworkflow("nested");
-//		Element nestedTool = new Tool("nestedTool");
+//		Hyperworkflow nestedTool = new Job("nestedTool");
 //		nestedTool.getInputPorts().add(new Port("in", "type"));
-//		Element nestedToolA = new Tool("nestedToolA");
+//		Hyperworkflow nestedToolA = new Job("nestedToolA");
 //		nestedToolA.getInputPorts().add(new Port("in", "type"));
 //		nestedToolA.getOutputPorts().add(new Port("out", "type"));
 //		nested.addChild(nestedTool);
 //		nested.addChild(nestedToolA);
+//		nested.getInputPorts().add(new Port("in", "type"));
 //		nested.addConnection(new Connection(nestedToolA, nestedToolA
 //				.getOutputPorts().get(0), nestedTool, nestedTool
 //				.getInputPorts().get(0)));

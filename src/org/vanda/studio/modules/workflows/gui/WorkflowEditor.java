@@ -21,6 +21,7 @@ import org.vanda.studio.modules.common.Editor;
 import org.vanda.studio.modules.workflows.Connection;
 import org.vanda.studio.modules.workflows.Hyperworkflow;
 import org.vanda.studio.modules.workflows.NestedHyperworkflow;
+import org.vanda.studio.modules.workflows.VOWorkflowObject;
 import org.vanda.studio.util.Observer;
 
 import com.mxgraph.model.mxGraphModel;
