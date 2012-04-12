@@ -1,24 +1,20 @@
 package org.vanda.studio.modules.terms;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import org.vanda.studio.model.RendererSelection;
+import org.vanda.studio.modules.terms.Term.TermObject;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxEdgeStyle;
-import com.mxgraph.view.mxPerimeter;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxMultiplicity;
+import com.mxgraph.view.mxPerimeter;
 import com.mxgraph.view.mxStylesheet;
-
-import org.vanda.studio.model.RendererSelection;
-import org.vanda.studio.modules.terms.Term.Connection;
-import org.vanda.studio.modules.terms.Term.TermObject;
-import org.vanda.studio.util.MultiplexObserver;
-import org.vanda.studio.util.Observable;
 
 public class JGraphRendering {
 	
@@ -180,7 +176,7 @@ public class JGraphRendering {
 						to.getY(), to.getWidth(), to.getHeight(), this.getStyleName());
 				v.setConnectable(false);
 				
-				String[] in = to.getInputPorts();
+				org.vanda.studio.model.Port[] in = to.getInputPorts();
 				for (int i = 0; i < in.length; i++) {
 					mxGeometry geo = new mxGeometry((i+1.0)/(in.length+1.0), 0,
 							PORT_DIAMETER, PORT_DIAMETER);
@@ -193,7 +189,7 @@ public class JGraphRendering {
 					g.addCell(port, v);
 				}
 				
-				String[] out = to.getOutputPorts();
+				org.vanda.studio.model.Port[] out = to.getOutputPorts();
 				for (int i = 0; i < out.length; i++) {
 					mxGeometry geo = new mxGeometry((i+1.0)/(out.length+1.0), 1,
 							PORT_DIAMETER, PORT_DIAMETER);

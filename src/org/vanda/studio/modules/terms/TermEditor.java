@@ -4,35 +4,29 @@
 package org.vanda.studio.modules.terms;
 
 import java.awt.datatransfer.DataFlavor;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Map.Entry;
 import java.util.HashMap;
+import java.util.Map.Entry;
+
 import javax.swing.JComponent;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-
-import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGraphModel;
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.swing.util.mxGraphTransferable;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.VObject;
 import org.vanda.studio.modules.common.Editor;
-import org.vanda.studio.modules.terms.Term.Connection;
 import org.vanda.studio.modules.terms.Term.TermObject;
 import org.vanda.studio.util.Observer;
+
+import com.mxgraph.model.mxGraphModel;
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.swing.util.mxGraphTransferable;
 
 
 /**

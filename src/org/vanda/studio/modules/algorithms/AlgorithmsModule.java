@@ -7,18 +7,16 @@ import java.util.List;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
+import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
 import org.vanda.studio.model.VObject;
 import org.vanda.studio.model.VObjectInstance;
 import org.vanda.studio.modules.common.Editor;
-import org.vanda.studio.modules.common.Loader;
 import org.vanda.studio.modules.common.ModuleInstance;
-import org.vanda.studio.modules.common.SimpleLoader;
 import org.vanda.studio.modules.common.SimpleModule;
 import org.vanda.studio.modules.common.SimpleModuleInstance;
 import org.vanda.studio.modules.common.SimpleVObjectInstance;
 import org.vanda.studio.modules.common.VObjectFactory;
-import org.vanda.studio.util.Observer;
 
 /**
  * @author buechse
@@ -58,8 +56,8 @@ public class AlgorithmsModule implements SimpleModule<VObject> {
 			super(a, m);
 			repository.addItem(
 				new VObject() {
-					final String[] inports = { "parallel corpus" };
-					final String[] outports = { "dictionary" };
+					final Port[] inports = { new Port("parallel corpus", "parallel corpus") };
+					final Port[] outports = { new Port("dictionary", "dictionary") };
 					
 					@Override
 					public void appendActions(List<Action> as) {
@@ -98,7 +96,7 @@ public class AlgorithmsModule implements SimpleModule<VObject> {
 					//public StringBuilder generateCode(String[] args);
 				
 					@Override
-					public String[] getInputPorts() {
+					public Port[] getInputPorts() {
 						return inports;
 					}
 				
@@ -108,7 +106,7 @@ public class AlgorithmsModule implements SimpleModule<VObject> {
 					}
 				
 					@Override
-					public String[] getOutputPorts() {
+					public Port[] getOutputPorts() {
 						return outports;
 					}
 					
@@ -120,8 +118,8 @@ public class AlgorithmsModule implements SimpleModule<VObject> {
 			
 			repository.addItem(
 				new VObject() {
-					final String[] inports = { "dictionary" };
-					final String[] outports = { };
+					final Port[] inports = { new Port("dictionary", "dictionary") };
+					final Port[] outports = { };
 					
 					@Override
 					public void appendActions(List<Action> as) {
@@ -160,7 +158,7 @@ public class AlgorithmsModule implements SimpleModule<VObject> {
 					//public StringBuilder generateCode(String[] args);
 				
 					@Override
-					public String[] getInputPorts() {
+					public Port[] getInputPorts() {
 						return inports;
 					}
 				
@@ -170,7 +168,7 @@ public class AlgorithmsModule implements SimpleModule<VObject> {
 					}
 				
 					@Override
-					public String[] getOutputPorts() {
+					public Port[] getOutputPorts() {
 						return outports;
 					}
 					

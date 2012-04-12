@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.vanda.studio.model.Action;
+import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
 import org.vanda.studio.model.VObject;
 import org.vanda.studio.model.VObjectInstance;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
-import org.vanda.studio.util.Observer;
 
 public class Term {
 	public static abstract class TermObject implements Cloneable {
@@ -46,11 +46,11 @@ public class Term {
 			return dimensions[3];
 		}
 		
-		public abstract String[] getInputPorts();
+		public abstract Port[] getInputPorts();
 	
 		public abstract String getName();
 	
-		public abstract String[] getOutputPorts();
+		public abstract Port[] getOutputPorts();
 
 		public final double getWidth() {
 			return dimensions[2];
@@ -104,7 +104,7 @@ public class Term {
 		}
 		
 		@Override
-		public String[] getInputPorts() {
+		public Port[] getInputPorts() {
 			return object.getInputPorts();
 		}
 	
@@ -114,7 +114,7 @@ public class Term {
 		}
 	
 		@Override
-		public String[] getOutputPorts() {
+		public Port[] getOutputPorts() {
 			return object.getOutputPorts();
 		}
 

@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows;
+package org.vanda.studio.model;
 
 /**
  * @author afischer
@@ -38,6 +38,7 @@ public class Port {
 	 * @return true iff both ports are compatible
 	 */
 	public boolean isCompatibleTo(Port otherPort) {
-		return type.equals(otherPort.type);
+		return true;
+		//TODO implement type checking at some point
 	}
 }

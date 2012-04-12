@@ -6,21 +6,15 @@ package org.vanda.studio.modules.wrtgs;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.vanda.studio.model.Action;
+import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
-import org.vanda.studio.model.VObject;
 import org.vanda.studio.model.VObjectInstance;
 import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.SimpleVObjectInstance;
 import org.vanda.studio.modules.common.VObjectFactory;
-import org.vanda.studio.util.Observer;
 
 /**
  * some parts by hjholtz
@@ -39,8 +33,8 @@ public class VTreeGrammarFactory implements VObjectFactory<VTreeGrammar> {
 	
 	protected static class VTreeGrammarImpl implements VTreeGrammar {
 		
-		protected static final String[] inports = { };
-		protected static final String[] outports = { "wrtg" };
+		protected static final Port[] inports = { };
+		protected static final Port[] outports = { new Port("wrtg", "wrtg") };
 		
 		ModuleInstance<VTreeGrammar> mod;
 		File file;
@@ -160,7 +154,7 @@ public class VTreeGrammarFactory implements VObjectFactory<VTreeGrammar> {
 		}
 	
 		@Override
-		public String[] getInputPorts() {
+		public Port[] getInputPorts() {
 			return inports;
 		}
 	
@@ -170,7 +164,7 @@ public class VTreeGrammarFactory implements VObjectFactory<VTreeGrammar> {
 		}
 	
 		@Override
-		public String[] getOutputPorts() {
+		public Port[] getOutputPorts() {
 			return outports;
 		}
 

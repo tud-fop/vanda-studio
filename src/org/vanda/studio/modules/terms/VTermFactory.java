@@ -4,20 +4,15 @@
 package org.vanda.studio.modules.terms;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.vanda.studio.model.Action;
+import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
-import org.vanda.studio.model.VObject;
 import org.vanda.studio.model.VObjectInstance;
 import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.SimpleVObjectInstance;
 import org.vanda.studio.modules.common.VObjectFactory;
-import org.vanda.studio.util.Observer;
 
 /**
  * @author buechse
@@ -32,7 +27,7 @@ public class VTermFactory implements VObjectFactory<VTerm> {
 	
 	protected static class VTermImpl implements VTerm {
 		
-		protected static final String[] ports = new String[0];
+		protected static final Port[] ports = new Port[0];
 		
 		ModuleInstance<VTerm> mod;
 		File file;
@@ -117,7 +112,7 @@ public class VTermFactory implements VObjectFactory<VTerm> {
 		}
 	
 		@Override
-		public String[] getInputPorts() {
+		public Port[] getInputPorts() {
 			return ports;
 		}
 	
@@ -127,7 +122,7 @@ public class VTermFactory implements VObjectFactory<VTerm> {
 		}
 	
 		@Override
-		public String[] getOutputPorts() {
+		public Port[] getOutputPorts() {
 			return ports;
 		}
 

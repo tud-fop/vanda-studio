@@ -5,16 +5,8 @@ package org.vanda.studio.modules.dictionaries;
 
 import java.util.HashMap;
 
-import javax.swing.JComponent;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-
 import org.vanda.studio.app.Application;
-import org.vanda.studio.model.VObject;
 import org.vanda.studio.modules.common.Editor;
-import org.vanda.studio.modules.terms.Term.Connection;
-import org.vanda.studio.modules.terms.Term.TermObject;
-import org.vanda.studio.util.Observer;
 
 
 /**

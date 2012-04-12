@@ -3,14 +3,8 @@
  */
 package org.vanda.studio.modules.wrtgs;
 
-import java.util.HashMap;
-import javax.swing.JComponent;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.common.Editor;
-import org.vanda.studio.util.Observer;
 
 
 /**

@@ -21,7 +21,7 @@ import org.vanda.studio.modules.common.Editor;
 import org.vanda.studio.modules.workflows.Connection;
 import org.vanda.studio.modules.workflows.Hyperworkflow;
 import org.vanda.studio.modules.workflows.NestedHyperworkflow;
-import org.vanda.studio.modules.workflows.VOWorkflowObject;
+import org.vanda.studio.modules.workflows.Job;
 import org.vanda.studio.util.Observer;
 
 import com.mxgraph.model.mxGraphModel;
@@ -268,7 +268,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 				// top left corner of first palette tool, width, height
 				double[] d = { 20, 10, 100, 80 };
 				for (VObject item : items) {
-					Hyperworkflow to = new VOWorkflowObject(item);
+					Hyperworkflow to = new Job(item);
 					to.setDimensions(d);
 					JGraphRendering.render(to, palettegraph, null);
 					d[1] += 90;

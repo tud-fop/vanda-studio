@@ -5,6 +5,7 @@ package org.vanda.studio.model;
 
 import java.util.List;
 
+
 /**
  * Represents a single vanda object.
  * <p>
@@ -37,11 +38,11 @@ public interface VObject {
 
 	//public StringBuilder generateCode(String[] args);
 
-	String[] getInputPorts();
+	Port[] getInputPorts();
 
 	String getName();
 
-	String[] getOutputPorts();
+	Port[] getOutputPorts();
 	
 	void selectRenderer(RendererSelection rs);
 }

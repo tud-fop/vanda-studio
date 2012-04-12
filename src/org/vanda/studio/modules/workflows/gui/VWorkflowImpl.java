@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.vanda.studio.model.Action;
+import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
 import org.vanda.studio.model.VObjectInstance;
 import org.vanda.studio.modules.common.ModuleInstance;
@@ -12,7 +13,7 @@ import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 
 public class VWorkflowImpl implements VWorkflow {
 
-	protected static final String[] ports = new String[0];
+	protected static final Port[] ports = new Port[0];
 
 	ModuleInstance<VWorkflow> mod;
 	File file;
@@ -105,7 +106,7 @@ public class VWorkflowImpl implements VWorkflow {
 	}
 
 	@Override
-	public String[] getInputPorts() {
+	public Port[] getInputPorts() {
 		return ports;
 	}
 
@@ -115,7 +116,7 @@ public class VWorkflowImpl implements VWorkflow {
 	}
 
 	@Override
-	public String[] getOutputPorts() {
+	public Port[] getOutputPorts() {
 		return ports;
 	}
 

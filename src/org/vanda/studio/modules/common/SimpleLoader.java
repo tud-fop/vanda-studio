@@ -3,19 +3,10 @@
  */
 package org.vanda.studio.modules.common;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.vanda.studio.model.VObject;
-import org.vanda.studio.modules.common.Loader;
-import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.util.Observer;
 
 /**

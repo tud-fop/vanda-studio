@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.vanda.studio.model.Port;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 
@@ -796,19 +797,19 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	
 	public static void main(String[] args) {
 		 NestedHyperworkflow root = new NestedHyperworkflow("root");
-		 Hyperworkflow alpha = new Job("alpha");
+		 Hyperworkflow alpha = new JobForTesting("alpha");
 		 alpha.getOutputPorts().add(new Port("out", "type"));
 		 NestedHyperworkflow beta = new NestedHyperworkflow("beta");
-		 Hyperworkflow beta1 = new Job("beta1");
+		 Hyperworkflow beta1 = new JobForTesting("beta1");
 		 beta1.getInputPorts().add(new Port("in", "type"));
 		 beta1.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow beta2 = new Job("beta2");
+		 Hyperworkflow beta2 = new JobForTesting("beta2");
 		 beta2.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow beta3 = new Job("beta3");
+		 Hyperworkflow beta3 = new JobForTesting("beta3");
 		 beta3.getOutputPorts().add(new Port("out", "type"));
 		 Hyperworkflow orBeta = new Or("orBeta");
 		 orBeta.getInputPorts().add(new Port("in3", "type"));
-		 Hyperworkflow beta4 = new Job("beta4");
+		 Hyperworkflow beta4 = new JobForTesting("beta4");
 		 beta4.getInputPorts().add(new Port("in", "type"));
 		 beta4.getOutputPorts().add(new Port("out", "type"));
 		 beta.addChild(beta1);
@@ -818,17 +819,17 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		 beta.addChild(beta4);
 		 beta.getInputPorts().add(new Port("in", "type"));
 		 beta.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow gamma = new Job("gamma");
+		 Hyperworkflow gamma = new JobForTesting("gamma");
 		 gamma.getOutputPorts().add(new Port("out", "type"));
 		 Hyperworkflow or1 = new Or("or1");
 		 NestedHyperworkflow delta = new NestedHyperworkflow("delta");
-		 Hyperworkflow delta1 = new Job("delta1");
+		 Hyperworkflow delta1 = new JobForTesting("delta1");
 		 delta1.getInputPorts().add(new Port("in", "type"));
 		 delta1.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow delta2 = new Job("delta2");
+		 Hyperworkflow delta2 = new JobForTesting("delta2");
 		 delta2.getOutputPorts().add(new Port("out", "type"));
 		 Hyperworkflow orDelta = new Or("orDelta");
-		 Hyperworkflow delta3 = new Job("delta3");
+		 Hyperworkflow delta3 = new JobForTesting("delta3");
 		 delta3.getInputPorts().add(new Port("in", "type"));
 		 delta3.getOutputPorts().add(new Port("out", "type"));
 		 delta.addChild(delta1);
@@ -837,10 +838,10 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		 delta.addChild(delta3);
 		 delta.getInputPorts().add(new Port("in", "type"));
 		 delta.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow epsilon = new Job("epsilon");
+		 Hyperworkflow epsilon = new JobForTesting("epsilon");
 		 epsilon.getOutputPorts().add(new Port("out", "type"));
 		 Hyperworkflow or2 = new Or("or2");
-		 Hyperworkflow eta = new Job("eta");
+		 Hyperworkflow eta = new JobForTesting("eta");
 		 eta.getInputPorts().add(new Port("in", "type"));
 		 root.addChild(alpha);
 		 root.addChild(beta);
@@ -918,42 +919,42 @@ public class NestedHyperworkflow extends Hyperworkflow {
 //			 System.out.println(hwf);
 //		 }
 
-//		NestedHyperworkflow test = new NestedHyperworkflow("testroot");
-//		Hyperworkflow tool = new Job("tool");
-//		tool.getOutputPorts().add(new Port("out", "type"));
-//		Hyperworkflow tool2 = new Job("tool2");
-//		tool2.getInputPorts().add(new Port("in", "type"));
-//		Hyperworkflow or = new Or("or");
-//		test.addChild(tool);
-//		test.addChild(or);
-//		test.addChild(tool2);
-//
-//		NestedHyperworkflow nested = new NestedHyperworkflow("nested");
-//		Hyperworkflow nestedTool = new Job("nestedTool");
-//		nestedTool.getInputPorts().add(new Port("in", "type"));
-//		Hyperworkflow nestedToolA = new Job("nestedToolA");
-//		nestedToolA.getInputPorts().add(new Port("in", "type"));
-//		nestedToolA.getOutputPorts().add(new Port("out", "type"));
-//		nested.addChild(nestedTool);
-//		nested.addChild(nestedToolA);
-//		nested.getInputPorts().add(new Port("in", "type"));
-//		nested.addConnection(new Connection(nestedToolA, nestedToolA
-//				.getOutputPorts().get(0), nestedTool, nestedTool
-//				.getInputPorts().get(0)));
-//		nested.addConnection(new Connection(nested, nested.getInputPorts().get(
-//				0), nestedToolA, nestedToolA.getInputPorts().get(0)));
-//
-//		test.addChild(nested);
-//		test.addConnection(new Connection(tool, tool.getOutputPorts().get(0),
-//				or, or.getInputPorts().get(0)));
-//		test.addConnection(new Connection(or, or.getOutputPorts().get(0),
-//				tool2, tool2.getInputPorts().get(0)));
-//		test.addConnection(new Connection(or, or.getOutputPorts().get(0),
-//				nested, nested.getInputPorts().get(0)));
-//		test.save("/home/student/afischer/test-load.hwf");
-//
-//		NestedHyperworkflow loadtest = NestedHyperworkflow
-//				.load("/home/student/afischer/test-load.hwf");
-//		System.out.println(loadtest);
+		NestedHyperworkflow test = new NestedHyperworkflow("testroot");
+		Hyperworkflow tool = new JobForTesting("tool");
+		tool.getOutputPorts().add(new Port("out", "type"));
+		Hyperworkflow tool2 = new JobForTesting("tool2");
+		tool2.getInputPorts().add(new Port("in", "type"));
+		Hyperworkflow or = new Or("or");
+		test.addChild(tool);
+		test.addChild(or);
+		test.addChild(tool2);
+
+		NestedHyperworkflow nested = new NestedHyperworkflow("nested");
+		Hyperworkflow nestedTool = new JobForTesting("nestedTool");
+		nestedTool.getInputPorts().add(new Port("in", "type"));
+		Hyperworkflow nestedToolA = new JobForTesting("nestedToolA");
+		nestedToolA.getInputPorts().add(new Port("in", "type"));
+		nestedToolA.getOutputPorts().add(new Port("out", "type"));
+		nested.addChild(nestedTool);
+		nested.addChild(nestedToolA);
+		nested.getInputPorts().add(new Port("in", "type"));
+		nested.addConnection(new Connection(nestedToolA, nestedToolA
+				.getOutputPorts().get(0), nestedTool, nestedTool
+				.getInputPorts().get(0)));
+		nested.addConnection(new Connection(nested, nested.getInputPorts().get(
+				0), nestedToolA, nestedToolA.getInputPorts().get(0)));
+
+		test.addChild(nested);
+		test.addConnection(new Connection(tool, tool.getOutputPorts().get(0),
+				or, or.getInputPorts().get(0)));
+		test.addConnection(new Connection(or, or.getOutputPorts().get(0),
+				tool2, tool2.getInputPorts().get(0)));
+		test.addConnection(new Connection(or, or.getOutputPorts().get(0),
+				nested, nested.getInputPorts().get(0)));
+		test.save("/home/student/afischer/test-load.hwf");
+
+		NestedHyperworkflow loadtest = NestedHyperworkflow
+				.load("/home/student/afischer/test-load.hwf");
+		System.out.println(loadtest);
 	}
 }

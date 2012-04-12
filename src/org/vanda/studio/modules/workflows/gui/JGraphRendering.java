@@ -195,7 +195,7 @@ public class JGraphRendering {
 				v.setConnectable(false);
 
 				// insert a cell for every input port
-				List<org.vanda.studio.modules.workflows.Port> in = hwf
+				List<org.vanda.studio.model.Port> in = hwf
 						.getInputPorts();
 				for (int i = 0; i < in.size(); i++) {
 					mxGeometry geo = new mxGeometry(0, (i + 1.0)
@@ -210,7 +210,7 @@ public class JGraphRendering {
 				}
 
 				// insert a cell for every output port
-				List<org.vanda.studio.modules.workflows.Port> out = hwf
+				List<org.vanda.studio.model.Port> out = hwf
 						.getOutputPorts();
 				for (int i = 0; i < out.size(); i++) {
 					mxGeometry geo = new mxGeometry(1, (i + 1.0)
@@ -275,7 +275,7 @@ public class JGraphRendering {
 					Hyperworkflow trg = (Hyperworkflow) target.getValue();
 
 					// determine port id of srcPort
-					List<org.vanda.studio.modules.workflows.Port> portList = src
+					List<org.vanda.studio.model.Port> portList = src
 							.getOutputPorts();
 					if (innerSource)
 						portList = src.getInputPorts();

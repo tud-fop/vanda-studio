@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
 
 /**

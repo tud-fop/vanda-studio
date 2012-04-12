@@ -1,5 +1,7 @@
 package org.vanda.studio.modules.workflows;
 
+import org.vanda.studio.model.Port;
+
 /**
  * @author afischer
  */

@@ -5,11 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
-import org.vanda.studio.model.VObject;
 import org.vanda.studio.model.VObjectInstance;
-import org.vanda.studio.util.Observer;
 
 public class SimpleVObjectInstance implements VObjectInstance {
 	
