@@ -116,7 +116,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			vworkflow = t;
 			renderer = new JGraphRenderer();
 			nhwf = vworkflow.load();
-
+			
 			// add listeners to renderer - every change within the graph
 			// (renderer) is propagated to the model
 
@@ -198,7 +198,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		}
 
 		private void renderRecursively(NestedHyperworkflow nested) {
-
+			
 			// create renderer for current NestedHyperworkflow
 
 			// new children of nhwf are propagated to the renderer
@@ -236,17 +236,23 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 							renderer.ensureDisconnected(conn);
 						}
 					});
-
+			
 			// render children recursivley
-			for (Hyperworkflow child : nested.getChildren()) {
+			ArrayList<Hyperworkflow> childrenList = new ArrayList<Hyperworkflow>(nested.getChildren());
+			for (Hyperworkflow child : childrenList) {
+				if (child.getName().equals("nestedTool") || child.getName().equals("nestedToolA"))
+					System.out.println("blub");
 				renderer.ensurePresence(child);
 				if (child instanceof NestedHyperworkflow) {
 					renderRecursively((NestedHyperworkflow) child);
 				}
-			}
+			}	
 
 			// render connections of the current NestedHyperworkflow
-			for (Connection conn : nested.getConnections()) {
+			ArrayList<Connection> connectionList = new ArrayList<Connection>(nested.getConnections());
+			for (Connection conn : connectionList) {
+				//XXX
+				System.out.println(conn + ": " + conn.getSource().getParent().getName() + ", " + conn.getTarget().getParent().getName());
 				renderer.ensureConnected(conn);
 			}
 		}

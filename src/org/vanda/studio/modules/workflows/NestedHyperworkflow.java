@@ -220,8 +220,11 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	}
 
 	public void ensureConnected(Connection c) {
+		//FIXME find parent nhwf of c.source (or c.source itself) and call
+		// this method on the according nhwf
 		if (addConnection(c)) {
 			connectObservable.notify(c);
+			System.out.println("connection " + c + " was added to " + this.getName());
 		}
 	}
 
@@ -232,8 +235,10 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	}
 
 	public void ensurePresence(Hyperworkflow o) {
+		//FIXME find parent of o and call ensurePresence(o) on this parent
 		if (addChild(o)) {
 			addObservable.notify(o);
+			System.out.println("node " + o + " was added to " + this.getName());
 		}
 	}
 	
@@ -796,121 +801,121 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	}
 	
 	public static void main(String[] args) {
-		 NestedHyperworkflow root = new NestedHyperworkflow("root");
-		 Hyperworkflow alpha = new JobForTesting("alpha");
-		 alpha.getOutputPorts().add(new Port("out", "type"));
-		 NestedHyperworkflow beta = new NestedHyperworkflow("beta");
-		 Hyperworkflow beta1 = new JobForTesting("beta1");
-		 beta1.getInputPorts().add(new Port("in", "type"));
-		 beta1.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow beta2 = new JobForTesting("beta2");
-		 beta2.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow beta3 = new JobForTesting("beta3");
-		 beta3.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow orBeta = new Or("orBeta");
-		 orBeta.getInputPorts().add(new Port("in3", "type"));
-		 Hyperworkflow beta4 = new JobForTesting("beta4");
-		 beta4.getInputPorts().add(new Port("in", "type"));
-		 beta4.getOutputPorts().add(new Port("out", "type"));
-		 beta.addChild(beta1);
-		 beta.addChild(beta2);
-		 beta.addChild(beta3);
-		 beta.addChild(orBeta);
-		 beta.addChild(beta4);
-		 beta.getInputPorts().add(new Port("in", "type"));
-		 beta.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow gamma = new JobForTesting("gamma");
-		 gamma.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow or1 = new Or("or1");
-		 NestedHyperworkflow delta = new NestedHyperworkflow("delta");
-		 Hyperworkflow delta1 = new JobForTesting("delta1");
-		 delta1.getInputPorts().add(new Port("in", "type"));
-		 delta1.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow delta2 = new JobForTesting("delta2");
-		 delta2.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow orDelta = new Or("orDelta");
-		 Hyperworkflow delta3 = new JobForTesting("delta3");
-		 delta3.getInputPorts().add(new Port("in", "type"));
-		 delta3.getOutputPorts().add(new Port("out", "type"));
-		 delta.addChild(delta1);
-		 delta.addChild(delta2);
-		 delta.addChild(orDelta);
-		 delta.addChild(delta3);
-		 delta.getInputPorts().add(new Port("in", "type"));
-		 delta.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow epsilon = new JobForTesting("epsilon");
-		 epsilon.getOutputPorts().add(new Port("out", "type"));
-		 Hyperworkflow or2 = new Or("or2");
-		 Hyperworkflow eta = new JobForTesting("eta");
-		 eta.getInputPorts().add(new Port("in", "type"));
-		 root.addChild(alpha);
-		 root.addChild(beta);
-		 root.addChild(gamma);
-		 root.addChild(or1);
-		 root.addChild(delta);
-		 root.addChild(epsilon);
-		 root.addChild(or2);
-		 root.addChild(eta);
-					
-		 //Connections within beta
-		 System.out.println("beta connections:");
-		 System.out.println(beta.addConnection(new Connection(beta,
-		 beta.getInputPorts().get(0), beta1, beta1.getInputPorts().get(0))));
-		 System.out.println(beta.addConnection(new Connection(beta1,
-		 beta1.getOutputPorts().get(0), orBeta,
-		 orBeta.getInputPorts().get(0))));
-		 System.out.println(beta.addConnection(new Connection(beta2,
-		 beta2.getOutputPorts().get(0), orBeta,
-		 orBeta.getInputPorts().get(1))));
-		 System.out.println(beta.addConnection(new Connection(beta3,
-		 beta3.getOutputPorts().get(0), orBeta,
-		 orBeta.getInputPorts().get(2))));
-		 System.out.println(beta.addConnection(new Connection(orBeta,
-		 orBeta.getOutputPorts().get(0), beta4,
-		 beta4.getInputPorts().get(0))));
-		 System.out.println(beta.addConnection(new Connection(beta4,
-		 beta4.getOutputPorts().get(0), beta, beta.getOutputPorts().get(0))));
-				
-		 //Connections within delta
-		 System.out.println("\ndelta connections:");
-		 System.out.println(delta.addConnection(new Connection(delta,
-		 delta.getInputPorts().get(0), delta1,
-		 delta1.getInputPorts().get(0))));
-		 System.out.println(delta.addConnection(new Connection(delta1,
-		 delta1.getOutputPorts().get(0), orDelta,
-		 orDelta.getInputPorts().get(0))));
-		 System.out.println(delta.addConnection(new Connection(delta2,
-		 delta2.getOutputPorts().get(0), orDelta,
-		 orDelta.getInputPorts().get(1))));
-		 System.out.println(delta.addConnection(new Connection(orDelta,
-		 orDelta.getOutputPorts().get(0), delta3,
-		 delta3.getInputPorts().get(0))));
-		 System.out.println(delta.addConnection(new Connection(delta3,
-		 delta3.getOutputPorts().get(0), delta,
-		 delta.getOutputPorts().get(0))));
-				
-		 //Connections within root
-		 System.out.println("\nroot connections:");
-		 System.out.println(root.addConnection(new Connection(alpha,
-		 alpha.getOutputPorts().get(0), beta, beta.getInputPorts().get(0))));
-		 System.out.println(root.addConnection(new Connection(beta,
-		 beta.getOutputPorts().get(0), or1, or1.getInputPorts().get(0))));
-		 System.out.println(root.addConnection(new Connection(gamma,
-		 gamma.getOutputPorts().get(0), or1, or1.getInputPorts().get(1))));
-		 System.out.println(root.addConnection(new Connection(or1,
-		 or1.getOutputPorts().get(0), delta, delta.getInputPorts().get(0))));
-		 System.out.println(root.addConnection(new Connection(epsilon,
-		 epsilon.getOutputPorts().get(0), or2, or2.getInputPorts().get(0))));
-		 System.out.println(root.addConnection(new Connection(delta,
-		 delta.getOutputPorts().get(0), or2, or2.getInputPorts().get(1))));
-		 System.out.println(root.addConnection(new Connection(or2,
-		 or2.getOutputPorts().get(0), eta, eta.getInputPorts().get(0))));
-		 
-		 System.out.println("\nunfold results:");
-		 Collection<Hyperworkflow> unfoldList = root.unfold();
-		 for (Hyperworkflow hwf : unfoldList) {
-			 System.out.println(hwf);
-		 }
+//		 NestedHyperworkflow root = new NestedHyperworkflow("root");
+//		 Hyperworkflow alpha = new JobForTesting("alpha");
+//		 alpha.getOutputPorts().add(new Port("out", "type"));
+//		 NestedHyperworkflow beta = new NestedHyperworkflow("beta");
+//		 Hyperworkflow beta1 = new JobForTesting("beta1");
+//		 beta1.getInputPorts().add(new Port("in", "type"));
+//		 beta1.getOutputPorts().add(new Port("out", "type"));
+//		 Hyperworkflow beta2 = new JobForTesting("beta2");
+//		 beta2.getOutputPorts().add(new Port("out", "type"));
+//		 Hyperworkflow beta3 = new JobForTesting("beta3");
+//		 beta3.getOutputPorts().add(new Port("out", "type"));
+//		 Hyperworkflow orBeta = new Or("orBeta");
+//		 orBeta.getInputPorts().add(new Port("in3", "type"));
+//		 Hyperworkflow beta4 = new JobForTesting("beta4");
+//		 beta4.getInputPorts().add(new Port("in", "type"));
+//		 beta4.getOutputPorts().add(new Port("out", "type"));
+//		 beta.addChild(beta1);
+//		 beta.addChild(beta2);
+//		 beta.addChild(beta3);
+//		 beta.addChild(orBeta);
+//		 beta.addChild(beta4);
+//		 beta.getInputPorts().add(new Port("in", "type"));
+//		 beta.getOutputPorts().add(new Port("out", "type"));
+//		 Hyperworkflow gamma = new JobForTesting("gamma");
+//		 gamma.getOutputPorts().add(new Port("out", "type"));
+//		 Hyperworkflow or1 = new Or("or1");
+//		 NestedHyperworkflow delta = new NestedHyperworkflow("delta");
+//		 Hyperworkflow delta1 = new JobForTesting("delta1");
+//		 delta1.getInputPorts().add(new Port("in", "type"));
+//		 delta1.getOutputPorts().add(new Port("out", "type"));
+//		 Hyperworkflow delta2 = new JobForTesting("delta2");
+//		 delta2.getOutputPorts().add(new Port("out", "type"));
+//		 Hyperworkflow orDelta = new Or("orDelta");
+//		 Hyperworkflow delta3 = new JobForTesting("delta3");
+//		 delta3.getInputPorts().add(new Port("in", "type"));
+//		 delta3.getOutputPorts().add(new Port("out", "type"));
+//		 delta.addChild(delta1);
+//		 delta.addChild(delta2);
+//		 delta.addChild(orDelta);
+//		 delta.addChild(delta3);
+//		 delta.getInputPorts().add(new Port("in", "type"));
+//		 delta.getOutputPorts().add(new Port("out", "type"));
+//		 Hyperworkflow epsilon = new JobForTesting("epsilon");
+//		 epsilon.getOutputPorts().add(new Port("out", "type"));
+//		 Hyperworkflow or2 = new Or("or2");
+//		 Hyperworkflow eta = new JobForTesting("eta");
+//		 eta.getInputPorts().add(new Port("in", "type"));
+//		 root.addChild(alpha);
+//		 root.addChild(beta);
+//		 root.addChild(gamma);
+//		 root.addChild(or1);
+//		 root.addChild(delta);
+//		 root.addChild(epsilon);
+//		 root.addChild(or2);
+//		 root.addChild(eta);
+//					
+//		 //Connections within beta
+//		 System.out.println("beta connections:");
+//		 System.out.println(beta.addConnection(new Connection(beta,
+//		 beta.getInputPorts().get(0), beta1, beta1.getInputPorts().get(0))));
+//		 System.out.println(beta.addConnection(new Connection(beta1,
+//		 beta1.getOutputPorts().get(0), orBeta,
+//		 orBeta.getInputPorts().get(0))));
+//		 System.out.println(beta.addConnection(new Connection(beta2,
+//		 beta2.getOutputPorts().get(0), orBeta,
+//		 orBeta.getInputPorts().get(1))));
+//		 System.out.println(beta.addConnection(new Connection(beta3,
+//		 beta3.getOutputPorts().get(0), orBeta,
+//		 orBeta.getInputPorts().get(2))));
+//		 System.out.println(beta.addConnection(new Connection(orBeta,
+//		 orBeta.getOutputPorts().get(0), beta4,
+//		 beta4.getInputPorts().get(0))));
+//		 System.out.println(beta.addConnection(new Connection(beta4,
+//		 beta4.getOutputPorts().get(0), beta, beta.getOutputPorts().get(0))));
+//				
+//		 //Connections within delta
+//		 System.out.println("\ndelta connections:");
+//		 System.out.println(delta.addConnection(new Connection(delta,
+//		 delta.getInputPorts().get(0), delta1,
+//		 delta1.getInputPorts().get(0))));
+//		 System.out.println(delta.addConnection(new Connection(delta1,
+//		 delta1.getOutputPorts().get(0), orDelta,
+//		 orDelta.getInputPorts().get(0))));
+//		 System.out.println(delta.addConnection(new Connection(delta2,
+//		 delta2.getOutputPorts().get(0), orDelta,
+//		 orDelta.getInputPorts().get(1))));
+//		 System.out.println(delta.addConnection(new Connection(orDelta,
+//		 orDelta.getOutputPorts().get(0), delta3,
+//		 delta3.getInputPorts().get(0))));
+//		 System.out.println(delta.addConnection(new Connection(delta3,
+//		 delta3.getOutputPorts().get(0), delta,
+//		 delta.getOutputPorts().get(0))));
+//				
+//		 //Connections within root
+//		 System.out.println("\nroot connections:");
+//		 System.out.println(root.addConnection(new Connection(alpha,
+//		 alpha.getOutputPorts().get(0), beta, beta.getInputPorts().get(0))));
+//		 System.out.println(root.addConnection(new Connection(beta,
+//		 beta.getOutputPorts().get(0), or1, or1.getInputPorts().get(0))));
+//		 System.out.println(root.addConnection(new Connection(gamma,
+//		 gamma.getOutputPorts().get(0), or1, or1.getInputPorts().get(1))));
+//		 System.out.println(root.addConnection(new Connection(or1,
+//		 or1.getOutputPorts().get(0), delta, delta.getInputPorts().get(0))));
+//		 System.out.println(root.addConnection(new Connection(epsilon,
+//		 epsilon.getOutputPorts().get(0), or2, or2.getInputPorts().get(0))));
+//		 System.out.println(root.addConnection(new Connection(delta,
+//		 delta.getOutputPorts().get(0), or2, or2.getInputPorts().get(1))));
+//		 System.out.println(root.addConnection(new Connection(or2,
+//		 or2.getOutputPorts().get(0), eta, eta.getInputPorts().get(0))));
+//		 
+//		 System.out.println("\nunfold results:");
+//		 Collection<Hyperworkflow> unfoldList = root.unfold();
+//		 for (Hyperworkflow hwf : unfoldList) {
+//			 System.out.println(hwf);
+//		 }
 
 //		 String filename = "/home/anja/test.hwf";
 //		 root.save(filename);

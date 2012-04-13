@@ -11,7 +11,9 @@ import org.vanda.studio.modules.workflows.gui.JGraphRendering.Port;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 
+import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
@@ -230,6 +232,28 @@ public class JGraphRenderer {
 		mxGeometry geo = model.getGeometry(cell);
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
+		
+		if (!nodes.containsKey(value)) {
+			mxICell newCell = (mxICell) cell;			
+			if (to.getName().equals("nestedTool"))
+				System.out.println("blub");
+			
+			// to has a valid parent already
+			if (!to.getId().equals("0")) {
+				((mxCell)newCell).setParent((mxCell) nodes.get(to.getParent()));
+				if (((mxCell)newCell).getParent() != null)
+					((mxCell)newCell).getParent().setCollapsed(true);
+				
+				nodes.put(to, newCell);
+				System.out.println("added " + to.getName() + " to " + to.getParent().getName());
+			} else {
+				
+			}
+			
+			
+		}
+		
+		
 		if (geo.getX() != to.getX() || geo.getY() != to.getY()
 				|| geo.getWidth() != to.getWidth()
 				|| geo.getHeight() != to.getHeight()) {
@@ -276,19 +300,22 @@ public class JGraphRenderer {
 					} else {
 						// something has been added
 						if (value instanceof Hyperworkflow) {
-							Object oldcell = nodes.put((Hyperworkflow) value,
-									cell);
-							if (oldcell == null) {
-								// check geometry and notify if necessary
-								updateNode(cell);
-								// FIXME: currently, objectAdd is not used!
-							} else {
-								assert (cell == oldcell);
-							}
+//							Object oldcell = nodes.put((Hyperworkflow) value,
+//									cell);
+//							if (oldcell == null) {
+//								///XXX
+//								objectAddObservable.notify((Hyperworkflow)value);
+//								// check geometry and notify if necessary
+//								updateNode(cell);
+//								// FIXME: currently, objectAdd is not used!
+//							} else {
+//								assert (cell == oldcell);
+//							}
+							updateNode(cell);
 						} else if (value instanceof Connection) {
 							// TODO currently this is not supposed to happen
 							assert (false);
-						} else if (value == null) {
+						} else if (value == null || value.equals("")) {
 							// check if a new edge is added
 							if (model.isEdge(cell)) {
 								updateEdge(cell);
