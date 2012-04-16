@@ -939,7 +939,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		nestedTool.getInputPorts().add(new Port("in", "type"));
 		Hyperworkflow nestedToolA = new JobForTesting("nestedToolA");
 		nestedToolA.getInputPorts().add(new Port("in", "type"));
-		nestedToolA.getOutputPorts().add(new Port("out", "type"));
+		nestedToolA.getOutputPorts().add(new Port("out", "type"));		
 		nested.addChild(nestedTool);
 		nested.addChild(nestedToolA);
 		nested.getInputPorts().add(new Port("in", "type"));

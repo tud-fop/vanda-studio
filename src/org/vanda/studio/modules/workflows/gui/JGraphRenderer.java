@@ -13,7 +13,6 @@ import org.vanda.studio.util.Observable;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
@@ -165,13 +164,13 @@ public class JGraphRenderer {
 
 			assert (sval instanceof Port && tval instanceof Port
 					&& sparval instanceof Hyperworkflow && tparval instanceof Hyperworkflow);
-			assert (((Port) sval).index >= 0
-					&& ((Port) sval).index < ((Hyperworkflow) sparval)
-							.getOutputPorts().size()
-					&& !((Port) sval).input
-					&& ((Port) tval).index >= 0
-					&& ((Port) tval).index < ((Hyperworkflow) tparval)
-							.getInputPorts().size() && ((Port) tval).input);
+//			assert (((Port) sval).index >= 0
+//					&& ((Port) sval).index < ((Hyperworkflow) sparval)
+//							.getOutputPorts().size()
+//					&& !((Port) sval).input
+//					&& ((Port) tval).index >= 0
+//					&& ((Port) tval).index < ((Hyperworkflow) tparval)
+//							.getInputPorts().size() && ((Port) tval).input);
 
 			if (value instanceof Connection)
 				conn = (Connection) value;
@@ -233,27 +232,29 @@ public class JGraphRenderer {
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
 		
+		// check if the cell parameter exists already
 		if (!nodes.containsKey(value)) {
-			mxICell newCell = (mxICell) cell;			
-			if (to.getName().equals("nestedTool"))
-				System.out.println("blub");
+			// cell has been added to graph
+			nodes.put(to, cell);
 			
-			// to has a valid parent already
-			if (!to.getId().equals("0")) {
-				((mxCell)newCell).setParent((mxCell) nodes.get(to.getParent()));
-				if (((mxCell)newCell).getParent() != null)
-					((mxCell)newCell).getParent().setCollapsed(true);
-				
-				nodes.put(to, newCell);
-				System.out.println("added " + to.getName() + " to " + to.getParent().getName());
-			} else {
-				
+			// collapse nested nodes 
+			if (((mxCell)cell).getParent().getValue() != null) {
+				((mxCell)cell).getParent().setCollapsed(true);
 			}
 			
+			if (to.getParent() != null) {
+				System.out.println(to.getName() + " has parent " + to.getParent().getName());
+			} else {
+				System.out.println("TODO not yet added node: " + to.getName() + "(parent is " + to.getParent() + ")");
 			
+				//TODO obtain intended parent of Hyperworkflow "to" somehow
+				
+				//TODO 
+				//objectAddObservable.notify(to);
+			}
 		}
 		
-		
+		// check if changes occurred to the given cell
 		if (geo.getX() != to.getX() || geo.getY() != to.getY()
 				|| geo.getWidth() != to.getWidth()
 				|| geo.getHeight() != to.getHeight()) {
@@ -265,7 +266,7 @@ public class JGraphRenderer {
 			objectModifyObservable.notify(to);
 		}
 	}
-
+	
 	protected class ChangeListener implements mxIEventListener {
 		@Override
 		public void invoke(Object sender, mxEventObject evt) {
@@ -303,8 +304,6 @@ public class JGraphRenderer {
 //							Object oldcell = nodes.put((Hyperworkflow) value,
 //									cell);
 //							if (oldcell == null) {
-//								///XXX
-//								objectAddObservable.notify((Hyperworkflow)value);
 //								// check geometry and notify if necessary
 //								updateNode(cell);
 //								// FIXME: currently, objectAdd is not used!
@@ -314,7 +313,7 @@ public class JGraphRenderer {
 							updateNode(cell);
 						} else if (value instanceof Connection) {
 							// TODO currently this is not supposed to happen
-							assert (false);
+//							assert (false);
 						} else if (value == null || value.equals("")) {
 							// check if a new edge is added
 							if (model.isEdge(cell)) {

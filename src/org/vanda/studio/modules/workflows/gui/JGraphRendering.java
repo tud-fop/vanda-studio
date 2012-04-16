@@ -182,9 +182,10 @@ public class JGraphRendering {
 		@Override
 		public void render(Hyperworkflow hwf, Graph g, Object parentCell) {
 			Object parent = parentCell;
-			if (parentCell == null)
+			if (parentCell == null) {
 				parent = g.getDefaultParent();
-
+			}
+				
 			g.getModel().beginUpdate();
 			try {
 				// insert new node into the graph that has the specified hwf as
@@ -231,9 +232,10 @@ public class JGraphRendering {
 		@Override
 		public void render(Connection c, Graph g, Object parentCell) {
 			Object parent = parentCell;
-			if (parentCell == null)
+			if (parentCell == null) {
 				parent = g.getDefaultParent();
-
+			}
+				
 			g.getModel().beginUpdate();
 			try {
 				mxICell source = null;
@@ -482,10 +484,12 @@ public class JGraphRendering {
 
 		@Override
 		public boolean isValidDropTarget(Object cell, Object[] cells) {
-			return false;
+			//TODO has to be more specific, only allow dropTarget for nested nodes
+			return true;
 		}
 
-		// Removes the folding icon and disables any folding
+		// Removes the folding icon from simple jobs and disables folding
+		// Allows folding of NestedHyperworkflows
 		@Override
 		public boolean isCellFoldable(Object cell, boolean collapse) {
 			// allow NestedHyperworkflow with children to be foldable
