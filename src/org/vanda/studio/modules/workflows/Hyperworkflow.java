@@ -2,7 +2,9 @@ package org.vanda.studio.modules.workflows;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.Port;
@@ -97,7 +99,7 @@ public abstract class Hyperworkflow {
 	public double getY() {
 		return dimensions[1];
 	}
-
+	
 	public void selectRenderer(RendererSelection rs) {
 		rs.selectTermRenderer();
 	}
@@ -124,7 +126,7 @@ public abstract class Hyperworkflow {
 	 * @param newParent -
 	 *            replaces the current parent
 	 */
-	public void setParent(NestedHyperworkflow newParent) {
+	public void setParent(Hyperworkflow newParent) {
 		this.parent = newParent;
 	}
 

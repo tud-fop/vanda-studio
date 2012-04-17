@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.Port;
@@ -68,7 +69,7 @@ public class Job extends Hyperworkflow {
 		}
 		return ports;
 	}
-
+	
 	@Override
 	public void selectRenderer(RendererSelection rs) {
 		object.selectRenderer(rs);

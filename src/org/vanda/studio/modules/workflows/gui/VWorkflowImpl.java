@@ -41,7 +41,6 @@ public class VWorkflowImpl implements VWorkflow {
 		// open file as a ByteStream and construct the Term
 		// TODO
 
-		// !!!
 		NestedHyperworkflow nhwf = null;
 		if (file != null && file.exists()) {
 			nhwf = NestedHyperworkflow.load(file.getPath());

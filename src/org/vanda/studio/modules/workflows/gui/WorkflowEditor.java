@@ -114,8 +114,20 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 
 		public WorkflowEditorTab(VWorkflow t) {
 			vworkflow = t;
-			renderer = new JGraphRenderer();
 			nhwf = vworkflow.load();
+			
+			//XXX provide menu entry to save hyperworkflow
+			app.getWindowSystem().addAction(new Action() {
+				public String getName() {
+					return "Save Workflow";
+				}
+				
+				public void invoke() {
+					nhwf.save("/home/student/afischer/test-load.hwf");
+				}
+			});
+			
+			renderer = new JGraphRenderer(nhwf);
 			
 			// add listeners to renderer - every change within the graph
 			// (renderer) is propagated to the model

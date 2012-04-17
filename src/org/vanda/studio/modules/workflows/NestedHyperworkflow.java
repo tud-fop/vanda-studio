@@ -24,7 +24,7 @@ import com.thoughtworks.xstream.XStreamException;
  * @author afischer
  */
 public class NestedHyperworkflow extends Hyperworkflow {
-
+	
 	private MultiplexObserver<Hyperworkflow> addObservable;
 	private List<Hyperworkflow> children;
 	private MultiplexObserver<Connection> connectObservable;
@@ -235,10 +235,16 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	}
 
 	public void ensurePresence(Hyperworkflow o) {
-		//FIXME find parent of o and call ensurePresence(o) on this parent
-		if (addChild(o)) {
-			addObservable.notify(o);
-			System.out.println("node " + o + " was added to " + this.getName());
+		// check if parent of o matches the current Nestedhyperworkflow
+		if (!o.getParent().equals(this)) {
+			// delegate adding to correct parent
+			((NestedHyperworkflow) o.getParent()).ensurePresence(o);
+			
+		} else {
+			if (addChild(o)) {
+				addObservable.notify(o);
+				System.out.println("node " + o.getName() + " was added to " + this.getName());
+			}
 		}
 	}
 	
@@ -322,8 +328,11 @@ public class NestedHyperworkflow extends Hyperworkflow {
 			
 			// loading and deserialization was successful, check if file 
 			// contains a NestedHyperworkflow
-			if (result != null && result instanceof NestedHyperworkflow)
-				return (NestedHyperworkflow) result;
+			if (result != null && result instanceof NestedHyperworkflow) {
+				NestedHyperworkflow root = (NestedHyperworkflow) result;
+				initializeObservers(root);
+				return root;
+			}
 			else
 				return null;
 		} catch (XStreamException xe) {
@@ -331,6 +340,20 @@ public class NestedHyperworkflow extends Hyperworkflow {
 					"The specified file does not contain a NestedHyperworkflow! - "
 							+ pathToFile);
 		}		
+	}
+	
+	private static void initializeObservers(NestedHyperworkflow nhwf) {
+		nhwf.addObservable = new MultiplexObserver<Hyperworkflow>();
+		nhwf.modifyObservable = new MultiplexObserver<Hyperworkflow>();
+		nhwf.removeObservable = new MultiplexObserver<Hyperworkflow>();
+		nhwf.connectObservable = new MultiplexObserver<Connection>();
+		nhwf.disconnectObservable = new MultiplexObserver<Connection>();
+		
+		for (Hyperworkflow child : nhwf.getChildren()) {
+			if (child instanceof NestedHyperworkflow) {
+				initializeObservers((NestedHyperworkflow)child);
+			}
+		}
 	}
 	
 	/**
@@ -508,8 +531,9 @@ public class NestedHyperworkflow extends Hyperworkflow {
 			if (fileWriter != null) {
 				Writer output = new BufferedWriter(fileWriter);
 				XStream xs = new XStream();
-
+				
 				// TODO do NOT save whole NestedHyperworkflow!
+				// ignore observers
 				xs.toXML(this, output);
 				return true;
 			}
@@ -518,7 +542,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 
 		return false;
 	}
-	
+		
 	public void setDimensions(Hyperworkflow o, double[] d) {
 		assert (children.contains(o));
 

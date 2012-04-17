@@ -484,8 +484,8 @@ public class JGraphRendering {
 
 		@Override
 		public boolean isValidDropTarget(Object cell, Object[] cells) {
-			//TODO has to be more specific, only allow dropTarget for nested nodes
-			return true;
+			//TODO has to be more specific
+			return (((mxCell)cell).getValue() instanceof NestedHyperworkflow);
 		}
 
 		// Removes the folding icon from simple jobs and disables folding
