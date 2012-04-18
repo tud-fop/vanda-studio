@@ -57,6 +57,55 @@ public class JGraphRenderer {
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
 	}
 
+	protected void addNode(Object cell) {
+		mxIGraphModel model = graph.getModel();
+		Object value = model.getValue(cell);
+		mxGeometry geo = model.getGeometry(cell);
+		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
+		Hyperworkflow to = (Hyperworkflow) value;
+		
+		if (!nodes.containsKey(to)) {
+			// add to nodes-map
+			nodes.put(to, cell);
+		
+			// collapse nested nodes 
+			if (((mxCell)cell).getParent().getValue() != null) {
+				//((mxCell)cell).getParent().setCollapsed(true);
+			}
+
+			// obtain value of parent cell that holds the current cell
+			Object parent = ((mxCell)cell).getParent().getValue();
+			
+			// the current cell is not inserted into any existing cell, 
+			// it is direct child of root
+			if (parent == null) {
+				// set parent to root
+				to.setParent(root);
+				((mxCell)cell).setParent((mxCell)graph.getDefaultParent());
+			} else {
+				// cell has been dropped into an existing cell,
+				// set parent accordingly
+			
+				if (parent instanceof Hyperworkflow) {
+					to.setParent((Hyperworkflow)parent);
+					((mxCell)cell).setParent((mxCell)nodes.get(to.getParent()));
+				} else {
+					// some error occurred, parent cell has to 
+					// hold a Hyperworkflow
+					assert(false);
+				}
+			}
+			
+			// set dimensions of to
+			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
+						geo.getHeight() };
+			to.setDimensions(dim);
+				
+			// notify 
+			objectAddObservable.notify(to);
+		}	
+	}
+	
 	public void ensureAbsence(Hyperworkflow to) {
 		Object cell = nodes.remove(to);
 		if (cell != null) {
@@ -226,55 +275,6 @@ public class JGraphRenderer {
 			}
 		}
 	}
-
-	protected void addNode(Object cell) {
-		mxIGraphModel model = graph.getModel();
-		Object value = model.getValue(cell);
-		mxGeometry geo = model.getGeometry(cell);
-		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
-		Hyperworkflow to = (Hyperworkflow) value;
-		
-		if (!nodes.containsKey(to)) {
-			// add to nodes-map
-			nodes.put(to, cell);
-		
-			// collapse nested nodes 
-			if (((mxCell)cell).getParent().getValue() != null) {
-				//((mxCell)cell).getParent().setCollapsed(true);
-			}
-
-			// obtain value of parent cell that holds the current cell
-			Object parent = ((mxCell)cell).getParent().getValue();
-			
-			// the current cell is not inserted into any existing cell, 
-			// it is direct child of root
-			if (parent == null) {
-				// set parent to root
-				to.setParent(root);
-				((mxCell)cell).setParent((mxCell)graph.getDefaultParent());
-			} else {
-				// cell has been dropped into an existing cell,
-				// set parent accordingly
-			
-				if (parent instanceof Hyperworkflow) {
-					to.setParent((Hyperworkflow)parent);
-					((mxCell)cell).setParent((mxCell)nodes.get(to.getParent()));
-				} else {
-					// some error occurred, parent cell has to 
-					// hold a Hyperworkflow
-					assert(false);
-				}
-			}
-			
-			// set dimensions of to
-			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
-						geo.getHeight() };
-			to.setDimensions(dim);
-				
-			// notify 
-			objectAddObservable.notify(to);
-		}	
-	}
 	
 	protected void updateNode(Object cell) {
 		mxIGraphModel model = graph.getModel();
@@ -341,6 +341,9 @@ public class JGraphRenderer {
 //							}
 							addNode(cell);
 						} else if (value instanceof Connection) {
+							// happens when a loaded nhwf contains connection
+							// and they are added to the graph
+							
 							// TODO currently this is not supposed to happen
 							//assert (false);
 						} else if (value == null || value.equals("")) {
@@ -352,7 +355,11 @@ public class JGraphRenderer {
 					}
 				} else if (c instanceof mxValueChange) {
 					// has something to do with a changed parent of the cell
-					//assert (false);
+					// seems to only affect connections
+					
+					// assert (false);
+					System.out.println("mxValueChange of: " 
+							+ ((mxCell)((mxValueChange)c).getCell()).getValue());
 				} else if (c instanceof mxGeometryChange) {
 					Object cell = ((mxGeometryChange) c).getCell();
 					if (model.getValue(cell) instanceof Hyperworkflow)

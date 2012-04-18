@@ -214,37 +214,54 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	}
 	
 	public void ensureAbsence(Hyperworkflow o) {
-		if (removeChild(o)) {
+		// try to remove the Hyperworkflow o from its parent and notify the renderer
+		if (((NestedHyperworkflow)o.getParent()).removeChild(o)) {
 			removeObservable.notify(o);
 		}
 	}
 
 	public void ensureConnected(Connection c) {
-		//FIXME find parent nhwf of c.source (or c.source itself) and call
-		// this method on the according nhwf
-		if (addConnection(c)) {
+		// determine the correct NestedHyperworkflow to add the connection to
+		NestedHyperworkflow connParent = null;
+		if (c.getSource() instanceof NestedHyperworkflow) {
+			
+			NestedHyperworkflow source = (NestedHyperworkflow)c.getSource();
+			
+			// if target is child of source or source itself, source is the
+			// NestedHyperworkflow we are looking for
+			if (source.getChildren().contains(c.getTarget()) 
+					|| source.equals(c.getTarget())) {
+				connParent = source;
+			} else {
+				// target is somewhere outside of source, source's parent
+				// has to add the connection
+				connParent = (NestedHyperworkflow)source.getParent();
+			}
+			
+		} else {
+			// connection source is a simple job, hence, its parent has to add c
+			connParent = (NestedHyperworkflow)c.getSource().getParent();
+		}
+		
+		// add the connection to the established NestedHyperworkflow
+		if (connParent.addConnection(c)) {
 			connectObservable.notify(c);
-			System.out.println("connection " + c + " was added to " + this.getName());
+			System.out.println("connection " + c + " was added to " + connParent.getName());
 		}
 	}
 
 	public void ensureDisconnected(Connection c) {
+		//TODO determine parent NestedHyperworkflow that holds the connection
 		if (removeConnection(c)) {
 			connectObservable.notify(c);
 		}
 	}
 
 	public void ensurePresence(Hyperworkflow o) {
-		// check if parent of o matches the current Nestedhyperworkflow
-		if (!o.getParent().equals(this)) {
-			// delegate adding to correct parent
-			((NestedHyperworkflow) o.getParent()).ensurePresence(o);
-			
-		} else {
-			if (addChild(o)) {
-				addObservable.notify(o);
-				System.out.println("node " + o.getName() + " was added to " + this.getName());
-			}
+		// try to add the Hyperworkflow o to its parent and notify the renderer
+		if (((NestedHyperworkflow)o.getParent()).addChild(o)) {
+			addObservable.notify(o);
+			System.out.println("node " + o.getName() + " was added to " + o.getParent().getName());
 		}
 	}
 	
@@ -330,6 +347,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 			// contains a NestedHyperworkflow
 			if (result != null && result instanceof NestedHyperworkflow) {
 				NestedHyperworkflow root = (NestedHyperworkflow) result;
+				// sets all observers to be empty lists
 				initializeObservers(root);
 				return root;
 			}
@@ -531,6 +549,13 @@ public class NestedHyperworkflow extends Hyperworkflow {
 			if (fileWriter != null) {
 				Writer output = new BufferedWriter(fileWriter);
 				XStream xs = new XStream();
+				xs.omitField(NestedHyperworkflow.class, "addObservable");
+				xs.omitField(NestedHyperworkflow.class, "modifyObservable");
+				xs.omitField(NestedHyperworkflow.class, "removeObservable");
+				xs.omitField(NestedHyperworkflow.class, "connectObservable");
+				xs.omitField(NestedHyperworkflow.class, "disconnectObservable");
+				
+				System.out.println("saving " + this);
 				
 				// TODO do NOT save whole NestedHyperworkflow!
 				// ignore observers
