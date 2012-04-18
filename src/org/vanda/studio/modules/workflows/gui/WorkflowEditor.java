@@ -176,14 +176,21 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 						}
 					});
 
-			// add listeners to NestedHyperworkflow - every change within the model
-			// is propagated to graph (renderer)
+			// add listeners to NestedHyperworkflow - changes within the model
+			// are propagated to the graph (renderer)
 			
 			nhwf.getAddObservable().addObserver(
 					new Observer<Hyperworkflow>() {
 						@Override
 						public void notify(Hyperworkflow o) {
 							renderer.ensurePresence(o);
+						}
+					});
+			nhwf.getModifyObservable().addObserver(
+					new Observer<Hyperworkflow>() {
+						@Override
+						public void notify(Hyperworkflow o) {
+							//TODO
 						}
 					});
 			nhwf.getRemoveObservable().addObserver(
@@ -242,45 +249,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		}
 
 		private void renderRecursively(NestedHyperworkflow nested) {
-			
-			// create renderer for current NestedHyperworkflow
-
-//			// new children of nhwf are propagated to the renderer
-//			nested.getAddObservable().addObserver(
-//					new Observer<Hyperworkflow>() {
-//						@Override
-//						public void notify(Hyperworkflow o) {
-//							renderer.ensurePresence(o);
-//						}
-//					});
-//
-//			// removed children of nhwf are propagated to the renderer
-//			nested.getRemoveObservable().addObserver(
-//					new Observer<Hyperworkflow>() {
-//						@Override
-//						public void notify(Hyperworkflow o) {
-//							renderer.ensureAbsence(o);
-//						}
-//					});
-//
-//			// new edges of nhwf are propagated to the renderer
-//			nested.getConnectObservable().addObserver(
-//					new Observer<Connection>() {
-//						@Override
-//						public void notify(Connection conn) {
-//							renderer.ensureConnected(conn);
-//						}
-//					});
-//
-//			// removed edges of nhwf are propagated to the renderer
-//			nested.getDisconnectObservable().addObserver(
-//					new Observer<Connection>() {
-//						@Override
-//						public void notify(Connection conn) {
-//							renderer.ensureDisconnected(conn);
-//						}
-//					});
-			
+						
 			// render children recursivley
 			ArrayList<Hyperworkflow> childrenList = new ArrayList<Hyperworkflow>(nested.getChildren());
 			for (Hyperworkflow child : childrenList) {

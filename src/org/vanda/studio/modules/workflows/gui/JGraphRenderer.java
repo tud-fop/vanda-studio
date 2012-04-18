@@ -67,11 +67,6 @@ public class JGraphRenderer {
 		if (!nodes.containsKey(to)) {
 			// add to nodes-map
 			nodes.put(to, cell);
-		
-			// collapse nested nodes 
-			if (((mxCell)cell).getParent().getValue() != null) {
-				//((mxCell)cell).getParent().setCollapsed(true);
-			}
 
 			// obtain value of parent cell that holds the current cell
 			Object parent = ((mxCell)cell).getParent().getValue();
@@ -282,6 +277,8 @@ public class JGraphRenderer {
 		mxGeometry geo = model.getGeometry(cell);
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
+		
+		System.out.println("updating " + ((mxCell)cell).getValue());
 		
 		// check if changes occurred to the given cell
 		if (geo.getX() != to.getX() || geo.getY() != to.getY()
