@@ -18,12 +18,12 @@ public class SimpleLoader<T extends Tool> implements Loader<Tool> {
 	
 	protected final ModuleInstance<T> mod;
 	protected final FilenameFilter filter;
-	protected final VObjectFactory<T> factory;
+	protected final ToolFactory<T> factory;
 	
 	public SimpleLoader(
 		ModuleInstance<T> mod,
 		FilenameFilter filter,
-		VObjectFactory<T> factory)
+		ToolFactory<T> factory)
 	{
 		this.mod = mod;
 		this.filter = filter;

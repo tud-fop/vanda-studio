@@ -15,8 +15,8 @@ import org.vanda.studio.modules.common.Editor;
 import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.SimpleModule;
 import org.vanda.studio.modules.common.SimpleModuleInstance;
-import org.vanda.studio.modules.common.SimpleVObjectInstance;
-import org.vanda.studio.modules.common.VObjectFactory;
+import org.vanda.studio.modules.common.SimpleToolInstance;
+import org.vanda.studio.modules.common.ToolFactory;
 
 /**
  * @author buechse
@@ -35,7 +35,7 @@ public class AlgorithmsModule implements SimpleModule<Tool> {
 	}
 	
 	@Override
-	public VObjectFactory<Tool> createFactory()
+	public ToolFactory<Tool> createFactory()
 	{
 		return null;
 	}
@@ -65,7 +65,7 @@ public class AlgorithmsModule implements SimpleModule<Tool> {
 				
 					@Override
 					public ToolInstance createInstance() {
-						return new SimpleVObjectInstance();
+						return new SimpleToolInstance();
 					}
 				
 					@Override
@@ -127,7 +127,7 @@ public class AlgorithmsModule implements SimpleModule<Tool> {
 				
 					@Override
 					public ToolInstance createInstance() {
-						return new SimpleVObjectInstance();
+						return new SimpleToolInstance();
 					}
 				
 					@Override

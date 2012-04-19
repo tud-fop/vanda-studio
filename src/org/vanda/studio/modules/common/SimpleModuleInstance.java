@@ -12,7 +12,7 @@ implements ModuleInstance<T> {
 	
 	protected Application app;
 	protected Editor<T> editor;
-	protected VObjectFactory<T> factory;
+	protected ToolFactory<T> factory;
 	protected SimpleLoader<T> loader;
 	protected SimpleModule<T> module;
 	protected SimpleRepository<Tool> repository;

@@ -262,6 +262,9 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		if (((NestedHyperworkflow)o.getParent()).addChild(o)) {
 			addObservable.notify(o);
 			System.out.println("node " + o.getName() + " was added to " + o.getParent().getName());
+			if (o instanceof Job) {
+				System.out.println();
+			}
 		}
 	}
 	
@@ -554,7 +557,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 				xs.omitField(NestedHyperworkflow.class, "removeObservable");
 				xs.omitField(NestedHyperworkflow.class, "connectObservable");
 				xs.omitField(NestedHyperworkflow.class, "disconnectObservable");
-				
+				xs.registerConverter(new JobConverter());
 				System.out.println("saving " + this);
 				
 				// TODO do NOT save whole NestedHyperworkflow!

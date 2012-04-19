@@ -8,7 +8,7 @@ public interface SimpleModule<T extends Tool> extends Module {
 	
 	Editor<T> createEditor(Application app);
 	
-	VObjectFactory<T> createFactory();
+	ToolFactory<T> createFactory();
 	
 	ModuleInstance<T> createInstance(Application app);
 	

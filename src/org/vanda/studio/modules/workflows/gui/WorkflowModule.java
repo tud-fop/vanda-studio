@@ -8,7 +8,7 @@ import org.vanda.studio.modules.common.Editor;
 import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.SimpleModule;
 import org.vanda.studio.modules.common.SimpleModuleInstance;
-import org.vanda.studio.modules.common.VObjectFactory;
+import org.vanda.studio.modules.common.ToolFactory;
 
 public class WorkflowModule implements SimpleModule<VWorkflow> {
 
@@ -18,7 +18,7 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 	}
 
 	@Override
-	public VObjectFactory<VWorkflow> createFactory() {
+	public ToolFactory<VWorkflow> createFactory() {
 		return new VWorkflowFactory();
 	}
 

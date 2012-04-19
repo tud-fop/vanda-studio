@@ -11,14 +11,14 @@ import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
 import org.vanda.studio.model.ToolInstance;
 import org.vanda.studio.modules.common.ModuleInstance;
-import org.vanda.studio.modules.common.SimpleVObjectInstance;
-import org.vanda.studio.modules.common.VObjectFactory;
+import org.vanda.studio.modules.common.SimpleToolInstance;
+import org.vanda.studio.modules.common.ToolFactory;
 
 /**
  * @author buechse
  * 
  */
-public class VTermFactory implements VObjectFactory<VTerm> {
+public class VTermFactory implements ToolFactory<VTerm> {
 	
 	@Override
 	public VTerm createInstance(ModuleInstance<VTerm> mod, File f) {
@@ -83,7 +83,7 @@ public class VTermFactory implements VObjectFactory<VTerm> {
 
 		@Override
 		public ToolInstance createInstance() {
-			return new SimpleVObjectInstance();
+			return new SimpleToolInstance();
 		}
 
 		@Override

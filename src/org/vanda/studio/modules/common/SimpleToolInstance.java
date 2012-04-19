@@ -8,16 +8,16 @@ import java.util.Map;
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.ToolInstance;
 
-public class SimpleVObjectInstance implements ToolInstance {
+public class SimpleToolInstance implements ToolInstance {
 	
 	protected Map<String,Object> defaults;
 	protected HashMap<String,Object> parameters;
 	
-	public SimpleVObjectInstance() {
+	public SimpleToolInstance() {
 		this(null);
 	}
 	
-	public SimpleVObjectInstance(Map<String,Object> defaults) {
+	public SimpleToolInstance(Map<String,Object> defaults) {
 		if (defaults == null) {
 			this.defaults = Collections.emptyMap();
 		}

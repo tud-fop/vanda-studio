@@ -13,15 +13,15 @@ import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
 import org.vanda.studio.model.ToolInstance;
 import org.vanda.studio.modules.common.ModuleInstance;
-import org.vanda.studio.modules.common.SimpleVObjectInstance;
-import org.vanda.studio.modules.common.VObjectFactory;
+import org.vanda.studio.modules.common.SimpleToolInstance;
+import org.vanda.studio.modules.common.ToolFactory;
 
 /**
  * some parts by hjholtz
  * @author buechse
  * 
  */
-public class VTreeGrammarFactory implements VObjectFactory<VTreeGrammar> {
+public class VTreeGrammarFactory implements ToolFactory<VTreeGrammar> {
 	
 	@Override
 	public VTreeGrammar createInstance(
@@ -125,7 +125,7 @@ public class VTreeGrammarFactory implements VObjectFactory<VTreeGrammar> {
 
 		@Override
 		public ToolInstance createInstance() {
-			return new SimpleVObjectInstance();
+			return new SimpleToolInstance();
 		}
 
 		@Override

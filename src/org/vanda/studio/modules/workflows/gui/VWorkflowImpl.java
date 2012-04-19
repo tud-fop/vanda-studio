@@ -8,7 +8,7 @@ import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
 import org.vanda.studio.model.ToolInstance;
 import org.vanda.studio.modules.common.ModuleInstance;
-import org.vanda.studio.modules.common.SimpleVObjectInstance;
+import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 
 public class VWorkflowImpl implements VWorkflow {
@@ -76,7 +76,7 @@ public class VWorkflowImpl implements VWorkflow {
 
 	@Override
 	public ToolInstance createInstance() {
-		return new SimpleVObjectInstance();
+		return new SimpleToolInstance();
 	}
 
 	@Override
