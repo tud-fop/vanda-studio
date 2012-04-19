@@ -114,7 +114,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 
 		public WorkflowEditorTab(VWorkflow t) {
 			vworkflow = t;
-			nhwf = vworkflow.load();
+			nhwf = vworkflow.load(app);
 			System.out.println("loading " + nhwf);
 			
 			//XXX provide menu entry to save hyperworkflow

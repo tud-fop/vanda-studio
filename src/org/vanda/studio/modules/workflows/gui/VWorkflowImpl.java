@@ -3,6 +3,7 @@ package org.vanda.studio.modules.workflows.gui;
 import java.io.File;
 import java.util.List;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
@@ -37,13 +38,13 @@ public class VWorkflowImpl implements VWorkflow {
 	}
 
 	@Override
-	public NestedHyperworkflow load() {
+	public NestedHyperworkflow load(Application app) {
 		// open file as a ByteStream and construct the Term
 		// TODO
 
 		NestedHyperworkflow nhwf = null;
 		if (file != null && file.exists()) {
-			nhwf = NestedHyperworkflow.load(file.getPath());
+			nhwf = NestedHyperworkflow.load(file.getPath(), app);
 		}
 		if (nhwf == null)
 			nhwf = new NestedHyperworkflow("root");

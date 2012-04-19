@@ -3,7 +3,6 @@
  */
 package org.vanda.studio.model;
 
-import org.vanda.studio.util.Observable;
 
 /**
  * @author buechse

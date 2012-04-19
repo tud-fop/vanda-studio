@@ -5,18 +5,13 @@ package org.vanda.studio.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
-import org.vanda.studio.model.Tool;
 import org.vanda.studio.model.Repository;
+import org.vanda.studio.model.Tool;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;

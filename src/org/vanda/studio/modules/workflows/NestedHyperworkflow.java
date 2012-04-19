@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Port;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
@@ -262,9 +263,6 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		if (((NestedHyperworkflow)o.getParent()).addChild(o)) {
 			addObservable.notify(o);
 			System.out.println("node " + o.getName() + " was added to " + o.getParent().getName());
-			if (o instanceof Job) {
-				System.out.println();
-			}
 		}
 	}
 	
@@ -333,7 +331,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 	 * @throws NullPointerException - 
 	 *             if the specified file path is <code>null</code>
 	 */
-	public static NestedHyperworkflow load(String pathToFile) {
+	public static NestedHyperworkflow load(String pathToFile, Application app) {
 		if (pathToFile == null)
 			throw new NullPointerException("File path is set to " + pathToFile
 					+ "!");
@@ -342,6 +340,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		// else?
 		File file = new File(pathToFile);
 		XStream xs = new XStream();
+		xs.registerConverter(new JobConverter(app));
 		Object result = null;
 		try {
 			result = xs.fromXML(file);
@@ -552,12 +551,13 @@ public class NestedHyperworkflow extends Hyperworkflow {
 			if (fileWriter != null) {
 				Writer output = new BufferedWriter(fileWriter);
 				XStream xs = new XStream();
+				
 				xs.omitField(NestedHyperworkflow.class, "addObservable");
 				xs.omitField(NestedHyperworkflow.class, "modifyObservable");
 				xs.omitField(NestedHyperworkflow.class, "removeObservable");
 				xs.omitField(NestedHyperworkflow.class, "connectObservable");
 				xs.omitField(NestedHyperworkflow.class, "disconnectObservable");
-				xs.registerConverter(new JobConverter());
+				xs.registerConverter(new JobConverter(null));
 				System.out.println("saving " + this);
 				
 				// TODO do NOT save whole NestedHyperworkflow!
@@ -1011,7 +1011,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		test.save("/home/student/afischer/test-load.hwf");
 
 		NestedHyperworkflow loadtest = NestedHyperworkflow
-				.load("/home/student/afischer/test-load.hwf");
+				.load("/home/student/afischer/test-load.hwf", null);
 		System.out.println(loadtest);
 	}
 }

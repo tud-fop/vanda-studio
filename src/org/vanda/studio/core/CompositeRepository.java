@@ -3,14 +3,13 @@
  */
 package org.vanda.studio.core;
 
-import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.vanda.studio.model.Repository;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
-import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Util;
 
 /**

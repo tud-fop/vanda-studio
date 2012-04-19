@@ -42,7 +42,7 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 
 		public WorkflowModuleInstance(Application a, SimpleModule<VWorkflow> m) {
 			super(a, m);
-
+			
 			app.getWindowSystem().addAction(new NewWorkflowAction());
 			app.getWindowSystem().addAction(new OpenWorkflowAction());
 		}

@@ -3,7 +3,6 @@
  */
 package org.vanda.studio.app;
 
-import java.io.File;
 
 /**
  * 
