@@ -3,7 +3,7 @@
  */
 package org.vanda.studio.modules.terms;
 
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 
 /**
  * @author buechse
@@ -11,7 +11,7 @@ import org.vanda.studio.model.VObject;
  */
 
 
-public interface VTerm extends VObject {
+public interface VTerm extends Tool {
 	
 	Term load();
 	void save(Term t);

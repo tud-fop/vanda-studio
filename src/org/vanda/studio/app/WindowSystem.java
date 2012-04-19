@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.Repository;
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 import org.vanda.studio.util.Observable;
 
 /**

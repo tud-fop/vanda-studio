@@ -9,8 +9,8 @@ import java.util.List;
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
-import org.vanda.studio.model.VObject;
-import org.vanda.studio.model.VObjectInstance;
+import org.vanda.studio.model.Tool;
+import org.vanda.studio.model.ToolInstance;
 
 /**
  * Leaf of Hyperworkflow composite pattern that holds
@@ -19,10 +19,10 @@ import org.vanda.studio.model.VObjectInstance;
  * @author afischer
  */
 public class Job extends Hyperworkflow {
-	VObject object;
-	VObjectInstance instance;
+	Tool object;
+	ToolInstance instance;
 
-	public Job(VObject o) {
+	public Job(Tool o) {
 		super(o.getName());
 		object = o;
 		instance = object.createInstance();

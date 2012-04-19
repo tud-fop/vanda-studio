@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.vanda.studio.model.Repository;
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
@@ -18,7 +18,7 @@ import org.vanda.studio.util.Util;
  * @author buechse
  * 
  */
-public class SimpleRepository<T extends VObject> implements Repository<T> {
+public class SimpleRepository<T extends Tool> implements Repository<T> {
 	MultiplexObserver<T> addObservable;
 	MultiplexObserver<T> removeObservable;
 	MultiplexObserver<T> modifyObservable;
@@ -90,7 +90,7 @@ public class SimpleRepository<T extends VObject> implements Repository<T> {
 		}
 	}
 	
-	protected static class RefreshHelper<T extends VObject>
+	protected static class RefreshHelper<T extends Tool>
 		implements Observer<T> {
 			
 		protected LinkedList<T> adds;

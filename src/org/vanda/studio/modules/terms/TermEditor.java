@@ -19,7 +19,7 @@ import javax.swing.JSplitPane;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 import org.vanda.studio.modules.common.Editor;
 import org.vanda.studio.modules.terms.Term.TermObject;
 import org.vanda.studio.util.Observer;
@@ -165,18 +165,18 @@ public class TermEditor implements Editor<VTerm> {
 			try {
 				// clear seems to reset the zoom, so we call notify at the end
 				((mxGraphModel)palettegraph.getModel()).clear();
-				ArrayList<VObject> items
-					= new ArrayList<VObject>(app.getGlobalRepository().getItems());
+				ArrayList<Tool> items
+					= new ArrayList<Tool>(app.getGlobalRepository().getItems());
 				Collections.sort(items,
-					new Comparator<VObject>() {
+					new Comparator<Tool>() {
 						@Override
-						public int compare(VObject o1, VObject o2) {
+						public int compare(Tool o1, Tool o2) {
 							return o1.getCategory().compareTo(o2.getCategory());
 						}
 					});
 				//top left corner of first palette tool, width, height
 				double[] d = { 10, 10, 100, 80 };	
-				for (VObject item : items) {
+				for (Tool item : items) {
 					TermObject to = new Term.VOTermObject(item);
 					if (to.getInputPorts().length > 0)
 						d[1] += 20;	//length of a port

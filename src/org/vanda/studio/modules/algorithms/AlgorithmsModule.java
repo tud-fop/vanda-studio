@@ -9,8 +9,8 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
-import org.vanda.studio.model.VObject;
-import org.vanda.studio.model.VObjectInstance;
+import org.vanda.studio.model.Tool;
+import org.vanda.studio.model.ToolInstance;
 import org.vanda.studio.modules.common.Editor;
 import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.SimpleModule;
@@ -22,20 +22,20 @@ import org.vanda.studio.modules.common.VObjectFactory;
  * @author buechse
  * 
  */
-public class AlgorithmsModule implements SimpleModule<VObject> {
+public class AlgorithmsModule implements SimpleModule<Tool> {
 	
 	@Override
-	public Editor<VObject> createEditor(Application app) {
+	public Editor<Tool> createEditor(Application app) {
 		return null; //new WrtgEditor(app);
 	}
 	
 	@Override
-	public ModuleInstance<VObject> createInstance(Application app) {
+	public ModuleInstance<Tool> createInstance(Application app) {
 		return new AlgorithmModuleInstance(app, this);
 	}
 	
 	@Override
-	public VObjectFactory<VObject> createFactory()
+	public VObjectFactory<Tool> createFactory()
 	{
 		return null;
 	}
@@ -51,11 +51,11 @@ public class AlgorithmsModule implements SimpleModule<VObject> {
 	}
 	
 	protected static class AlgorithmModuleInstance
-	extends SimpleModuleInstance<VObject> {
-		public AlgorithmModuleInstance(Application a, SimpleModule<VObject> m) {
+	extends SimpleModuleInstance<Tool> {
+		public AlgorithmModuleInstance(Application a, SimpleModule<Tool> m) {
 			super(a, m);
 			repository.addItem(
-				new VObject() {
+				new Tool() {
 					final Port[] inports = { new Port("parallel corpus", "parallel corpus") };
 					final Port[] outports = { new Port("dictionary", "dictionary") };
 					
@@ -64,7 +64,7 @@ public class AlgorithmsModule implements SimpleModule<VObject> {
 					}
 				
 					@Override
-					public VObjectInstance createInstance() {
+					public ToolInstance createInstance() {
 						return new SimpleVObjectInstance();
 					}
 				
@@ -117,7 +117,7 @@ public class AlgorithmsModule implements SimpleModule<VObject> {
 				});
 			
 			repository.addItem(
-				new VObject() {
+				new Tool() {
 					final Port[] inports = { new Port("dictionary", "dictionary") };
 					final Port[] outports = { };
 					
@@ -126,7 +126,7 @@ public class AlgorithmsModule implements SimpleModule<VObject> {
 					}
 				
 					@Override
-					public VObjectInstance createInstance() {
+					public ToolInstance createInstance() {
 						return new SimpleVObjectInstance();
 					}
 				

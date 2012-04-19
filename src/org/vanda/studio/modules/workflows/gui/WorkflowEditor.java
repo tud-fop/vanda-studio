@@ -16,7 +16,7 @@ import javax.swing.JSplitPane;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 import org.vanda.studio.modules.common.Editor;
 import org.vanda.studio.modules.workflows.Connection;
 import org.vanda.studio.modules.workflows.Hyperworkflow;
@@ -271,18 +271,18 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			try {
 				// clear seems to reset the zoom, so we call notify at the end
 				((mxGraphModel) palettegraph.getModel()).clear();
-				ArrayList<VObject> items = new ArrayList<VObject>(app
+				ArrayList<Tool> items = new ArrayList<Tool>(app
 						.getGlobalRepository().getItems());
-				Collections.sort(items, new Comparator<VObject>() {
+				Collections.sort(items, new Comparator<Tool>() {
 					@Override
-					public int compare(VObject o1, VObject o2) {
+					public int compare(Tool o1, Tool o2) {
 						return o1.getCategory().compareTo(o2.getCategory());
 					}
 				});
 				
 				// top left corner of first palette tool, width, height
 				double[] d = { 20, 10, 100, 80 };
-				for (VObject item : items) {
+				for (Tool item : items) {
 					Hyperworkflow to = new Job(item);
 					to.setDimensions(d);
 					JGraphRendering.render(to, palettegraph, null);

@@ -10,7 +10,7 @@ import java.util.List;
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
-import org.vanda.studio.model.VObjectInstance;
+import org.vanda.studio.model.ToolInstance;
 import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.SimpleVObjectInstance;
 import org.vanda.studio.modules.common.VObjectFactory;
@@ -75,7 +75,7 @@ public class VDictionaryFactory implements VObjectFactory<VDictionary> {
 		}
 
 		@Override
-		public VObjectInstance createInstance() {
+		public ToolInstance createInstance() {
 			return new SimpleVObjectInstance();
 		}
 

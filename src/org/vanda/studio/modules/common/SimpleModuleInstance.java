@@ -3,11 +3,11 @@ package org.vanda.studio.modules.common;
 import java.io.File;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 import org.vanda.studio.modules.common.SimpleLoader;
 import org.vanda.studio.util.Observer;
 
-public class SimpleModuleInstance<T extends VObject>
+public class SimpleModuleInstance<T extends Tool>
 implements ModuleInstance<T> {
 	
 	protected Application app;
@@ -15,7 +15,7 @@ implements ModuleInstance<T> {
 	protected VObjectFactory<T> factory;
 	protected SimpleLoader<T> loader;
 	protected SimpleModule<T> module;
-	protected SimpleRepository<VObject> repository;
+	protected SimpleRepository<Tool> repository;
 	
 	public SimpleModuleInstance(Application a, SimpleModule<T> m) {
 		app = a;
@@ -28,7 +28,7 @@ implements ModuleInstance<T> {
 				SimpleLoader.createExtensionFilter(module.getExtension()),
 				factory);
 		}
-		repository = new SimpleRepository<VObject>(loader);
+		repository = new SimpleRepository<Tool>(loader);
 		app.addRepository(repository);
 		editor = module.createEditor(app);
 	}
@@ -40,7 +40,7 @@ implements ModuleInstance<T> {
 	}
 	
 	@Override
-	public Observer<VObject> getModifyObserver() {
+	public Observer<Tool> getModifyObserver() {
 		return repository.getModifyObserver();
 	}
 	

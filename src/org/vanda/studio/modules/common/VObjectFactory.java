@@ -2,9 +2,9 @@ package org.vanda.studio.modules.common;
 
 import java.io.File;
 
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 
-public interface VObjectFactory<T extends VObject> {
+public interface VObjectFactory<T extends Tool> {
 	T createInstance(ModuleInstance<T> mod, File f);
 }
 

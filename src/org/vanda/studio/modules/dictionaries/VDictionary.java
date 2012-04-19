@@ -5,7 +5,7 @@ package org.vanda.studio.modules.dictionaries;
 
 import java.io.IOException;
 
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 
 /**
  * @author buechse
@@ -13,6 +13,6 @@ import org.vanda.studio.model.VObject;
  */
 
 
-public interface VDictionary extends VObject {	
+public interface VDictionary extends Tool {	
 	Dictionary load() throws IOException;
 }

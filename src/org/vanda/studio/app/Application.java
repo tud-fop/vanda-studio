@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.Repository;
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 import org.vanda.studio.util.Observable;
 
 /**
@@ -21,7 +21,7 @@ public interface Application {
 	
 	/**
 	 */
-	void addRepository(Repository<VObject> r);
+	void addRepository(Repository<Tool> r);
 	
 	/**
 	 */
@@ -29,7 +29,7 @@ public interface Application {
 	
 	/**
 	*/
-	void focusObject(VObject o);
+	void focusObject(Tool o);
 	
 	/**
 	 */
@@ -41,11 +41,11 @@ public interface Application {
 	
 	/**
 	*/
-	VObject getFocusedObject();
+	Tool getFocusedObject();
 	
 	/**
 	 */
-	Repository<VObject> getGlobalRepository();
+	Repository<Tool> getGlobalRepository();
 	
 	/**
 	 */
@@ -69,7 +69,7 @@ public interface Application {
 	
 	/**
 	 */
-	void removeRepository(Repository<VObject> r);
+	void removeRepository(Repository<Tool> r);
 	
 	/**
 	 */

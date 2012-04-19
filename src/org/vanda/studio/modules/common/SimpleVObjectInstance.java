@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.vanda.studio.model.Action;
-import org.vanda.studio.model.VObjectInstance;
+import org.vanda.studio.model.ToolInstance;
 
-public class SimpleVObjectInstance implements VObjectInstance {
+public class SimpleVObjectInstance implements ToolInstance {
 	
 	protected Map<String,Object> defaults;
 	protected HashMap<String,Object> parameters;

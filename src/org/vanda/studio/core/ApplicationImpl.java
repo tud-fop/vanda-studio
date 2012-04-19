@@ -15,7 +15,7 @@ import java.util.UUID;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 import org.vanda.studio.model.Repository;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
@@ -30,10 +30,10 @@ public class ApplicationImpl implements Application {
 	protected UIMode mode;
 	protected ArrayList<UIMode> modes;
 	protected MultiplexObserver<Application> modeObservable;
-	protected VObject focus;
+	protected Tool focus;
 	protected MultiplexObserver<Application> focusChangeObservable;
 	protected MultiplexObserver<Application> focusedObjectModifiedObservable;
-	protected CompositeRepository<VObject> repository;
+	protected CompositeRepository<Tool> repository;
 	protected MultiplexObserver<Application> shutdownObservable;
 	protected WindowSystemImpl windowSystem;
 
@@ -44,23 +44,23 @@ public class ApplicationImpl implements Application {
 		modeObservable = new MultiplexObserver<Application>();
 		focusChangeObservable = new MultiplexObserver<Application>();
 		focusedObjectModifiedObservable = new MultiplexObserver<Application>();
-		repository = new CompositeRepository<VObject>();
+		repository = new CompositeRepository<Tool>();
 		shutdownObservable = new MultiplexObserver<Application>();
 		windowSystem = new WindowSystemImpl(this);
 		
 		repository.getRemoveObservable().addObserver(
-			new Observer<VObject>() {
+			new Observer<Tool>() {
 				@Override
-				public void notify(VObject o) {
+				public void notify(Tool o) {
 					if (o == focus)
 						focusObject(null);
 				}
 			});
 		
 		repository.getModifyObservable().addObserver(
-			new Observer<VObject>() {
+			new Observer<Tool>() {
 				@Override
-				public void notify(VObject o) {
+				public void notify(Tool o) {
 					if (o == focus)
 						focusedObjectModifiedObservable.notify(ApplicationImpl.this);
 				}
@@ -78,12 +78,12 @@ public class ApplicationImpl implements Application {
 	}
 
 	@Override
-	public void addRepository(Repository<VObject> r) {
+	public void addRepository(Repository<Tool> r) {
 		repository.addRepository(r);
 	}
 
 	@Override
-	public void focusObject(VObject o) {
+	public void focusObject(Tool o) {
 		if (o != focus) {
 			focus = o;
 			focusedObjectModifiedObservable.notify(this);
@@ -91,7 +91,7 @@ public class ApplicationImpl implements Application {
 	}
 	
 	@Override
-	public Repository<VObject> getGlobalRepository() {
+	public Repository<Tool> getGlobalRepository() {
 		return repository;
 	}
 	
@@ -111,7 +111,7 @@ public class ApplicationImpl implements Application {
 	}
 	
 	@Override
-	public VObject getFocusedObject() {
+	public Tool getFocusedObject() {
 		return focus;
 	}
 	
@@ -131,7 +131,7 @@ public class ApplicationImpl implements Application {
 	}
 
 	@Override
-	public void removeRepository(Repository<VObject> r) {
+	public void removeRepository(Repository<Tool> r) {
 		repository.removeRepository(r);
 	}
 

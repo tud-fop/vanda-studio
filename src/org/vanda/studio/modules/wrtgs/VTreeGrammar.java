@@ -3,7 +3,7 @@
  */
 package org.vanda.studio.modules.wrtgs;
 
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 
 /**
  * @author buechse
@@ -11,5 +11,5 @@ import org.vanda.studio.model.VObject;
  */
 
 
-public interface VTreeGrammar extends VObject {	
+public interface VTreeGrammar extends Tool {	
 }

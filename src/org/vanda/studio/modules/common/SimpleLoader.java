@@ -6,7 +6,7 @@ package org.vanda.studio.modules.common;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 import org.vanda.studio.util.Observer;
 
 /**
@@ -14,7 +14,7 @@ import org.vanda.studio.util.Observer;
  * @author buechse
  * 
  */
-public class SimpleLoader<T extends VObject> implements Loader<VObject> {
+public class SimpleLoader<T extends Tool> implements Loader<Tool> {
 	
 	protected final ModuleInstance<T> mod;
 	protected final FilenameFilter filter;
@@ -35,7 +35,7 @@ public class SimpleLoader<T extends VObject> implements Loader<VObject> {
 	}
 	
 	@Override
-	public void load(Observer<VObject> o) {
+	public void load(Observer<Tool> o) {
 		File directory = new File(mod.getPath());
 		if (!directory.isDirectory()) {
 			if (directory.exists()) {
@@ -47,7 +47,7 @@ public class SimpleLoader<T extends VObject> implements Loader<VObject> {
 		for (File file : directory.listFiles(filter)) {
 			System.out.println(file.getAbsolutePath());
 			try {
-				VObject g = factory.createInstance(mod, file);
+				Tool g = factory.createInstance(mod, file);
 				o.notify(g);
 			}
 			catch (Exception e) {

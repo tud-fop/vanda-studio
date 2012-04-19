@@ -1,7 +1,7 @@
 package org.vanda.studio.modules.common;
 
-import org.vanda.studio.model.VObject;
+import org.vanda.studio.model.Tool;
 
-public interface Editor<T extends VObject> {
+public interface Editor<T extends Tool> {
 	void open(T o);
 }

@@ -8,8 +8,8 @@ import java.util.Set;
 import org.vanda.studio.model.Action;
 import org.vanda.studio.model.Port;
 import org.vanda.studio.model.RendererSelection;
-import org.vanda.studio.model.VObject;
-import org.vanda.studio.model.VObjectInstance;
+import org.vanda.studio.model.Tool;
+import org.vanda.studio.model.ToolInstance;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 
@@ -78,10 +78,10 @@ public class Term {
 	 */
 	public static class VOTermObject extends TermObject {
 		
-		VObject object;
-		VObjectInstance instance;
+		Tool object;
+		ToolInstance instance;
 		
-		public VOTermObject(VObject o) {
+		public VOTermObject(Tool o) {
 			object = o;
 			instance = object.createInstance();
 		}
