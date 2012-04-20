@@ -9,6 +9,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class JobConverter implements Converter {
 
@@ -44,7 +45,7 @@ public class JobConverter implements Converter {
 		
 		// save serialized instance
 		writer.startNode("instance");		
-		XStream xs = new XStream();
+		XStream xs = new XStream(new DomDriver("UTF-8"));
 		writer.setValue(xs.toXML(job.instance));
 		writer.endNode();
 	}
