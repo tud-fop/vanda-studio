@@ -1,7 +1,5 @@
 package org.vanda.studio.modules.workflows;
 
-import java.util.Map;
-
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.common.SimpleToolInstance;
 
@@ -31,9 +29,16 @@ public class JobConverter implements Converter {
 		writer.setValue(job.object.getId());
 		writer.endNode();
 		
+		// save job id
+		writer.startNode("id");
+		writer.setValue(job.getId());
+		writer.endNode();
+		
 		// save dimensions of job
 		writer.startNode("position");
-		writer.setValue(job.getX() + "," + job.getY() + "," + job.getWidth() 
+		writer.setValue(job.getX() 
+				+ "," + job.getY() 
+				+ "," + job.getWidth() 
 				+ "," + job.getHeight());
 		writer.endNode();
 		
@@ -52,6 +57,11 @@ public class JobConverter implements Converter {
 		reader.moveDown();
 		String objectID = reader.getValue();
 		Job job = new Job(app.getGlobalRepository().getItem(objectID));
+		reader.moveUp();
+		
+		// access job id and set it
+		reader.moveDown();
+		job.setId(reader.getValue());
 		reader.moveUp();
 		
 		// access dimensions and write them back to deserialized job

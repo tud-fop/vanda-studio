@@ -96,6 +96,8 @@ public class JGraphRenderer {
 						geo.getHeight() };
 			to.setDimensions(dim);
 				
+			System.out.println("addNode(): added " + to.getName());
+			
 			// notify 
 			objectAddObservable.notify(to);
 		}	
@@ -111,6 +113,7 @@ public class JGraphRenderer {
 	public void ensurePresence(Hyperworkflow to) {
 		Object cell = nodes.get(to);
 		if (cell == null) {
+			System.out.println("renderer.ensurePresence(): " + to.getName());
 			JGraphRendering.render(to, graph, nodes.get(to.getParent()));
 		} else {
 			// make sure the cell has the same properties as the Job "to"
@@ -277,8 +280,6 @@ public class JGraphRenderer {
 		mxGeometry geo = model.getGeometry(cell);
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
-		
-		System.out.println("updating " + ((mxCell)cell).getValue());
 		
 		// check if changes occurred to the given cell
 		if (geo.getX() != to.getX() || geo.getY() != to.getY()

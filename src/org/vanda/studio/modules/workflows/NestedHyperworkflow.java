@@ -262,7 +262,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		// try to add the Hyperworkflow o to its parent and notify the renderer
 		if (((NestedHyperworkflow)o.getParent()).addChild(o)) {
 			addObservable.notify(o);
-			System.out.println("node " + o.getName() + " was added to " + o.getParent().getName());
+			System.out.println("nhwf.ensurePresence(): " + o.getName() + " (" + o.getParent().getName() + ")");
 		}
 	}
 	
@@ -351,6 +351,9 @@ public class NestedHyperworkflow extends Hyperworkflow {
 				NestedHyperworkflow root = (NestedHyperworkflow) result;
 				// sets all observers to be empty lists
 				initializeObservers(root);
+				// sets the parents of all children correctly 
+				// (serialized palette jobs lost parent information)
+				initializeChildren(root);
 				return root;
 			}
 			else
@@ -360,6 +363,15 @@ public class NestedHyperworkflow extends Hyperworkflow {
 					"The specified file does not contain a NestedHyperworkflow! - "
 							+ pathToFile);
 		}		
+	}
+	
+	private static void initializeChildren(NestedHyperworkflow nhwf) {
+		for (Hyperworkflow child : nhwf.getChildren()) {
+			child.setParent(nhwf);
+			if (child instanceof NestedHyperworkflow) {
+				initializeChildren((NestedHyperworkflow) child);
+			}
+		}
 	}
 	
 	private static void initializeObservers(NestedHyperworkflow nhwf) {
