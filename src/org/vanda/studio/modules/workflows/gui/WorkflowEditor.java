@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.workflows.gui;
 
 import java.awt.datatransfer.DataFlavor;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -12,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 
 import org.vanda.studio.app.Application;
@@ -306,24 +310,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		else
 			component.zoomActual();
 	}
-
-	protected static class UIModeObserver implements Observer<Application> {
-		protected mxGraphComponent component;
-
-		public UIModeObserver(Application app, mxGraphComponent component) {
-			this.component = component;
-			notify(app);
-		}
-
-		@Override
-		public void notify(Application a) {
-			if (a.getUIMode().isLargeContent())
-				component.zoomTo(1.5, false);
-			else
-				component.zoomActual();
-		}
-	}
-
+	
 	protected static class EditMouseAdapter extends MouseAdapter {
 		protected Application app;
 		protected mxGraphComponent component;
@@ -349,21 +336,47 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 				}
 			}
 			
-			// single click using right mouse button removes cell under cursor
+			// show context menu when right clicking a node or an edge
 			if (e.getButton() == 3) {
 				Object cell = component.getCellAt(e.getX(), e.getY());
-				Object value = component.getGraph().getModel().getValue(cell);
-				NestedHyperworkflow root 
+				final Object value = component.getGraph().getModel().getValue(cell);
+				final NestedHyperworkflow root 
 					= (NestedHyperworkflow)((mxCell)component.getGraph()
 							.getDefaultParent()).getValue();
 				
+				PopupMenu menu;
+				
+				// create connection specific context menu
 				if (value instanceof Connection) {
-					root.ensureDisconnected((Connection)value);
+					menu = new PopupMenu(((Connection)value).toString());
+					menu.addSeparator();
+					menu.add(new JMenuItem("remove Connection") {
+						@Override
+						public void fireActionPerformed(ActionEvent e) {
+							root.ensureDisconnected((Connection)value);
+						}
+					});
+					menu.show(e.getComponent(), e.getX(), e.getY());
 				}
 				
+				// create node specific context menu
 				if (value instanceof Hyperworkflow) {
-					root.ensureAbsence((Hyperworkflow)value);
+					menu = new PopupMenu(((Hyperworkflow)value).getName());
+					menu.addSeparator();
+					
+					// only create a remove action if it's not a palette tool
+					if (((Hyperworkflow)value).getParent() != null) {
+						menu.add(new JMenuItem("remove Vertex") {
+							@Override
+							public void fireActionPerformed(ActionEvent e) {
+								root.ensureAbsence((Hyperworkflow)value);
+							}
+						});
+					}
+					menu.show(e.getComponent(), e.getX(), e.getY());
 				}
+				
+				
 			}
 		}
 	}
@@ -387,6 +400,30 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 				component.zoomOut();
 			else
 				component.zoomIn();
+		}
+	}
+	
+	protected static class PopupMenu extends JPopupMenu {
+		
+		public PopupMenu(String title) {
+			add(new JLabel("<html><b>" + title + "</b></html>"));
+		}
+	}
+	
+	protected static class UIModeObserver implements Observer<Application> {
+		protected mxGraphComponent component;
+
+		public UIModeObserver(Application app, mxGraphComponent component) {
+			this.component = component;
+			notify(app);
+		}
+
+		@Override
+		public void notify(Application a) {
+			if (a.getUIMode().isLargeContent())
+				component.zoomTo(1.5, false);
+			else
+				component.zoomActual();
 		}
 	}
 }
