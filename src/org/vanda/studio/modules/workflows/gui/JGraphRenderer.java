@@ -262,20 +262,30 @@ public class JGraphRenderer {
 
 			// depending on whether source/target are inner ports use the
 			// correct portList
-			if (innerSource)
+			if (innerSource) {
+				// within the model there don't exist inner ports, only regular
+				// ports. Thus, index of inner port has to be reduced by number
+				// of regular input ports
 				conn.setSrcPort(conn.getSource().getInputPorts().get(
-						((Port) sval).index));
-			else
+						((Port) sval).index - conn.getSource().getInputPorts().size()));
+				
+			} else {
 				conn.setSrcPort(conn.getSource().getOutputPorts().get(
 						((Port) sval).index));
-			if (innerTarget)
+			}
+			
+			if (innerTarget) {
+				// within the model there don't exist inner ports, only regular
+				// ports. Thus, index of inner port has to be reduced by number
+				// of regular output ports
 				conn.setTargPort(conn.getTarget().getOutputPorts().get(
-						((Port) tval).index));
-			else
+						((Port) tval).index - conn.getTarget().getOutputPorts().size()));
+			} else {
 				conn.setTargPort(conn.getTarget().getInputPorts().get(
 						((Port) tval).index));
-
-			// notify
+			}
+				
+			// notify model
 			if (conn != value) {
 				model.setValue(cell, conn);
 				connectionAddObservable.notify(conn);

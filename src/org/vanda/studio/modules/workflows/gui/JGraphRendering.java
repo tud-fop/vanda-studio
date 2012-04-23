@@ -209,7 +209,7 @@ public class JGraphRendering {
 
 					g.addCell(port, v);
 				}
-
+				
 				// insert a cell for every output port
 				List<org.vanda.studio.model.Port> out = hwf
 						.getOutputPorts();
@@ -223,6 +223,36 @@ public class JGraphRendering {
 					port.setVertex(true);
 
 					g.addCell(port, v);
+				}
+				
+				// in case of NestedHyperworkflow also add inner ports, then
+				// port children of a node are in the following order:
+				// regular input ports, regular output ports, inner input ports,
+				// inner output ports
+				if (hwf instanceof NestedHyperworkflow) {
+					for (int i = 0; i < in.size(); i++) {
+						mxGeometry geo = new mxGeometry(0, (i + 1.0)
+								/ (in.size() + 1.0), PORT_DIAMETER, PORT_DIAMETER);
+						geo.setOffset(new mxPoint(0, -PORT_RADIUS));
+						geo.setRelative(true);
+
+						mxCell port = new mxCell(new Port(false, i + in.size()), geo, "port");
+						port.setVertex(true);
+
+						g.addCell(port, v);
+					}
+					
+					for (int i = 0; i < out.size(); i++) {
+						mxGeometry geo = new mxGeometry(1, (i + 1.0)
+								/ (out.size() + 1.0), PORT_DIAMETER, PORT_DIAMETER);
+						geo.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
+						geo.setRelative(true);
+
+						mxCell port = new mxCell(new Port(true, i + out.size()), geo, "port");
+						port.setVertex(true);
+
+						g.addCell(port, v);
+					}
 				}
 			} finally {
 				g.getModel().endUpdate();
@@ -286,13 +316,19 @@ public class JGraphRendering {
 							// a vertice's ports are children of that node,
 							// first input ports, then output ports
 							if (innerSource)
-								source = source.getChildAt(i);
+								// the children of source are in the following
+								// order: regular inputs, regular outputs,
+								// inner inputs, inner outputs
+								source = source.getChildAt(i 
+										+ src.getInputPorts().size() 
+										+ src.getOutputPorts().size());
 							else
 								source = source.getChildAt(i
 										+ src.getInputPorts().size());
 							break;
 						}
 					}
+					
 					// determine port id of targPort
 					portList = trg.getInputPorts();
 					if (innerTarget)
@@ -300,8 +336,12 @@ public class JGraphRendering {
 					for (int i = 0; i < portList.size(); i++) {
 						if (portList.get(i).equals(c.getTargPort())) {
 							if (innerTarget)
-								target = target.getChildAt(trg.getInputPorts()
-										.size());
+								// the children of target are in the following
+								// order: regular inputs, regular outputs,
+								// inner inputs, inner outputs
+								target = target.getChildAt(i 
+										+ trg.getInputPorts().size()
+										+ 2*trg.getInputPorts().size());
 							else
 								target = target.getChildAt(i);
 							break;
