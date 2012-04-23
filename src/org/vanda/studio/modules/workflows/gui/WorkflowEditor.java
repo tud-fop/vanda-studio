@@ -251,7 +251,9 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		private void renderRecursively(NestedHyperworkflow nested) {
 						
 			// render children recursivley
-			ArrayList<Hyperworkflow> childrenList = new ArrayList<Hyperworkflow>(nested.getChildren());
+			ArrayList<Hyperworkflow> childrenList 
+				= new ArrayList<Hyperworkflow>(nested.getChildren());
+			
 			for (Hyperworkflow child : childrenList) {
 				renderer.ensurePresence(child);
 				if (child instanceof NestedHyperworkflow) {
@@ -260,7 +262,9 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			}	
 
 			// render connections of the current NestedHyperworkflow
-			ArrayList<Connection> connectionList = new ArrayList<Connection>(nested.getConnections());
+			ArrayList<Connection> connectionList 
+				= new ArrayList<Connection>(nested.getConnections());
+			
 			for (Connection conn : connectionList) {
 				renderer.ensureConnected(conn);
 			}

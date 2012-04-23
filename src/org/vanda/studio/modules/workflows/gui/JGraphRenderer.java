@@ -52,6 +52,11 @@ public class JGraphRenderer {
 
 		graph = JGraphRendering.createGraph();
 
+		// bind defualtParent of the graph and the root hyperworkflow 
+		// to each other and save them in the node mapping
+		((mxCell)graph.getDefaultParent()).setValue(root);
+		nodes.put(root, graph.getDefaultParent());
+		
 		// bind graph; for example, react on new, changed, or deleted elements
 		changeListener = new ChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
@@ -64,7 +69,8 @@ public class JGraphRenderer {
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
 		
-		if (!nodes.containsKey(to)) {
+		// make sure the node does not already exist (i.e. is in nodes-map) 
+		if (model.getParent(cell) != null && !nodes.containsKey(to)) {
 			// add to nodes-map
 			nodes.put(to, cell);
 
@@ -144,9 +150,12 @@ public class JGraphRenderer {
 
 				NestedHyperworkflow src = (NestedHyperworkflow) conn
 						.getSource();
-				if (src.getChildren().contains(conn.getTarget()))
+				
+				if (src.getChildren().contains(conn.getTarget())
+						|| src.equals(conn.getTarget())) {
+					
 					parentCell = nodes.get(conn.getSource());
-
+				}
 			} else {
 				parentCell = nodes.get(conn.getSource().getParent());
 			}
@@ -155,8 +164,6 @@ public class JGraphRenderer {
 			// containing connection conn
 			JGraphRendering.render(conn, graph, parentCell);
 		} else {
-			System.out.println("TODO: modify edge " +
-					"to match intended geometry...");
 			// TODO
 		}
 	}
@@ -292,6 +299,17 @@ public class JGraphRenderer {
 			// notify
 			objectModifyObservable.notify(to);
 		}
+		
+		// check if parent changed
+		if (model.getParent(cell) != null && !model.getParent(cell).equals(nodes.get(to.getParent()))) {
+			System.out.println("parent of " + to + " has changed to " 
+					+ ((Hyperworkflow)model.getValue(model.getParent(cell))).getName());
+			
+			Hyperworkflow newParent = (Hyperworkflow) model.getValue(model.getParent(cell));
+			objectRemoveObservable.notify(to);
+			to.setParent(newParent);
+			objectAddObservable.notify(to);
+		}
 	}
 	
 	protected class ChangeListener implements mxIEventListener {
@@ -352,8 +370,9 @@ public class JGraphRenderer {
 						}
 					}
 				} else if (c instanceof mxValueChange) {
-					// has something to do with a changed parent of the cell
-					// seems to only affect connections
+					// fires when a connection was inserted and then any 
+					// component is moved to change its geometry
+					// maybe this is the geometryChange of connections?
 					
 					// assert (false);
 					System.out.println("mxValueChange of: " 
