@@ -20,10 +20,11 @@ import org.vanda.studio.model.Tool;
 import org.vanda.studio.modules.common.Editor;
 import org.vanda.studio.modules.workflows.Connection;
 import org.vanda.studio.modules.workflows.Hyperworkflow;
-import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 import org.vanda.studio.modules.workflows.Job;
+import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 import org.vanda.studio.util.Observer;
 
+import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxGraphTransferable;
@@ -345,6 +346,23 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 					if (as.size() > 0) {
 						as.get(0).invoke();
 					}
+				}
+			}
+			
+			// single click using right mouse button removes cell under cursor
+			if (e.getButton() == 3) {
+				Object cell = component.getCellAt(e.getX(), e.getY());
+				Object value = component.getGraph().getModel().getValue(cell);
+				NestedHyperworkflow root 
+					= (NestedHyperworkflow)((mxCell)component.getGraph()
+							.getDefaultParent()).getValue();
+				
+				if (value instanceof Connection) {
+					root.ensureDisconnected((Connection)value);
+				}
+				
+				if (value instanceof Hyperworkflow) {
+					root.ensureAbsence((Hyperworkflow)value);
 				}
 			}
 		}

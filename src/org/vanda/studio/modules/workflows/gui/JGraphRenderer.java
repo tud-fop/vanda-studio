@@ -228,8 +228,12 @@ public class JGraphRenderer {
 //					&& ((Port) tval).index < ((Hyperworkflow) tparval)
 //							.getInputPorts().size() && ((Port) tval).input);
 
-			if (value instanceof Connection)
+			if (value instanceof Connection) {
 				conn = (Connection) value;
+				if (!edges.containsKey(conn)) {
+					edges.put(conn, cell);
+				}
+			}
 			else {
 				// check if a new edge is added
 				conn = new Connection();
@@ -300,8 +304,9 @@ public class JGraphRenderer {
 			objectModifyObservable.notify(to);
 		}
 		
-		// check if parent changed
-		if (model.getParent(cell) != null && !model.getParent(cell).equals(nodes.get(to.getParent()))) {
+		// check if parent changed (only if both hwf and corresponding cell have parents)
+		if (model.getParent(cell) != null && to.getParent() != null 
+				&& !model.getParent(cell).equals(nodes.get(to.getParent()))) {
 			System.out.println("parent of " + to + " has changed to " 
 					+ ((Hyperworkflow)model.getValue(model.getParent(cell))).getName());
 			
@@ -309,6 +314,7 @@ public class JGraphRenderer {
 			objectRemoveObservable.notify(to);
 			to.setParent(newParent);
 			objectAddObservable.notify(to);
+			//FIXME maybe it's a better idea to use modificationObservable
 		}
 	}
 	
