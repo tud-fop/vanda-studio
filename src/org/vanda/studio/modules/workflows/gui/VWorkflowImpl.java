@@ -30,9 +30,9 @@ public class VWorkflowImpl implements VWorkflow {
 		this.file = file;
 		// TODO: retrieve metadata
 		id = toString();
-		name = "test";
-		description = "test";
-		date = "test";
+		name = "workflow";
+		description = "workflow";
+		date = "date";
 		category = "Workflows";
 		author = "afischer";
 	}
@@ -45,6 +45,9 @@ public class VWorkflowImpl implements VWorkflow {
 		NestedHyperworkflow nhwf = null;
 		if (file != null && file.exists()) {
 			nhwf = NestedHyperworkflow.load(file.getPath(), app);
+			
+			// set name to filename
+			name = file.getName();
 		}
 		if (nhwf == null)
 			nhwf = new NestedHyperworkflow("root");

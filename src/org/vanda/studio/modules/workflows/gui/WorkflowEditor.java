@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,10 +14,13 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
@@ -91,13 +95,21 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 				tab.getComponent());
 		app.getWindowSystem().focusContentWindow(tab.getComponent());
 		tab.getComponent().requestFocusInWindow();
+
+		// enable save button in menu
+		app.getWindowSystem().enableAction(
+				new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction());
+		
+		// enable close button in menu
+		app.getWindowSystem().enableAction(
+				new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction());
 	}
 
 	public void close(VWorkflow t) {
 		WorkflowEditorTab tab = tabs.remove(t.getId());
 		if (tab == null)
 			throw new UnsupportedOperationException(
-					"attempt to close nonextant editor");
+					"attempt to close nonexistant editor");
 		// // hide editor if no tabs are open
 		// if (tabs.size() == 0) {
 		// app.getWindowSystem().removeContentWindow(mainpane);
@@ -106,6 +118,16 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		// remove tab
 		app.getWindowSystem().removeContentWindow(tab.getComponent());
 		// tabpane.remove(tab.getComponent());
+
+		// check if all tabs are closed
+		if (tabs.isEmpty()) {
+			// disable saving option in menu
+			app.getWindowSystem().disableAction(
+				new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction());
+			// disable closing option in menu
+			app.getWindowSystem().disableAction(
+					new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction());
+		}
 	}
 
 	protected class WorkflowEditorTab {
@@ -121,20 +143,60 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			vworkflow = t;
 			nhwf = vworkflow.load(app);
 			System.out.println("loading " + nhwf);
-			
-			//XXX provide menu entry to save hyperworkflow
+
+			// XXX provide global menu entry to save hyperworkflow
 			app.getWindowSystem().addAction(new Action() {
 				public String getName() {
 					return "Save Workflow";
 				}
-				
+
 				public void invoke() {
-					nhwf.save("/home/student/afischer/test-load.hwf");
+
+					// create a new file opening dialog
+					JFileChooser chooser = new JFileChooser(""){
+						@Override
+						public void approveSelection(){
+							File f = getSelectedFile();
+							if(f.exists() && getDialogType() == SAVE_DIALOG){
+								int result = JOptionPane.showConfirmDialog(this,
+										"The file exists already. Replace?"
+										,"Existing file"
+										,JOptionPane.YES_NO_CANCEL_OPTION);
+												switch(result){
+												case JOptionPane.YES_OPTION:
+													super.approveSelection();
+													return;
+												case JOptionPane.NO_OPTION:
+													return;
+												case JOptionPane.CANCEL_OPTION:
+													cancelSelection();
+													return;
+												default: return;
+												}
+							}
+							super.approveSelection();
+						}
+					};
+
+					chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+					chooser.setFileFilter(
+							new FileNameExtensionFilter(
+									"Nested Hyperworkflows (*.nhwf)", "nhwf"));
+							chooser.setVisible(true);
+							int result = chooser.showSaveDialog(null);
+
+							// once file choice is approved, save to chosen file
+							if (result == JFileChooser.APPROVE_OPTION) {
+								File chosenFile = chooser.getSelectedFile();
+								String filePath = chosenFile.getPath();
+								nhwf.save(filePath);
+							}
 				}
 			});
-			
+
 			renderer = new JGraphRenderer(nhwf);
-			
+
 			// add listeners to renderer - every change within the graph
 			// (renderer) is propagated to the model
 
@@ -149,7 +211,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 					new Observer<Hyperworkflow>() {
 						@Override
 						public void notify(Hyperworkflow o) {
-							//TODO
+							// TODO
 						}
 					});
 			renderer.getObjectRemoveObservable().addObserver(
@@ -170,7 +232,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 					new Observer<Connection>() {
 						@Override
 						public void notify(Connection c) {
-							//TODO
+							// TODO
 						}
 					});
 			renderer.getConnectionRemoveObservable().addObserver(
@@ -183,19 +245,18 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 
 			// add listeners to NestedHyperworkflow - changes within the model
 			// are propagated to the graph (renderer)
-			
-			nhwf.getAddObservable().addObserver(
-					new Observer<Hyperworkflow>() {
-						@Override
-						public void notify(Hyperworkflow o) {
-							renderer.ensurePresence(o);
-						}
-					});
+
+			nhwf.getAddObservable().addObserver(new Observer<Hyperworkflow>() {
+				@Override
+				public void notify(Hyperworkflow o) {
+					renderer.ensurePresence(o);
+				}
+			});
 			nhwf.getModifyObservable().addObserver(
 					new Observer<Hyperworkflow>() {
 						@Override
 						public void notify(Hyperworkflow o) {
-							//TODO
+							// TODO
 						}
 					});
 			nhwf.getRemoveObservable().addObserver(
@@ -203,15 +264,14 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 						@Override
 						public void notify(Hyperworkflow o) {
 							renderer.ensureAbsence(o);
-						}
+							}
 					});
-			nhwf.getConnectObservable().addObserver(
-					new Observer<Connection>() {
-						@Override
-						public void notify(Connection conn) {
-							renderer.ensureConnected(conn);
-						}
-					});
+			nhwf.getConnectObservable().addObserver(new Observer<Connection>() {
+				@Override
+				public void notify(Connection conn) {
+					renderer.ensureConnected(conn);
+				}
+			});
 			nhwf.getDisconnectObservable().addObserver(
 					new Observer<Connection>() {
 						@Override
@@ -219,7 +279,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 							renderer.ensureDisconnected(conn);
 						}
 					});
-			
+
 			palettegraph = JGraphRendering.createGraph();
 			palettegraph.setCellsLocked(true);
 			palette = new mxGraphComponent(palettegraph);
@@ -239,7 +299,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			mainpane.setResizeWeight(1);
 			mainpane.setDividerSize(6);
 			mainpane.setBorder(null);
-			
+
 			// display nodes and edges of a loaded nhwf
 			renderRecursively(nhwf);
 		}
@@ -254,27 +314,27 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		}
 
 		private void renderRecursively(NestedHyperworkflow nested) {
-						
+
 			// render children recursivley
-			ArrayList<Hyperworkflow> childrenList 
-				= new ArrayList<Hyperworkflow>(nested.getChildren());
-			
+			ArrayList<Hyperworkflow> childrenList = new ArrayList<Hyperworkflow>(
+					nested.getChildren());
+
 			for (Hyperworkflow child : childrenList) {
 				renderer.ensurePresence(child);
 				if (child instanceof NestedHyperworkflow) {
 					renderRecursively((NestedHyperworkflow) child);
 				}
-			}	
+			}
 
 			// render connections of the current NestedHyperworkflow
-			ArrayList<Connection> connectionList 
-				= new ArrayList<Connection>(nested.getConnections());
-			
+			ArrayList<Connection> connectionList = new ArrayList<Connection>(
+					nested.getConnections());
+
 			for (Connection conn : connectionList) {
 				renderer.ensureConnected(conn);
 			}
 		}
-		
+
 		protected void updatePalette() {
 			palettegraph.getModel().beginUpdate();
 			try {
@@ -288,7 +348,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 						return o1.getCategory().compareTo(o2.getCategory());
 					}
 				});
-				
+
 				// top left corner of first palette tool, width, height
 				double[] d = { 20, 10, 100, 80 };
 				for (Tool item : items) {
@@ -310,7 +370,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		else
 			component.zoomActual();
 	}
-	
+
 	protected static class EditMouseAdapter extends MouseAdapter {
 		protected Application app;
 		protected mxGraphComponent component;
@@ -335,54 +395,54 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 					}
 				}
 			}
-			
+
 			// show context menu when right clicking a node or an edge
 			if (e.getButton() == 3) {
 				Object cell = component.getCellAt(e.getX(), e.getY());
-				final Object value = component.getGraph().getModel().getValue(cell);
-				final NestedHyperworkflow root 
-					= (NestedHyperworkflow)((mxCell)component.getGraph()
-							.getDefaultParent()).getValue();
-				
+				final Object value = component.getGraph().getModel().getValue(
+						cell);
+				final NestedHyperworkflow root = (NestedHyperworkflow) ((mxCell) component
+						.getGraph().getDefaultParent()).getValue();
+
 				PopupMenu menu;
-				
+
 				// create connection specific context menu
 				if (value instanceof Connection) {
-					menu = new PopupMenu(((Connection)value).toString());
+					menu = new PopupMenu(((Connection) value).toString());
 					menu.addSeparator();
 					menu.add(new JMenuItem("remove Connection") {
 						@Override
 						public void fireActionPerformed(ActionEvent e) {
-							root.ensureDisconnected((Connection)value);
+							root.ensureDisconnected((Connection) value);
 						}
 					});
 					menu.show(e.getComponent(), e.getX(), e.getY());
 				}
-				
+
 				// create node specific context menu
 				if (value instanceof Hyperworkflow) {
-					menu = new PopupMenu(((Hyperworkflow)value).getName());
+					menu = new PopupMenu(((Hyperworkflow) value).getName());
 					menu.addSeparator();
-					
+
 					// only create a remove action if it's not a palette tool
-					if (((Hyperworkflow)value).getParent() != null) {
+					if (((Hyperworkflow) value).getParent() != null) {
 						menu.add(new JMenuItem("remove Vertex") {
 							@Override
 							public void fireActionPerformed(ActionEvent e) {
-								root.ensureAbsence((Hyperworkflow)value);
+								root.ensureAbsence((Hyperworkflow) value);
 							}
 						});
 					}
 					menu.show(e.getComponent(), e.getX(), e.getY());
 				}
-				
-				
+
 			}
 		}
 	}
 
 	/**
 	 * enables mouse wheel zooming function within graph editor window
+	 * 
 	 * @author afischer
 	 */
 	protected static class MouseZoomAdapter implements MouseWheelListener {
@@ -402,14 +462,14 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 				component.zoomIn();
 		}
 	}
-	
+
 	protected static class PopupMenu extends JPopupMenu {
-		
+
 		public PopupMenu(String title) {
 			add(new JLabel("<html><b>" + title + "</b></html>"));
 		}
 	}
-	
+
 	protected static class UIModeObserver implements Observer<Application> {
 		protected mxGraphComponent component;
 

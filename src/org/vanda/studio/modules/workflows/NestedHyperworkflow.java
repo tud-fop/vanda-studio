@@ -990,7 +990,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 //			 System.out.println(hwf);
 //		 }
 
-//		 String filename = "/home/anja/test.hwf";
+//		 String filename = "/home/anja/unfold-test.nhwf";
 //		 root.save(filename);
 //		 NestedHyperworkflow blub = NestedHyperworkflow.load(filename);
 //		 for (Hyperworkflow hwf : blub.unfold()) {
@@ -1033,10 +1033,10 @@ public class NestedHyperworkflow extends Hyperworkflow {
 				tool2, tool2.getInputPorts().get(0)));
 		test.addConnection(new Connection(or, or.getOutputPorts().get(0),
 				nested, nested.getInputPorts().get(0)));
-		test.save("/home/student/afischer/test-load.hwf");
+		test.save("/home/student/afischer/manual-workflow.nhwf");
 
 		NestedHyperworkflow loadtest = NestedHyperworkflow
-				.load("/home/student/afischer/test-load.hwf", null);
+				.load("/home/student/afischer/manual-workflow.nhwf", null);
 		System.out.println(loadtest);
 	}
 }

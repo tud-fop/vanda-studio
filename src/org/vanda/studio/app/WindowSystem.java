@@ -15,7 +15,7 @@ import org.vanda.studio.model.Action;
  */
 public interface WindowSystem {
 	/**
-	*/
+	 */
 	void addAction(Action a);
 
 	/**
@@ -24,8 +24,20 @@ public interface WindowSystem {
 
 	/**
 	 */
+	void addSeparator();
+	
+	/**
+	 */
 	void addToolWindow(String id, String title, Icon i, JComponent c);
 
+	/**
+	 */
+	void disableAction(Action a);
+	
+	/**
+	 */
+	void enableAction(Action a);
+	
 	/**
 	 */
 	void focusContentWindow(JComponent c);

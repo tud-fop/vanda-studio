@@ -33,21 +33,21 @@ import org.vanda.studio.util.Observer;
  * 
  */
 public class WindowSystemImpl implements WindowSystem {
-	
+
 	protected class Window {
 		String id;
 		String title;
 		Icon icon;
 		JComponent component;
 	}
-	
+
 	protected final Application app;
 	protected JFrame mainWindow;
 	protected JTabbedPane contentPane;
 	protected JTabbedPane toolPane;
 	protected JMenuBar menuBar;
 	protected JMenu fileMenu;
-	protected HashMap<UIMode,JRadioButtonMenuItem> modeMenuItems;
+	protected HashMap<UIMode, JRadioButtonMenuItem> modeMenuItems;
 	protected ButtonGroup modeGroup;
 
 	/**
@@ -56,13 +56,12 @@ public class WindowSystemImpl implements WindowSystem {
 	 */
 	public WindowSystemImpl(Application a) {
 		app = a;
-		app.getShutdownObservable().addObserver(
-			new Observer<Application>() {
-				@Override
-				public void notify(Application a) {
-					mainWindow.setVisible(false);
-					mainWindow.dispose();
-				}
+		app.getShutdownObservable().addObserver(new Observer<Application>() {
+			@Override
+			public void notify(Application a) {
+				mainWindow.setVisible(false);
+				mainWindow.dispose();
+			}
 		});
 		mainWindow = new JFrame("Vanda Studio");
 		mainWindow.setSize(800, 600);
@@ -87,15 +86,16 @@ public class WindowSystemImpl implements WindowSystem {
 		});
 
 		fileMenu.add(exitMenuItem);
+		addSeparator();
 		menuBar.add(fileMenu);
-		
+
 		JMenu optionsMenu = new JMenu("UI Mode");
 		modeGroup = new ButtonGroup();
-		modeMenuItems = new HashMap<UIMode,JRadioButtonMenuItem>();
+		modeMenuItems = new HashMap<UIMode, JRadioButtonMenuItem>();
 		Collection<UIMode> modes = app.getUIModes();
 		for (final UIMode m : modes) {
-			JRadioButtonMenuItem item = new JRadioButtonMenuItem(
-				m.getName(), app.getUIMode() == m);
+			JRadioButtonMenuItem item = new JRadioButtonMenuItem(m.getName(),
+					app.getUIMode() == m);
 			item.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -106,25 +106,26 @@ public class WindowSystemImpl implements WindowSystem {
 			modeGroup.add(item);
 			modeMenuItems.put(m, item);
 		}
-		app.getUIModeObservable().addObserver(
-			new Observer<Application>() {
-				@Override
-				public void notify(Application a) {
-					JRadioButtonMenuItem item = modeMenuItems.get(a.getUIMode());
-					if (item != null)
-						item.setSelected(true);
-				}
-			});
+		app.getUIModeObservable().addObserver(new Observer<Application>() {
+			@Override
+			public void notify(Application a) {
+				JRadioButtonMenuItem item = modeMenuItems.get(a.getUIMode());
+				if (item != null)
+					item.setSelected(true);
+			}
+		});
 		menuBar.add(optionsMenu);
-		
+
 		mainWindow.setJMenuBar(menuBar);
 
 		// Creates the library pane that contains the tabs with the palettes
 		contentPane = new JTabbedPane();
 		toolPane = new JTabbedPane();
-		/*toolPane.add("Definitions", new JLabel("Test"));
-		toolPane.add("Documentation", new JLabel("Test"));
-		toolPane.add("Source Code", new JLabel("Test"));*/
+		/*
+		 * toolPane.add("Definitions", new JLabel("Test"));
+		 * toolPane.add("Documentation", new JLabel("Test"));
+		 * toolPane.add("Source Code", new JLabel("Test"));
+		 */
 
 		JSplitPane inner = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				contentPane, toolPane);
@@ -135,32 +136,31 @@ public class WindowSystemImpl implements WindowSystem {
 		inner.setBorder(null);
 
 		// Puts everything together
-		//mainWindow.getContentPane().setLayout(new BorderLayout());
-		mainWindow.getContentPane().add(/*inner*/contentPane); // BorderLayout.CENTER
-		//mainWindow.getContentPane().add(statusBar, BorderLayout.SOUTH);
-		
+		// mainWindow.getContentPane().setLayout(new BorderLayout());
+		mainWindow.getContentPane().add(/* inner */contentPane); // BorderLayout.CENTER
+		// mainWindow.getContentPane().add(statusBar, BorderLayout.SOUTH);
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				/*for (ToolWindow toolWin : toolWindowManager.getToolWindows()) {
-					toolWin.setAvailable(true);
-					toolWin.setActive(true);
-				}*/
+				/*
+				 * for (ToolWindow toolWin : toolWindowManager.getToolWindows()) {
+				 * toolWin.setAvailable(true); toolWin.setActive(true); }
+				 */
 
 				mainWindow.setVisible(true);
 			}
 		});
 	}
-	
+
 	@Override
 	public void addAction(final Action a) {
 		JMenuItem item = new JMenuItem(a.getName());
-		item.addActionListener(
-			new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					a.invoke();
-				}
-			});
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				a.invoke();
+			}
+		});
 		fileMenu.insert(item, 0);
 	}
 
@@ -169,7 +169,15 @@ public class WindowSystemImpl implements WindowSystem {
 	@Override
 	public void addContentWindow(String id, String title, Icon i, JComponent c) {
 		contentPane.add(title, c);
-		contentPane.setTabComponentAt(contentPane.getTabCount()-1, new ButtonTabComponent(contentPane));
+		contentPane.setTabComponentAt(contentPane.getTabCount() - 1,
+				new ButtonTabComponent(contentPane));
+	}
+
+	/**
+	 */
+	@Override
+	public void addSeparator() {
+		fileMenu.insertSeparator(0);
 	}
 
 	/**
@@ -178,7 +186,30 @@ public class WindowSystemImpl implements WindowSystem {
 	public void addToolWindow(String id, String title, Icon i, JComponent c) {
 		toolPane.add(title, c);
 	}
-	
+
+	@Override
+	public void disableAction(Action a) {
+		// find item that is labeled with action's name
+		for (int i = 0; i < fileMenu.getItemCount(); i++) {
+
+			if (fileMenu.getItem(i) != null
+					&& fileMenu.getItem(i).getText().equals(a.getName())) {
+				fileMenu.getItem(i).setEnabled(false);
+			}
+		}
+	}
+
+	@Override
+	public void enableAction(Action a) {
+		// find item that is labeled with action's name
+		for (int i = 0; i < fileMenu.getItemCount(); i++) {
+			if (fileMenu.getItem(i) != null
+					&& fileMenu.getItem(i).getText().equals(a.getName())) {
+				fileMenu.getItem(i).setEnabled(true);
+			}
+		}
+	}
+
 	@Override
 	public void focusContentWindow(JComponent c) {
 		contentPane.setSelectedComponent(c);
