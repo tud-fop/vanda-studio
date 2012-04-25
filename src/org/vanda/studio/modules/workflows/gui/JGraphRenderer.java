@@ -13,6 +13,7 @@ import org.vanda.studio.util.Observable;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
@@ -310,6 +311,75 @@ public class JGraphRenderer {
 					geo.getHeight() };
 			to.setDimensions(dim);
 			
+			//------------------------------------------------------------------
+			//------- resizing a child requires resizing of parent -------------
+			//------------------------------------------------------------------
+			
+			// node's left end is no longer inside its parent's bounding box
+			// -> expand parent's bounds to the left
+			if (geo.getX() < 0) {
+				mxCell parentCell = (mxCell) model.getParent(cell);
+				mxGeometry parentGeo = (mxGeometry)model.getGeometry(parentCell);
+				
+				// only update geometry is parent is not the root
+				if (parentGeo != null) {
+					parentGeo.setX(parentGeo.getX() + geo.getX());
+					parentGeo.setWidth(parentGeo.getWidth() - geo.getX());
+					model.setGeometry(model.getParent(cell), parentGeo);
+				
+					// add offset to children nodes geometries so that they
+					// appear to remain on their previous positions
+					for (int i = 0; i < parentCell.getChildCount(); i++) {
+						mxCell child = (mxCell)parentCell.getChildAt(i);
+						
+						if (child.getValue() instanceof Hyperworkflow) {
+							mxGeometry childGeo = model.getGeometry(child);
+							childGeo.setX(childGeo.getX() - geo.getX());
+							model.setGeometry(child, childGeo);
+						}
+					}
+				
+					// update parent of currently resized node such that
+					// recent resize actions are propagated to its parent...
+					updateNode(model.getParent(cell));
+					
+					// update graph
+					graph.refresh();
+				}
+			}
+			
+			// node's bottom end is no longer inside its parent's bounding box
+			if (geo.getY() < 0) {
+				mxCell parentCell = (mxCell) model.getParent(cell);
+				mxGeometry parentGeo = (mxGeometry)model.getGeometry(parentCell);
+				
+				// only update geometry is parent is not the root
+				if (parentGeo != null) {
+					parentGeo.setY(parentGeo.getY() + geo.getY());
+					parentGeo.setHeight(parentGeo.getHeight() - geo.getY());
+					model.setGeometry(model.getParent(cell), parentGeo);
+				
+					// add offset to children nodes geometries so that they
+					// appear to remain on their previous positions
+					for (int i = 0; i < parentCell.getChildCount(); i++) {
+						mxCell child = (mxCell)parentCell.getChildAt(i);
+						
+						if (child.getValue() instanceof Hyperworkflow) {
+							mxGeometry childGeo = model.getGeometry(child);
+							childGeo.setY(childGeo.getY() - geo.getY());
+							model.setGeometry(child, childGeo);
+						}
+					}
+				
+					// update parent of currently resized node such that
+					// recent resize actions are propagated to its parent...
+					updateNode(model.getParent(cell));
+					
+					// update graph
+					graph.refresh();
+				}
+			}
+			
 			// notify
 			objectModifyObservable.notify(to);
 		}
@@ -324,6 +394,7 @@ public class JGraphRenderer {
 			objectRemoveObservable.notify(to);
 			to.setParent(newParent);
 			objectAddObservable.notify(to);
+			graph.refresh();
 			//FIXME maybe it's a better idea to use modificationObservable
 		}
 	}

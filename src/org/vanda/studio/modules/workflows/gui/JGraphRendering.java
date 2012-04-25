@@ -340,7 +340,7 @@ public class JGraphRendering {
 								// order: regular inputs, regular outputs,
 								// inner inputs, inner outputs
 								target = target.getChildAt(i 
-										+ trg.getInputPorts().size()
+										+ trg.getOutputPorts().size()
 										+ 2*trg.getInputPorts().size());
 							else
 								target = target.getChildAt(i);
@@ -440,6 +440,9 @@ public class JGraphRendering {
 			// graph.setDropEnabled(false);
 			// graph.setCellsMovable(false);
 			setCellsEditable(false);
+			setCollapseToPreferredSize(false);
+			setExtendParents(true);
+			setExtendParentsOnAdd(true);
 			setCellsResizable(true);
 			setCellsDisconnectable(false);
 			setMultigraph(false); // no effect!
@@ -535,11 +538,11 @@ public class JGraphRendering {
 			// allow NestedHyperworkflow with children to be foldable
 			mxCell c = (mxCell) cell;
 			if (c.getValue() instanceof NestedHyperworkflow) {
-				if (!((NestedHyperworkflow) c.getValue()).getChildren()
-						.isEmpty())
-					return true;
+				return true;
 			}
 
+			
+			
 			return false;
 		}
 	}

@@ -2,6 +2,8 @@ package org.vanda.studio.modules.workflows.gui;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.JComponent;
@@ -20,6 +23,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
@@ -34,8 +38,10 @@ import org.vanda.studio.util.Observer;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGraphModel;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxGraphTransferable;
+import com.mxgraph.view.mxGraph;
 
 public class WorkflowEditor implements Editor<VWorkflow> {
 
@@ -291,6 +297,8 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 					new EditMouseAdapter(app, component));
 			component.getGraphControl().addMouseWheelListener(
 					new MouseZoomAdapter(app, component));
+			component.addKeyListener(
+					new DelKeyListener(app, component));
 			updatePalette();
 			mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
 					palette);
@@ -331,6 +339,8 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 					nested.getConnections());
 
 			for (Connection conn : connectionList) {
+				if (conn.getSource().getName().equals("nestedTool"))
+					System.out.println();
 				renderer.ensureConnected(conn);
 			}
 		}
@@ -371,6 +381,69 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			component.zoomActual();
 	}
 
+	/**
+	 * Handles KeyEvents such as removing cells when focussed and pressing DEL
+	 * @author afischer
+	 *
+	 */
+	protected static class DelKeyListener extends KeyAdapter {
+		protected Application app;
+		protected mxGraphComponent component;
+		
+		public DelKeyListener(Application app, mxGraphComponent component) {
+			this.app = app;
+			this.component = component;
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			
+			mxGraph g = component.getGraph();
+			mxIGraphModel mod = g.getModel();
+			List<Connection> connList = new ArrayList<Connection>();
+			List<Hyperworkflow> hwfList = new ArrayList<Hyperworkflow>();
+			
+			// check if KeyEvent occurred on graph component,
+			// only handle DELETE-key 			
+			if (e.getSource().equals(component) 
+					&& e.getKeyCode() == KeyEvent.VK_DELETE) {
+				
+				// get selected cells
+				Object[] cells = g.getSelectionCells();
+				for (Object o : cells) {
+					
+					// depending on whether the cell is an edge or vertex
+					// add their values to different lists
+					if (mod.isEdge(o)) {
+						connList.add((Connection)mod.getValue(o));
+					}
+					if (mod.isVertex(o)) {
+						hwfList.add((Hyperworkflow)mod.getValue(o));
+					}
+				}
+				
+				final NestedHyperworkflow root 
+					= (NestedHyperworkflow) ((mxCell) component
+						.getGraph().getDefaultParent()).getValue();
+				
+				// delete connections first, followed by nodes
+				for (Connection c : connList) {
+					root.ensureDisconnected(c);
+				}
+				for (Hyperworkflow hwf : hwfList) {
+					root.ensureAbsence(hwf);
+				}
+			}
+			
+		}
+	}
+	
+	/**
+	 * Handles mouse actions: opens cell-specific views/editors on double-click,
+	 * opens context menu on mouse right-click
+	 * @author buechse, afischer
+	 *
+	 */
 	protected static class EditMouseAdapter extends MouseAdapter {
 		protected Application app;
 		protected mxGraphComponent component;
@@ -401,7 +474,8 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 				Object cell = component.getCellAt(e.getX(), e.getY());
 				final Object value = component.getGraph().getModel().getValue(
 						cell);
-				final NestedHyperworkflow root = (NestedHyperworkflow) ((mxCell) component
+				final NestedHyperworkflow root 
+					= (NestedHyperworkflow) ((mxCell) component
 						.getGraph().getDefaultParent()).getValue();
 
 				PopupMenu menu;
@@ -409,30 +483,42 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 				// create connection specific context menu
 				if (value instanceof Connection) {
 					menu = new PopupMenu(((Connection) value).toString());
-					menu.addSeparator();
-					menu.add(new JMenuItem("remove Connection") {
+
+					JMenuItem item = new JMenuItem("Remove Connection") {						
 						@Override
 						public void fireActionPerformed(ActionEvent e) {
 							root.ensureDisconnected((Connection) value);
 						}
-					});
+					};
+					
+					item.setAccelerator(KeyStroke.getKeyStroke(
+							KeyEvent.VK_DELETE, 0));
+					menu.add(item);
 					menu.show(e.getComponent(), e.getX(), e.getY());
+					Connection c = (Connection)value;
+					System.out.println("parent of: " + c + " is " + c.getSource().getParent());
 				}
 
 				// create node specific context menu
 				if (value instanceof Hyperworkflow) {
 					menu = new PopupMenu(((Hyperworkflow) value).getName());
-					menu.addSeparator();
 
+					
+					
 					// only create a remove action if it's not a palette tool
 					if (((Hyperworkflow) value).getParent() != null) {
-						menu.add(new JMenuItem("remove Vertex") {
+						JMenuItem item = new JMenuItem("Remove Vertex") {
 							@Override
 							public void fireActionPerformed(ActionEvent e) {
 								root.ensureAbsence((Hyperworkflow) value);
 							}
-						});
+						};
+						
+						item.setAccelerator(KeyStroke.getKeyStroke(
+								KeyEvent.VK_DELETE, 0));
+						menu.add(item);
 					}
+
 					menu.show(e.getComponent(), e.getX(), e.getY());
 				}
 
@@ -463,10 +549,16 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		}
 	}
 
+	/**
+	 * a context popup menu that displays a components title
+	 * @author afischer
+	 *
+	 */
 	protected static class PopupMenu extends JPopupMenu {
 
 		public PopupMenu(String title) {
 			add(new JLabel("<html><b>" + title + "</b></html>"));
+			addSeparator();
 		}
 	}
 
