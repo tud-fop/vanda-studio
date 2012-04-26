@@ -227,8 +227,8 @@ public class JGraphRendering {
 				
 				// in case of NestedHyperworkflow also add inner ports, then
 				// port children of a node are in the following order:
-				// regular input ports, regular output ports, inner input ports,
-				// inner output ports
+				// regular input ports, regular output ports, inner source ports,
+				// inner target ports
 				if (hwf instanceof NestedHyperworkflow) {
 					for (int i = 0; i < in.size(); i++) {
 						mxGeometry geo = new mxGeometry(0, (i + 1.0)
@@ -304,8 +304,10 @@ public class JGraphRendering {
 
 				if (source != null && target != null) {
 					Hyperworkflow src = (Hyperworkflow) source.getValue();
+					assert(src.equals(c.getSource()));
 					Hyperworkflow trg = (Hyperworkflow) target.getValue();
-
+					assert(trg.equals(c.getTarget()));
+					
 					// determine port id of srcPort
 					List<org.vanda.studio.model.Port> portList = src
 							.getOutputPorts();
@@ -318,7 +320,7 @@ public class JGraphRendering {
 							if (innerSource)
 								// the children of source are in the following
 								// order: regular inputs, regular outputs,
-								// inner inputs, inner outputs
+								// inner source ports, inner target ports
 								source = source.getChildAt(i 
 										+ src.getInputPorts().size() 
 										+ src.getOutputPorts().size());
@@ -338,7 +340,7 @@ public class JGraphRendering {
 							if (innerTarget)
 								// the children of target are in the following
 								// order: regular inputs, regular outputs,
-								// inner inputs, inner outputs
+								// inner source ports, inner target ports
 								target = target.getChildAt(i 
 										+ trg.getOutputPorts().size()
 										+ 2*trg.getInputPorts().size());
@@ -348,8 +350,22 @@ public class JGraphRendering {
 						}
 					}
 
-					// add edge to the graph
-					g.insertEdge(parent, null, c, source, target);
+					// create new edge based on given parent and retrieved
+					// source and target
+					mxCell edge = new mxCell(c, new mxGeometry(), null);
+					//edge.setId(null);
+					edge.setEdge(true);
+					edge.setSource(source);
+					edge.setTarget(target);
+					
+					// add edge to the graph 
+					g.addCell(edge, parent);
+					
+					// NOTE: g.insertEdge(parent, id, value, source, target)
+					// does NOT work correctly. It fires too many mxChildChanges
+					// and does not insert the edge within the given parent
+					// the problem seems to be the method
+					// g.createEdge(parent, id, value, source, target, style)
 				}
 			} finally {
 				g.getModel().endUpdate();

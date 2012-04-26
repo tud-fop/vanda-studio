@@ -13,7 +13,6 @@ import org.vanda.studio.util.Observable;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
@@ -53,11 +52,11 @@ public class JGraphRenderer {
 
 		graph = JGraphRendering.createGraph();
 
-		// bind defualtParent of the graph and the root hyperworkflow 
+		// bind defualtParent of the graph and the root hyperworkflow
 		// to each other and save them in the node mapping
-		((mxCell)graph.getDefaultParent()).setValue(root);
+		((mxCell) graph.getDefaultParent()).setValue(root);
 		nodes.put(root, graph.getDefaultParent());
-		
+
 		// bind graph; for example, react on new, changed, or deleted elements
 		changeListener = new ChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
@@ -69,47 +68,49 @@ public class JGraphRenderer {
 		mxGeometry geo = model.getGeometry(cell);
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
-		
-		// make sure the node does not already exist (i.e. is in nodes-map) 
+
+		// make sure the node does not already exist (i.e. is in nodes-map)
 		if (model.getParent(cell) != null && !nodes.containsKey(to)) {
 			// add to nodes-map
 			nodes.put(to, cell);
 
 			// obtain value of parent cell that holds the current cell
-			Object parent = ((mxCell)cell).getParent().getValue();
-			
-			// the current cell is not inserted into any existing cell, 
+			Object parent = ((mxCell) cell).getParent().getValue();
+
+			// the current cell is not inserted into any existing cell,
 			// it is direct child of root
 			if (parent == null) {
 				// set parent to root
 				to.setParent(root);
-				((mxCell)cell).setParent((mxCell)graph.getDefaultParent());
+				((mxCell) cell).setParent((mxCell) graph.getDefaultParent());
 			} else {
 				// cell has been dropped into an existing cell,
 				// set parent accordingly
-			
+
 				if (parent instanceof Hyperworkflow) {
-					to.setParent((Hyperworkflow)parent);
-					((mxCell)cell).setParent((mxCell)nodes.get(to.getParent()));
+					to.setParent((Hyperworkflow) parent);
+					((mxCell) cell).setParent((mxCell) nodes
+							.get(to.getParent()));
 				} else {
-					// some error occurred, parent cell has to 
+					// some error occurred, parent cell has to
 					// hold a Hyperworkflow
-					assert(false);
+					assert (false);
 				}
 			}
-			
+
 			// set dimensions of to
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
-						geo.getHeight() };
+					geo.getHeight() };
 			to.setDimensions(dim);
-				
-			System.out.println("addNode(): added " + to.getName());
-			
-			// notify 
+
+			System.out.println("JGraphRenderer.addNode(): added "
+					+ to.getName());
+
+			// notify
 			objectAddObservable.notify(to);
-		}	
+		}
 	}
-	
+
 	public void ensureAbsence(Hyperworkflow to) {
 		Object cell = nodes.remove(to);
 		if (cell != null) {
@@ -120,7 +121,6 @@ public class JGraphRenderer {
 	public void ensurePresence(Hyperworkflow to) {
 		Object cell = nodes.get(to);
 		if (cell == null) {
-			System.out.println("renderer.ensurePresence(): " + to.getName());
 			JGraphRendering.render(to, graph, nodes.get(to.getParent()));
 		} else {
 			// make sure the cell has the same properties as the Job "to"
@@ -142,8 +142,10 @@ public class JGraphRenderer {
 
 	public void ensureConnected(Connection conn) {
 		Object cell = edges.get(conn);
-		if (cell == null) {
 
+		// render connection ONLY if it does not already exist, otherwise
+		// do nothing
+		if (cell == null) {
 			// determine the NestedHyperworkflow that contains the specified
 			// connection
 			Object parentCell = null;
@@ -151,10 +153,10 @@ public class JGraphRenderer {
 
 				NestedHyperworkflow src = (NestedHyperworkflow) conn
 						.getSource();
-				
+
 				if (src.getChildren().contains(conn.getTarget())
 						|| src.equals(conn.getTarget())) {
-					
+
 					parentCell = nodes.get(conn.getSource());
 				}
 			} else {
@@ -164,8 +166,6 @@ public class JGraphRenderer {
 			// parentCell is the Graph-cell of the NestedHyperworkflow
 			// containing connection conn
 			JGraphRendering.render(conn, graph, parentCell);
-		} else {
-			// TODO
 		}
 	}
 
@@ -173,6 +173,7 @@ public class JGraphRenderer {
 		Object cell = edges.remove(conn);
 		if (cell != null) {
 			graph.removeCells(new Object[] { cell });
+			graph.refresh();
 		}
 	}
 
@@ -211,7 +212,7 @@ public class JGraphRenderer {
 		assert (model.isEdge(cell));
 		Object source = model.getTerminal(cell, true);
 		Object target = model.getTerminal(cell, false);
-		
+
 		// ignore "unfinished" edges
 		if (source != null && target != null) {
 			Object sval = model.getValue(source);
@@ -221,88 +222,101 @@ public class JGraphRenderer {
 
 			assert (sval instanceof Port && tval instanceof Port
 					&& sparval instanceof Hyperworkflow && tparval instanceof Hyperworkflow);
-//			assert (((Port) sval).index >= 0
-//					&& ((Port) sval).index < ((Hyperworkflow) sparval)
-//							.getOutputPorts().size()
-//					&& !((Port) sval).input
-//					&& ((Port) tval).index >= 0
-//					&& ((Port) tval).index < ((Hyperworkflow) tparval)
-//							.getInputPorts().size() && ((Port) tval).input);
+			// assert (((Port) sval).index >= 0
+			// && ((Port) sval).index < ((Hyperworkflow) sparval)
+			// .getOutputPorts().size()
+			// && !((Port) sval).input
+			// && ((Port) tval).index >= 0
+			// && ((Port) tval).index < ((Hyperworkflow) tparval)
+			// .getInputPorts().size() && ((Port) tval).input);
 
+			// a previously loaded connection is updated, don't change anything
 			if (value instanceof Connection) {
 				conn = (Connection) value;
 				if (!edges.containsKey(conn)) {
 					edges.put(conn, cell);
 				}
-			}
-			else {
+			} else {
+				// a new connection has been inserted by the user via GUI
+
 				// check if a new edge is added
 				conn = new Connection();
 				if (edges.put(conn, cell) != null) {
-					assert (false);
+					// a new connection must not exist already within edges-map
+					assert(false);
+				}
+
+				// construct the new connection from information provided by cell
+				
+				conn.setSource((Hyperworkflow) sparval);
+				conn.setTarget((Hyperworkflow) tparval);
+
+				// check if Connection starts/ends from/at inner port of a
+				// NestedHyperworkflow
+				boolean innerSource = false;
+				boolean innerTarget = false;
+				if (conn.getSource() instanceof NestedHyperworkflow
+						&& (((NestedHyperworkflow) conn.getSource())
+								.getChildren().contains(conn.getTarget()) || conn
+								.getSource().equals(conn.getTarget())))
+					innerSource = true;
+
+				if (conn.getTarget() instanceof NestedHyperworkflow
+						&& (((NestedHyperworkflow) conn.getTarget())
+								.getChildren().contains(conn.getSource()) || conn
+								.getTarget().equals(conn.getSource())))
+					innerTarget = true;
+
+				// depending on whether source/target are inner ports use the
+				// correct portList
+				if (innerSource) {
+					// within the model there don't exist inner ports, only
+					// regular
+					// ports. Thus, index of inner source port has to be 
+					// reduced by number of regular input ports
+					conn.setSrcPort(conn.getSource().getInputPorts().get(
+							((Port) sval).index
+									- conn.getSource().getInputPorts().size()));
+
+				} else {
+					conn.setSrcPort(conn.getSource().getOutputPorts().get(
+							((Port) sval).index));
+				}
+
+				if (innerTarget) {
+					// within the model there don't exist inner ports, only
+					// regular
+					// ports. Thus, index of inner target port has to be 
+					// reduced by number of regular output ports
+					conn
+							.setTargPort(conn.getTarget().getOutputPorts().get(
+									((Port) tval).index
+											- conn.getTarget().getOutputPorts()
+													.size()));
+				} else {
+					conn.setTargPort(conn.getTarget().getInputPorts().get(
+							((Port) tval).index));
 				}
 			}
-			conn.setSource((Hyperworkflow) sparval);
-			conn.setTarget((Hyperworkflow) tparval);
-
-			// check if Connection starts/ends from/at inner port of a
-			// NestedHyperworkflow
-			boolean innerSource = false;
-			boolean innerTarget = false;
-			if (conn.getSource() instanceof NestedHyperworkflow
-					&& (((NestedHyperworkflow) conn.getSource()).getChildren()
-							.contains(conn.getTarget()) || conn.getSource()
-							.equals(conn.getTarget())))
-				innerSource = true;
-			
-			if (conn.getTarget() instanceof NestedHyperworkflow
-					&& (((NestedHyperworkflow) conn.getTarget()).getChildren()
-							.contains(conn.getSource()) || conn.getTarget()
-							.equals(conn.getSource())))
-				innerTarget = true;
-
-			// depending on whether source/target are inner ports use the
-			// correct portList
-			if (innerSource) {
-				// within the model there don't exist inner ports, only regular
-				// ports. Thus, index of inner port has to be reduced by number
-				// of regular input ports
-				conn.setSrcPort(conn.getSource().getInputPorts().get(
-						((Port) sval).index - conn.getSource().getInputPorts().size()));
-				
-			} else {
-				conn.setSrcPort(conn.getSource().getOutputPorts().get(
-						((Port) sval).index));
-			}
-			
-			if (innerTarget) {
-				// within the model there don't exist inner ports, only regular
-				// ports. Thus, index of inner port has to be reduced by number
-				// of regular output ports
-				conn.setTargPort(conn.getTarget().getOutputPorts().get(
-						((Port) tval).index - conn.getTarget().getOutputPorts().size()));
-			} else {
-				conn.setTargPort(conn.getTarget().getInputPorts().get(
-						((Port) tval).index));
-			}
-				
 			// notify model
 			if (conn != value) {
 				model.setValue(cell, conn);
 				connectionAddObservable.notify(conn);
 			} else {
+				//TODO what things could possibly change for a connection?
+				// -> useless notification?!
 				connectionModifyObservable.notify(conn);
 			}
 		}
 	}
-	
+
 	protected void updateNode(Object cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
 		mxGeometry geo = model.getGeometry(cell);
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
-		
+
 		// check if changes occurred to the given cell
 		if (geo.getX() != to.getX() || geo.getY() != to.getY()
 				|| geo.getWidth() != to.getWidth()
@@ -310,95 +324,103 @@ public class JGraphRenderer {
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 					geo.getHeight() };
 			to.setDimensions(dim);
-			
-			//------------------------------------------------------------------
-			//------- resizing a child requires resizing of parent -------------
-			//------------------------------------------------------------------
-			
+
+			// ------------------------------------------------------------------
+			// ------- resizing a child requires resizing of parent
+			// -------------
+			// ------------------------------------------------------------------
+
 			// node's left end is no longer inside its parent's bounding box
 			// -> expand parent's bounds to the left
 			if (geo.getX() < 0) {
 				mxCell parentCell = (mxCell) model.getParent(cell);
-				mxGeometry parentGeo = (mxGeometry)model.getGeometry(parentCell);
-				
+				mxGeometry parentGeo = (mxGeometry) model
+						.getGeometry(parentCell);
+
 				// only update geometry is parent is not the root
 				if (parentGeo != null) {
 					parentGeo.setX(parentGeo.getX() + geo.getX());
 					parentGeo.setWidth(parentGeo.getWidth() - geo.getX());
 					model.setGeometry(model.getParent(cell), parentGeo);
-				
+
 					// add offset to children nodes geometries so that they
 					// appear to remain on their previous positions
 					for (int i = 0; i < parentCell.getChildCount(); i++) {
-						mxCell child = (mxCell)parentCell.getChildAt(i);
-						
+						mxCell child = (mxCell) parentCell.getChildAt(i);
+
 						if (child.getValue() instanceof Hyperworkflow) {
 							mxGeometry childGeo = model.getGeometry(child);
 							childGeo.setX(childGeo.getX() - geo.getX());
 							model.setGeometry(child, childGeo);
 						}
 					}
-				
+
 					// update parent of currently resized node such that
 					// recent resize actions are propagated to its parent...
 					updateNode(model.getParent(cell));
-					
+
 					// update graph
 					graph.refresh();
 				}
 			}
-			
+
 			// node's bottom end is no longer inside its parent's bounding box
 			if (geo.getY() < 0) {
 				mxCell parentCell = (mxCell) model.getParent(cell);
-				mxGeometry parentGeo = (mxGeometry)model.getGeometry(parentCell);
-				
+				mxGeometry parentGeo = (mxGeometry) model
+						.getGeometry(parentCell);
+
 				// only update geometry is parent is not the root
 				if (parentGeo != null) {
 					parentGeo.setY(parentGeo.getY() + geo.getY());
 					parentGeo.setHeight(parentGeo.getHeight() - geo.getY());
 					model.setGeometry(model.getParent(cell), parentGeo);
-				
+
 					// add offset to children nodes geometries so that they
 					// appear to remain on their previous positions
 					for (int i = 0; i < parentCell.getChildCount(); i++) {
-						mxCell child = (mxCell)parentCell.getChildAt(i);
-						
+						mxCell child = (mxCell) parentCell.getChildAt(i);
+
 						if (child.getValue() instanceof Hyperworkflow) {
 							mxGeometry childGeo = model.getGeometry(child);
 							childGeo.setY(childGeo.getY() - geo.getY());
 							model.setGeometry(child, childGeo);
 						}
 					}
-				
+
 					// update parent of currently resized node such that
 					// recent resize actions are propagated to its parent...
 					updateNode(model.getParent(cell));
-					
+
 					// update graph
 					graph.refresh();
 				}
 			}
-			
+
 			// notify
 			objectModifyObservable.notify(to);
 		}
-		
-		// check if parent changed (only if both hwf and corresponding cell have parents)
-		if (model.getParent(cell) != null && to.getParent() != null 
+
+		// check if parent changed (only if both hwf and corresponding cell have
+		// parents)
+		if (model.getParent(cell) != null && to.getParent() != null
 				&& !model.getParent(cell).equals(nodes.get(to.getParent()))) {
-			System.out.println("parent of " + to + " has changed to " 
-					+ ((Hyperworkflow)model.getValue(model.getParent(cell))).getName());
-			
-			Hyperworkflow newParent = (Hyperworkflow) model.getValue(model.getParent(cell));
+			System.out.println("parent of "
+					+ to
+					+ " has changed to "
+					+ ((Hyperworkflow) model.getValue(model.getParent(cell)))
+							.getName());
+
+			Hyperworkflow newParent = (Hyperworkflow) model.getValue(model
+					.getParent(cell));
 			objectRemoveObservable.notify(to);
 			to.setParent(newParent);
 			objectAddObservable.notify(to);
 			graph.refresh();
-			//FIXME maybe it's a better idea to use modificationObservable
+			// FIXME maybe it's a better idea to use modificationObservable
 		}
 	}
-	
+
 	protected class ChangeListener implements mxIEventListener {
 		@Override
 		public void invoke(Object sender, mxEventObject evt) {
@@ -433,22 +455,23 @@ public class JGraphRenderer {
 					} else {
 						// something has been added
 						if (value instanceof Hyperworkflow) {
-//							Object oldcell = nodes.put((Hyperworkflow) value,
-//									cell);
-//							if (oldcell == null) {
-//								// check geometry and notify if necessary
-//								updateNode(cell);
-//								// FIXME: currently, objectAdd is not used!
-//							} else {
-//								assert (cell == oldcell);
-//							}
+							// Object oldcell = nodes.put((Hyperworkflow) value,
+							// cell);
+							// if (oldcell == null) {
+							// // check geometry and notify if necessary
+							// updateNode(cell);
+							// // FIXME: currently, objectAdd is not used!
+							// } else {
+							// assert (cell == oldcell);
+							// }
 							addNode(cell);
 						} else if (value instanceof Connection) {
 							// happens when a loaded nhwf contains connection
 							// and they are added to the graph
-							
+
 							// TODO currently this is not supposed to happen
-							//assert (false);
+							// assert (false);
+							updateEdge(cell);
 						} else if (value == null || value.equals("")) {
 							// check if a new edge is added
 							if (model.isEdge(cell)) {
@@ -457,21 +480,27 @@ public class JGraphRenderer {
 						}
 					}
 				} else if (c instanceof mxValueChange) {
-					// fires when a connection was inserted and then any 
+					// fires when a connection was inserted and then any
 					// component is moved to change its geometry
 					// maybe this is the geometryChange of connections?
-					
+
 					// assert (false);
-					System.out.println("mxValueChange of: " 
-							+ ((mxCell)((mxValueChange)c).getCell()).getValue());
+					System.out.println("mxValueChange of: "
+							+ ((mxCell) ((mxValueChange) c).getCell())
+									.getValue());
 				} else if (c instanceof mxGeometryChange) {
 					Object cell = ((mxGeometryChange) c).getCell();
 					if (model.getValue(cell) instanceof Hyperworkflow)
 						updateNode(cell);
 				} else if (c instanceof mxTerminalChange) {
+					// TODO is this case even necessary?
+					// creation of a new edge or loading an edge calls
+					// updateEdge already and as of now terminals do not
+					// change, connection can only be created and/or removed
+					
 					// just do the same thing as for an added edge
-					Object cell = ((mxTerminalChange) c).getCell();
-					updateEdge(cell);
+					// Object cell = ((mxTerminalChange) c).getCell();
+					// updateEdge(cell);
 				}
 			}
 		}

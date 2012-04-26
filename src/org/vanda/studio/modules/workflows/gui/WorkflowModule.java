@@ -4,6 +4,7 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTabbedPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
@@ -56,7 +57,7 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 
 			app.getWindowSystem().addSeparator();
 			
-			Action close = new CloseWorkflowAction();
+			Action close = new CloseWorkflowAction(editor);
 			app.getWindowSystem().addAction(close);
 			app.getWindowSystem().disableAction(close);
 			
@@ -67,6 +68,13 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 		}
 
 		protected static class CloseWorkflowAction implements Action {
+			
+			protected Editor<VWorkflow> editor;
+			
+			public CloseWorkflowAction(Editor<VWorkflow> e) {
+				this.editor = e;
+			}
+			
 			@Override
 			public String getName() {
 				return "Close Hyperworkflow";
@@ -76,6 +84,10 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 			public void invoke() {
 				//TODO how do I get the current focused tab?
 				System.out.println("TODO: close focused tab");
+				
+				WorkflowEditor we = (WorkflowEditor)editor;
+				JTabbedPane tabbedPane = (JTabbedPane) we.tabs.values()
+					.iterator().next().getComponent().getParent();
 			}
 		}
 		

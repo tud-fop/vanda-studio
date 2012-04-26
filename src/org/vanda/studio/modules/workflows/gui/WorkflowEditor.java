@@ -108,7 +108,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		
 		// enable close button in menu
 		app.getWindowSystem().enableAction(
-				new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction());
+				new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(this));
 	}
 
 	public void close(VWorkflow t) {
@@ -132,7 +132,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 				new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction());
 			// disable closing option in menu
 			app.getWindowSystem().disableAction(
-					new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction());
+					new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(this));
 		}
 	}
 
@@ -339,8 +339,6 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 					nested.getConnections());
 
 			for (Connection conn : connectionList) {
-				if (conn.getSource().getName().equals("nestedTool"))
-					System.out.println();
 				renderer.ensureConnected(conn);
 			}
 		}
@@ -496,7 +494,6 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 					menu.add(item);
 					menu.show(e.getComponent(), e.getX(), e.getY());
 					Connection c = (Connection)value;
-					System.out.println("parent of: " + c + " is " + c.getSource().getParent());
 				}
 
 				// create node specific context menu
@@ -542,10 +539,11 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
-			if (e.getWheelRotation() > 0)
+			if (e.getWheelRotation() > 0) {
 				component.zoomOut();
-			else
+			} else {
 				component.zoomIn();
+			}
 		}
 	}
 

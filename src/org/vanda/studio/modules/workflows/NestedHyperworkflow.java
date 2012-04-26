@@ -158,9 +158,10 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		// check port compatibility
 		if (conn == null) throw new NullPointerException("Connection has " +
 				"null value.");
-		if (connections.contains(conn)) 
+		if (connections.contains(conn)) {
 			throw new IllegalArgumentException("Connection " + conn 
-					+ "exists already.");
+					+ "exists already.");		
+		}
 		if (!conn.getSrcPort().isCompatibleTo(conn.getTargPort()))
 			throw new IllegalArgumentException("Input and output port are " +
 					"not compatible.");
@@ -228,7 +229,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		// add the connection to the established NestedHyperworkflow
 		if (connParent.addConnection(c)) {
 			connectObservable.notify(c);
-			System.out.println("connection " + c + " was added to " + connParent.getName());
+			System.out.println("nhwf.ensureConnected(): " + c + " (" + connParent.getName() + ")");
 		}
 	}
 	
@@ -239,6 +240,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		// remove the connection from the established NestedHyperworkflow
 		if (connParent.removeConnection(c)) {
 			disconnectObservable.notify(c);
+			System.out.println("nhwf.ensureDisconnected(): " + c + " (" + connParent.getName() + ")");
 		}
 	}
 
@@ -246,7 +248,6 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		// try to add the Hyperworkflow o to its parent and notify the renderer
 		if (((NestedHyperworkflow)o.getParent()).addChild(o)) {
 			addObservable.notify(o);
-			System.out.println("nhwf.ensurePresence(): " + o.getName() + " (" + o.getParent().getName() + ")");
 		}
 	}
 	
@@ -1007,7 +1008,7 @@ public class NestedHyperworkflow extends Hyperworkflow {
 		test.addChild(or);
 		test.addChild(tool2);
 
-		NestedHyperworkflow nested = new NestedHyperworkflow("nested");
+		NestedHyperworkflow nested = new NestedHyperworkflow("nested");		
 		Hyperworkflow nestedTool = new JobForTesting("nestedTool");
 		nestedTool.getInputPorts().add(new Port("in", "type"));
 		nestedTool.getOutputPorts().add(new Port("out", "type"));
