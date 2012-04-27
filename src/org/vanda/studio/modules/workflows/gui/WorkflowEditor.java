@@ -539,11 +539,18 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
+
+			double scaleBefore =  component.getGraph().getView().getScale();
+			
 			if (e.getWheelRotation() > 0) {
-				component.zoomOut();
+				component.getGraph().getView().scaleAndTranslate(
+						scaleBefore / component.getZoomFactor(), 0, 0);
 			} else {
-				component.zoomIn();
+				component.getGraph().getView().scaleAndTranslate(
+						scaleBefore * component.getZoomFactor(), 0, 0);
 			}
+			
+			//TODO translation to compensate offset
 		}
 	}
 
