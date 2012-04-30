@@ -1,5 +1,7 @@
 package org.vanda.studio.modules.workflows.gui;
 
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,7 @@ import com.mxgraph.model.mxGraphModel.mxValueChange;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUndoableEdit;
+import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
@@ -211,13 +214,10 @@ public class JGraphRenderer {
 	 */
 	private void preventTooSmallNested(Object cell) {
 		mxIGraphModel model = graph.getModel();
-		mxGeometry geo = model.getGeometry(cell);
-		
 		Object value = model.getValue(cell);
-		Hyperworkflow to = null;
-		if (value instanceof Hyperworkflow) {
-			to = (Hyperworkflow) value;
-		}
+		mxGeometry geo = model.getGeometry(cell);
+		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
+		Hyperworkflow to = (Hyperworkflow) value;
 		
 		double minWidth = 0;
 		double minHeight = 0;
@@ -407,19 +407,56 @@ public class JGraphRenderer {
 		}
 	}
 	
-	protected void updateNode(Object cell) {
+	private void resizeLabelInside(Object cell) {
+		Map<String, Object> style = graph.getCellStyle(cell);
+		Font font = mxUtils.getFont(style);
+		FontMetrics fm = mxUtils.getFontMetrics(font);
+		int labelWidthPixels = fm.stringWidth(graph.getLabel(cell));
+		int labelHeightPixels = font.getSize();
+		System.out.println("labelWidth: " + labelWidthPixels + ", labelHeight: " + labelHeightPixels);
+		
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
 		mxGeometry geo = model.getGeometry(cell);
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
-
-		// resize parent cells if child nodes are resized over left or top bounds
-		resizeParentOfCell(cell);
 		
-		// prevent resizing a nested hyperworkflow too much, otherwise
+		// TODO finish and don't forget a case
+		if (geo.getX() > to.getX()) {
+			if (geo.getWidth() < labelWidthPixels) {
+				System.out.println("label requires more space");
+				geo.setWidth(labelWidthPixels + 20);
+				model.setGeometry(cell, geo);
+				graph.refresh();
+			}
+		}
+	}
+	
+	protected void updateNode(Object cell) {
+		System.out.println(graph.getLabel(cell));
+		Map<String, Object> style = graph.getCellStyle(cell);
+		Font font = mxUtils.getFont(style);
+		FontMetrics fm = mxUtils.getFontMetrics(font);
+		int labelwidthPixels = fm.stringWidth(graph.getLabel(cell));
+		System.out.println(labelwidthPixels);
+		
+		mxIGraphModel model = graph.getModel();
+		Object value = model.getValue(cell);
+		mxGeometry geo = model.getGeometry(cell);
+		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
+		Hyperworkflow to = (Hyperworkflow) value;
+		
+		//TODO maybe adjust to.dimensions within each of the following called functions?
+		
+		// prevent shrinking cell too much leading to label being too big
+		resizeLabelInside(cell);
+		
+		// prevent resizing a NestedHyperworkflow too much, otherwise
 		// its child nodes are moved outside of its bounds
 		if (to instanceof NestedHyperworkflow) preventTooSmallNested(cell);
+		
+		// resize parent cells if child nodes are resized over left or top bounds
+		resizeParentOfCell(cell);
 		
 		// check if changes occurred to the given cell
 		if (geo.getX() != to.getX() || geo.getY() != to.getY()
