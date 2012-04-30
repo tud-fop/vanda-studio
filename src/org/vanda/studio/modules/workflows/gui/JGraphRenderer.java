@@ -205,6 +205,104 @@ public class JGraphRenderer {
 		return objectRemoveObservable;
 	}
 
+	/**
+	 * keeps the size of a cell big enough to contain all its children properly
+	 * @param cell
+	 */
+	private void preventTooSmallNested(Object cell) {
+		mxIGraphModel model = graph.getModel();
+		mxGeometry geo = model.getGeometry(cell);
+		
+		Object value = model.getValue(cell);
+		Hyperworkflow to = null;
+		if (value instanceof Hyperworkflow) {
+			to = (Hyperworkflow) value;
+		}
+		
+		double minWidth = 0;
+		double minHeight = 0;
+		
+		// determine minimum bounds of cell that contains children
+		for (int i = 0; i < model.getChildCount(cell); i++) {
+			mxCell child = (mxCell) model.getChildAt(cell, i);
+			
+			if (child.getValue() instanceof Hyperworkflow) {
+				double childRightBorder = child.getGeometry().getX() 
+					+ child.getGeometry().getWidth();
+				double childBottomBorder = child.getGeometry().getY()
+					+ child.getGeometry().getHeight();
+				if (childRightBorder > minWidth) {
+					minWidth = childRightBorder;
+				}
+				if (childBottomBorder > minHeight) {
+					minHeight = childBottomBorder;
+				}
+			}
+		}
+		
+		// adjust x coordinate of cell according to appropriate size
+		if (geo.getWidth() < minWidth) {
+			geo.setWidth(minWidth);
+			if (geo.getX() > to.getX()) {
+				geo.setX(to.getX() + to.getWidth() - minWidth);
+			}
+		}
+		
+		// adjust y coordinate of cell according to appropriate size
+		if (geo.getHeight() < minHeight) {
+			geo.setHeight(minHeight);
+			if (geo.getY() > to.getY()) {
+				geo.setY(to.getY() + to.getHeight() - minHeight);
+			}
+		}
+		
+		// set the new geometry and refresh graph to make changes visible
+		model.setGeometry(cell, geo);
+		graph.refresh();
+	}
+	
+	/**
+	 * upon increasing a nodes size, also adjust the size of the parent cell
+	 * @param cell
+	 */
+	private void resizeParentOfCell(Object cell) {
+		mxIGraphModel model = graph.getModel();
+		mxGeometry geo = model.getGeometry(cell);
+		
+		// node's left end is no longer inside its parent's bounding box
+		// -> expand parent's bounds to the left
+		if (geo.getX() < 0 || geo.getY() < 0) {
+			mxCell parentCell = (mxCell) model.getParent(cell);
+			mxGeometry parentGeo = (mxGeometry) model
+					.getGeometry(parentCell);
+
+			// only update geometry if parent is not the root
+			if (parentGeo != null) {
+				parentGeo.setX(Math.min(parentGeo.getX() + geo.getX(), 
+						parentGeo.getX()));
+				parentGeo.setWidth(Math.max(parentGeo.getWidth() - geo.getX(), 
+						parentGeo.getWidth()));
+				parentGeo.setY(Math.min(parentGeo.getY() + geo.getY(), 
+						parentGeo.getY()));
+				parentGeo.setHeight(Math.max(parentGeo.getHeight() - geo.getY(), 
+						parentGeo.getHeight()));
+				model.setGeometry(model.getParent(cell), parentGeo);
+
+				// update current cell's geometry
+				geo.setX(Math.max(0, geo.getX()));
+				geo.setY(Math.max(0, geo.getY()));
+				model.setGeometry(cell, geo);
+
+				// update parent of currently resized node such that
+				// recent resize actions are propagated to its parent...
+				updateNode(model.getParent(cell));
+
+				// update graph
+				graph.refresh();
+			}
+		}
+	}
+	
 	protected void updateEdge(Object cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
@@ -258,14 +356,14 @@ public class JGraphRenderer {
 				boolean innerTarget = false;
 				if (conn.getSource() instanceof NestedHyperworkflow
 						&& (((NestedHyperworkflow) conn.getSource())
-								.getChildren().contains(conn.getTarget()) || conn
-								.getSource().equals(conn.getTarget())))
+								.getChildren().contains(conn.getTarget()) 
+								|| conn.getSource().equals(conn.getTarget())))
 					innerSource = true;
 
 				if (conn.getTarget() instanceof NestedHyperworkflow
 						&& (((NestedHyperworkflow) conn.getTarget())
-								.getChildren().contains(conn.getSource()) || conn
-								.getTarget().equals(conn.getSource())))
+								.getChildren().contains(conn.getSource()) 
+								|| conn.getTarget().equals(conn.getSource())))
 					innerTarget = true;
 
 				// depending on whether source/target are inner ports use the
@@ -289,8 +387,7 @@ public class JGraphRenderer {
 					// regular
 					// ports. Thus, index of inner target port has to be 
 					// reduced by number of regular output ports
-					conn
-							.setTargPort(conn.getTarget().getOutputPorts().get(
+					conn.setTargPort(conn.getTarget().getOutputPorts().get(
 									((Port) tval).index
 											- conn.getTarget().getOutputPorts()
 													.size()));
@@ -309,44 +406,6 @@ public class JGraphRenderer {
 			}
 		}
 	}
-
-	private void resizeParentOfCell(Object cell) {
-		mxIGraphModel model = graph.getModel();
-		mxGeometry geo = model.getGeometry(cell);
-		
-		// node's left end is no longer inside its parent's bounding box
-		// -> expand parent's bounds to the left
-		if (geo.getX() < 0 || geo.getY() < 0) {
-			mxCell parentCell = (mxCell) model.getParent(cell);
-			mxGeometry parentGeo = (mxGeometry) model
-					.getGeometry(parentCell);
-
-			// only update geometry if parent is not the root
-			if (parentGeo != null) {
-				parentGeo.setX(Math.min(parentGeo.getX() + geo.getX(), 
-						parentGeo.getX()));
-				parentGeo.setWidth(Math.max(parentGeo.getWidth() - geo.getX(), 
-						parentGeo.getWidth()));
-				parentGeo.setY(Math.min(parentGeo.getY() + geo.getY(), 
-						parentGeo.getY()));
-				parentGeo.setHeight(Math.max(parentGeo.getHeight() - geo.getY(), 
-						parentGeo.getHeight()));
-				model.setGeometry(model.getParent(cell), parentGeo);
-
-				// update current cell's geometry
-				geo.setX(Math.max(0, geo.getX()));
-				geo.setY(Math.max(0, geo.getY()));
-				model.setGeometry(cell, geo);
-
-				// update parent of currently resized node such that
-				// recent resize actions are propagated to its parent...
-				updateNode(model.getParent(cell));
-
-				// update graph
-				graph.refresh();
-			}
-		}
-	}
 	
 	protected void updateNode(Object cell) {
 		mxIGraphModel model = graph.getModel();
@@ -355,8 +414,12 @@ public class JGraphRenderer {
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
 
-		// resize parent cell if child nodes are moved over left or top bounds
+		// resize parent cells if child nodes are resized over left or top bounds
 		resizeParentOfCell(cell);
+		
+		// prevent resizing a nested hyperworkflow too much, otherwise
+		// its child nodes are moved outside of its bounds
+		if (to instanceof NestedHyperworkflow) preventTooSmallNested(cell);
 		
 		// check if changes occurred to the given cell
 		if (geo.getX() != to.getX() || geo.getY() != to.getY()
