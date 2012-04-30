@@ -310,6 +310,44 @@ public class JGraphRenderer {
 		}
 	}
 
+	private void resizeParentOfCell(Object cell) {
+		mxIGraphModel model = graph.getModel();
+		mxGeometry geo = model.getGeometry(cell);
+		
+		// node's left end is no longer inside its parent's bounding box
+		// -> expand parent's bounds to the left
+		if (geo.getX() < 0 || geo.getY() < 0) {
+			mxCell parentCell = (mxCell) model.getParent(cell);
+			mxGeometry parentGeo = (mxGeometry) model
+					.getGeometry(parentCell);
+
+			// only update geometry if parent is not the root
+			if (parentGeo != null) {
+				parentGeo.setX(Math.min(parentGeo.getX() + geo.getX(), 
+						parentGeo.getX()));
+				parentGeo.setWidth(Math.max(parentGeo.getWidth() - geo.getX(), 
+						parentGeo.getWidth()));
+				parentGeo.setY(Math.min(parentGeo.getY() + geo.getY(), 
+						parentGeo.getY()));
+				parentGeo.setHeight(Math.max(parentGeo.getHeight() - geo.getY(), 
+						parentGeo.getHeight()));
+				model.setGeometry(model.getParent(cell), parentGeo);
+
+				// update current cell's geometry
+				geo.setX(Math.max(0, geo.getX()));
+				geo.setY(Math.max(0, geo.getY()));
+				model.setGeometry(cell, geo);
+
+				// update parent of currently resized node such that
+				// recent resize actions are propagated to its parent...
+				updateNode(model.getParent(cell));
+
+				// update graph
+				graph.refresh();
+			}
+		}
+	}
+	
 	protected void updateNode(Object cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
@@ -317,86 +355,17 @@ public class JGraphRenderer {
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
 
+		// resize parent cell if child nodes are moved over left or top bounds
+		resizeParentOfCell(cell);
+		
 		// check if changes occurred to the given cell
 		if (geo.getX() != to.getX() || geo.getY() != to.getY()
 				|| geo.getWidth() != to.getWidth()
-				|| geo.getHeight() != to.getHeight()) {
+				|| geo.getHeight() != to.getHeight()) {			
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 					geo.getHeight() };
 			to.setDimensions(dim);
-
-			// ------------------------------------------------------------------
-			// ------- resizing a child requires resizing of parent
-			// -------------
-			// ------------------------------------------------------------------
-
-			// node's left end is no longer inside its parent's bounding box
-			// -> expand parent's bounds to the left
-			if (geo.getX() < 0) {
-				mxCell parentCell = (mxCell) model.getParent(cell);
-				mxGeometry parentGeo = (mxGeometry) model
-						.getGeometry(parentCell);
-
-				// only update geometry is parent is not the root
-				if (parentGeo != null) {
-					parentGeo.setX(parentGeo.getX() + geo.getX());
-					parentGeo.setWidth(parentGeo.getWidth() - geo.getX());
-					model.setGeometry(model.getParent(cell), parentGeo);
-
-					// add offset to children nodes geometries so that they
-					// appear to remain on their previous positions
-					for (int i = 0; i < parentCell.getChildCount(); i++) {
-						mxCell child = (mxCell) parentCell.getChildAt(i);
-
-						if (child.getValue() instanceof Hyperworkflow) {
-							mxGeometry childGeo = model.getGeometry(child);
-							childGeo.setX(childGeo.getX() - geo.getX());
-							model.setGeometry(child, childGeo);
-						}
-					}
-
-					// update parent of currently resized node such that
-					// recent resize actions are propagated to its parent...
-					updateNode(model.getParent(cell));
-
-					// update graph
-					graph.refresh();
-				}
-			}
-
-			// node's bottom end is no longer inside its parent's bounding box
-			if (geo.getY() < 0) {
-				mxCell parentCell = (mxCell) model.getParent(cell);
-				mxGeometry parentGeo = (mxGeometry) model
-						.getGeometry(parentCell);
-
-				// only update geometry is parent is not the root
-				if (parentGeo != null) {
-					parentGeo.setY(parentGeo.getY() + geo.getY());
-					parentGeo.setHeight(parentGeo.getHeight() - geo.getY());
-					model.setGeometry(model.getParent(cell), parentGeo);
-
-					// add offset to children nodes geometries so that they
-					// appear to remain on their previous positions
-					for (int i = 0; i < parentCell.getChildCount(); i++) {
-						mxCell child = (mxCell) parentCell.getChildAt(i);
-
-						if (child.getValue() instanceof Hyperworkflow) {
-							mxGeometry childGeo = model.getGeometry(child);
-							childGeo.setY(childGeo.getY() - geo.getY());
-							model.setGeometry(child, childGeo);
-						}
-					}
-
-					// update parent of currently resized node such that
-					// recent resize actions are propagated to its parent...
-					updateNode(model.getParent(cell));
-
-					// update graph
-					graph.refresh();
-				}
-			}
-
+			
 			// notify
 			objectModifyObservable.notify(to);
 		}
