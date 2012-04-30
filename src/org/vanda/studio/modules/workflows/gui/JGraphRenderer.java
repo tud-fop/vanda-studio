@@ -236,17 +236,22 @@ public class JGraphRenderer {
 				if (!edges.containsKey(conn)) {
 					edges.put(conn, cell);
 				}
+				
+				//FIXME what things could possibly change for a connection?
+				// -> useless notification?!
+				connectionModifyObservable.notify(conn);
 			} else {
 				// a new connection has been inserted by the user via GUI
 
-				// check if a new edge is added
+				// remove automatically constructed cell, as it may have wrong
+				// parent information (some problem within jgraph-insertEdge())
+				graph.getModel().remove(cell);
+				
+				// initialize new connection
 				conn = new Connection();
-				if (edges.put(conn, cell) != null) {
-					// a new connection must not exist already within edges-map
-					assert(false);
-				}
 
 				// construct the new connection from information provided by cell
+				// DO NOT use parent information of cell
 				
 				conn.setSource((Hyperworkflow) sparval);
 				conn.setTarget((Hyperworkflow) tparval);
@@ -297,15 +302,24 @@ public class JGraphRenderer {
 					conn.setTargPort(conn.getTarget().getInputPorts().get(
 							((Port) tval).index));
 				}
-			}
-			// notify model
-			if (conn != value) {
-				model.setValue(cell, conn);
+				
+				
+				// create new edge cell from scratch, set all necessary values
+				mxCell edge = new mxCell(conn, new mxGeometry(), null);
+				edge.setEdge(true);
+				edge.setSource((mxCell)nodes.get(conn.getSource()));
+				edge.setTarget((mxCell)nodes.get(conn.getTarget()));
+				
+				// render the new connection (given parent info) and refresh graph
+				JGraphRendering.render(conn, graph, nodes.get(conn.getConnectionParent()));
+				graph.refresh();
+				
+				// add the connection to the renderer's edge-map to enable
+				// later access to its cell (for removal purposes)
+				edges.put(conn, edge);
+				
+				// notify model about newly added connection
 				connectionAddObservable.notify(conn);
-			} else {
-				//TODO what things could possibly change for a connection?
-				// -> useless notification?!
-				connectionModifyObservable.notify(conn);
 			}
 		}
 	}
