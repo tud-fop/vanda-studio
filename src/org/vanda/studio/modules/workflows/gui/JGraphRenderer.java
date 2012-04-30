@@ -243,15 +243,11 @@ public class JGraphRenderer {
 			} else {
 				// a new connection has been inserted by the user via GUI
 
-				// remove automatically constructed cell, as it may have wrong
-				// parent information (some problem within jgraph-insertEdge())
-				graph.getModel().remove(cell);
-				
 				// initialize new connection
 				conn = new Connection();
-
-				// construct the new connection from information provided by cell
-				// DO NOT use parent information of cell
+				if (edges.put(conn, cell) != null) {
+					assert false;
+				}
 				
 				conn.setSource((Hyperworkflow) sparval);
 				conn.setTarget((Hyperworkflow) tparval);
@@ -302,24 +298,14 @@ public class JGraphRenderer {
 					conn.setTargPort(conn.getTarget().getInputPorts().get(
 							((Port) tval).index));
 				}
-				
-				
-				// create new edge cell from scratch, set all necessary values
-				mxCell edge = new mxCell(conn, new mxGeometry(), null);
-				edge.setEdge(true);
-				edge.setSource((mxCell)nodes.get(conn.getSource()));
-				edge.setTarget((mxCell)nodes.get(conn.getTarget()));
-				
-				// render the new connection (given parent info) and refresh graph
-				JGraphRendering.render(conn, graph, nodes.get(conn.getConnectionParent()));
-				graph.refresh();
-				
-				// add the connection to the renderer's edge-map to enable
-				// later access to its cell (for removal purposes)
-				edges.put(conn, edge);
-				
-				// notify model about newly added connection
+			}
+			if (conn != value) {
+				model.setValue(cell, conn);
 				connectionAddObservable.notify(conn);
+			} else {
+				// FIXME what connection changes could possibly be of interest?
+				// -> useless?!
+				connectionModifyObservable.notify(conn);
 			}
 		}
 	}
