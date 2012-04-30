@@ -35,6 +35,35 @@ public class Connection {
 	}
 
 	/**
+	 * determines the NestedHyperworkflow that contains the connection
+	 * @return
+	 */
+	public NestedHyperworkflow getConnectionParent() {
+		NestedHyperworkflow connParent = null;
+		if (getSource() instanceof NestedHyperworkflow) {
+			
+			NestedHyperworkflow source = (NestedHyperworkflow)getSource();
+			
+			// if target is child of source or source itself, source is the
+			// NestedHyperworkflow we are looking for
+			if (source.getChildren().contains(getTarget()) 
+					|| source.equals(getTarget())) {
+				connParent = source;
+			} else {
+				// target is somewhere outside of source, source's parent
+				// has to add the connection
+				connParent = (NestedHyperworkflow)source.getParent();
+			}
+			
+		} else {
+			// connection source is a simple job, hence, its parent has to add c
+			connParent = (NestedHyperworkflow)getSource().getParent();
+		}
+		
+		return connParent;
+	}
+	
+	/**
 	 * @return the source Hyperworkflow
 	 */
 	public Hyperworkflow getSource() {
