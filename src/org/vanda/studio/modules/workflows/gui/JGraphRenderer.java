@@ -447,13 +447,6 @@ public class JGraphRenderer {
 	}
 	
 	protected void updateNode(Object cell) {
-		System.out.println(graph.getLabel(cell));
-		Map<String, Object> style = graph.getCellStyle(cell);
-		Font font = mxUtils.getFont(style);
-		FontMetrics fm = mxUtils.getFontMetrics(font);
-		int labelwidthPixels = fm.stringWidth(graph.getLabel(cell));
-		System.out.println(labelwidthPixels);
-		
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
 		mxGeometry geo = model.getGeometry(cell);
@@ -481,6 +474,8 @@ public class JGraphRenderer {
 			to.setDimensions(dim);
 			
 			// notify
+			// FIXME how useful is the notification? What else could possibly change
+			// that requires attention?
 			objectModifyObservable.notify(to);
 		}
 
@@ -489,8 +484,7 @@ public class JGraphRenderer {
 		if (model.getParent(cell) != null && to.getParent() != null
 				&& !model.getParent(cell).equals(nodes.get(to.getParent()))) {
 			System.out.println("parent of "
-					+ to
-					+ " has changed to "
+					+ to + " has changed to "
 					+ ((Hyperworkflow) model.getValue(model.getParent(cell)))
 							.getName());
 

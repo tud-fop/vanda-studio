@@ -371,6 +371,8 @@ public class JGraphRendering {
 					// and does not insert the edge within the given parent
 					// the problem seems to be the method
 					// g.createEdge(parent, id, value, source, target, style)
+					// FIXME maybe the problem is not the jgraph API but some
+					// weird code I wrote concerning inner taarget ports
 				}
 			} finally {
 				g.getModel().endUpdate();
