@@ -1,5 +1,7 @@
 package org.vanda.studio.modules.workflows.gui;
 
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxEdgeStyle;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxMultiplicity;
@@ -195,6 +198,8 @@ public class JGraphRendering {
 						this.getStyleName());
 				v.setConnectable(false);
 
+				g.ensureMinimumCellSize(v);
+				
 				// insert a cell for every input port
 				List<org.vanda.studio.model.Port> in = hwf
 						.getInputPorts();
@@ -514,6 +519,20 @@ public class JGraphRendering {
 			return vertex;
 		}
 
+		public void ensureMinimumCellSize(Object cell) {
+			mxGeometry cellGeo = getModel().getGeometry(cell);
+			
+			Font font = mxUtils.getFont(getCellStyle(cell));
+			FontMetrics fm = mxUtils.getFontMetrics(font);
+			int labelWidth = fm.stringWidth(getLabel(cell)) + 20;
+			int labelHeight = font.getSize() + 20;
+			
+			if (cellGeo.getWidth() < labelWidth) cellGeo.setWidth(labelWidth);
+			if (cellGeo.getHeight() < labelHeight) cellGeo.setHeight(labelHeight);
+			getModel().setGeometry(cell, cellGeo);
+			refresh();
+		}
+		
 		@Override
 		public void finalize() throws Throwable {
 			JGraphRendering.refStylesheet(-1);
@@ -556,9 +575,6 @@ public class JGraphRendering {
 			if (c.getValue() instanceof NestedHyperworkflow) {
 				return true;
 			}
-
-			
-			
 			return false;
 		}
 	}

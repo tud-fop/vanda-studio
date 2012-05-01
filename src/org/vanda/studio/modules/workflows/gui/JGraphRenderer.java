@@ -262,6 +262,45 @@ public class JGraphRenderer {
 	}
 	
 	/**
+	 * prevents the cell from shrinking too much, ensures that the
+	 * label still fits in the cell
+	 * @param cell
+	 */
+	private void resizeToFitLabel(Object cell) {		
+		mxIGraphModel model = graph.getModel();
+		Object value = model.getValue(cell);
+		mxGeometry geo = model.getGeometry(cell);
+		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
+		Hyperworkflow to = (Hyperworkflow) value;
+		
+		// determine font and corresponding width/height of label
+		Font font = mxUtils.getFont(graph.getCellStyle(cell));
+		FontMetrics fm = mxUtils.getFontMetrics(font);
+		int labelWidth = fm.stringWidth(graph.getLabel(cell)) + 20;
+		int labelHeight = font.getSize() + 20;
+		
+		// adjust x coordinate of cell according to appropriate size
+		if (geo.getWidth() < labelWidth) {
+			geo.setWidth(labelWidth);
+			if (geo.getX() > to.getX()) {
+				geo.setX(to.getX() + to.getWidth() - labelWidth);
+			}
+		}
+				
+		// adjust y coordinate of cell according to appropriate size
+		if (geo.getHeight() < labelHeight) {
+			geo.setHeight(labelHeight);
+			if (geo.getY() > to.getY()) {
+				geo.setY(to.getY() + to.getHeight() - labelHeight);
+			}
+		}
+		
+		// reset geometry to changed value and update graph
+		model.setGeometry(cell, geo);
+		graph.refresh();
+	}
+	
+	/**
 	 * upon increasing a nodes size, also adjust the size of the parent cell
 	 * @param cell
 	 */
@@ -407,31 +446,6 @@ public class JGraphRenderer {
 		}
 	}
 	
-	private void resizeLabelInside(Object cell) {
-		Map<String, Object> style = graph.getCellStyle(cell);
-		Font font = mxUtils.getFont(style);
-		FontMetrics fm = mxUtils.getFontMetrics(font);
-		int labelWidthPixels = fm.stringWidth(graph.getLabel(cell));
-		int labelHeightPixels = font.getSize();
-		System.out.println("labelWidth: " + labelWidthPixels + ", labelHeight: " + labelHeightPixels);
-		
-		mxIGraphModel model = graph.getModel();
-		Object value = model.getValue(cell);
-		mxGeometry geo = model.getGeometry(cell);
-		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
-		Hyperworkflow to = (Hyperworkflow) value;
-		
-		// TODO finish and don't forget a case
-		if (geo.getX() > to.getX()) {
-			if (geo.getWidth() < labelWidthPixels) {
-				System.out.println("label requires more space");
-				geo.setWidth(labelWidthPixels + 20);
-				model.setGeometry(cell, geo);
-				graph.refresh();
-			}
-		}
-	}
-	
 	protected void updateNode(Object cell) {
 		System.out.println(graph.getLabel(cell));
 		Map<String, Object> style = graph.getCellStyle(cell);
@@ -449,7 +463,7 @@ public class JGraphRenderer {
 		//TODO maybe adjust to.dimensions within each of the following called functions?
 		
 		// prevent shrinking cell too much leading to label being too big
-		resizeLabelInside(cell);
+		resizeToFitLabel(cell);
 		
 		// prevent resizing a NestedHyperworkflow too much, otherwise
 		// its child nodes are moved outside of its bounds
