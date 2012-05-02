@@ -219,46 +219,48 @@ public class JGraphRenderer {
 		assert (model.isVertex(cell) && value instanceof Hyperworkflow);
 		Hyperworkflow to = (Hyperworkflow) value;
 		
-		double minWidth = 0;
-		double minHeight = 0;
-		
-		// determine minimum bounds of cell that contains children
-		for (int i = 0; i < model.getChildCount(cell); i++) {
-			mxCell child = (mxCell) model.getChildAt(cell, i);
-			
-			if (child.getValue() instanceof Hyperworkflow) {
-				double childRightBorder = child.getGeometry().getX() 
+		if (to instanceof NestedHyperworkflow) {
+			double minWidth = 0;
+			double minHeight = 0;
+
+			// determine minimum bounds of cell that contains children
+			for (int i = 0; i < model.getChildCount(cell); i++) {
+				mxCell child = (mxCell) model.getChildAt(cell, i);
+
+				if (child.getValue() instanceof Hyperworkflow) {
+					double childRightBorder = child.getGeometry().getX() 
 					+ child.getGeometry().getWidth();
-				double childBottomBorder = child.getGeometry().getY()
+					double childBottomBorder = child.getGeometry().getY()
 					+ child.getGeometry().getHeight();
-				if (childRightBorder > minWidth) {
-					minWidth = childRightBorder;
+					if (childRightBorder > minWidth) {
+						minWidth = childRightBorder;
+					}
+					if (childBottomBorder > minHeight) {
+						minHeight = childBottomBorder;
+					}
 				}
-				if (childBottomBorder > minHeight) {
-					minHeight = childBottomBorder;
+			}
+
+			// adjust x coordinate of cell according to appropriate size
+			if (geo.getWidth() < minWidth && !model.isCollapsed(cell)) {
+				geo.setWidth(minWidth);
+				if (geo.getX() > to.getX()) {
+					geo.setX(to.getX() + to.getWidth() - minWidth);
 				}
 			}
-		}
-		
-		// adjust x coordinate of cell according to appropriate size
-		if (geo.getWidth() < minWidth) {
-			geo.setWidth(minWidth);
-			if (geo.getX() > to.getX()) {
-				geo.setX(to.getX() + to.getWidth() - minWidth);
+
+			// adjust y coordinate of cell according to appropriate size
+			if (geo.getHeight() < minHeight && !model.isCollapsed(cell)) {
+				geo.setHeight(minHeight);
+				if (geo.getY() > to.getY()) {
+					geo.setY(to.getY() + to.getHeight() - minHeight);
+				}
 			}
-		}
-		
-		// adjust y coordinate of cell according to appropriate size
-		if (geo.getHeight() < minHeight) {
-			geo.setHeight(minHeight);
-			if (geo.getY() > to.getY()) {
-				geo.setY(to.getY() + to.getHeight() - minHeight);
-			}
-		}
-		
-		// set the new geometry and refresh graph to make changes visible
-		model.setGeometry(cell, geo);
-		graph.refresh();
+
+			// set the new geometry and refresh graph to make changes visible
+			model.setGeometry(cell, geo);
+			graph.refresh();
+		} else return;
 	}
 	
 	/**
@@ -277,7 +279,8 @@ public class JGraphRenderer {
 		Font font = mxUtils.getFont(graph.getCellStyle(cell));
 		FontMetrics fm = mxUtils.getFontMetrics(font);
 		int labelWidth = fm.stringWidth(graph.getLabel(cell)) + 20;
-		int labelHeight = font.getSize() + 20;
+		int numberOfLines = graph.getLabel(cell).split("\n").length;
+		int labelHeight = numberOfLines * font.getSize() + 20;
 		
 		// adjust x coordinate of cell according to appropriate size
 		if (geo.getWidth() < labelWidth) {
@@ -337,6 +340,13 @@ public class JGraphRenderer {
 				updateNode(model.getParent(cell));
 
 				// update graph
+				graph.refresh();
+			} else {
+				// a node has been moved over left or top bounds of the
+				// graph's view, scale the view to compensate
+				graph.getView().scaleAndTranslate(graph.getView().getScale(), 
+						Math.max(-geo.getX(), 0), Math.max(-geo.getY(), 0));
+				graph.getView().reload();
 				graph.refresh();
 			}
 		}
@@ -460,7 +470,7 @@ public class JGraphRenderer {
 		
 		// prevent resizing a NestedHyperworkflow too much, otherwise
 		// its child nodes are moved outside of its bounds
-		if (to instanceof NestedHyperworkflow) preventTooSmallNested(cell);
+		preventTooSmallNested(cell);
 		
 		// resize parent cells if child nodes are resized over left or top bounds
 		resizeParentOfCell(cell);
@@ -479,10 +489,12 @@ public class JGraphRenderer {
 			objectModifyObservable.notify(to);
 		}
 
+		//FIXME does not work properly
 		// check if parent changed (only if both hwf and corresponding cell have
 		// parents)
 		if (model.getParent(cell) != null && to.getParent() != null
 				&& !model.getParent(cell).equals(nodes.get(to.getParent()))) {
+			
 			System.out.println("parent of "
 					+ to + " has changed to "
 					+ ((Hyperworkflow) model.getValue(model.getParent(cell)))
@@ -494,7 +506,6 @@ public class JGraphRenderer {
 			to.setParent(newParent);
 			objectAddObservable.notify(to);
 			graph.refresh();
-			// FIXME maybe it's a better idea to use modificationObservable
 		}
 	}
 

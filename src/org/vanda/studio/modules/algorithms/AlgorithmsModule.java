@@ -102,7 +102,7 @@ public class AlgorithmsModule implements SimpleModule<Tool> {
 				
 					@Override
 					public String getName() {
-						return "Dictionary Training";
+						return "Dictionary\nTraining";
 					}
 				
 					@Override

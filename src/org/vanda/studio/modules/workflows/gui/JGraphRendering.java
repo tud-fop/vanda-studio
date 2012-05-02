@@ -463,7 +463,7 @@ public class JGraphRendering {
 			// graph.setDropEnabled(false);
 			// graph.setCellsMovable(false);
 			setCellsEditable(false);
-			setCollapseToPreferredSize(false);
+			setCollapseToPreferredSize(true);
 			setExtendParents(true);
 			setExtendParentsOnAdd(true);
 			setCellsResizable(true);

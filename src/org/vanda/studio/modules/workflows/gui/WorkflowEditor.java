@@ -37,10 +37,12 @@ import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 import org.vanda.studio.util.Observer;
 
 import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxGraphTransferable;
+import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 public class WorkflowEditor implements Editor<VWorkflow> {
@@ -540,17 +542,51 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
 
+			System.out.println(e.getX() + ", " + e.getY());
+			
 			double scaleBefore =  component.getGraph().getView().getScale();
 			
 			if (e.getWheelRotation() > 0) {
+//				component.getGraph().getView().scaleAndTranslate(
+//						scaleBefore / component.getZoomFactor(), 
+//						component.getGraph().getView().getTranslate().getX()
+//						- e.getX() * (1/component.getZoomFactor() - 1), 
+//						component.getGraph().getView().getTranslate().getY()
+//						- e.getY() * (1/component.getZoomFactor() - 1));
+				
+				component.zoomOut();
+				double scaleAfter =  component.getGraph().getView().getScale();
+						
+				System.out.println(scaleBefore + " -> " + scaleAfter);
+				
 				component.getGraph().getView().scaleAndTranslate(
-						scaleBefore / component.getZoomFactor(), 0, 0);
+						scaleAfter, 
+						component.getGraph().getView().getTranslate().getX()
+						+ e.getX() * (component.getZoomFactor() - 1), 
+						component.getGraph().getView().getTranslate().getY()
+						+ e.getY() * (component.getZoomFactor() - 1));
 			} else {
+//				component.getGraph().getView().scaleAndTranslate(
+//						scaleBefore * component.getZoomFactor(), 
+//						component.getGraph().getView().getTranslate().getX()
+//						- e.getX() * (component.getZoomFactor() - 1), 
+//						component.getGraph().getView().getTranslate().getY()
+//						- e.getY() * (component.getZoomFactor() - 1));
+						
+				component.zoomIn();
+				double scaleAfter =  component.getGraph().getView().getScale();
+						
+				System.out.println(scaleBefore + " -> " + scaleAfter);
+						
 				component.getGraph().getView().scaleAndTranslate(
-						scaleBefore * component.getZoomFactor(), 0, 0);
+						scaleAfter, 
+						component.getGraph().getView().getTranslate().getX()
+						- e.getX() * (1 -  1/component.getZoomFactor()), 
+						component.getGraph().getView().getTranslate().getY()
+						- e.getY() * (1 -  1/component.getZoomFactor()));
 			}
 			
-			//TODO translation to compensate offset
+			//FIXME improve zoom behavior
 		}
 	}
 
