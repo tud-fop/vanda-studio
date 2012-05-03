@@ -572,7 +572,7 @@ public class JGraphRendering {
 		// Allows folding of NestedHyperworkflows
 		@Override
 		public boolean isCellFoldable(Object cell, boolean collapse) {
-			// allow NestedHyperworkflow with children to be foldable
+			// allow NestedHyperworkflow
 			mxCell c = (mxCell) cell;
 			if (c.getValue() instanceof NestedHyperworkflow) {
 				return true;

@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
@@ -527,6 +528,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 
 	/**
 	 * enables mouse wheel zooming function within graph editor window
+	 * keeps the mouse cursor as zoom center
 	 * 
 	 * @author afischer
 	 */
@@ -542,51 +544,18 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
 
-			System.out.println(e.getX() + ", " + e.getY());
-			
-			double scaleBefore =  component.getGraph().getView().getScale();
-			
 			if (e.getWheelRotation() > 0) {
-//				component.getGraph().getView().scaleAndTranslate(
-//						scaleBefore / component.getZoomFactor(), 
-//						component.getGraph().getView().getTranslate().getX()
-//						- e.getX() * (1/component.getZoomFactor() - 1), 
-//						component.getGraph().getView().getTranslate().getY()
-//						- e.getY() * (1/component.getZoomFactor() - 1));
-				
 				component.zoomOut();
-				double scaleAfter =  component.getGraph().getView().getScale();
-						
-				System.out.println(scaleBefore + " -> " + scaleAfter);
-				
-				component.getGraph().getView().scaleAndTranslate(
-						scaleAfter, 
-						component.getGraph().getView().getTranslate().getX()
-						+ e.getX() * (component.getZoomFactor() - 1), 
-						component.getGraph().getView().getTranslate().getY()
-						+ e.getY() * (component.getZoomFactor() - 1));
 			} else {
-//				component.getGraph().getView().scaleAndTranslate(
-//						scaleBefore * component.getZoomFactor(), 
-//						component.getGraph().getView().getTranslate().getX()
-//						- e.getX() * (component.getZoomFactor() - 1), 
-//						component.getGraph().getView().getTranslate().getY()
-//						- e.getY() * (component.getZoomFactor() - 1));
-						
 				component.zoomIn();
-				double scaleAfter =  component.getGraph().getView().getScale();
-						
-				System.out.println(scaleBefore + " -> " + scaleAfter);
-						
-				component.getGraph().getView().scaleAndTranslate(
-						scaleAfter, 
-						component.getGraph().getView().getTranslate().getX()
-						- e.getX() * (1 -  1/component.getZoomFactor()), 
-						component.getGraph().getView().getTranslate().getY()
-						- e.getY() * (1 -  1/component.getZoomFactor()));
 			}
 			
-			//FIXME improve zoom behavior
+			// translate view to keep mouse point as fixpoint
+			double scaleAfter =  component.getGraph().getView().getScale();
+			component.getGraph().getView().scaleAndTranslate(
+					scaleAfter, 
+					- e.getX() * (1.0 - 1.0/scaleAfter), 
+					- e.getY() * (1.0 - 1.0/scaleAfter));
 		}
 	}
 
