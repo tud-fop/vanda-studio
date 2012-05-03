@@ -90,7 +90,7 @@ public class TermEditor implements Editor<VTerm> {
 		//	visible = true;
 		//}
 		// focus the editor
-		app.getWindowSystem().addContentWindow("", t.getName(), null, tab.getComponent());
+		app.getWindowSystem().addContentWindow("", t.getName(), null, tab.getComponent(), null);
 		app.getWindowSystem().focusContentWindow(tab.getComponent());
 		tab.getComponent().requestFocusInWindow();
 	}

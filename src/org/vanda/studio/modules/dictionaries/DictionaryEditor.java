@@ -33,7 +33,7 @@ public class DictionaryEditor implements Editor<VDictionary> {
 				// TODO make it possible to remove the dictionary from the map
 			}
 			DictionaryView dv = new DictionaryView(app, dict);
-			app.getWindowSystem().addContentWindow("", d.getName(), null, dv);
+			app.getWindowSystem().addContentWindow("", d.getName(), null, dv, null);
 			app.getWindowSystem().focusContentWindow(dv);
 			dv.requestFocusInWindow();
 		}

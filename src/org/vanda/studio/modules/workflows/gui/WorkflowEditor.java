@@ -24,7 +24,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
@@ -38,12 +37,10 @@ import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 import org.vanda.studio.util.Observer;
 
 import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxGraphTransferable;
-import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 
 public class WorkflowEditor implements Editor<VWorkflow> {
@@ -100,18 +97,22 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		// visible = true;
 		// }
 		// focus the editor
-		app.getWindowSystem().addContentWindow("", t.getName(), null,
-				tab.getComponent());
+		app.getWindowSystem().addContentWindow("", t.getName(),	null,
+				tab.getComponent(),	
+				new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(
+						this));
 		app.getWindowSystem().focusContentWindow(tab.getComponent());
 		tab.getComponent().requestFocusInWindow();
 
 		// enable save button in menu
 		app.getWindowSystem().enableAction(
-				new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction());
-		
+				new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction(
+						this));
+
 		// enable close button in menu
 		app.getWindowSystem().enableAction(
-				new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(this));
+				new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(
+						this));
 	}
 
 	public void close(VWorkflow t) {
@@ -131,11 +132,17 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		// check if all tabs are closed
 		if (tabs.isEmpty()) {
 			// disable saving option in menu
-			app.getWindowSystem().disableAction(
-				new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction());
+			app
+					.getWindowSystem()
+					.disableAction(
+							new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction(
+									this));
 			// disable closing option in menu
-			app.getWindowSystem().disableAction(
-					new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(this));
+			app
+					.getWindowSystem()
+					.disableAction(
+							new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(
+									this));
 		}
 	}
 
@@ -152,57 +159,6 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			vworkflow = t;
 			nhwf = vworkflow.load(app);
 			System.out.println("loading " + nhwf);
-
-			// XXX provide global menu entry to save hyperworkflow
-			app.getWindowSystem().addAction(new Action() {
-				public String getName() {
-					return "Save Workflow";
-				}
-
-				public void invoke() {
-
-					// create a new file opening dialog
-					JFileChooser chooser = new JFileChooser(""){
-						@Override
-						public void approveSelection(){
-							File f = getSelectedFile();
-							if(f.exists() && getDialogType() == SAVE_DIALOG){
-								int result = JOptionPane.showConfirmDialog(this,
-										"The file exists already. Replace?"
-										,"Existing file"
-										,JOptionPane.YES_NO_CANCEL_OPTION);
-												switch(result){
-												case JOptionPane.YES_OPTION:
-													super.approveSelection();
-													return;
-												case JOptionPane.NO_OPTION:
-													return;
-												case JOptionPane.CANCEL_OPTION:
-													cancelSelection();
-													return;
-												default: return;
-												}
-							}
-							super.approveSelection();
-						}
-					};
-
-					chooser.setDialogType(JFileChooser.SAVE_DIALOG);
-					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					chooser.setFileFilter(
-							new FileNameExtensionFilter(
-									"Nested Hyperworkflows (*.nhwf)", "nhwf"));
-							chooser.setVisible(true);
-							int result = chooser.showSaveDialog(null);
-
-							// once file choice is approved, save to chosen file
-							if (result == JFileChooser.APPROVE_OPTION) {
-								File chosenFile = chooser.getSelectedFile();
-								String filePath = chosenFile.getPath();
-								nhwf.save(filePath);
-							}
-				}
-			});
 
 			renderer = new JGraphRenderer(nhwf);
 
@@ -273,7 +229,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 						@Override
 						public void notify(Hyperworkflow o) {
 							renderer.ensureAbsence(o);
-							}
+						}
 					});
 			nhwf.getConnectObservable().addObserver(new Observer<Connection>() {
 				@Override
@@ -300,8 +256,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 					new EditMouseAdapter(app, component));
 			component.getGraphControl().addMouseWheelListener(
 					new MouseZoomAdapter(app, component));
-			component.addKeyListener(
-					new DelKeyListener(app, component));
+			component.addKeyListener(new DelKeyListener(app, component));
 			updatePalette();
 			mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
 					palette);
@@ -384,13 +339,14 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 
 	/**
 	 * Handles KeyEvents such as removing cells when focussed and pressing DEL
+	 * 
 	 * @author afischer
-	 *
+	 * 
 	 */
 	protected static class DelKeyListener extends KeyAdapter {
 		protected Application app;
 		protected mxGraphComponent component;
-		
+
 		public DelKeyListener(Application app, mxGraphComponent component) {
 			this.app = app;
 			this.component = component;
@@ -398,35 +354,34 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			
+
 			mxGraph g = component.getGraph();
 			mxIGraphModel mod = g.getModel();
 			List<Connection> connList = new ArrayList<Connection>();
 			List<Hyperworkflow> hwfList = new ArrayList<Hyperworkflow>();
-			
+
 			// check if KeyEvent occurred on graph component,
-			// only handle DELETE-key 			
-			if (e.getSource().equals(component) 
+			// only handle DELETE-key
+			if (e.getSource().equals(component)
 					&& e.getKeyCode() == KeyEvent.VK_DELETE) {
-				
+
 				// get selected cells
 				Object[] cells = g.getSelectionCells();
 				for (Object o : cells) {
-					
+
 					// depending on whether the cell is an edge or vertex
 					// add their values to different lists
 					if (mod.isEdge(o)) {
-						connList.add((Connection)mod.getValue(o));
+						connList.add((Connection) mod.getValue(o));
 					}
 					if (mod.isVertex(o)) {
-						hwfList.add((Hyperworkflow)mod.getValue(o));
+						hwfList.add((Hyperworkflow) mod.getValue(o));
 					}
 				}
-				
-				final NestedHyperworkflow root 
-					= (NestedHyperworkflow) ((mxCell) component
+
+				final NestedHyperworkflow root = (NestedHyperworkflow) ((mxCell) component
 						.getGraph().getDefaultParent()).getValue();
-				
+
 				// delete connections first, followed by nodes
 				for (Connection c : connList) {
 					root.ensureDisconnected(c);
@@ -435,15 +390,16 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 					root.ensureAbsence(hwf);
 				}
 			}
-			
+
 		}
 	}
-	
+
 	/**
 	 * Handles mouse actions: opens cell-specific views/editors on double-click,
 	 * opens context menu on mouse right-click
+	 * 
 	 * @author buechse, afischer
-	 *
+	 * 
 	 */
 	protected static class EditMouseAdapter extends MouseAdapter {
 		protected Application app;
@@ -475,8 +431,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 				Object cell = component.getCellAt(e.getX(), e.getY());
 				final Object value = component.getGraph().getModel().getValue(
 						cell);
-				final NestedHyperworkflow root 
-					= (NestedHyperworkflow) ((mxCell) component
+				final NestedHyperworkflow root = (NestedHyperworkflow) ((mxCell) component
 						.getGraph().getDefaultParent()).getValue();
 
 				PopupMenu menu;
@@ -485,26 +440,24 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 				if (value instanceof Connection) {
 					menu = new PopupMenu(((Connection) value).toString());
 
-					JMenuItem item = new JMenuItem("Remove Connection") {						
+					JMenuItem item = new JMenuItem("Remove Connection") {
 						@Override
 						public void fireActionPerformed(ActionEvent e) {
 							root.ensureDisconnected((Connection) value);
 						}
 					};
-					
+
 					item.setAccelerator(KeyStroke.getKeyStroke(
 							KeyEvent.VK_DELETE, 0));
 					menu.add(item);
 					menu.show(e.getComponent(), e.getX(), e.getY());
-					Connection c = (Connection)value;
+					Connection c = (Connection) value;
 				}
 
 				// create node specific context menu
 				if (value instanceof Hyperworkflow) {
 					menu = new PopupMenu(((Hyperworkflow) value).getName());
 
-					
-					
 					// only create a remove action if it's not a palette tool
 					if (((Hyperworkflow) value).getParent() != null) {
 						JMenuItem item = new JMenuItem("Remove Vertex") {
@@ -513,7 +466,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 								root.ensureAbsence((Hyperworkflow) value);
 							}
 						};
-						
+
 						item.setAccelerator(KeyStroke.getKeyStroke(
 								KeyEvent.VK_DELETE, 0));
 						menu.add(item);
@@ -527,8 +480,8 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 	}
 
 	/**
-	 * enables mouse wheel zooming function within graph editor window
-	 * keeps the mouse cursor as zoom center
+	 * enables mouse wheel zooming function within graph editor window keeps the
+	 * mouse cursor as zoom center
 	 * 
 	 * @author afischer
 	 */
@@ -549,20 +502,20 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			} else {
 				component.zoomIn();
 			}
-			
+
 			// translate view to keep mouse point as fixpoint
-			double scaleAfter =  component.getGraph().getView().getScale();
-			component.getGraph().getView().scaleAndTranslate(
-					scaleAfter, 
-					- e.getX() * (1.0 - 1.0/scaleAfter), 
-					- e.getY() * (1.0 - 1.0/scaleAfter));
+			double scaleAfter = component.getGraph().getView().getScale();
+			component.getGraph().getView().scaleAndTranslate(scaleAfter,
+					-e.getX() * (1.0 - 1.0 / scaleAfter),
+					-e.getY() * (1.0 - 1.0 / scaleAfter));
 		}
 	}
 
 	/**
 	 * a context popup menu that displays a components title
+	 * 
 	 * @author afischer
-	 *
+	 * 
 	 */
 	protected static class PopupMenu extends JPopupMenu {
 

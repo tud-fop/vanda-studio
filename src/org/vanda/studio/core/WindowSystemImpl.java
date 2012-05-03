@@ -167,10 +167,10 @@ public class WindowSystemImpl implements WindowSystem {
 	/**
 	 */
 	@Override
-	public void addContentWindow(String id, String title, Icon i, JComponent c) {
+	public void addContentWindow(String id, String title, Icon i, JComponent c, Action a) {
 		contentPane.add(title, c);
 		contentPane.setTabComponentAt(contentPane.getTabCount() - 1,
-				new ButtonTabComponent(contentPane));
+				new ButtonTabComponent(contentPane, a));
 	}
 
 	/**

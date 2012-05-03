@@ -4,6 +4,7 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -14,6 +15,7 @@ import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.SimpleModule;
 import org.vanda.studio.modules.common.SimpleModuleInstance;
 import org.vanda.studio.modules.common.ToolFactory;
+import org.vanda.studio.modules.workflows.gui.WorkflowEditor.WorkflowEditorTab;
 
 public class WorkflowModule implements SimpleModule<VWorkflow> {
 
@@ -44,37 +46,58 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 
 	protected static class WorkflowModuleInstance extends
 			SimpleModuleInstance<VWorkflow> {
-		
+
 		public WorkflowModuleInstance(Application a, SimpleModule<VWorkflow> m) {
 			super(a, m);
-			
-			//TODO how do I get the current (focused) workflow tab?
-//			app.getWindowSystem().addSeparator();
-//
-//			Action save = new SaveWorkflowAction();
-//			app.getWindowSystem().addAction(save);
-//			app.getWindowSystem().disableAction(save);
 
 			app.getWindowSystem().addSeparator();
 			
+			Action save = new SaveWorkflowAction(editor);
+			app.getWindowSystem().addAction(save);
+			app.getWindowSystem().disableAction(save);
+
+			app.getWindowSystem().addSeparator();
+
 			Action close = new CloseWorkflowAction(editor);
 			app.getWindowSystem().addAction(close);
 			app.getWindowSystem().disableAction(close);
-			
+
 			app.getWindowSystem().addSeparator();
 
 			app.getWindowSystem().addAction(new OpenWorkflowAction());
 			app.getWindowSystem().addAction(new NewWorkflowAction());
 		}
 
+		/** determines the active WorkflowEditorTab of the 
+		 * 	specified WorkflowEditor
+		 * 
+		 * @param we
+		 * @return
+		 */
+		protected static WorkflowEditorTab getActiveTab(WorkflowEditor we) {
+			JTabbedPane tabbedPane = (JTabbedPane) we.tabs.values()
+				.iterator().next().getComponent().getParent();
+			JSplitPane splitPane = (JSplitPane) tabbedPane
+				.getSelectedComponent();
+			
+			WorkflowEditorTab weTab = null;
+			for (String s : we.tabs.keySet()) {
+				if (we.tabs.get(s).mainpane.equals(splitPane)) {
+					weTab = we.tabs.get(s);
+				}
+			}
+			
+			return weTab;
+		}
+		
 		protected static class CloseWorkflowAction implements Action {
-			
+
 			protected Editor<VWorkflow> editor;
-			
+
 			public CloseWorkflowAction(Editor<VWorkflow> e) {
 				this.editor = e;
 			}
-			
+
 			@Override
 			public String getName() {
 				return "Close Hyperworkflow";
@@ -82,15 +105,17 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 
 			@Override
 			public void invoke() {
-				//TODO how do I get the current focused tab?
-				System.out.println("TODO: close focused tab");
+				WorkflowEditor we = (WorkflowEditor) editor;
 				
-				WorkflowEditor we = (WorkflowEditor)editor;
-				JTabbedPane tabbedPane = (JTabbedPane) we.tabs.values()
-					.iterator().next().getComponent().getParent();
+				WorkflowEditorTab weTab = getActiveTab(we);
+				if (weTab != null) {
+					we.close(weTab.vworkflow);
+				} else {
+					assert(false);
+				}
 			}
 		}
-		
+
 		protected class NewWorkflowAction implements Action {
 			@Override
 			public String getName() {
@@ -143,6 +168,13 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 		}
 
 		protected static class SaveWorkflowAction implements Action {
+			
+			protected Editor<VWorkflow> editor;
+			
+			public SaveWorkflowAction(Editor<VWorkflow> e) {
+				this.editor = e;
+			}
+			
 			@Override
 			public String getName() {
 				return "Save Workflow";
@@ -189,8 +221,13 @@ public class WorkflowModule implements SimpleModule<VWorkflow> {
 					File chosenFile = chooser.getSelectedFile();
 					String filePath = chosenFile.getPath();
 
-					//TODO
-					System.out.println("TODO: save to file " + filePath);
+					WorkflowEditorTab weTab = getActiveTab((WorkflowEditor) editor);
+					if (weTab != null) {
+						weTab.nhwf.save(filePath);
+						System.out.println("TODO: saved to file " + filePath);
+					} else {
+						assert(false);
+					}
 				}
 			}
 		}

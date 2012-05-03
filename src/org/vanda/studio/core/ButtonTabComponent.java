@@ -52,6 +52,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.plaf.basic.BasicButtonUI;
 
+import org.vanda.studio.model.Action;
+
 /**
  * Component to be used as tabComponent;
  * Contains a JLabel to show the text and 
@@ -59,14 +61,16 @@ import javax.swing.plaf.basic.BasicButtonUI;
  */ 
 public class ButtonTabComponent extends JPanel {
     private final JTabbedPane pane;
-
-    public ButtonTabComponent(final JTabbedPane pane) {
+    private Action action;
+    
+    public ButtonTabComponent(final JTabbedPane pane, Action a) {
         //unset default FlowLayout' gaps
         super(new FlowLayout(FlowLayout.LEFT, 0, 0));
         if (pane == null) {
             throw new NullPointerException("TabbedPane is null");
         }
         this.pane = pane;
+        this.action = a;
         setOpaque(false);
         
         //make JLabel read titles from JTabbedPane
@@ -112,10 +116,16 @@ public class ButtonTabComponent extends JPanel {
         }
 
         public void actionPerformed(ActionEvent e) {
-            int i = pane.indexOfTabComponent(ButtonTabComponent.this);
-            if (i != -1) {
-                pane.remove(i);
-            }
+        	if (action != null) {
+        		pane.setSelectedIndex(pane.indexOfTabComponent(ButtonTabComponent.this));
+        		action.invoke();
+        	} else {
+        		// no action was specified, hence, just close tab
+        		int i = pane.indexOfTabComponent(ButtonTabComponent.this);
+        		if (i != -1) {
+        			pane.remove(i);
+        		}
+        	}
         }
 
         //we don't want to update UI for this button
