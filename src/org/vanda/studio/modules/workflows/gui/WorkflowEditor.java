@@ -1,14 +1,15 @@
 package org.vanda.studio.modules.workflows.gui;
 
+import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,14 +18,15 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Action;
@@ -37,6 +39,7 @@ import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 import org.vanda.studio.util.Observer;
 
 import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
@@ -132,16 +135,12 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		// check if all tabs are closed
 		if (tabs.isEmpty()) {
 			// disable saving option in menu
-			app
-					.getWindowSystem()
-					.disableAction(
-							new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction(
+			app.getWindowSystem().disableAction(
+				new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction(
 									this));
 			// disable closing option in menu
-			app
-					.getWindowSystem()
-					.disableAction(
-							new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(
+			app.getWindowSystem().disableAction(
+				new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(
 									this));
 		}
 	}
@@ -254,10 +253,13 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			component.setDragEnabled(false);
 			component.getGraphControl().addMouseListener(
 					new EditMouseAdapter(app, component));
+			component.getGraphControl().addMouseMotionListener(
+					new MouseOverListener(app, component));
 			component.getGraphControl().addMouseWheelListener(
 					new MouseZoomAdapter(app, component));
 			component.addKeyListener(new DelKeyListener(app, component));
 			updatePalette();
+			
 			mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
 					palette);
 			mainpane.setOneTouchExpandable(true);
@@ -336,7 +338,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		else
 			component.zoomActual();
 	}
-
+	
 	/**
 	 * Handles KeyEvents such as removing cells when focussed and pressing DEL
 	 * 
@@ -409,9 +411,10 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			this.app = app;
 			this.component = component;
 		}
-
+		
 		@Override
 		public void mouseClicked(MouseEvent e) {
+			
 			// double click using left mouse button
 			if (e.getButton() == 1 && e.getClickCount() == 2) {
 				Object cell = component.getCellAt(e.getX(), e.getY());
@@ -435,7 +438,7 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 						.getGraph().getDefaultParent()).getValue();
 
 				PopupMenu menu;
-
+				
 				// create connection specific context menu
 				if (value instanceof Connection) {
 					menu = new PopupMenu(((Connection) value).toString());
@@ -451,7 +454,6 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 							KeyEvent.VK_DELETE, 0));
 					menu.add(item);
 					menu.show(e.getComponent(), e.getX(), e.getY());
-					Connection c = (Connection) value;
 				}
 
 				// create node specific context menu
@@ -480,8 +482,58 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 	}
 
 	/**
-	 * enables mouse wheel zooming function within graph editor window keeps the
-	 * mouse cursor as zoom center
+	 * Highlights the cell that is currently underneath the mouse cursor
+	 * by changing its style
+	 * 
+	 * @author afischer
+	 */
+	protected static class MouseOverListener extends MouseMotionAdapter {
+		
+		Application app;
+		mxGraphComponent component;
+		mxIGraphModel model;
+		Object previousCell;
+		String previousStyle;
+		
+		public MouseOverListener(Application app, mxGraphComponent component) {
+			this.app = app;
+			this.component = component;
+			this.model = component.getGraph().getModel();
+			this.previousCell = null;
+			this.previousStyle = null;
+		}
+		
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			Object cell = component.getCellAt(e.getX(), e.getY());
+			Object value = model.getValue(cell);
+			
+			// reset style of previous mouseOver cell to its original style
+			resetPreviousCellStyle();
+			if (value instanceof Connection || value instanceof Hyperworkflow) {
+				if (previousCell != cell) {	
+					// save the current cell as previous cell for later resetting
+					previousCell = cell;
+					previousStyle = model.getStyle(cell);
+					// highlight current cell
+					model.setStyle(previousCell, model.getStyle(cell) 
+						+ ";strokeColor=#FF0000;strokeWidth=2");
+				}
+			}
+		}
+		
+		public void resetPreviousCellStyle() {
+			if (previousCell != null) {
+				model.setStyle(previousCell, previousStyle);
+				previousCell = null;
+				previousStyle = null;
+			}
+		}
+	}
+	
+	/**
+	 * Enables mouse wheel zooming function within graph editor window. 
+	 * Keeps the mouse cursor as zoom center.
 	 * 
 	 * @author afischer
 	 */
@@ -497,17 +549,35 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
 
+			double scaleAfter = 1;
 			if (e.getWheelRotation() > 0) {
-				component.zoomOut();
-			} else {
-				component.zoomIn();
-			}
 
+				scaleAfter = component.getGraph().getView().getScale() /
+					component.getZoomFactor();
+			} else {
+				scaleAfter = component.getGraph().getView().getScale() *
+					component.getZoomFactor();
+			}
+			
 			// translate view to keep mouse point as fixpoint
-			double scaleAfter = component.getGraph().getView().getScale();
 			component.getGraph().getView().scaleAndTranslate(scaleAfter,
 					-e.getX() * (1.0 - 1.0 / scaleAfter),
 					-e.getY() * (1.0 - 1.0 / scaleAfter));
+			
+			
+//			mxCell rootCell = (mxCell) component.getGraph().getDefaultParent();
+//			for (int i = 0; i < rootCell.getChildCount(); i++) {
+//				mxCell child = (mxCell) rootCell.getChildAt(i);
+//				
+//				if (child.getValue() instanceof Hyperworkflow) {
+//					mxGeometry childGeo = child.getGeometry();
+//					childGeo.setX(childGeo.getX() - e.getX() * (1.0 - 1.0 / scaleAfter));
+//					childGeo.setY(childGeo.getY() - e.getY() * (1.0 - 1.0 / scaleAfter));
+//					component.getGraph().getModel().setGeometry(child, childGeo);
+//				}
+//			}
+//			component.getGraph().refresh();
+//			component.getGraph().getView().scaleAndTranslate(scaleAfter, 0, 0);
 		}
 	}
 
