@@ -1,6 +1,5 @@
 package org.vanda.studio.modules.workflows.gui;
 
-import java.awt.Color;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
@@ -18,14 +17,10 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
 import org.vanda.studio.app.Application;
@@ -39,7 +34,6 @@ import org.vanda.studio.modules.workflows.NestedHyperworkflow;
 import org.vanda.studio.util.Observer;
 
 import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
@@ -563,7 +557,6 @@ public class WorkflowEditor implements Editor<VWorkflow> {
 			component.getGraph().getView().scaleAndTranslate(scaleAfter,
 					-e.getX() * (1.0 - 1.0 / scaleAfter),
 					-e.getY() * (1.0 - 1.0 / scaleAfter));
-			
 			
 //			mxCell rootCell = (mxCell) component.getGraph().getDefaultParent();
 //			for (int i = 0; i < rootCell.getChildCount(); i++) {

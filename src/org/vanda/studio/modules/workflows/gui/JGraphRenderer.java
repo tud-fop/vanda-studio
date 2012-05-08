@@ -343,10 +343,22 @@ public class JGraphRenderer {
 				graph.refresh();
 			} else {
 				// a node has been moved over left or top bounds of the
-				// graph's view, scale the view to compensate
-				graph.getView().scaleAndTranslate(graph.getView().getScale(), 
-						Math.max(-geo.getX(), 0), Math.max(-geo.getY(), 0));
-				graph.getView().reload();
+				// graph's view, translate all nodes to adjust coordinates
+				
+				double x = geo.getX();
+				double y = geo.getY();
+				
+				mxCell rootCell = (mxCell) graph.getDefaultParent();
+				for (int i = 0; i < rootCell.getChildCount(); i ++) {
+					mxCell childCell = (mxCell) rootCell.getChildAt(i);
+					
+					if (childCell.getValue() instanceof Hyperworkflow) {
+						mxGeometry childGeo = childCell.getGeometry();
+						childGeo.setX(childGeo.getX() - Math.min(0, x));
+						childGeo.setY(childGeo.getY() - Math.min(0, y));
+						model.setGeometry(childCell, childGeo);
+					}
+				}
 				graph.refresh();
 			}
 		}
