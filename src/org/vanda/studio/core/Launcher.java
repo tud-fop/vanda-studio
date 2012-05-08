@@ -26,11 +26,11 @@ public final class Launcher implements Runnable {
 		
 		Application app = new ApplicationImpl();
 		Module[] ms = {
-			new org.vanda.studio.modules.algorithms.AlgorithmsModule(),
+			// new org.vanda.studio.modules.algorithms.AlgorithmsModule(),
 			new org.vanda.studio.modules.dictionaries.DictionaryModule(),
-			new org.vanda.studio.modules.wrtgs.WrtgModule(),
-			new org.vanda.studio.modules.terms.TermModule(),
-			new org.vanda.studio.modules.workflows.gui.WorkflowModule()
+			// new org.vanda.studio.modules.wrtgs.WrtgModule(),
+			// new org.vanda.studio.modules.terms.TermModule(),
+			new org.vanda.studio.modules.workflows.WorkflowModule()
 		};
 
 		ModuleManager moduleManager = new ModuleManager(app);
@@ -39,8 +39,8 @@ public final class Launcher implements Runnable {
 			moduleManager.loadModule(m);
 		moduleManager.initModules();
 		
-		app.getGlobalRepository().refresh();
-		System.out.println(app.getGlobalRepository().getItems());
+		app.getToolRepository().refresh();
+		System.out.println(app.getToolRepository().getItems());
 	}
 
 	/**

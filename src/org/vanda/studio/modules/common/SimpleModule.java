@@ -2,15 +2,16 @@ package org.vanda.studio.modules.common;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.model.Tool;
+import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.workflows.ToolInstance;
 
-public interface SimpleModule<T extends Tool> extends Module {
+public interface SimpleModule<V, I extends ToolInstance, T extends Tool<V, I>> extends Module {
 	
-	Editor<T> createEditor(Application app);
+	Editor<V, I, T> createEditor(Application app);
 	
-	ToolFactory<T> createFactory();
+	ToolFactory<V, I, T> createFactory();
 	
-	ModuleInstance<T> createInstance(Application app);
+	ModuleInstance<V, I, T> createInstance(Application app);
 	
 	String getExtension();
 	

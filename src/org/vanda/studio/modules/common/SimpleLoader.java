@@ -6,36 +6,36 @@ package org.vanda.studio.modules.common;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import org.vanda.studio.model.Tool;
+import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.util.Observer;
 
 /**
  * some parts by hjholtz
+ * 
  * @author buechse
  * 
  */
-public class SimpleLoader<T extends Tool> implements Loader<Tool> {
-	
-	protected final ModuleInstance<T> mod;
+public class SimpleLoader<V, I extends ToolInstance, T extends Tool<V, I>>
+		implements Loader<T> {
+
+	protected final ModuleInstance<V, I, T> mod;
 	protected final FilenameFilter filter;
-	protected final ToolFactory<T> factory;
-	
-	public SimpleLoader(
-		ModuleInstance<T> mod,
-		FilenameFilter filter,
-		ToolFactory<T> factory)
-	{
+	protected final ToolFactory<V, I, T> factory;
+
+	public SimpleLoader(ModuleInstance<V, I, T> mod, FilenameFilter filter,
+			ToolFactory<V, I, T> factory) {
 		this.mod = mod;
 		this.filter = filter;
 		this.factory = factory;
 	}
-	
+
 	public static FilenameFilter createExtensionFilter(String extension) {
 		return new ExtensionFilter(extension);
 	}
-	
+
 	@Override
-	public void load(Observer<Tool> o) {
+	public void load(Observer<T> o) {
 		File directory = new File(mod.getPath());
 		if (!directory.isDirectory()) {
 			if (directory.exists()) {
@@ -47,22 +47,21 @@ public class SimpleLoader<T extends Tool> implements Loader<Tool> {
 		for (File file : directory.listFiles(filter)) {
 			System.out.println(file.getAbsolutePath());
 			try {
-				Tool g = factory.createInstance(mod, file);
+				T g = factory.createInstance(mod, file);
 				o.notify(g);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				// TODO: log
 			}
 		}
 	}
-	
+
 	protected static class ExtensionFilter implements FilenameFilter {
 		protected String extension;
-		
+
 		public ExtensionFilter(String extension) {
 			this.extension = extension;
 		}
-		
+
 		@Override
 		public boolean accept(File dir, String name) {
 			return name.toLowerCase().endsWith(extension);

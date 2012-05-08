@@ -5,7 +5,9 @@ package org.vanda.studio.modules.dictionaries;
 
 import java.io.IOException;
 
-import org.vanda.studio.model.Tool;
+import org.vanda.studio.model.generation.ShellView;
+import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.workflows.ToolInstance;
 
 /**
  * @author buechse
@@ -13,6 +15,6 @@ import org.vanda.studio.model.Tool;
  */
 
 
-public interface VDictionary extends Tool {	
+public interface VDictionary extends Tool<ShellView, ToolInstance> {	
 	Dictionary load() throws IOException;
 }

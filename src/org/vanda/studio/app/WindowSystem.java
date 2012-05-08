@@ -6,7 +6,7 @@ package org.vanda.studio.app;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-import org.vanda.studio.model.Action;
+import org.vanda.studio.util.Action;
 
 /**
  * Root node of the Vanda Studio Application Object Model.

@@ -52,13 +52,14 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-import org.vanda.studio.model.Action;
+import org.vanda.studio.util.Action;
 
 /**
  * Component to be used as tabComponent;
  * Contains a JLabel to show the text and 
  * a JButton to close the tab it belongs to 
  */ 
+@SuppressWarnings("serial")
 public class ButtonTabComponent extends JPanel {
     private final JTabbedPane pane;
     private Action action;

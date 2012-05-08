@@ -8,58 +8,62 @@ import java.util.Collection;
 import java.util.UUID;
 
 import org.vanda.studio.app.Application;
+import org.vanda.studio.app.MetaRepository;
+import org.vanda.studio.app.Repository;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
-import org.vanda.studio.model.Repository;
-import org.vanda.studio.model.Tool;
+import org.vanda.studio.model.generation.Profile;
+import org.vanda.studio.model.workflows.Compiler;
+import org.vanda.studio.model.workflows.Linker;
+import org.vanda.studio.model.workflows.Tool;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
-import org.vanda.studio.util.Observer;
 
 /**
  * @author buechse
  * 
  */
-public class ApplicationImpl implements Application {
+public final class ApplicationImpl implements Application {
 
 	protected UIMode mode;
-	protected ArrayList<UIMode> modes;
-	protected MultiplexObserver<Application> modeObservable;
-	protected Tool focus;
-	protected MultiplexObserver<Application> focusChangeObservable;
-	protected MultiplexObserver<Application> focusedObjectModifiedObservable;
-	protected CompositeRepository<Tool> repository;
-	protected MultiplexObserver<Application> shutdownObservable;
-	protected WindowSystemImpl windowSystem;
+	protected final ArrayList<UIMode> modes;
+	protected final MultiplexObserver<Application> modeObservable;
+	protected final CompositeRepository<Compiler<?, ?>> compilerRepository;
+	protected final CompositeRepository<Linker<?, ?, ?>> linkerRepository;
+	protected final CompositeRepository<Profile> profileRepository;
+	protected final CompositeRepository<Tool<?,?>> toolRepository;
+	protected final MultiplexObserver<Application> shutdownObservable;
+	protected final WindowSystemImpl windowSystem;
 
 	public ApplicationImpl() {
 		modes = new ArrayList<UIMode>();
 		addUIModes(modes);
 		mode = modes.get(0);
 		modeObservable = new MultiplexObserver<Application>();
-		focusChangeObservable = new MultiplexObserver<Application>();
-		focusedObjectModifiedObservable = new MultiplexObserver<Application>();
-		repository = new CompositeRepository<Tool>();
+		compilerRepository = new CompositeRepository<Compiler<?,?>>();
+		linkerRepository = new CompositeRepository<Linker<?,?,?>>();
+		profileRepository = new CompositeRepository<Profile>();
+		toolRepository = new CompositeRepository<Tool<?,?>>();
 		shutdownObservable = new MultiplexObserver<Application>();
 		windowSystem = new WindowSystemImpl(this);
 		
-		repository.getRemoveObservable().addObserver(
-			new Observer<Tool>() {
+		/*repository.getRemoveObservable().addObserver(
+			new Observer<Tool<?,?>>() {
 				@Override
-				public void notify(Tool o) {
+				public void notify(Tool<?,?> o) {
 					if (o == focus)
 						focusObject(null);
 				}
-			});
+			});*/
 		
-		repository.getModifyObservable().addObserver(
-			new Observer<Tool>() {
+		/*repository.getModifyObservable().addObserver(
+			new Observer<Tool<?,?>>() {
 				@Override
-				public void notify(Tool o) {
+				public void notify(Tool<?,?> o) {
 					if (o == focus)
 						focusedObjectModifiedObservable.notify(ApplicationImpl.this);
 				}
-			});
+			});*/
 	}
 
 	@Override
@@ -73,41 +77,8 @@ public class ApplicationImpl implements Application {
 	}
 
 	@Override
-	public void addRepository(Repository<Tool> r) {
-		repository.addRepository(r);
-	}
-
-	@Override
-	public void focusObject(Tool o) {
-		if (o != focus) {
-			focus = o;
-			focusedObjectModifiedObservable.notify(this);
-		}
-	}
-	
-	@Override
-	public Repository<Tool> getGlobalRepository() {
-		return repository;
-	}
-	
-	@Override
 	public Observable<Application> getUIModeObservable() {
 		return modeObservable;
-	}
-
-	@Override
-	public Observable<Application> getFocusChangeObservable() {
-		return focusChangeObservable;
-	}
-	
-	@Override
-	public Observable<Application> getFocusedObjectModifiedObservable() {
-		return focusedObjectModifiedObservable;
-	}
-	
-	@Override
-	public Tool getFocusedObject() {
-		return focus;
 	}
 	
 	@Override
@@ -123,11 +94,6 @@ public class ApplicationImpl implements Application {
 	@Override
 	public Collection<UIMode> getUIModes() {
 		return modes;
-	}
-
-	@Override
-	public void removeRepository(Repository<Tool> r) {
-		repository.removeRepository(r);
 	}
 
 	@Override
@@ -163,6 +129,47 @@ public class ApplicationImpl implements Application {
 				@Override	public boolean isLargeUI() { return true; }
 			});
 	}
+
+	@Override
+	public Repository<Compiler<?, ?>> getCompilerRepository() {
+		return compilerRepository;
+	}
+
+	@Override
+	public MetaRepository<Compiler<?, ?>> getCompilerRR() {
+		return compilerRepository;
+	}
+
+	@Override
+	public Repository<Linker<?, ?, ?>> getLinkerRepository() {
+		return linkerRepository;
+	}
+
+	@Override
+	public MetaRepository<Linker<?, ?, ?>> getLinkerRR() {
+		return linkerRepository;
+	}
+
+	@Override
+	public Repository<Profile> getProfileRepository() {
+		return profileRepository;
+	}
+
+	@Override
+	public MetaRepository<Profile> getProfileRR() {
+		return profileRepository;
+	}
+
+	@Override
+	public Repository<Tool<?, ?>> getToolRepository() {
+		return toolRepository;
+	}
+
+	@Override
+	public MetaRepository<Tool<?, ?>> getToolRR() {
+		return toolRepository;
+	}
+
 }
 
 
