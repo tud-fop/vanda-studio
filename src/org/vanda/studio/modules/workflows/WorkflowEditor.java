@@ -244,7 +244,8 @@ public class WorkflowEditor {
 
 				// create connection specific context menu
 				if (value instanceof HyperConnection<?>) {
-					menu = new PopupMenu(((HyperConnection<?>) value).toString());
+					//menu = new PopupMenu(((HyperConnection<?>) value).toString());
+					menu = new PopupMenu(cell.toString());
 
 					@SuppressWarnings("serial")
 					JMenuItem item = new JMenuItem("Remove Connection") {

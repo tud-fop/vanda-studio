@@ -69,10 +69,20 @@ public class JobRendering {
 		style.put(mxConstants.STYLE_NOLABEL, "true");
 		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_LINE);
 		style.put(mxConstants.STYLE_PERIMETER, mxPerimeter.RectanglePerimeter);
+		style.put(mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_WEST);
+		style.put(mxConstants.STYLE_PORT_CONSTRAINT, mxConstants.DIRECTION_WEST);
+		stylesheet.putCellStyle("inport", style);
+
+		style = new HashMap<String, Object>();
+		// portStyle.putAll(graph.getStylesheet().getDefaultVertexStyle());
+		style.put(mxConstants.STYLE_MOVABLE, "false");
+		style.put(mxConstants.STYLE_NOLABEL, "true");
+		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_LINE);
+		style.put(mxConstants.STYLE_PERIMETER, mxPerimeter.RectanglePerimeter);
 		style.put(mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
 		style.put(mxConstants.STYLE_PORT_CONSTRAINT, mxConstants.DIRECTION_EAST);
-		stylesheet.putCellStyle("port", style);
-
+		stylesheet.putCellStyle("outport", style);
+		
 		return stylesheet;
 	}
 
@@ -139,6 +149,7 @@ public class JobRendering {
 	protected abstract static class DefaultRenderer implements Renderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
+			//style.put(mxConstants.STYLE_AUTOSIZE, "0");
 		}
 
 		@Override
@@ -170,7 +181,7 @@ public class JobRendering {
 					geo.setRelative(true);
 
 					mxCell port = new mxCell(new PortAdapter(true, i), geo,
-							"port");
+							"inport");
 					port.setVertex(true);
 
 					g.addCell(port, v);
@@ -185,7 +196,7 @@ public class JobRendering {
 					geo.setRelative(true);
 
 					mxCell port = new mxCell(new PortAdapter(false, i), geo,
-							"port");
+							"outport");
 					port.setVertex(true);
 
 					g.addCell(port, v);

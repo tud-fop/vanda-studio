@@ -1,20 +1,23 @@
 package org.vanda.studio.modules.workflows;
 
-import java.io.File;
-
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
+import org.vanda.studio.model.generation.Artifact;
+import org.vanda.studio.model.generation.ArtifactConn;
 import org.vanda.studio.model.generation.ArtifactFactory;
+import org.vanda.studio.model.generation.Port;
 import org.vanda.studio.model.generation.Profile;
 import org.vanda.studio.model.generation.ShellView;
 import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.model.workflows.Compiler;
+import org.vanda.studio.model.workflows.RendererAssortment;
+import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.workflows.ToolInstance;
+import org.vanda.studio.modules.common.SimpleRepository;
+import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.util.Action;
 
 public class WorkflowModule implements Module {
@@ -36,8 +39,158 @@ public class WorkflowModule implements Module {
 		public WorkflowModuleInstance(Application a) {
 			app = a;
 
-			app.getWindowSystem().addSeparator();
-
+			app.getWindowSystem().addSeparator();			
+			
+			//XXX adding three tools to repository for testing purposes
+			SimpleRepository<ShellView,ToolInstance,Tool<ShellView,ToolInstance>> tr 
+				= new SimpleRepository<ShellView,ToolInstance,Tool<ShellView,ToolInstance>>(
+						null);
+			
+			Tool<ShellView, ToolInstance> sourceTool = new Tool<ShellView,ToolInstance>() {	
+				public <T extends ArtifactConn, A extends Artifact<T>, F> A createArtifact(
+						ArtifactFactory<T, A, F, ShellView> af, ToolInstance instance) {
+					return af.createIdentity();
+				}
+				public ToolInstance createInstance() {
+					return new SimpleToolInstance();
+				}
+				public String getAuthor() {
+					return "afischer";
+				}
+				public String getCategory() {
+					return "testCategory";
+				}
+				public String getDate() {
+					return "date";
+				}
+				public String getDescription() {
+					return "TestSource";
+				}
+				public String getId() {
+					return "sourceId";
+				}
+				public List<Port> getInputPorts() {
+					return new ArrayList<Port>();
+				}
+				public String getName() {
+					return "Source";
+				}
+				public List<Port> getOutputPorts() {
+					Port p = new Port("outputPort", "portType");
+					List<Port> list = new ArrayList<Port>();
+					list.add(p);
+					return list;
+				}
+				public Class<ShellView> getViewType() {
+					return ShellView.class;
+				}
+				public <R> R selectRenderer(RendererAssortment<R> ra) {
+					return ra.selectSinkRenderer();
+				}
+				public void appendActions(List<Action> as) {
+				}
+			};
+			
+			Tool<ShellView, ToolInstance> algoTool = new Tool<ShellView,ToolInstance>() {	
+				public <T extends ArtifactConn, A extends Artifact<T>, F> A createArtifact(
+						ArtifactFactory<T, A, F, ShellView> af, ToolInstance instance) {
+					return af.createIdentity();
+				}
+				public ToolInstance createInstance() {
+					return new SimpleToolInstance();
+				}
+				public String getAuthor() {
+					return "afischer";
+				}
+				public String getCategory() {
+					return "testCategory";
+				}
+				public String getDate() {
+					return "date";
+				}
+				public String getDescription() {
+					return "TestAlgo";
+				}
+				public String getId() {
+					return "algoId";
+				}
+				public List<Port> getInputPorts() {
+					Port p = new Port("inputPort", "portType");
+					List<Port> list = new ArrayList<Port>();
+					list.add(p);
+					return list;
+				}
+				public String getName() {
+					return "Algo";
+				}
+				public List<Port> getOutputPorts() {
+					Port p = new Port("outputPort", "portType");
+					List<Port> list = new ArrayList<Port>();
+					list.add(p);
+					return list;
+				}
+				public Class<ShellView> getViewType() {
+					return ShellView.class;
+				}
+				public <R> R selectRenderer(RendererAssortment<R> ra) {
+					return ra.selectSinkRenderer();
+				}
+				public void appendActions(List<Action> as) {
+				}
+			};
+			
+			Tool<ShellView, ToolInstance> sinkTool = new Tool<ShellView,ToolInstance>() {	
+				public <T extends ArtifactConn, A extends Artifact<T>, F> A createArtifact(
+						ArtifactFactory<T, A, F, ShellView> af, ToolInstance instance) {
+					return af.createIdentity();
+				}
+				public ToolInstance createInstance() {
+					return new SimpleToolInstance();
+				}
+				public String getAuthor() {
+					return "afischer";
+				}
+				public String getCategory() {
+					return "testCategory";
+				}
+				public String getDate() {
+					return "date";
+				}
+				public String getDescription() {
+					return "TestSink";
+				}
+				public String getId() {
+					return "sinkId";
+				}
+				public List<Port> getInputPorts() {
+					Port p = new Port("inputPort", "portType");
+					List<Port> list = new ArrayList<Port>();
+					list.add(p);
+					return list;
+				}
+				public String getName() {
+					return "Sink";
+				}
+				public List<Port> getOutputPorts() {
+					return new ArrayList<Port>();
+				}
+				public Class<ShellView> getViewType() {
+					return ShellView.class;
+				}
+				public <R> R selectRenderer(RendererAssortment<R> ra) {
+					return ra.selectSinkRenderer();
+				}
+				public void appendActions(List<Action> as) {
+				}
+			};
+			
+			tr.addItem(sourceTool);
+			tr.addItem(algoTool);
+			tr.addItem(sinkTool);
+			//END of testing code
+			
+			app.getToolRR().addRepository(tr);
+			
 			/*
 			 * Action save = new SaveWorkflowAction(editor);
 			 * app.getWindowSystem().addAction(save);

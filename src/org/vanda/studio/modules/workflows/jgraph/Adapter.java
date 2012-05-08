@@ -43,7 +43,7 @@ public class Adapter {
 		// bind defaultParent of the graph and the root hyperworkflow
 		// to each other and save them in the node mapping
 		((mxCell) graph.getDefaultParent()).setValue(root);
-		// translation.put(root, graph.getDefaultParent());
+		// translation.put(root, (mxICell) graph.getDefaultParent());
 		// translation.put(null, (mxICell) graph.getDefaultParent());
 
 		// bind graph; for example, react on new, changed, or deleted elements
@@ -74,7 +74,8 @@ public class Adapter {
 				cell.setVertex(true);
 
 				graph.addCell(cell, parentCell);
-			}
+			} else
+				cell = (mxCell) graph.getDefaultParent();
 			translation.put(hwf, cell);
 			// XXX this could blow up big time
 			hwf.getAddObservable().addObserver((Observer) addObserver);
@@ -212,9 +213,12 @@ public class Adapter {
 	Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> disconnectObserver = new Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>() {
 		@Override
 		public void notify(Pair<HyperWorkflow<?, ?>, HyperConnection<?>> event) {
-			Object cell = translation.remove(event.snd);
+			mxICell cell = translation.remove(event.snd);
 			if (cell != null) {
+				assert (cell.getValue() == event.snd);
+				assert (graph.isCellDeletable(cell));
 				graph.removeCells(new Object[] { cell });
+				assert (!graph.getModel().contains(cell));
 				graph.refresh(); // XXX necessary?
 			}
 		}
@@ -356,8 +360,11 @@ public class Adapter {
 				conn = new HyperConnection((HyperJob<?>) sparval,
 						((PortAdapter) sval).index, (HyperJob<?>) tparval,
 						((PortAdapter) tval).index);
+				assert (conn.getSource().getParent() == conn.getTarget().getParent());
+				assert (conn.getSource().getParent() == cell.getParent().getValue());
 				translation.put(conn, cell);
 				model.setValue(cell, conn);
+				((HyperWorkflow) cell.getParent().getValue()).addConnection((HyperConnection) conn);
 			}
 		}
 	}
@@ -374,17 +381,17 @@ public class Adapter {
 
 		// prevent shrinking cell too much leading to label being too big
 		// resizeToFitLabel(cell);
-		if (graph.isAutoSizeCell(cell))
-			graph.updateCellSize(cell, true); // XXX was:
+		/*if (graph.isAutoSizeCell(cell))
+			graph.updateCellSize(cell, true);*/ // XXX was:
 												// resizeToFitLabel(cell);
 
 		// prevent resizing a NestedHyperworkflow too much, otherwise
 		// its child nodes are moved outside of its bounds
-		preventTooSmallNested(cell);
+		//preventTooSmallNested(cell);
 
 		// resize parent cells if child nodes are resized over left or top
 		// bounds
-		graph.extendParent(cell); // XXX was: resizeParentOfCell(cell);
+		//graph.extendParent(cell); // XXX was: resizeParentOfCell(cell);
 
 		// check if changes occurred to the given cell
 		if (geo.getX() != hj.getX() || geo.getY() != hj.getY()
@@ -475,7 +482,11 @@ public class Adapter {
 					// creation of a new edge or loading an edge calls
 					// updateEdge already and as of now terminals do not
 					// change, connection can only be created and/or removed
-					assert (false);
+					
+					// FIXME correction: this case should be removed entirely,
+					// we do not care about terminal changes at all
+					//assert (false);
+					
 					// just do the same thing as for an added edge
 					// Object cell = ((mxTerminalChange) c).getCell();
 					// updateEdge(cell);

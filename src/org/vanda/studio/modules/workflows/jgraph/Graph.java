@@ -20,7 +20,7 @@ class Graph extends mxGraph {
 		// graph.setCellsMovable(false);
 		setCellsEditable(false);
 		setCollapseToPreferredSize(true);
-		setAutoSizeCells(true);
+		//setAutoSizeCells(true);
 		setExtendParents(true);
 		setExtendParentsOnAdd(true);
 		setCellsResizable(true);

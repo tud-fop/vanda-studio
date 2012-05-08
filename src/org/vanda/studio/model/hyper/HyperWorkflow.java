@@ -228,7 +228,7 @@ public final class HyperWorkflow<F, V> extends
 			blocked = new BitSet();
 			blockedPortsMap.put(hj, blocked);
 		}
-		blocked.set(index);
+		blocked.set(index, value);
 	}
 
 	/**
