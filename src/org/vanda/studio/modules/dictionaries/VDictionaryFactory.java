@@ -5,26 +5,31 @@ package org.vanda.studio.modules.dictionaries;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.vanda.studio.model.Action;
-import org.vanda.studio.model.Port;
-import org.vanda.studio.model.RendererSelection;
-import org.vanda.studio.model.ToolInstance;
+import org.vanda.studio.model.generation.Artifact;
+import org.vanda.studio.model.generation.ArtifactConn;
+import org.vanda.studio.model.generation.ArtifactFactory;
+import org.vanda.studio.model.generation.Port;
+import org.vanda.studio.model.generation.ShellView;
+import org.vanda.studio.model.workflows.RendererAssortment;
+import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.modules.common.ToolFactory;
+import org.vanda.studio.util.Action;
 
 /**
  * some parts by hjholtz
  * @author buechse
  * 
  */
-public class VDictionaryFactory implements ToolFactory<VDictionary> {
+public class VDictionaryFactory implements ToolFactory<ShellView, ToolInstance, VDictionary> {
 	
 	@Override
 	public VDictionary createInstance(
-		ModuleInstance<VDictionary> mod,
+		ModuleInstance<ShellView, ToolInstance, VDictionary> mod,
 		File f)
 	{
 		return new VDictionaryImpl(mod, f);
@@ -32,10 +37,16 @@ public class VDictionaryFactory implements ToolFactory<VDictionary> {
 	
 	protected static class VDictionaryImpl implements VDictionary {
 		
-		protected static final Port[] inports = { };
-		protected static final Port[] outports = { new Port("dictionary", "dictionary") };
+		protected static final List<Port> inports;
+		protected static final List<Port> outports;
 		
-		ModuleInstance<VDictionary> mod;
+		static {
+			inports = new ArrayList<Port>();
+			outports = new ArrayList<Port>();
+			outports.add(new Port("dictionary", "dictionary"));
+		}
+		
+		ModuleInstance<ShellView, ToolInstance, VDictionary> mod;
 		File file;
 		String author;
 		String category;
@@ -44,7 +55,7 @@ public class VDictionaryFactory implements ToolFactory<VDictionary> {
 		String id;
 		String name;
 		
-		public VDictionaryImpl(ModuleInstance<VDictionary> mod, File file) {
+		public VDictionaryImpl(ModuleInstance<ShellView, ToolInstance, VDictionary> mod, File file) {
 			this.mod = mod;
 			this.file = file;
 			author = "unknown";
@@ -105,7 +116,7 @@ public class VDictionaryFactory implements ToolFactory<VDictionary> {
 		}
 	
 		@Override
-		public Port[] getInputPorts() {
+		public List<Port> getInputPorts() {
 			return inports;
 		}
 	
@@ -115,7 +126,7 @@ public class VDictionaryFactory implements ToolFactory<VDictionary> {
 		}
 	
 		@Override
-		public Port[] getOutputPorts() {
+		public List<Port> getOutputPorts() {
 			return outports;
 		}
 		
@@ -125,8 +136,20 @@ public class VDictionaryFactory implements ToolFactory<VDictionary> {
 		}
 
 		@Override
-		public void selectRenderer(RendererSelection rs) {
-			rs.selectGrammarRenderer();
+		public <R> R selectRenderer(RendererAssortment<R> rs) {
+			return rs.selectGrammarRenderer();
+		}
+
+		@Override
+		public <T extends ArtifactConn, A extends Artifact<T>, F> A createArtifact(
+				ArtifactFactory<T, A, F, ShellView> af, ToolInstance instance) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Class<ShellView> getViewType() {
+			return ShellView.class;
 		}
 		
 	}

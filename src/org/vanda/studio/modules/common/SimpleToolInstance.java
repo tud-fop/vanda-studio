@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.model.Action;
-import org.vanda.studio.model.ToolInstance;
+import org.vanda.studio.model.workflows.ToolInstance;
+import org.vanda.studio.util.Action;
 
 public class SimpleToolInstance implements ToolInstance {
 	

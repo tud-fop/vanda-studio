@@ -13,18 +13,18 @@ import java.util.HashSet;
  * @author rmueller
  * 
  */
-public class MultiplexObserver<T> implements Observable<T>, Observer<T> {
+public class MultiplexObserver<T> implements Observable<T>, Observer<T>, Cloneable {
 
-	protected HashSet<Observer<T>> observers;
+	protected HashSet<Observer<? super T>> observers;
 
 	public MultiplexObserver() {
-		observers = new HashSet<Observer<T>>();
+		observers = new HashSet<Observer<? super T>>();
 	}
 
 	/**
 	 */
 	@Override
-	public void addObserver(Observer<T> o) {
+	public void addObserver(Observer<? super T> o) {
 		// fail-fast behavior
 		if (o == null)
 			throw new IllegalArgumentException("observer must not be null");
@@ -32,10 +32,18 @@ public class MultiplexObserver<T> implements Observable<T>, Observer<T> {
 			throw new UnsupportedOperationException("cannot add observer twice");
 	}
 	
+	@Override
+	public MultiplexObserver<T> clone() throws CloneNotSupportedException {
+		@SuppressWarnings("unchecked")
+		MultiplexObserver<T> cl = (MultiplexObserver<T>) super.clone();
+		cl.observers = new HashSet<Observer<? super T>>(observers);
+		return cl;
+	}
+	
 	/**
 	 */
 	@Override
-	public void removeObserver(Observer<T> o) {
+	public void removeObserver(Observer<? super T> o) {
 		// fail-fast behavior
 		if (o == null)
 			throw new IllegalArgumentException("observer must not be null");
@@ -47,7 +55,7 @@ public class MultiplexObserver<T> implements Observable<T>, Observer<T> {
 	 */
 	@Override
 	public void notify(T event) {
-		for (Observer<T> o : observers)
+		for (Observer<? super T> o : observers)
 			o.notify(event);
 	}
 

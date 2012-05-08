@@ -25,7 +25,7 @@ import javax.swing.SwingUtilities;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
-import org.vanda.studio.model.Action;
+import org.vanda.studio.util.Action;
 import org.vanda.studio.util.Observer;
 
 /**
