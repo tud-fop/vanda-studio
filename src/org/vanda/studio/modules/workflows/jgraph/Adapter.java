@@ -30,12 +30,12 @@ import com.mxgraph.view.mxGraph;
 
 public class Adapter {
 
-	protected HyperWorkflow<?, ?> root;
+	protected HyperWorkflow<?> root;
 	protected Graph graph;
 	protected ChangeListener changeListener;
 	protected Map<Object, mxICell> translation;
 
-	public <F, V> Adapter(HyperWorkflow<F, V> root) {
+	public <F> Adapter(HyperWorkflow<F> root) {
 		this.root = root;
 		translation = new HashMap<Object, mxICell>();
 		graph = new Graph();
@@ -54,8 +54,8 @@ public class Adapter {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <F, V, IV> void render(CompositeHyperJob<F, V, IV, ?> parent,
-			HyperWorkflow<F, IV> hwf) {
+	private <F, IF> void render(CompositeHyperJob<IF, F> parent,
+			HyperWorkflow<IF> hwf) {
 		if (!translation.containsKey(hwf)) {
 			mxCell cell = null;
 			if (parent != null) {
@@ -84,28 +84,29 @@ public class Adapter {
 			hwf.getConnectObservable().addObserver((Observer) connectObserver);
 			hwf.getDisconnectObservable().addObserver(
 					(Observer) disconnectObserver);
-			for (HyperJob<IV> c : hwf.getChildren())
+			for (HyperJob<IF> c : hwf.getChildren())
 				render(hwf, c);
-			for (HyperConnection<IV> cc : hwf.getConnections())
-				render(hwf, cc);
+			// FIXME this no longer exists
+			// for (HyperConnection<IF> cc : hwf.getConnections())
+			// render(hwf, cc);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private <F, V, IV> void render(HyperWorkflow<F, V> parent, HyperJob<V> hj) {
+	private <F, IF> void render(HyperWorkflow<F> parent, HyperJob<F> hj) {
 		if (!translation.containsKey(hj)) {
 			Object parentCell = translation.get(parent);
 			hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj,
 					graph, parentCell);
-			if (hj instanceof CompositeHyperJob<?, ?, ?, ?>) {
+			if (hj instanceof CompositeHyperJob<?, ?>) {
 				// render recursively
-				render((CompositeHyperJob<F, V, IV, ?>) hj,
-						((CompositeHyperJob<F, V, IV, ?>) hj).getWorkflow());
+				render((CompositeHyperJob<F, IF>) hj,
+						((CompositeHyperJob<F, IF>) hj).getWorkflow());
 			}
 		}
 	}
 
-	private <F, V> void render(HyperWorkflow<F, V> parent, HyperConnection<V> cc) {
+	private <F> void render(HyperWorkflow<F> parent, HyperConnection<F> cc) {
 		Object cell = translation.get(cc);
 
 		if (cell == null) {
@@ -157,19 +158,19 @@ public class Adapter {
 
 	}
 
-	Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> addObserver = new Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>() {
+	Observer<Pair<HyperWorkflow<?>, HyperJob<?>>> addObserver = new Observer<Pair<HyperWorkflow<?>, HyperJob<?>>>() {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
-		public void notify(Pair<HyperWorkflow<?, ?>, HyperJob<?>> event) {
+		public void notify(Pair<HyperWorkflow<?>, HyperJob<?>> event) {
 			// XXX type supernova
 			render((HyperWorkflow) event.fst, (HyperJob) event.snd);
 		}
 	};
 
-	Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> modifyObserver = new Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>() {
+	Observer<Pair<HyperWorkflow<?>, HyperJob<?>>> modifyObserver = new Observer<Pair<HyperWorkflow<?>, HyperJob<?>>>() {
 
 		@Override
-		public void notify(Pair<HyperWorkflow<?, ?>, HyperJob<?>> event) {
+		public void notify(Pair<HyperWorkflow<?>, HyperJob<?>> event) {
 			Object cell = translation.get(event.snd);
 			mxIGraphModel model = graph.getModel();
 			mxGeometry geo = model.getGeometry(cell);
@@ -187,32 +188,31 @@ public class Adapter {
 		}
 	};
 
-	Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> removeObserver = new Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>() {
+	Observer<Pair<HyperWorkflow<?>, HyperJob<?>>> removeObserver = new Observer<Pair<HyperWorkflow<?>, HyperJob<?>>>() {
 		@Override
-		public void notify(Pair<HyperWorkflow<?, ?>, HyperJob<?>> event) {
+		public void notify(Pair<HyperWorkflow<?>, HyperJob<?>> event) {
 			Object cell = translation.get(event.snd);
 			if (cell != null) {
 				graph.removeCells(new Object[] { cell });
-				if (event.snd instanceof CompositeHyperJob<?, ?, ?, ?>) {
-					unbind(((CompositeHyperJob<?, ?, ?, ?>) event.snd)
-							.getWorkflow());
+				if (event.snd instanceof CompositeHyperJob<?, ?>) {
+					unbind(((CompositeHyperJob<?, ?>) event.snd).getWorkflow());
 				}
 			}
 		}
 	};
 
-	Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> connectObserver = new Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>() {
+	Observer<Pair<HyperWorkflow<?>, HyperConnection<?>>> connectObserver = new Observer<Pair<HyperWorkflow<?>, HyperConnection<?>>>() {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
-		public void notify(Pair<HyperWorkflow<?, ?>, HyperConnection<?>> event) {
+		public void notify(Pair<HyperWorkflow<?>, HyperConnection<?>> event) {
 			// XXX type supernova
 			render((HyperWorkflow) event.fst, (HyperConnection) event.snd);
 		}
 	};
 
-	Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> disconnectObserver = new Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>() {
+	Observer<Pair<HyperWorkflow<?>, HyperConnection<?>>> disconnectObserver = new Observer<Pair<HyperWorkflow<?>, HyperConnection<?>>>() {
 		@Override
-		public void notify(Pair<HyperWorkflow<?, ?>, HyperConnection<?>> event) {
+		public void notify(Pair<HyperWorkflow<?>, HyperConnection<?>> event) {
 			mxICell cell = translation.remove(event.snd);
 			if (cell != null) {
 				assert (cell.getValue() == event.snd);
@@ -225,7 +225,7 @@ public class Adapter {
 	};
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	<F, V> void unbind(HyperWorkflow<F, V> hwf) {
+	<F> void unbind(HyperWorkflow<F> hwf) {
 		// XXX this could blow up big time
 		hwf.getAddObservable().removeObserver((Observer) addObserver);
 		hwf.getModifyObservable().removeObserver((Observer) modifyObserver);
@@ -233,9 +233,9 @@ public class Adapter {
 		hwf.getConnectObservable().removeObserver((Observer) connectObserver);
 		hwf.getDisconnectObservable().removeObserver(
 				(Observer) disconnectObserver);
-		for (HyperJob<V> c : hwf.getChildren()) {
-			if (c instanceof CompositeHyperJob<?, ?, ?, ?>) {
-				CompositeHyperJob<?, V, ?, ?> chj = (CompositeHyperJob<?, V, ?, ?>) c;
+		for (HyperJob<F> c : hwf.getChildren()) {
+			if (c instanceof CompositeHyperJob<?, ?>) {
+				CompositeHyperJob<?, F> chj = (CompositeHyperJob<?, F>) c;
 				unbind(chj.getWorkflow());
 			}
 		}
@@ -257,8 +257,8 @@ public class Adapter {
 			// add hyperjob to parent hyperworkflow
 			// XXX this could blow up, typewise
 			Object parent = ((mxCell) cell).getParent().getValue();
-			assert (parent instanceof HyperWorkflow<?, ?>);
-			((HyperWorkflow<?, ?>) parent).addChild((HyperJob) hj);
+			assert (parent instanceof HyperWorkflow<?>);
+			((HyperWorkflow<?>) parent).addChild((HyperJob) hj);
 
 			// set dimensions of to
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
@@ -286,7 +286,7 @@ public class Adapter {
 		assert (model.isVertex(cell) && value instanceof HyperJob<?>);
 		HyperJob<?> hj = (HyperJob<?>) value;
 
-		if (hj instanceof CompositeHyperJob<?, ?, ?, ?>) {
+		if (hj instanceof CompositeHyperJob<?, ?>) {
 			double minWidth = 0;
 			double minHeight = 0;
 
@@ -360,11 +360,14 @@ public class Adapter {
 				conn = new HyperConnection((HyperJob<?>) sparval,
 						((PortAdapter) sval).index, (HyperJob<?>) tparval,
 						((PortAdapter) tval).index);
-				assert (conn.getSource().getParent() == conn.getTarget().getParent());
-				assert (conn.getSource().getParent() == cell.getParent().getValue());
+				assert (conn.getSource().getParent() == conn.getTarget()
+						.getParent());
+				assert (conn.getSource().getParent() == cell.getParent()
+						.getValue());
 				translation.put(conn, cell);
 				model.setValue(cell, conn);
-				((HyperWorkflow) cell.getParent().getValue()).addConnection((HyperConnection) conn);
+				((HyperWorkflow) cell.getParent().getValue())
+						.addConnection((HyperConnection) conn);
 			}
 		}
 	}
@@ -381,17 +384,18 @@ public class Adapter {
 
 		// prevent shrinking cell too much leading to label being too big
 		// resizeToFitLabel(cell);
-		/*if (graph.isAutoSizeCell(cell))
-			graph.updateCellSize(cell, true);*/ // XXX was:
-												// resizeToFitLabel(cell);
+		/*
+		 * if (graph.isAutoSizeCell(cell)) graph.updateCellSize(cell, true);
+		 */// XXX was:
+			// resizeToFitLabel(cell);
 
 		// prevent resizing a NestedHyperworkflow too much, otherwise
 		// its child nodes are moved outside of its bounds
-		//preventTooSmallNested(cell);
+		// preventTooSmallNested(cell);
 
 		// resize parent cells if child nodes are resized over left or top
 		// bounds
-		//graph.extendParent(cell); // XXX was: resizeParentOfCell(cell);
+		// graph.extendParent(cell); // XXX was: resizeParentOfCell(cell);
 
 		// check if changes occurred to the given cell
 		if (geo.getX() != hj.getX() || geo.getY() != hj.getY()
@@ -444,8 +448,16 @@ public class Adapter {
 							}
 						} else if (value instanceof HyperConnection<?>) {
 							if (translation.remove(value) != null) {
-								HyperWorkflow
-										.removeConnectionGeneric((HyperConnection<?>) value);
+								// FIXME no longer available
+								if (((HyperJob) ((HyperConnection) value)
+										.getSource()).getParent() != null)
+									((HyperJob) ((HyperConnection) value)
+											.getSource()).getParent()
+											.removeConnection(
+													(HyperConnection) value);
+								// HyperWorkflow
+								// .removeConnectionGeneric((HyperConnection<?>)
+								// value);
 							}
 						}
 					} else {
@@ -482,11 +494,11 @@ public class Adapter {
 					// creation of a new edge or loading an edge calls
 					// updateEdge already and as of now terminals do not
 					// change, connection can only be created and/or removed
-					
+
 					// FIXME correction: this case should be removed entirely,
 					// we do not care about terminal changes at all
-					//assert (false);
-					
+					// assert (false);
+
 					// just do the same thing as for an added edge
 					// Object cell = ((mxTerminalChange) c).getCell();
 					// updateEdge(cell);

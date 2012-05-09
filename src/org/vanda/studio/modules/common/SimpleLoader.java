@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import org.vanda.studio.model.workflows.Tool;
-import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.util.Observer;
 
 /**
@@ -16,15 +15,15 @@ import org.vanda.studio.util.Observer;
  * @author buechse
  * 
  */
-public class SimpleLoader<V, I extends ToolInstance, T extends Tool<V, I>>
+public class SimpleLoader<V, T extends Tool<V>>
 		implements Loader<T> {
 
-	protected final ModuleInstance<V, I, T> mod;
+	protected final ModuleInstance<V, T> mod;
 	protected final FilenameFilter filter;
-	protected final ToolFactory<V, I, T> factory;
+	protected final ToolFactory<V, T> factory;
 
-	public SimpleLoader(ModuleInstance<V, I, T> mod, FilenameFilter filter,
-			ToolFactory<V, I, T> factory) {
+	public SimpleLoader(ModuleInstance<V, T> mod, FilenameFilter filter,
+			ToolFactory<V, T> factory) {
 		this.mod = mod;
 		this.filter = filter;
 		this.factory = factory;

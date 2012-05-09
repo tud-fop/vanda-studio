@@ -1,7 +1,6 @@
 package org.vanda.studio.model.hyper;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,126 +9,138 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import org.vanda.studio.model.generation.Connection;
 import org.vanda.studio.model.generation.Port;
-import org.vanda.studio.model.generation.Workflow;
-import org.vanda.studio.model.workflows.Compiler;
-import org.vanda.studio.model.workflows.Job;
-import org.vanda.studio.model.workflows.JobConnection;
-import org.vanda.studio.model.workflows.JobWorkflow;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Pair;
 
-public final class HyperWorkflow<F, V> extends
-		Workflow<HyperJob<V>, HyperConnection<V>> {
+public final class HyperWorkflow<F> {
 
-	private Map<HyperJob<V>, BitSet> blockedPortsMap;
-	private final Compiler<F, V> compiler;
-	// not final because of clone():
-	private MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperJob<V>>> addObservable;
-	private MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperJob<V>>> modifyObservable;
-	private MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperJob<V>>> removeObservable;
-	private MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperConnection<V>>> connectObservable;
-	private MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperConnection<V>>> disconnectObservable;
+	private static class TokenValue<F> {
+		public final HyperJob<F> hj;
+		public final int port;
 
-	public HyperWorkflow(Compiler<F, V> compiler) {
-		super();
-		this.compiler = compiler;
-		blockedPortsMap = null; // will be computed on demand
-		addObservable = new MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperJob<V>>>();
-		modifyObservable = new MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperJob<V>>>();
-		removeObservable = new MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperJob<V>>>();
-		connectObservable = new MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperConnection<V>>>();
-		disconnectObservable = new MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperConnection<V>>>();
-	}
-
-	public HyperWorkflow<F, V> clone() throws CloneNotSupportedException {
-		@SuppressWarnings("unchecked")
-		HyperWorkflow<F, V> cl = (HyperWorkflow<F, V>) super.clone();
-		cl.blockedPortsMap = null; // will be computed on demand
-		cl.addObservable = addObservable.clone();
-		cl.modifyObservable = modifyObservable.clone();
-		cl.removeObservable = removeObservable.clone();
-		cl.connectObservable = connectObservable.clone();
-		cl.disconnectObservable = disconnectObservable.clone();
-
-		cl.children = new HashSet<HyperJob<V>>();
-		// NOTE Connection objects are deemed immutable
-		cl.connections = new HashSet<HyperConnection<V>>(connections);
-		// NOTE HyperJob objects are mutable (especially CompositeHyperJobs)
-		for (HyperJob<V> c : children) {
-			HyperJob<V> ccl = c.clone();
-			ccl.parent = cl;
-			cl.children.add(ccl);
-		}
-		return cl;
-	}
-
-	@Override
-	public void addChild(HyperJob<V> hj) {
-		assert (hj.getViewType() == null || hj.getViewType() == compiler.getViewType());
-		assert (hj.parent == null);
-		if (children.add(hj)) {
-			hj.parent = this;
-			addObservable.notify(new Pair<HyperWorkflow<F, V>, HyperJob<V>>(
-					this, hj));
+		public TokenValue(HyperJob<F> hj, int port) {
+			this.hj = hj;
+			this.port = port;
 		}
 	}
 
-	@Override
-	public void addConnection(HyperConnection<V> cc) {
-		assert (cc.parent == null);
-		assert (children.contains(cc.getSource()) && children.contains(cc
-				.getTarget()));
-		if (!connections.contains(cc)) {
-			if (isPortBlocked(cc.getTarget(), cc.getTargetPort()))
-				throw new RuntimeException("!!!"); // FIXME better exception
-			// TODO check for circles
-			connections.add(cc);
-			cc.parent = this;
-			setPortBlocked(cc.getTarget(), cc.getTargetPort(), true);
-			connectObservable
-					.notify(new Pair<HyperWorkflow<F, V>, HyperConnection<V>>(
-							this, cc));
-		}
+	private class JobInfo {
+		public ArrayList<Integer> inputs;
+		public int inputsBlocked;
+		public ArrayList<Integer> outputs;
+		public int outCount;
+		public int topSortInputsBlocked;
 
-	}
-
-	protected Map<HyperJob<V>, BitSet> computeBlockedPortsMap() {
-		Map<HyperJob<V>, BitSet> result = new HashMap<HyperJob<V>, BitSet>();
-		for (Connection<HyperJob<V>> cc : connections) {
-			HyperJob<V> t = cc.getTarget();
-			int tp = cc.getTargetPort();
-			BitSet blocked = result.get(t);
-			if (blocked == null) {
-				blocked = new BitSet();
-				result.put(t, blocked);
+		public JobInfo(HyperJob<F> j) {
+			inputs = new ArrayList<Integer>(j.getInputPorts().size());
+			for (Port p : j.getInputPorts())
+				inputs.add(null);
+			inputsBlocked = 0;
+			outputs = new ArrayList<Integer>(j.getOutputPorts().size());
+			for (int i = 0; i < j.getOutputPorts().size(); i++) {
+				Integer t = token.makeToken();
+				outputs.add(t);
+				connections.put(t,
+						new Pair<TokenValue<F>, List<TokenValue<F>>>(
+								new TokenValue<F>(j, i),
+								new LinkedList<TokenValue<F>>()));
 			}
-			assert (!blocked.get(tp));
-			blocked.set(tp);
+			outCount = 0;
+			topSortInputsBlocked = 0;
 		}
-		return result;
+
+		public JobInfo(JobInfo ji) {
+			// only apply this when the whole hyperworkflow is copied
+			// only copy inputs, because they are mutable
+			inputs = new ArrayList<Integer>(ji.inputs);
+			inputsBlocked = ji.inputsBlocked;
+			outputs = ji.outputs;
+			outCount = ji.outCount;
+			topSortInputsBlocked = ji.topSortInputsBlocked;
+		}
+
 	}
 
-	protected boolean isPortBlocked(HyperJob<V> hj, int index) {
-		if (blockedPortsMap == null)
-			blockedPortsMap = computeBlockedPortsMap();
-		BitSet blocked = blockedPortsMap.get(hj);
-		if (blocked == null) {
-			return false;
-		} else
-			return blocked.get(index);
+	private Token token;
+	private Map<HyperJob<F>, JobInfo> children;
+	private Map<Integer, Pair<TokenValue<F>, List<TokenValue<F>>>> connections;
+	private final Class<F> fragmentType;
+
+	private final MultiplexObserver<Pair<HyperWorkflow<F>, HyperJob<F>>> addObservable;
+	private final MultiplexObserver<Pair<HyperWorkflow<F>, HyperJob<F>>> modifyObservable;
+	private final MultiplexObserver<Pair<HyperWorkflow<F>, HyperJob<F>>> removeObservable;
+	private final MultiplexObserver<Pair<HyperWorkflow<F>, HyperConnection<F>>> connectObservable;
+	private final MultiplexObserver<Pair<HyperWorkflow<F>, HyperConnection<F>>> disconnectObservable;
+
+	public HyperWorkflow(Class<F> fragmentType) {
+		super();
+		addObservable = new MultiplexObserver<Pair<HyperWorkflow<F>, HyperJob<F>>>();
+		modifyObservable = new MultiplexObserver<Pair<HyperWorkflow<F>, HyperJob<F>>>();
+		removeObservable = new MultiplexObserver<Pair<HyperWorkflow<F>, HyperJob<F>>>();
+		connectObservable = new MultiplexObserver<Pair<HyperWorkflow<F>, HyperConnection<F>>>();
+		disconnectObservable = new MultiplexObserver<Pair<HyperWorkflow<F>, HyperConnection<F>>>();
+		children = new HashMap<HyperJob<F>, JobInfo>();
+		connections = new HashMap<Integer, Pair<TokenValue<F>, List<TokenValue<F>>>>();
+		this.fragmentType = fragmentType;
+		token = new Token();
 	}
 
-	public Collection<HyperJob<V>> getChildren() {
-		return children;
+	public HyperWorkflow(HyperWorkflow<F> hyperWorkflow)
+			throws CloneNotSupportedException {
+		addObservable = hyperWorkflow.addObservable.clone();
+		modifyObservable = hyperWorkflow.modifyObservable.clone();
+		removeObservable = hyperWorkflow.removeObservable.clone();
+		connectObservable = hyperWorkflow.connectObservable.clone();
+		disconnectObservable = hyperWorkflow.disconnectObservable.clone();
+		children = new HashMap<HyperJob<F>, JobInfo>();
+		for (Entry<HyperJob<F>, JobInfo> e : hyperWorkflow.children.entrySet())
+			children.put(e.getKey(), new JobInfo(e.getValue()));
+		connections = new HashMap<Integer, Pair<TokenValue<F>, List<TokenValue<F>>>>(
+				connections);
+		fragmentType = hyperWorkflow.fragmentType;
+		token = hyperWorkflow.token.clone();
 	}
 
-	public Collection<HyperConnection<V>> getConnections() {
-		return connections;
+	public HyperWorkflow<F> clone() throws CloneNotSupportedException {
+		return new HyperWorkflow<F>(this);
+	}
+
+	public void addChild(HyperJob<F> hj) {
+		assert (hj.getFragmentType() == null || hj.getFragmentType() == fragmentType);
+		assert (hj.parent == null);
+		if (!children.containsKey(hj)) {
+			children.put(hj, new JobInfo(hj));
+			hj.parent = this;
+			addObservable.notify(new Pair<HyperWorkflow<F>, HyperJob<F>>(this,
+					hj));
+		}
+	}
+
+	public void addConnection(HyperConnection<F> cc) {
+		assert (children.containsKey(cc.getSource()) && children.containsKey(cc
+				.getTarget()));
+		JobInfo sji = children.get(cc.getSource());
+		JobInfo tji = children.get(cc.getTarget());
+		if (tji.inputs.get(cc.getTargetPort()) != null)
+			throw new RuntimeException("!!!"); // FIXME better exception
+		Integer tok = sji.outputs.get(cc.getSourcePort());
+		// TODO check for circles
+		tji.inputs.set(cc.getTargetPort(), tok);
+		tji.inputsBlocked++;
+		connections.get(tok).snd.add(new TokenValue<F>(cc.getTarget(), cc
+				.getTargetPort()));
+		sji.outCount++;
+		connectObservable
+				.notify(new Pair<HyperWorkflow<F>, HyperConnection<F>>(this, cc));
+	}
+
+	public Collection<HyperJob<F>> getChildren() {
+		return children.keySet();
 	}
 
 	/**
@@ -139,29 +150,29 @@ public final class HyperWorkflow<F, V> extends
 	 */
 	public List<Port> getInputPorts() {
 		ArrayList<Port> list = new ArrayList<Port>();
-		for (HyperJob<V> c : children)
+		for (HyperJob<F> c : children.keySet())
 			if (c.isInputPort())
 				list.add(c.getOutputPorts().get(0));
 		return list;
 	}
 
-	public Observable<Pair<HyperWorkflow<F, V>, HyperJob<V>>> getAddObservable() {
+	public Observable<Pair<HyperWorkflow<F>, HyperJob<F>>> getAddObservable() {
 		return addObservable;
 	}
 
-	public Observable<Pair<HyperWorkflow<F, V>, HyperConnection<V>>> getConnectObservable() {
+	public Observable<Pair<HyperWorkflow<F>, HyperConnection<F>>> getConnectObservable() {
 		return connectObservable;
 	}
 
-	public Observable<Pair<HyperWorkflow<F, V>, HyperConnection<V>>> getDisconnectObservable() {
+	public Observable<Pair<HyperWorkflow<F>, HyperConnection<F>>> getDisconnectObservable() {
 		return disconnectObservable;
 	}
 
-	public Observable<Pair<HyperWorkflow<F, V>, HyperJob<V>>> getModifyObservable() {
+	public Observable<Pair<HyperWorkflow<F>, HyperJob<F>>> getModifyObservable() {
 		return modifyObservable;
 	}
 
-	public Observable<Pair<HyperWorkflow<F, V>, HyperJob<V>>> getRemoveObservable() {
+	public Observable<Pair<HyperWorkflow<F>, HyperJob<F>>> getRemoveObservable() {
 		return removeObservable;
 	}
 
@@ -172,64 +183,97 @@ public final class HyperWorkflow<F, V> extends
 	 */
 	public List<Port> getOutputPorts() {
 		ArrayList<Port> list = new ArrayList<Port>();
-		for (HyperJob<V> c : children)
+		for (HyperJob<F> c : children.keySet())
 			if (c.isOutputPort())
 				list.add(c.getInputPorts().get(0));
 		return list;
 	}
 
-	public static <V> void removeChildGeneric(HyperJob<V> hj) {
+	public static <F> void removeChildGeneric(HyperJob<F> hj) {
 		if (hj.parent != null)
 			hj.parent.removeChild(hj);
 	}
 
-	public void removeChild(HyperJob<V> hj) {
+	public void removeChild(HyperJob<F> hj) {
 		assert (hj.parent == this);
-		if (children.remove(hj)) {
+		JobInfo ji = children.remove(hj);
+		if (ji != null) {
 			hj.parent = null;
-			removeObservable.notify(new Pair<HyperWorkflow<F, V>, HyperJob<V>>(
+			for (int i = 0; i < ji.inputs.size(); i++) {
+				Integer tok = ji.inputs.get(i);
+				if (tok != null) {
+					TokenValue<F> stv = connections.get(tok).fst;
+					children.get(stv.hj).outCount--;
+					disconnectObservable
+							.notify(new Pair<HyperWorkflow<F>, HyperConnection<F>>(
+									this, new HyperConnection<F>(stv.hj,
+											stv.port, hj, i)));
+				}
+			}
+			for (int i = 0; i < ji.outputs.size(); i++) {
+				for (TokenValue<F> tv : connections.get(ji.outputs.get(i)).snd) {
+					JobInfo ji2 = children.get(tv.hj);
+					ji2.inputs.set(tv.port, null);
+					ji2.inputsBlocked--;
+					disconnectObservable
+							.notify(new Pair<HyperWorkflow<F>, HyperConnection<F>>(
+									this, new HyperConnection<F>(hj, i, tv.hj,
+											tv.port)));
+				}
+				token.recycleToken(i);
+			}
+			removeObservable.notify(new Pair<HyperWorkflow<F>, HyperJob<F>>(
 					this, hj));
 		}
 	}
 
-	public static <V> void removeConnectionGeneric(HyperConnection<V> cc) {
-		if (cc.parent != null)
-			cc.parent.removeConnection(cc);
-	}
-
-	public void removeConnection(HyperConnection<V> cc) {
-		assert (cc.parent == this);
-		if (connections.remove(cc)) {
-			setPortBlocked(cc.getTarget(), cc.getTargetPort(), false);
-			cc.parent = null;
+	public void removeConnection(HyperConnection<F> cc) {
+		if (children.containsKey(cc.getSource())
+				&& children.containsKey(cc.getTarget())) {
+			JobInfo sji = children.get(cc.getSource());
+			JobInfo tji = children.get(cc.getTarget());
+			assert (sji.outputs.get(cc.getSourcePort()) == tji.inputs.get(cc
+					.getTargetPort()));
+			tji.inputs.set(cc.getTargetPort(), null);
+			tji.inputsBlocked--;
+			ListIterator<TokenValue<F>> li = connections.get(sji.outputs.get(cc
+					.getSourcePort())).snd.listIterator();
+			while (li.hasNext()) {
+				TokenValue<F> tv = li.next();
+				if (tv.hj == cc.getSource() && tv.port == cc.getSourcePort())
+					li.remove();
+			}
+			sji.outCount--;
 			disconnectObservable
-					.notify(new Pair<HyperWorkflow<F, V>, HyperConnection<V>>(
+					.notify(new Pair<HyperWorkflow<F>, HyperConnection<F>>(
 							this, cc));
 		}
-
 	}
 
-	public void setDimensions(HyperJob<V> hj, double[] d) {
-		assert (children.contains(hj));
+	/*
+	 * public void removeConnection(HyperJob<F> source, int sourcePort,
+	 * HyperJob<F> target, int targetPort) { assert
+	 * (children.containsKey(source) && children.containsKey(target)); JobInfo
+	 * sji = children.get(source); JobInfo tji = children.get(target); assert
+	 * (sji.outputs.get(sourcePort) == tji.inputs.get(targetPort));
+	 * tji.inputs.set(targetPort, null); tji.inputsBlocked--;
+	 * ListIterator<TokenValue<F>> li = connections.get(sji.outputs
+	 * .get(sourcePort)).snd.listIterator(); while (li.hasNext()) {
+	 * TokenValue<F> tv = li.next(); if (tv.hj == source && tv.port ==
+	 * sourcePort) li.remove(); } sji.outCount--; disconnectObservable
+	 * .notify(new Pair<HyperWorkflow<F>, HyperConnection<F>>(this, new
+	 * HyperConnection<F>(source, sourcePort, target, targetPort))); }
+	 */
 
-		if (d[0] != hj.dimensions[0] || d[1] != hj.dimensions[1]
-				|| d[2] != hj.dimensions[2] || d[3] != hj.dimensions[3]) {
-			hj.setDimensions(d);
-			modifyObservable.notify(new Pair<HyperWorkflow<F, V>, HyperJob<V>>(
-					this, hj));
-		}
-	}
-
-	protected void setPortBlocked(HyperJob<V> hj, int index, boolean value) {
-		if (blockedPortsMap == null)
-			blockedPortsMap = computeBlockedPortsMap();
-		BitSet blocked = blockedPortsMap.get(hj);
-		if (blocked == null) {
-			blocked = new BitSet();
-			blockedPortsMap.put(hj, blocked);
-		}
-		blocked.set(index, value);
-	}
+	/*
+	 * public void setDimensions(HyperJob<V> hj, double[] d) { assert
+	 * (children.contains(hj));
+	 * 
+	 * if (d[0] != hj.dimensions[0] || d[1] != hj.dimensions[1] || d[2] !=
+	 * hj.dimensions[2] || d[3] != hj.dimensions[3]) { hj.setDimensions(d);
+	 * modifyObservable.notify(new Pair<HyperWorkflow<F, V>, HyperJob<V>>( this,
+	 * hj)); } }
+	 */
 
 	/**
 	 * An intermediate representation in which some Choice nodes may have been
@@ -239,55 +283,28 @@ public final class HyperWorkflow<F, V> extends
 	 * 
 	 */
 	private class PartiallyUnfolded {
-		private final Set<HyperJob<V>> remaining;
-		private final LinkedList<Choice<V>> remainingOr;
-		private final Map<HyperJob<V>, LinkedList<Connection<HyperJob<V>>>> forward;
-		private final Map<HyperJob<V>, LinkedList<Connection<HyperJob<V>>>> backward;
+		private final Set<HyperJob<F>> remaining;
+		private final LinkedList<Choice<F>> remainingOr;
+		private final Map<HyperJob<F>, JobInfo> extraMap;
 
 		public PartiallyUnfolded() {
 			/*
 			 * include Choice nodes in the set of remaining nodes for later
 			 * conversion
 			 */
-			remaining = new HashSet<HyperJob<V>>(children);
-			remainingOr = new LinkedList<Choice<V>>();
-			for (HyperJob<V> c : children) {
+			remaining = new HashSet<HyperJob<F>>(children.keySet());
+			remainingOr = new LinkedList<Choice<F>>();
+			for (HyperJob<F> c : children.keySet()) {
 				if (c instanceof Choice<?>)
-					remainingOr.add((Choice<V>) c);
+					remainingOr.add((Choice<F>) c);
 			}
-			forward = new HashMap<HyperJob<V>, LinkedList<Connection<HyperJob<V>>>>();
-			backward = new HashMap<HyperJob<V>, LinkedList<Connection<HyperJob<V>>>>();
-			for (Connection<HyperJob<V>> cc : connections) {
-				// update backward map with cc
-				{
-					HyperJob<V> t = cc.getTarget();
-					LinkedList<Connection<HyperJob<V>>> b = backward.get(t);
-					if (b == null) {
-						b = new LinkedList<Connection<HyperJob<V>>>();
-						backward.put(t, b);
-					}
-					b.add(cc);
-				}
-				// update forward map with cc
-				{
-					HyperJob<V> s = cc.getSource();
-					LinkedList<Connection<HyperJob<V>>> f = forward.get(s);
-					if (f == null) {
-						f = new LinkedList<Connection<HyperJob<V>>>();
-						forward.put(s, f);
-					}
-					f.add(cc);
-				}
-			}
+			extraMap = new HashMap<HyperJob<F>, JobInfo>();
 		}
 
 		private PartiallyUnfolded(PartiallyUnfolded parent) {
-			remaining = new HashSet<HyperJob<V>>(parent.remaining);
-			remainingOr = new LinkedList<Choice<V>>(parent.remainingOr);
-			forward = new HashMap<HyperJob<V>, LinkedList<Connection<HyperJob<V>>>>(
-					parent.forward);
-			// backward is not copied because it is never changed
-			backward = parent.backward;
+			remaining = new HashSet<HyperJob<F>>(parent.remaining);
+			remainingOr = new LinkedList<Choice<F>>(parent.remainingOr);
+			extraMap = new HashMap<HyperJob<F>, JobInfo>(parent.extraMap);
 		}
 
 		public boolean isFinal() {
@@ -295,14 +312,13 @@ public final class HyperWorkflow<F, V> extends
 		}
 
 		public void expand(LinkedList<PartiallyUnfolded> pipeline) {
-			Choice<V> c = remainingOr.poll();
+			Choice<F> c = remainingOr.poll();
 			if (c != null) {
-				LinkedList<Connection<HyperJob<V>>> b = backward.get(c);
-				if (b != null) {
-					for (Connection<HyperJob<V>> cc : b) {
-						assert (cc.getTarget() == c);
+				JobInfo ji = children.get(c);
+				for (int i = 0; i < ji.inputs.size(); i++) {
+					if (ji.inputs.get(i) != null) {
 						PartiallyUnfolded newone = new PartiallyUnfolded(this);
-						newone.cropOr(cc);
+						newone.cropOr(c, i);
 						pipeline.add(newone);
 					}
 				}
@@ -315,15 +331,19 @@ public final class HyperWorkflow<F, V> extends
 		 * 
 		 * @param cc
 		 */
-		private void cropOr(Connection<HyperJob<V>> cc) {
-			HyperJob<V> t = cc.getTarget();
-			assert (t instanceof Choice<?>);
-			LinkedList<Connection<HyperJob<V>>> b = backward.get(t);
-			assert (b != null);
-			for (Connection<HyperJob<V>> cc1 : b) {
-				if (cc1 != cc)
-					removeConnection(cc1);
+		private void cropOr(Choice<F> c, int i) {
+			// copy the JobInfo se we can set all but one inputs to null
+			// move the relevant input to the first position for later
+			// conversion
+			JobInfo ji = new JobInfo(children.get(c));
+			Integer tok = ji.inputs.get(i);
+			for (int j = 0; j < ji.inputs.size(); j++) {
+				if (j != i && ji.inputs.get(j) != null) {
+					removeConnection(ji.inputs.get(j));
+				}
+				ji.inputs.set(j, null);
 			}
+			ji.inputs.set(0, tok);
 		}
 
 		/**
@@ -333,18 +353,19 @@ public final class HyperWorkflow<F, V> extends
 		 * 
 		 * @param cc
 		 */
-		private void removeConnection(Connection<HyperJob<V>> cc) {
-			HyperJob<V> s = cc.getSource();
-			LinkedList<Connection<HyperJob<V>>> f = forward.get(s);
-			f.remove(cc);
-			// retain ports; the interface of a composite job shouldn't change
-			if (f.isEmpty() && !s.isInputPort()) {
+		private void removeConnection(Integer i) {
+			HyperJob<F> s = connections.get(i).fst.hj;
+			JobInfo ji = extraMap.get(s);
+			if (ji == null) {
+				ji = children.get(s);
+				if (ji.outCount > 1 || s.isInputPort())
+					extraMap.put(s, ji);
+			}
+			ji.outCount--;
+			if (ji.outCount == 0 && !s.isInputPort()) {
 				remaining.remove(s);
-				// remove dangling reference to the empty list f
-				forward.remove(s);
-				LinkedList<Connection<HyperJob<V>>> b = backward.get(s);
-				for (Connection<HyperJob<V>> cc1 : b)
-					removeConnection(cc1);
+				for (int j = 0; j < ji.inputs.size(); j++)
+					removeConnection(ji.inputs.get(j));
 			}
 		}
 	}
@@ -359,12 +380,12 @@ public final class HyperWorkflow<F, V> extends
 	 * 
 	 * @param <V>
 	 */
-	private static class NAryJobCounter<V> {
-		private final List<Job<V>> jobs;
-		private ListIterator<Job<V>> iterator;
-		private Job<V> current;
+	private static class NAryJobCounter<F> {
+		private final List<HyperJob<F>> jobs;
+		private ListIterator<HyperJob<F>> iterator;
+		private HyperJob<F> current;
 
-		public NAryJobCounter(List<Job<V>> jobs) {
+		public NAryJobCounter(List<HyperJob<F>> jobs) {
 			assert (!jobs.isEmpty());
 			this.jobs = jobs;
 			iterator = jobs.listIterator();
@@ -384,7 +405,7 @@ public final class HyperWorkflow<F, V> extends
 			return carry;
 		}
 
-		public Job<V> getCurrent() {
+		public HyperJob<F> getCurrent() {
 			return current;
 		}
 
@@ -393,14 +414,17 @@ public final class HyperWorkflow<F, V> extends
 		}
 	}
 
-	public List<JobWorkflow<F, V>> unfold() {
-		LinkedList<JobWorkflow<F, V>> result = new LinkedList<JobWorkflow<F, V>>();
+	public List<HyperWorkflow<F>> unfold() throws CloneNotSupportedException {
+		LinkedList<HyperWorkflow<F>> result = new LinkedList<HyperWorkflow<F>>();
 		/*
 		 * step 1: unfold children separately, putting everything into a map
 		 */
-		Map<HyperJob<V>, NAryJobCounter<V>> damap = new HashMap<HyperJob<V>, NAryJobCounter<V>>();
-		for (HyperJob<V> c : children)
-			damap.put(c, new NAryJobCounter<V>(c.unfold()));
+		Map<HyperJob<F>, NAryJobCounter<F>> damap = new HashMap<HyperJob<F>, NAryJobCounter<F>>();
+		for (HyperJob<F> c : children.keySet()) {
+			List<HyperJob<F>> js = c.unfold();
+			if (js != null)
+				damap.put(c, new NAryJobCounter<F>(js));
+		}
 		/*
 		 * step 2: resolve Choice nodes, pruning everything that is no longer
 		 * connected
@@ -426,13 +450,16 @@ public final class HyperWorkflow<F, V> extends
 			 * It is crucial that we only consider the remaining hyperjobs,
 			 * otherwise we compute duplicate JobWorkflows
 			 */
-			Iterator<HyperJob<V>> it = p.remaining.iterator();
+			Iterator<HyperJob<F>> it = p.remaining.iterator();
 			int i = 0;
 			while (it.hasNext()) {
-				HyperJob<V> hj = it.next();
-				current[i] = damap.get(hj);
-				assert (current[i].isReset());
-				i++;
+				HyperJob<F> hj = it.next();
+				NAryJobCounter<F> c = damap.get(hj);
+				if (c != null) {
+					current[i] = c;
+					assert (c.isReset());
+					i++;
+				}
 			}
 			int clength = i;
 			/*
@@ -441,31 +468,23 @@ public final class HyperWorkflow<F, V> extends
 			 */
 			boolean carry = clength == 0;
 			while (!carry) {
-				JobWorkflow<F, V> wf = new JobWorkflow<F, V>(compiler, this);
+				HyperWorkflow<F> wf = new HyperWorkflow<F>(this);
 				// map remaining children
-				for (HyperJob<V> j : p.remaining)
+				for (HyperJob<F> j : p.remaining)
 					wf.addChild(damap.get(j).getCurrent());
-				// map remaining connections
-				for (Connection<HyperJob<V>> cc : connections) {
-					if (p.remaining.contains(cc.getSource())
-							&& p.remaining.contains(cc.getTarget())) {
-						JobConnection<V> ccn;
-						// input port change for Choice nodes
-						if (cc.getTarget() instanceof Choice<?>) {
-							ccn = new JobConnection<V>(damap
-									.get(cc.getSource()).getCurrent(),
-									cc.getSourcePort(), damap.get(
-											cc.getTarget()).getCurrent(), 0, cc);
-						} else {
-							ccn = new JobConnection<V>(damap
-									.get(cc.getSource()).getCurrent(),
-									cc.getSourcePort(), damap.get(
-											cc.getTarget()).getCurrent(),
-									cc.getTargetPort(), cc);
-						}
-						wf.addConnection(ccn);
-					}
-				}
+				/*
+				 * // map remaining connections for (Connection<HyperJob<V>> cc
+				 * : connections) { if (p.remaining.contains(cc.getSource()) &&
+				 * p.remaining.contains(cc.getTarget())) { JobConnection<V> ccn;
+				 * // input port change for Choice nodes if (cc.getTarget()
+				 * instanceof Choice<?>) { ccn = new JobConnection<V>(damap
+				 * .get(cc.getSource()).getCurrent(), cc.getSourcePort(),
+				 * damap.get( cc.getTarget()).getCurrent(), 0, cc); } else { ccn
+				 * = new JobConnection<V>(damap
+				 * .get(cc.getSource()).getCurrent(), cc.getSourcePort(),
+				 * damap.get( cc.getTarget()).getCurrent(), cc.getTargetPort(),
+				 * cc); } wf.addConnection(ccn); } }
+				 */
 				result.add(wf);
 				// find next combination
 				carry = true;

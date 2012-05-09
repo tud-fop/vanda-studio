@@ -32,12 +32,11 @@ import org.vanda.studio.util.HasActions;
  * @author mbue
  * 
  * @param <IF>
- * @param <V>
+ * @param <F>
  */
-public interface Linker<IF, V, I extends ToolInstance> extends HasActions {
+public interface Linker<IF, F> extends HasActions {
 	<T extends ArtifactConn, A extends Artifact<T>> A link(
-			ArtifactFactory<T, A, ?, V> af, InvokationWorkflow<?, ?, IF> pre,
-			I instance);
+			ArtifactFactory<T, A, ?, F> af, InvokationWorkflow<?, ?, IF> pre);
 
 	/**
 	 * Check whether the (inferred) outer types and the (inferred) inner types
@@ -79,15 +78,7 @@ public interface Linker<IF, V, I extends ToolInstance> extends HasActions {
 	 */
 	List<Port> convertOutputPorts(List<Port> ops);
 	
-	/**
-	 * Creates a linker instance with default values.
-	 * TODO It would be preferable if the instance could access the ports.
-	 * 
-	 * @return
-	 */
-	I createInstance();
-
 	Class<IF> getFragmentType();
 
-	Class<V> getViewType();
+	Class<F> getViewType();
 }

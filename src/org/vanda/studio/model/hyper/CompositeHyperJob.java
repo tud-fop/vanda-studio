@@ -6,39 +6,29 @@ import java.util.List;
 import java.util.Map;
 
 import org.vanda.studio.model.generation.Port;
-import org.vanda.studio.model.workflows.CompositeJob;
-import org.vanda.studio.model.workflows.Job;
-import org.vanda.studio.model.workflows.JobWorkflow;
 import org.vanda.studio.model.workflows.Linker;
 import org.vanda.studio.model.workflows.RendererAssortment;
-import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.util.Action;
 
-public class CompositeHyperJob<IF, V, IV, I extends ToolInstance> extends HyperJob<V> {
+public class CompositeHyperJob<IF, F> extends
+		HyperJob<F> {
 
-	private I instance;
-	
-	private final Linker<IF, V, I> linker;
+	private final Linker<IF, F> linker;
 
-	private HyperWorkflow<IF, IV> workflow; // not final because of clone()
+	private HyperWorkflow<IF> workflow; // not final because of clone()
 
-	public CompositeHyperJob(Linker<IF, V, I> linker, I instance,
-			HyperWorkflow<IF, IV> workflow) {
+	public CompositeHyperJob(Linker<IF, F> linker,
+			HyperWorkflow<IF> workflow) {
 		this.linker = linker;
-		this.instance = instance;
 		this.workflow = workflow;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	@Override
-	public CompositeHyperJob<IF, V, IV, I> clone() throws CloneNotSupportedException {
-		@SuppressWarnings("unchecked")
-		CompositeHyperJob<IF, V, IV, I> cl = (CompositeHyperJob<IF, V, IV, I>) super.clone();
-		cl.instance = linker.createInstance();
-		Map<String, Object> map = new HashMap<String,Object>();
-		instance.saveToMap(map);
-		cl.instance.loadFromMap(map);
-		cl.workflow = workflow.clone();
-		return cl;
+	public CompositeHyperJob<IF, F> clone()
+			throws CloneNotSupportedException {
+		return (CompositeHyperJob<IF, F>) super
+				.clone();
 	}
 
 	@Override
@@ -52,11 +42,11 @@ public class CompositeHyperJob<IF, V, IV, I extends ToolInstance> extends HyperJ
 	}
 
 	@Override
-	public List<Job<V>> unfold() {
-		List<JobWorkflow<IF, IV>> workflows = workflow.unfold();
-		List<Job<V>> jobs = new LinkedList<Job<V>>();
-		for (JobWorkflow<IF, IV> w : workflows)
-			jobs.add(new CompositeJob<IF, V, IV, I>(linker, instance, w, this));
+	public List<HyperJob<F>> unfold() throws CloneNotSupportedException {
+		List<HyperWorkflow<IF>> workflows = workflow.unfold();
+		List<HyperJob<F>> jobs = new LinkedList<HyperJob<F>>();
+		for (HyperWorkflow<IF> w : workflows)
+			jobs.add(new CompositeHyperJob<IF, F>(linker, w));
 		return jobs;
 	}
 
@@ -71,7 +61,7 @@ public class CompositeHyperJob<IF, V, IV, I extends ToolInstance> extends HyperJ
 	}
 
 	@Override
-	public Class<V> getViewType() {
+	public Class<F> getFragmentType() {
 		return linker.getViewType();
 	}
 
@@ -84,8 +74,8 @@ public class CompositeHyperJob<IF, V, IV, I extends ToolInstance> extends HyperJ
 	public String getName() {
 		return "";
 	}
-	
-	public HyperWorkflow<IF, IV> getWorkflow() {
+
+	public HyperWorkflow<IF> getWorkflow() {
 		return workflow;
 	}
 

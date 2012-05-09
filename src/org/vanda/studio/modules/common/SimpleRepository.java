@@ -9,7 +9,6 @@ import java.util.LinkedList;
 
 import org.vanda.studio.app.Repository;
 import org.vanda.studio.model.workflows.Tool;
-import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
@@ -19,7 +18,7 @@ import org.vanda.studio.util.Util;
  * @author buechse
  * 
  */
-public class SimpleRepository<V, I extends ToolInstance, T extends Tool<V, I>>
+public class SimpleRepository<V, T extends Tool<V>>
 		implements Repository<T> {
 	MultiplexObserver<T> addObservable;
 	MultiplexObserver<T> removeObservable;

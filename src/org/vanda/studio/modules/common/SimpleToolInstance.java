@@ -5,10 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.util.Action;
 
-public class SimpleToolInstance implements ToolInstance {
+public class SimpleToolInstance {
 	
 	protected Map<String,Object> defaults;
 	protected HashMap<String,Object> parameters;
@@ -27,11 +26,9 @@ public class SimpleToolInstance implements ToolInstance {
 		parameters = new HashMap<String,Object>(this.defaults);
 	}
 	
-	@Override
 	public void appendActions(List<Action> as) {
 	}
 	
-	@Override
 	public void loadFromMap(Map<String,Object> map) {
 		for (Map.Entry<String,Object> e : parameters.entrySet()) {
 			String key = e.getKey();
@@ -47,7 +44,6 @@ public class SimpleToolInstance implements ToolInstance {
 		}
 	}
 	
-	@Override
 	public void saveToMap(Map<String,Object> map) {
 		for (Map.Entry<String,Object> e : parameters.entrySet()) {
 			String key = e.getKey();

@@ -15,7 +15,6 @@ import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.model.workflows.Compiler;
 import org.vanda.studio.model.workflows.RendererAssortment;
 import org.vanda.studio.model.workflows.Tool;
-import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.util.Action;
@@ -42,18 +41,11 @@ public class WorkflowModule implements Module {
 			app.getWindowSystem().addSeparator();			
 			
 			//XXX adding three tools to repository for testing purposes
-			SimpleRepository<ShellView,ToolInstance,Tool<ShellView,ToolInstance>> tr 
-				= new SimpleRepository<ShellView,ToolInstance,Tool<ShellView,ToolInstance>>(
+			SimpleRepository<ShellView,Tool<ShellView>> tr 
+				= new SimpleRepository<ShellView,Tool<ShellView>>(
 						null);
 			
-			Tool<ShellView, ToolInstance> sourceTool = new Tool<ShellView,ToolInstance>() {	
-				public <T extends ArtifactConn, A extends Artifact<T>, F> A createArtifact(
-						ArtifactFactory<T, A, F, ShellView> af, ToolInstance instance) {
-					return af.createIdentity();
-				}
-				public ToolInstance createInstance() {
-					return new SimpleToolInstance();
-				}
+			Tool<ShellView> sourceTool = new Tool<ShellView>() {	
 				public String getAuthor() {
 					return "afischer";
 				}
@@ -81,7 +73,7 @@ public class WorkflowModule implements Module {
 					list.add(p);
 					return list;
 				}
-				public Class<ShellView> getViewType() {
+				public Class<ShellView> getFragmentType() {
 					return ShellView.class;
 				}
 				public <R> R selectRenderer(RendererAssortment<R> ra) {
@@ -91,14 +83,7 @@ public class WorkflowModule implements Module {
 				}
 			};
 			
-			Tool<ShellView, ToolInstance> algoTool = new Tool<ShellView,ToolInstance>() {	
-				public <T extends ArtifactConn, A extends Artifact<T>, F> A createArtifact(
-						ArtifactFactory<T, A, F, ShellView> af, ToolInstance instance) {
-					return af.createIdentity();
-				}
-				public ToolInstance createInstance() {
-					return new SimpleToolInstance();
-				}
+			Tool<ShellView> algoTool = new Tool<ShellView>() {	
 				public String getAuthor() {
 					return "afischer";
 				}
@@ -129,7 +114,7 @@ public class WorkflowModule implements Module {
 					list.add(p);
 					return list;
 				}
-				public Class<ShellView> getViewType() {
+				public Class<ShellView> getFragmentType() {
 					return ShellView.class;
 				}
 				public <R> R selectRenderer(RendererAssortment<R> ra) {
@@ -139,14 +124,7 @@ public class WorkflowModule implements Module {
 				}
 			};
 			
-			Tool<ShellView, ToolInstance> sinkTool = new Tool<ShellView,ToolInstance>() {	
-				public <T extends ArtifactConn, A extends Artifact<T>, F> A createArtifact(
-						ArtifactFactory<T, A, F, ShellView> af, ToolInstance instance) {
-					return af.createIdentity();
-				}
-				public ToolInstance createInstance() {
-					return new SimpleToolInstance();
-				}
+			Tool<ShellView> sinkTool = new Tool<ShellView>() {	
 				public String getAuthor() {
 					return "afischer";
 				}
@@ -174,7 +152,7 @@ public class WorkflowModule implements Module {
 				public List<Port> getOutputPorts() {
 					return new ArrayList<Port>();
 				}
-				public Class<ShellView> getViewType() {
+				public Class<ShellView> getFragmentType() {
 					return ShellView.class;
 				}
 				public <R> R selectRenderer(RendererAssortment<R> ra) {
@@ -266,25 +244,7 @@ public class WorkflowModule implements Module {
 
 			@Override
 			public void invoke() {
-				new WorkflowEditor(app, new HyperWorkflow<Object, ShellView>(new Compiler<Object, ShellView>() {
-
-					@Override
-					public ArtifactFactory<?, ?, Object, ShellView> createArtifactFactory(
-							Profile profile) {
-						// TODO Auto-generated method stub
-						return null;
-					}
-
-					@Override
-					public Class<Object> getFragmentType() {
-						// TODO Auto-generated method stub
-						return Object.class;
-					}
-
-					@Override
-					public Class<ShellView> getViewType() {
-						return ShellView.class;
-					}}));
+				new WorkflowEditor(app, new HyperWorkflow<ShellView>(ShellView.class));
 			}
 		}
 

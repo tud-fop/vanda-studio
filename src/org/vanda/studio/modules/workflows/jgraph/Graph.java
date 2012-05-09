@@ -125,7 +125,7 @@ class Graph extends mxGraph {
 	public boolean isValidDropTarget(Object cell, Object[] cells) {
 		// works more or less, we just need the right nodes
 		Object t = ((mxCell) cell).getValue();
-		return t instanceof HyperWorkflow<?, ?>;
+		return t instanceof HyperWorkflow<?>;
 	}
 
 	// Removes the folding icon from simple jobs and disables folding
@@ -133,7 +133,7 @@ class Graph extends mxGraph {
 	@Override
 	public boolean isCellFoldable(Object cell, boolean collapse) {
 		mxCell c = (mxCell) cell;
-		return c.getValue() instanceof CompositeHyperJob<?, ?, ?, ?>;
+		return c.getValue() instanceof CompositeHyperJob<?, ?>;
 	}
 
 }

@@ -1,47 +1,24 @@
 package org.vanda.studio.model.hyper;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.vanda.studio.model.generation.Port;
-import org.vanda.studio.model.workflows.AtomicJob;
 import org.vanda.studio.model.workflows.InputPort;
-import org.vanda.studio.model.workflows.Job;
 import org.vanda.studio.model.workflows.OutputPort;
 import org.vanda.studio.model.workflows.RendererAssortment;
 import org.vanda.studio.model.workflows.Tool;
-import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.util.Action;
 
-public class AtomicHyperJob<V, I extends ToolInstance> extends HyperJob<V> {
-	private final Tool<V, I> tool;
+public class AtomicHyperJob<F> extends HyperJob<F> {
+	private final Tool<F> tool;
 
-	private I toolInstance;
-
-	public AtomicHyperJob(Tool<V, I> tool) {
-		this(tool, tool.createInstance());
-	}
-
-	public AtomicHyperJob(Tool<V, I> tool, I toolInstance) {
+	public AtomicHyperJob(Tool<F> tool) {
 		this.tool = tool;
-		this.toolInstance = toolInstance;
-	}
-	
-	public static <V, I extends ToolInstance> AtomicHyperJob<V, I> create(Tool<V, I> tool) {
-		return new AtomicHyperJob<V, I>(tool);
 	}
 	
 	@Override
-	public AtomicHyperJob<V, I> clone() throws CloneNotSupportedException {
-		@SuppressWarnings("unchecked")
-		AtomicHyperJob<V, I> cl = (AtomicHyperJob<V, I>) super.clone();
-		cl.toolInstance = tool.createInstance();
-		Map<String, Object> map = new HashMap<String,Object>();
-		toolInstance.saveToMap(map);
-		cl.toolInstance.loadFromMap(map);
-		return cl;
+	public AtomicHyperJob<F> clone() throws CloneNotSupportedException {
+		return (AtomicHyperJob<F>) super.clone();
 	}
 
 	@Override
@@ -65,14 +42,13 @@ public class AtomicHyperJob<V, I extends ToolInstance> extends HyperJob<V> {
 	}
 
 	@Override
-	public List<Job<V>> unfold() {
-		return Collections.singletonList((Job<V>) new AtomicJob<V, I>(tool,
-				toolInstance, this));
+	public List<HyperJob<F>> unfold() {
+		return null;
 	}
 
 	@Override
-	public Class<V> getViewType() {
-		return tool.getViewType();
+	public Class<F> getFragmentType() {
+		return tool.getFragmentType();
 	}
 
 	@Override
@@ -88,5 +64,9 @@ public class AtomicHyperJob<V, I extends ToolInstance> extends HyperJob<V> {
 	@Override
 	public void appendActions(List<Action> as) {
 		tool.appendActions(as);
+	}
+
+	public static <F> HyperJob<F> create(Tool<F> item) {
+		return new AtomicHyperJob<F>(item);
 	}
 }

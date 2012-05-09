@@ -7,7 +7,6 @@ import java.util.HashMap;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.generation.ShellView;
-import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.modules.common.Editor;
 
 
@@ -15,7 +14,7 @@ import org.vanda.studio.modules.common.Editor;
  * @author buechse
  * 
  */
-public class DictionaryEditor implements Editor<ShellView, ToolInstance, VDictionary> {
+public class DictionaryEditor implements Editor<ShellView, VDictionary> {
 	
 	protected Application app;
 	protected HashMap<String,Dictionary> openDictionaries;

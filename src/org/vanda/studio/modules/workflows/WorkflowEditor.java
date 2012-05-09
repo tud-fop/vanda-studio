@@ -43,14 +43,14 @@ public class WorkflowEditor {
 
 	protected Application app;
 
-	protected HyperWorkflow<?, ?> hwf;
+	protected HyperWorkflow<?> hwf;
 	protected mxGraphComponent component;
 	protected Adapter renderer;
 	protected mxGraph palettegraph;
 	protected mxGraphComponent palette;
 	protected JSplitPane mainpane;
 
-	public WorkflowEditor(Application a, HyperWorkflow<?, ?> hwf) {
+	public WorkflowEditor(Application a, HyperWorkflow<?> hwf) {
 		app = a;
 		
 		this.hwf = hwf;
@@ -139,18 +139,18 @@ public class WorkflowEditor {
 			try {
 				// clear seems to reset the zoom, so we call notify at the end
 				((mxGraphModel) palettegraph.getModel()).clear();
-				ArrayList<Tool<?, ?>> items = new ArrayList<Tool<?, ?>>(app
+				ArrayList<Tool<?>> items = new ArrayList<Tool<?>>(app
 						.getToolMetaRepository().getRepository().getItems());
-				Collections.sort(items, new Comparator<Tool<?,?>>() {
+				Collections.sort(items, new Comparator<Tool<?>>() {
 					@Override
-					public int compare(Tool<?,?> o1, Tool<?,?> o2) {
+					public int compare(Tool<?> o1, Tool<?> o2) {
 						return o1.getCategory().compareTo(o2.getCategory());
 					}
 				});
 
 				// top left corner of first palette tool, width, height
 				double[] d = { 20, 10, 100, 80 };
-				for (Tool<?, ?> item : items) {
+				for (Tool<?> item : items) {
 					HyperJob<?> hj = AtomicHyperJob.create(item);
 					hj.setDimensions(d);
 					hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
@@ -192,8 +192,10 @@ public class WorkflowEditor {
 				Object[] cells = g.getSelectionCells();
 				// delete connections first, followed by nodes
 				for (Object o : cells) {
+					// FIXME this is no longer possible
 					if (mod.isEdge(o))
-						HyperWorkflow.removeConnectionGeneric((HyperConnection<?>) mod.getValue(o));
+						((HyperJob) ((HyperConnection) mod.getValue(o)).getSource()).getParent().removeConnection((HyperConnection) mod.getValue(o));
+					//	HyperWorkflow.removeConnectionGeneric((HyperConnection<?>) mod.getValue(o));
 				}
 				for (Object o : cells) {
 					if (mod.isVertex(o) && mod.getValue(o) instanceof HyperJob<?>)
@@ -251,7 +253,8 @@ public class WorkflowEditor {
 					JMenuItem item = new JMenuItem("Remove Connection") {
 						@Override
 						public void fireActionPerformed(ActionEvent e) {
-							HyperWorkflow.removeConnectionGeneric((HyperConnection<?>) value);
+							// FIXME oh noes, see above
+							// HyperWorkflow.removeConnectionGeneric((HyperConnection<?>) value);
 						}
 					};
 

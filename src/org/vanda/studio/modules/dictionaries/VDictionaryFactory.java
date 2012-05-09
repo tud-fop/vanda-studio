@@ -14,7 +14,6 @@ import org.vanda.studio.model.generation.ArtifactFactory;
 import org.vanda.studio.model.generation.Port;
 import org.vanda.studio.model.generation.ShellView;
 import org.vanda.studio.model.workflows.RendererAssortment;
-import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.modules.common.ToolFactory;
@@ -25,11 +24,11 @@ import org.vanda.studio.util.Action;
  * @author buechse
  * 
  */
-public class VDictionaryFactory implements ToolFactory<ShellView, ToolInstance, VDictionary> {
+public class VDictionaryFactory implements ToolFactory<ShellView, VDictionary> {
 	
 	@Override
 	public VDictionary createInstance(
-		ModuleInstance<ShellView, ToolInstance, VDictionary> mod,
+		ModuleInstance<ShellView, VDictionary> mod,
 		File f)
 	{
 		return new VDictionaryImpl(mod, f);
@@ -46,7 +45,7 @@ public class VDictionaryFactory implements ToolFactory<ShellView, ToolInstance, 
 			outports.add(new Port("dictionary", "dictionary"));
 		}
 		
-		ModuleInstance<ShellView, ToolInstance, VDictionary> mod;
+		ModuleInstance<ShellView, VDictionary> mod;
 		File file;
 		String author;
 		String category;
@@ -55,7 +54,7 @@ public class VDictionaryFactory implements ToolFactory<ShellView, ToolInstance, 
 		String id;
 		String name;
 		
-		public VDictionaryImpl(ModuleInstance<ShellView, ToolInstance, VDictionary> mod, File file) {
+		public VDictionaryImpl(ModuleInstance<ShellView, VDictionary> mod, File file) {
 			this.mod = mod;
 			this.file = file;
 			author = "unknown";
@@ -83,11 +82,6 @@ public class VDictionaryFactory implements ToolFactory<ShellView, ToolInstance, 
 						mod.openEditor(VDictionaryImpl.this);
 					}
 				});
-		}
-
-		@Override
-		public ToolInstance createInstance() {
-			return new SimpleToolInstance();
 		}
 
 		@Override
@@ -140,15 +134,15 @@ public class VDictionaryFactory implements ToolFactory<ShellView, ToolInstance, 
 			return rs.selectGrammarRenderer();
 		}
 
-		@Override
+		/*@Override
 		public <T extends ArtifactConn, A extends Artifact<T>, F> A createArtifact(
-				ArtifactFactory<T, A, F, ShellView> af, ToolInstance instance) {
+				ArtifactFactory<T, A, F, ShellView> af) {
 			// TODO Auto-generated method stub
 			return null;
-		}
+		}*/
 
 		@Override
-		public Class<ShellView> getViewType() {
+		public Class<ShellView> getFragmentType() {
 			return ShellView.class;
 		}
 		

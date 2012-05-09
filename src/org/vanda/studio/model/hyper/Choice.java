@@ -1,12 +1,9 @@
 package org.vanda.studio.model.hyper;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.vanda.studio.model.generation.Artifacts;
 import org.vanda.studio.model.generation.Port;
-import org.vanda.studio.model.workflows.IdentityJob;
-import org.vanda.studio.model.workflows.Job;
 import org.vanda.studio.model.workflows.RendererAssortment;
 import org.vanda.studio.util.Action;
 
@@ -35,8 +32,9 @@ public final class Choice<V> extends HyperJob<V> {
 	}
 
 	@Override
-	public List<Job<V>> unfold() {
-		return Collections.singletonList((Job<V>) new IdentityJob<V>(this));
+	public List<HyperJob<V>> unfold() {
+		//return Collections.singletonList((HyperJob<V>) new IdentityJob<V>(this));
+		return null; // XXX
 	}
 
 	public void setInputPorts(int inputs) {
@@ -45,7 +43,7 @@ public final class Choice<V> extends HyperJob<V> {
 	}
 
 	@Override
-	public Class<V> getViewType() {
+	public Class<V> getFragmentType() {
 		return null; // FIXME this may not be working
 	}
 

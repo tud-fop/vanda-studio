@@ -5,20 +5,19 @@ import java.util.List;
 
 import org.vanda.studio.model.generation.Port;
 import org.vanda.studio.model.generation.WorkflowElement;
-import org.vanda.studio.model.workflows.Job;
 import org.vanda.studio.model.workflows.RendererAssortment;
 import org.vanda.studio.util.HasActions;
 
-public abstract class HyperJob<V> implements WorkflowElement, HasActions, Cloneable {
+public abstract class HyperJob<F> implements WorkflowElement, HasActions, Cloneable {
 	
 	protected double[] dimensions = new double[4];
 	
-	protected HyperWorkflow<?, V> parent;
+	protected HyperWorkflow<F> parent;
 	
 	@Override
-	public HyperJob<V> clone() throws CloneNotSupportedException {
+	public HyperJob<F> clone() throws CloneNotSupportedException {
 		@SuppressWarnings("unchecked")
-		HyperJob<V> cl = (HyperJob<V>) super.clone();
+		HyperJob<F> cl = (HyperJob<F>) super.clone();
 		cl.dimensions = Arrays.copyOf(dimensions, 4);
 		return cl;
 	}
@@ -32,14 +31,14 @@ public abstract class HyperJob<V> implements WorkflowElement, HasActions, Clonea
 
 	public abstract String getName();
 	
-	public HyperWorkflow<?, V> getParent() {
+	public HyperWorkflow<F> getParent() {
 		return parent;
 	}
 
 	@Override
 	public abstract List<Port> getOutputPorts();
 	
-	public abstract Class<V> getViewType();
+	public abstract Class<F> getFragmentType();
 
 	public double getWidth() {
 		return dimensions[2];
@@ -57,7 +56,7 @@ public abstract class HyperJob<V> implements WorkflowElement, HasActions, Clonea
 
 	public abstract boolean isOutputPort();
 
-	public abstract List<Job<V>> unfold();
+	public abstract List<HyperJob<F>> unfold() throws CloneNotSupportedException;
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);
 	

@@ -4,31 +4,30 @@ import java.io.File;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.workflows.Tool;
-import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.modules.common.SimpleLoader;
 import org.vanda.studio.util.Observer;
 
-public class SimpleModuleInstance<V, I extends ToolInstance, T extends Tool<V, I>>
-		implements ModuleInstance<V, I, T> {
+public class SimpleModuleInstance<V, T extends Tool<V>>
+		implements ModuleInstance<V, T> {
 
 	protected Application app;
-	protected Editor<V, I, T> editor;
-	protected ToolFactory<V, I, T> factory;
-	protected SimpleLoader<V, I, T> loader;
-	protected SimpleModule<V, I, T> module;
-	protected SimpleRepository<V, I, T> repository;
+	protected Editor<V, T> editor;
+	protected ToolFactory<V, T> factory;
+	protected SimpleLoader<V, T> loader;
+	protected SimpleModule<V, T> module;
+	protected SimpleRepository<V, T> repository;
 
-	public SimpleModuleInstance(Application a, SimpleModule<V, I, T> m) {
+	public SimpleModuleInstance(Application a, SimpleModule<V, T> m) {
 		app = a;
 		module = m;
 
 		factory = module.createFactory();
 		if (factory != null) {
-			loader = new SimpleLoader<V, I, T>(this,
+			loader = new SimpleLoader<V, T>(this,
 					SimpleLoader.createExtensionFilter(module.getExtension()),
 					factory);
 		}
-		repository = new SimpleRepository<V, I, T>(loader);
+		repository = new SimpleRepository<V, T>(loader);
 		app.getToolMetaRepository().addRepository(repository);
 		editor = module.createEditor(app);
 	}
