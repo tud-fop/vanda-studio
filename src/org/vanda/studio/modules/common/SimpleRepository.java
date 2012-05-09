@@ -8,8 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.vanda.studio.app.Repository;
-import org.vanda.studio.model.workflows.Tool;
-import org.vanda.studio.model.workflows.ToolInstance;
+import org.vanda.studio.model.workflows.RepositoryItem;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
@@ -19,7 +18,7 @@ import org.vanda.studio.util.Util;
  * @author buechse
  * 
  */
-public class SimpleRepository<V, I extends ToolInstance, T extends Tool<V, I>>
+public class SimpleRepository<T extends RepositoryItem>
 		implements Repository<T> {
 	MultiplexObserver<T> addObservable;
 	MultiplexObserver<T> removeObservable;
@@ -85,7 +84,7 @@ public class SimpleRepository<V, I extends ToolInstance, T extends Tool<V, I>>
 	@Override
 	public void refresh() {
 		if (loader != null) {
-			RefreshHelper<V, I, T> r = new RefreshHelper<V, I, T>(items);
+			RefreshHelper<T> r = new RefreshHelper<T>(items);
 			loader.load(r);
 			items = r.getNewItems();
 			Util.notifyAll(addObservable, r.getAdds());
@@ -93,9 +92,8 @@ public class SimpleRepository<V, I extends ToolInstance, T extends Tool<V, I>>
 		}
 	}
 
-	protected static class RefreshHelper<V, I extends ToolInstance, T extends Tool<V, I>>
+	protected static class RefreshHelper<T extends RepositoryItem>
 			implements Observer<T> {
-
 		protected LinkedList<T> adds;
 		protected LinkedList<T> removes;
 		protected HashMap<String, T> items;
@@ -112,7 +110,7 @@ public class SimpleRepository<V, I extends ToolInstance, T extends Tool<V, I>>
 		public void notify(T newitem) {
 			T item = items.remove(newitem.getId());
 			if (item != null) {
-				if (item.getDate().equals(newitem.getDate()))
+				if (item.getVersion().equals(newitem.getVersion()))
 					newitem = item;
 				else
 					removes.add(item);

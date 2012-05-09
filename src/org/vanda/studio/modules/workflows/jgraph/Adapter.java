@@ -13,16 +13,16 @@ import org.vanda.studio.util.Pair;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxICell;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
 import com.mxgraph.model.mxGraphModel.mxTerminalChange;
 import com.mxgraph.model.mxGraphModel.mxValueChange;
-import com.mxgraph.model.mxICell;
-import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
-import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit;
+import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
 
@@ -45,7 +45,7 @@ public class Adapter {
 		((mxCell) graph.getDefaultParent()).setValue(root);
 		// translation.put(root, (mxICell) graph.getDefaultParent());
 		// translation.put(null, (mxICell) graph.getDefaultParent());
-
+		
 		// bind graph; for example, react on new, changed, or deleted elements
 		changeListener = new ChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
@@ -53,7 +53,7 @@ public class Adapter {
 		render(null, root);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked"})
 	private <F, V, IV> void render(CompositeHyperJob<F, V, IV, ?> parent,
 			HyperWorkflow<F, IV> hwf) {
 		if (!translation.containsKey(hwf)) {
@@ -122,7 +122,10 @@ public class Adapter {
 				assert (source.getValue() == cc.getSource());
 				assert (target.getValue() == cc.getTarget());
 
-				source = source.getChildAt(cc.getSourcePort());
+				// ports are children of a vertex mxCell in the following order:
+				// input ports, then output ports
+				source = source.getChildAt(cc.getSource().getInputPorts().size() + cc.getSourcePort());
+				// target ports are input ports, hence, they come first as children
 				target = target.getChildAt(cc.getTargetPort());
 
 				graph.getModel().beginUpdate();
@@ -147,7 +150,7 @@ public class Adapter {
 					// style)
 					// FIXME maybe the problem is not the jgraph API but
 					// some
-					// weird code I wrote concerning inner taarget ports
+					// weird code I wrote concerning inner target ports
 				} finally {
 					graph.getModel().endUpdate();
 				}
@@ -158,7 +161,7 @@ public class Adapter {
 	}
 
 	Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> addObserver = new Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>() {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@SuppressWarnings({ "unchecked" })
 		@Override
 		public void notify(Pair<HyperWorkflow<?, ?>, HyperJob<?>> event) {
 			// XXX type supernova
@@ -202,7 +205,7 @@ public class Adapter {
 	};
 
 	Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> connectObserver = new Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>() {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@SuppressWarnings({ "unchecked" })
 		@Override
 		public void notify(Pair<HyperWorkflow<?, ?>, HyperConnection<?>> event) {
 			// XXX type supernova
@@ -224,7 +227,7 @@ public class Adapter {
 		}
 	};
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	<F, V> void unbind(HyperWorkflow<F, V> hwf) {
 		// XXX this could blow up big time
 		hwf.getAddObservable().removeObserver((Observer) addObserver);
@@ -241,7 +244,7 @@ public class Adapter {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	protected void addNode(mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
@@ -258,8 +261,18 @@ public class Adapter {
 			// XXX this could blow up, typewise
 			Object parent = ((mxCell) cell).getParent().getValue();
 			assert (parent instanceof HyperWorkflow<?, ?>);
-			((HyperWorkflow<?, ?>) parent).addChild((HyperJob) hj);
-
+			
+			// if the current HyperJob exists already as child of its parenting cell
+			// because it was loaded from a previously saved file
+			// only set the parenting HyperWorkflow correctly
+			if (((HyperWorkflow<?, ?>) parent).getChildren().contains(hj)) {
+				hj.setParent((HyperWorkflow) parent);
+			} else {
+				// the HyperJob was just added by the user via the GUI, hence
+				// add it to its parent cell's HyperWorkflow
+				((HyperWorkflow<?, ?>) parent).addChild((HyperJob) hj);
+			}
+			
 			// set dimensions of to
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 					geo.getHeight() };
@@ -279,59 +292,59 @@ public class Adapter {
 	 * 
 	 * @param cell
 	 */
-	private void preventTooSmallNested(Object cell) {
-		mxIGraphModel model = graph.getModel();
-		Object value = model.getValue(cell);
-		mxGeometry geo = model.getGeometry(cell);
-		assert (model.isVertex(cell) && value instanceof HyperJob<?>);
-		HyperJob<?> hj = (HyperJob<?>) value;
+//	private void preventTooSmallNested(Object cell) {
+//		mxIGraphModel model = graph.getModel();
+//		Object value = model.getValue(cell);
+//		mxGeometry geo = model.getGeometry(cell);
+//		assert (model.isVertex(cell) && value instanceof HyperJob<?>);
+//		HyperJob<?> hj = (HyperJob<?>) value;
+//
+//		if (hj instanceof CompositeHyperJob<?, ?, ?, ?>) {
+//			double minWidth = 0;
+//			double minHeight = 0;
+//
+//			// determine minimum bounds of cell that contains children
+//			for (int i = 0; i < model.getChildCount(cell); i++) {
+//				mxCell child = (mxCell) model.getChildAt(cell, i);
+//
+//				if (child.getValue() instanceof HyperJob<?>) {
+//					double childRightBorder = child.getGeometry().getX()
+//							+ child.getGeometry().getWidth();
+//					double childBottomBorder = child.getGeometry().getY()
+//							+ child.getGeometry().getHeight();
+//					if (childRightBorder > minWidth) {
+//						minWidth = childRightBorder;
+//					}
+//					if (childBottomBorder > minHeight) {
+//						minHeight = childBottomBorder;
+//					}
+//				}
+//			}
+//
+//			// adjust x coordinate of cell according to appropriate size
+//			if (geo.getWidth() < minWidth && !model.isCollapsed(cell)) {
+//				geo.setWidth(minWidth);
+//				if (geo.getX() > hj.getX()) {
+//					geo.setX(hj.getX() + hj.getWidth() - minWidth);
+//				}
+//			}
+//
+//			// adjust y coordinate of cell according to appropriate size
+//			if (geo.getHeight() < minHeight && !model.isCollapsed(cell)) {
+//				geo.setHeight(minHeight);
+//				if (geo.getY() > hj.getY()) {
+//					geo.setY(hj.getY() + hj.getHeight() - minHeight);
+//				}
+//			}
+//
+//			// set the new geometry and refresh graph to make changes visible
+//			model.setGeometry(cell, geo);
+//			graph.refresh();
+//		} else
+//			return;
+//	}
 
-		if (hj instanceof CompositeHyperJob<?, ?, ?, ?>) {
-			double minWidth = 0;
-			double minHeight = 0;
-
-			// determine minimum bounds of cell that contains children
-			for (int i = 0; i < model.getChildCount(cell); i++) {
-				mxCell child = (mxCell) model.getChildAt(cell, i);
-
-				if (child.getValue() instanceof HyperJob<?>) {
-					double childRightBorder = child.getGeometry().getX()
-							+ child.getGeometry().getWidth();
-					double childBottomBorder = child.getGeometry().getY()
-							+ child.getGeometry().getHeight();
-					if (childRightBorder > minWidth) {
-						minWidth = childRightBorder;
-					}
-					if (childBottomBorder > minHeight) {
-						minHeight = childBottomBorder;
-					}
-				}
-			}
-
-			// adjust x coordinate of cell according to appropriate size
-			if (geo.getWidth() < minWidth && !model.isCollapsed(cell)) {
-				geo.setWidth(minWidth);
-				if (geo.getX() > hj.getX()) {
-					geo.setX(hj.getX() + hj.getWidth() - minWidth);
-				}
-			}
-
-			// adjust y coordinate of cell according to appropriate size
-			if (geo.getHeight() < minHeight && !model.isCollapsed(cell)) {
-				geo.setHeight(minHeight);
-				if (geo.getY() > hj.getY()) {
-					geo.setY(hj.getY() + hj.getHeight() - minHeight);
-				}
-			}
-
-			// set the new geometry and refresh graph to make changes visible
-			model.setGeometry(cell, geo);
-			graph.refresh();
-		} else
-			return;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	protected void updateEdge(mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
@@ -360,8 +373,15 @@ public class Adapter {
 				conn = new HyperConnection((HyperJob<?>) sparval,
 						((PortAdapter) sval).index, (HyperJob<?>) tparval,
 						((PortAdapter) tval).index);
-				assert (conn.getSource().getParent() == conn.getTarget().getParent());
-				assert (conn.getSource().getParent() == cell.getParent().getValue());
+				
+				//assert (conn.getSource().getParent() == conn.getTarget().getParent());
+				if (conn.getSource().getParent() != conn.getTarget().getParent()) 
+					assert(false);
+					
+				//assert (conn.getSource().getParent() == cell.getParent().getValue());
+				if (conn.getSource().getParent() != cell.getParent().getValue()) 
+					assert(false);
+				
 				translation.put(conn, cell);
 				model.setValue(cell, conn);
 				((HyperWorkflow) cell.getParent().getValue()).addConnection((HyperConnection) conn);

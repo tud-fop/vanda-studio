@@ -8,23 +8,28 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.hyper.AtomicHyperJob;
 import org.vanda.studio.model.hyper.HyperConnection;
 import org.vanda.studio.model.hyper.HyperJob;
 import org.vanda.studio.model.hyper.HyperWorkflow;
+import org.vanda.studio.model.hyper.Serialization;
 import org.vanda.studio.model.workflows.Tool;
 import org.vanda.studio.modules.workflows.jgraph.Adapter;
 import org.vanda.studio.modules.workflows.jgraph.JobRendering;
@@ -97,8 +102,90 @@ public class WorkflowEditor {
 				new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(
 						this));
 		*/
-	}
+		
+		//XXX temporary menu entries for saving and loading hyperworkflows
+		final HyperWorkflow<?,?> finHwf = hwf;
+		app.getWindowSystem().addAction(new Action() {
+			public String getName() {
+				return "Save HyperWorkflow";
+			}
+			
+			@SuppressWarnings("serial")
+			public void invoke() {
+				// create a new file opening dialog
+				JFileChooser chooser = new JFileChooser("") {
+					@Override
+					public void approveSelection() {
+						File f = getSelectedFile();
+						if (f.exists() && getDialogType() == SAVE_DIALOG) {
+							int result = JOptionPane.showConfirmDialog(this,
+									"The file exists already. Replace?",
+									"Existing file",
+									JOptionPane.YES_NO_CANCEL_OPTION);
+							switch (result) {
+							case JOptionPane.YES_OPTION:
+								super.approveSelection();
+								return;
+							case JOptionPane.NO_OPTION:
+								return;
+							case JOptionPane.CANCEL_OPTION:
+								cancelSelection();
+								return;
+							default:
+								return;
+							}
+						}
+						super.approveSelection();
+					}
+				};
 
+				chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				chooser.setFileFilter(new FileNameExtensionFilter(
+						"Nested Hyperworkflows (*.nhwf)", "nhwf"));
+				chooser.setVisible(true);
+				int result = chooser.showSaveDialog(null);
+
+				// once file choice is approved, save the chosen file
+				if (result == JFileChooser.APPROVE_OPTION) {
+					File chosenFile = chooser.getSelectedFile();
+					String filePath = chosenFile.getPath();
+
+					Serialization.save(finHwf, filePath);
+					System.out.println("TODO: saved to file " + filePath);					
+				}
+			}
+		});
+		
+		app.getWindowSystem().addAction(new Action() {
+			@Override
+			public String getName() {
+				return "Open Hyperworkflow";
+			}
+
+			@Override
+			public void invoke() {
+				// create a new file opening dialog
+				JFileChooser chooser = new JFileChooser("");
+				chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				chooser.setFileFilter(new FileNameExtensionFilter(
+						"Nested Hyperworkflows (*.nhwf)", "nhwf"));
+				chooser.setVisible(true);
+				int result = chooser.showOpenDialog(null);
+
+				// once file choice is approved, load the chosen file
+				if (result == JFileChooser.APPROVE_OPTION) {
+					File chosenFile = chooser.getSelectedFile();
+					String filePath = chosenFile.getPath();
+
+					new WorkflowEditor(app, Serialization.load(filePath, app));
+				}
+			}
+		});
+		//XXX END OF TEMPORARY CODE
+	}	
+	
 	static {
 		try {
 			mxGraphTransferable.dataFlavor = new DataFlavor(
@@ -130,37 +217,37 @@ public class WorkflowEditor {
 		}*/
 	}
 
-		public JComponent getComponent() {
-			return mainpane;
-		}
+	public JComponent getComponent() {
+		return mainpane;
+	}
 
-		protected void updatePalette() {
-			palettegraph.getModel().beginUpdate();
-			try {
-				// clear seems to reset the zoom, so we call notify at the end
-				((mxGraphModel) palettegraph.getModel()).clear();
-				ArrayList<Tool<?, ?>> items = new ArrayList<Tool<?, ?>>(app
-						.getToolRepository().getItems());
-				Collections.sort(items, new Comparator<Tool<?,?>>() {
-					@Override
-					public int compare(Tool<?,?> o1, Tool<?,?> o2) {
-						return o1.getCategory().compareTo(o2.getCategory());
-					}
-				});
-
-				// top left corner of first palette tool, width, height
-				double[] d = { 20, 10, 100, 80 };
-				for (Tool<?, ?> item : items) {
-					HyperJob<?> hj = AtomicHyperJob.create(item);
-					hj.setDimensions(d);
-					hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
-					d[1] += 90;
+	protected void updatePalette() {
+		palettegraph.getModel().beginUpdate();
+		try {
+			// clear seems to reset the zoom, so we call notify at the end
+			((mxGraphModel) palettegraph.getModel()).clear();
+			ArrayList<Tool<?, ?>> items = new ArrayList<Tool<?, ?>>(app
+					.getToolRepository().getItems());
+			Collections.sort(items, new Comparator<Tool<?,?>>() {
+				@Override
+				public int compare(Tool<?,?> o1, Tool<?,?> o2) {
+					return o1.getCategory().compareTo(o2.getCategory());
 				}
-			} finally {
-				palettegraph.getModel().endUpdate();
+			});
+
+			// top left corner of first palette tool, width, height
+			double[] d = { 20, 10, 100, 80 };
+			for (Tool<?, ?> item : items) {
+				HyperJob<?> hj = AtomicHyperJob.create(item);
+				hj.setDimensions(d);
+				hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
+				d[1] += 90;
 			}
-			// TODO notifyUIMode(app);
+		} finally {
+			palettegraph.getModel().endUpdate();
 		}
+		// TODO notifyUIMode(app);
+	}
 
 	/**
 	 * Handles KeyEvents such as removing cells when focussed and pressing DEL

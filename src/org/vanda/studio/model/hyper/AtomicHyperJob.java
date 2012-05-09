@@ -54,6 +54,14 @@ public class AtomicHyperJob<V, I extends ToolInstance> extends HyperJob<V> {
 		return tool.getOutputPorts();
 	}
 
+	public Tool<V, I> getTool() {
+		return tool;
+	}
+	
+	public I getToolInstance() {
+		return toolInstance;
+	}
+	
 	@Override
 	public boolean isInputPort() {
 		return tool instanceof InputPort;
@@ -63,7 +71,11 @@ public class AtomicHyperJob<V, I extends ToolInstance> extends HyperJob<V> {
 	public boolean isOutputPort() {
 		return tool instanceof OutputPort;
 	}
-
+	
+	public void setToolInstance(I toolInstance) {
+		this.toolInstance = toolInstance;
+	}
+	
 	@Override
 	public List<Job<V>> unfold() {
 		return Collections.singletonList((Job<V>) new AtomicJob<V, I>(tool,

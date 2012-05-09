@@ -34,7 +34,7 @@ public final class HyperWorkflow<F, V> extends
 	private MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperJob<V>>> removeObservable;
 	private MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperConnection<V>>> connectObservable;
 	private MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperConnection<V>>> disconnectObservable;
-
+	
 	public HyperWorkflow(Compiler<F, V> compiler) {
 		super();
 		this.compiler = compiler;
@@ -209,6 +209,14 @@ public final class HyperWorkflow<F, V> extends
 
 	}
 
+	public void setAddObservable(MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperJob<V>>> addObservable) {
+		this.addObservable = addObservable;
+	}
+
+	public void setConnectObservable(MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperConnection<V>>> connectObservable) {
+		this.connectObservable = connectObservable;
+	}
+
 	public void setDimensions(HyperJob<V> hj, double[] d) {
 		assert (children.contains(hj));
 
@@ -218,6 +226,14 @@ public final class HyperWorkflow<F, V> extends
 			modifyObservable.notify(new Pair<HyperWorkflow<F, V>, HyperJob<V>>(
 					this, hj));
 		}
+	}
+	
+	public void setDisconnectObservable(MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperConnection<V>>> disconnectObservable) {
+		this.disconnectObservable = disconnectObservable;
+	}
+
+	public void setModifyObservable(MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperJob<V>>> modifyObservable) {
+		this.modifyObservable = modifyObservable;
 	}
 
 	protected void setPortBlocked(HyperJob<V> hj, int index, boolean value) {
@@ -229,6 +245,10 @@ public final class HyperWorkflow<F, V> extends
 			blockedPortsMap.put(hj, blocked);
 		}
 		blocked.set(index, value);
+	}
+	
+	public void setRemoveObservable(MultiplexObserver<Pair<HyperWorkflow<F, V>, HyperJob<V>>> removeObservable) {
+		this.removeObservable = removeObservable;
 	}
 
 	/**

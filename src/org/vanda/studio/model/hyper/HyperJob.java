@@ -66,5 +66,9 @@ public abstract class HyperJob<V> implements WorkflowElement, HasActions, Clonea
 		assert(d.length == 4);
 		System.arraycopy(d, 0, dimensions, 0, 4);
 	}
+	
+	public void setParent(HyperWorkflow<?, V> parent) {
+		this.parent = parent;
+	}
 
 }

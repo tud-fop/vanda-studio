@@ -8,7 +8,7 @@ import org.vanda.studio.model.generation.ArtifactFactory;
 import org.vanda.studio.model.generation.Port;
 import org.vanda.studio.util.HasActions;
 
-public interface Tool<V, I extends ToolInstance> extends HasActions {
+public interface Tool<V, I extends ToolInstance> extends HasActions, RepositoryItem {
 	<T extends ArtifactConn, A extends Artifact<T>, F> A createArtifact(
 			ArtifactFactory<T, A, F, V> af, I instance);
 
@@ -19,7 +19,7 @@ public interface Tool<V, I extends ToolInstance> extends HasActions {
 	 */
 	I createInstance();
 
-	String getAuthor();
+	String getContact();
 
 	/**
 	 * The category is used like a path in a file system. The separator is a
@@ -27,7 +27,7 @@ public interface Tool<V, I extends ToolInstance> extends HasActions {
 	 */
 	String getCategory();
 
-	String getDate();
+	String getVersion();
 
 	String getDescription();
 

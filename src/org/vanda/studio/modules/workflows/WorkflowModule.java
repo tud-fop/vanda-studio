@@ -42,8 +42,8 @@ public class WorkflowModule implements Module {
 			app.getWindowSystem().addSeparator();			
 			
 			//XXX adding three tools to repository for testing purposes
-			SimpleRepository<ShellView,ToolInstance,Tool<ShellView,ToolInstance>> tr 
-				= new SimpleRepository<ShellView,ToolInstance,Tool<ShellView,ToolInstance>>(
+			SimpleRepository<Tool<ShellView,ToolInstance>> tr 
+				= new SimpleRepository<Tool<ShellView,ToolInstance>>(
 						null);
 			
 			Tool<ShellView, ToolInstance> sourceTool = new Tool<ShellView,ToolInstance>() {	
@@ -54,13 +54,13 @@ public class WorkflowModule implements Module {
 				public ToolInstance createInstance() {
 					return new SimpleToolInstance();
 				}
-				public String getAuthor() {
+				public String getContact() {
 					return "afischer";
 				}
 				public String getCategory() {
 					return "testCategory";
 				}
-				public String getDate() {
+				public String getVersion() {
 					return "date";
 				}
 				public String getDescription() {
@@ -99,13 +99,13 @@ public class WorkflowModule implements Module {
 				public ToolInstance createInstance() {
 					return new SimpleToolInstance();
 				}
-				public String getAuthor() {
+				public String getContact() {
 					return "afischer";
 				}
 				public String getCategory() {
 					return "testCategory";
 				}
-				public String getDate() {
+				public String getVersion() {
 					return "date";
 				}
 				public String getDescription() {
@@ -147,13 +147,13 @@ public class WorkflowModule implements Module {
 				public ToolInstance createInstance() {
 					return new SimpleToolInstance();
 				}
-				public String getAuthor() {
+				public String getContact() {
 					return "afischer";
 				}
 				public String getCategory() {
 					return "testCategory";
 				}
-				public String getDate() {
+				public String getVersion() {
 					return "date";
 				}
 				public String getDescription() {
@@ -187,9 +187,54 @@ public class WorkflowModule implements Module {
 			tr.addItem(sourceTool);
 			tr.addItem(algoTool);
 			tr.addItem(sinkTool);
+			
+			SimpleRepository<Compiler<Object, ShellView>> cr 
+			= new SimpleRepository<Compiler<Object, ShellView>>(
+					null);
+			
+			Compiler<Object, ShellView> compiler = new Compiler<Object, ShellView>() {
+
+				public String getContact() {
+					return "buechse";
+				}
+				
+				@Override
+				public String getId() {
+					return "cId";
+				}
+				
+				public String getName() {
+					return "myCompiler";
+				}
+				
+				public String getVersion() {
+					return "version";
+				}
+				
+				@Override
+				public ArtifactFactory<?, ?, Object, ShellView> createArtifactFactory(
+						Profile profile) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public Class<Object> getFragmentType() {
+					// TODO Auto-generated method stub
+					return Object.class;
+				}
+
+				@Override
+				public Class<ShellView> getViewType() {
+					return ShellView.class;
+				}};
+			
+			cr.addItem(compiler);
+			
 			//END of testing code
 			
 			app.getToolRR().addRepository(tr);
+			app.getCompilerRR().addRepository(cr);
 			
 			/*
 			 * Action save = new SaveWorkflowAction(editor);
@@ -265,9 +310,26 @@ public class WorkflowModule implements Module {
 			}
 
 			@Override
-			public void invoke() {
+			public void invoke() {				
 				new WorkflowEditor(app, new HyperWorkflow<Object, ShellView>(new Compiler<Object, ShellView>() {
 
+					public String getContact() {
+						return "buechse";
+					}
+					
+					@Override
+					public String getId() {
+						return "cId";
+					}
+					
+					public String getName() {
+						return "myCompiler";
+					}
+					
+					public String getVersion() {
+						return "version";
+					}
+					
 					@Override
 					public ArtifactFactory<?, ?, Object, ShellView> createArtifactFactory(
 							Profile profile) {

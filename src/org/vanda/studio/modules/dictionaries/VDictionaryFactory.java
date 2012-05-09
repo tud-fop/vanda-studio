@@ -91,7 +91,7 @@ public class VDictionaryFactory implements ToolFactory<ShellView, ToolInstance, 
 		}
 
 		@Override
-		public String getAuthor() {
+		public String getContact() {
 			return author;
 		}
 		
@@ -101,7 +101,7 @@ public class VDictionaryFactory implements ToolFactory<ShellView, ToolInstance, 
 		}
 		
 		@Override
-		public String getDate() {
+		public String getVersion() {
 			return date;
 		}
 	

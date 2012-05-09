@@ -34,7 +34,7 @@ import org.vanda.studio.util.HasActions;
  * @param <IF>
  * @param <V>
  */
-public interface Linker<IF, V, I extends ToolInstance> extends HasActions {
+public interface Linker<IF, V, I extends ToolInstance> extends HasActions, RepositoryItem {
 	<T extends ArtifactConn, A extends Artifact<T>> A link(
 			ArtifactFactory<T, A, ?, V> af, InvokationWorkflow<?, ?, IF> pre,
 			I instance);
