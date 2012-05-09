@@ -151,4 +151,9 @@ public final class CompositeRepository<T> implements Repository<T>, MetaReposito
 		return modifyObservable;
 	}
 
+	@Override
+	public Repository<T> getRepository() {
+		return this;
+	}
+
 }

@@ -39,8 +39,8 @@ public final class Launcher implements Runnable {
 			moduleManager.loadModule(m);
 		moduleManager.initModules();
 		
-		app.getToolRepository().refresh();
-		System.out.println(app.getToolRepository().getItems());
+		app.getToolMetaRepository().getRepository().refresh();
+		System.out.println(app.getToolMetaRepository().getRepository().getItems());
 	}
 
 	/**

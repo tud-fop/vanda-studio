@@ -189,7 +189,7 @@ public class WorkflowModule implements Module {
 			tr.addItem(sinkTool);
 			//END of testing code
 			
-			app.getToolRR().addRepository(tr);
+			app.getToolMetaRepository().addRepository(tr);
 			
 			/*
 			 * Action save = new SaveWorkflowAction(editor);

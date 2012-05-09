@@ -23,48 +23,28 @@ public interface Application {
 	String createUniqueId();
 
 	/**
-	 * Returns an immutable combined view of the compiler repositories.
-	 */
-	Repository<Compiler<?, ?>> getCompilerRepository();
-
-	/**
 	 * Returns the repository of compiler repositories. Modules should add or
 	 * remove their own repositories here.
 	 */
-	MetaRepository<Compiler<?, ?>> getCompilerRR();
-
-	/**
-	 * Returns an immutable combined view of the linker repositories.
-	 */
-	Repository<Linker<?, ?, ?>> getLinkerRepository();
+	MetaRepository<Compiler<?, ?>> getCompilerMetaRepository();
 
 	/**
 	 * Returns the repository of linker repositories. Modules should add or
 	 * remove their own repositories here.
 	 */
-	MetaRepository<Linker<?, ?, ?>> getLinkerRR();
-
-	/**
-	 * Returns an immutable combined view of the profile repositories.
-	 */
-	Repository<Profile> getProfileRepository();
+	MetaRepository<Linker<?, ?, ?>> getLinkerMetaRepository();
 
 	/**
 	 * Returns the repository of profile repositories. Modules should add or
 	 * remove their own repositories here.
 	 */
-	MetaRepository<Profile> getProfileRR();
-
-	/**
-	 * Returns an immutable combined view of the tool repositories.
-	 */
-	Repository<Tool<?, ?>> getToolRepository();
+	MetaRepository<Profile> getProfileMetaRepository();
 
 	/**
 	 * Returns the repository of tool repositories. Modules should add or remove
 	 * their own repositories here.
 	 */
-	MetaRepository<Tool<?, ?>> getToolRR();
+	MetaRepository<Tool<?, ?>> getToolMetaRepository();
 	
 	/**
 	 * Returns an immutable combined view of the workflow repositories.

@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.MetaRepository;
-import org.vanda.studio.app.Repository;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.model.generation.Profile;
@@ -131,42 +130,22 @@ public final class ApplicationImpl implements Application {
 	}
 
 	@Override
-	public Repository<Compiler<?, ?>> getCompilerRepository() {
+	public MetaRepository<Compiler<?, ?>> getCompilerMetaRepository() {
 		return compilerRepository;
 	}
 
 	@Override
-	public MetaRepository<Compiler<?, ?>> getCompilerRR() {
-		return compilerRepository;
-	}
-
-	@Override
-	public Repository<Linker<?, ?, ?>> getLinkerRepository() {
+	public MetaRepository<Linker<?, ?, ?>> getLinkerMetaRepository() {
 		return linkerRepository;
 	}
 
 	@Override
-	public MetaRepository<Linker<?, ?, ?>> getLinkerRR() {
-		return linkerRepository;
-	}
-
-	@Override
-	public Repository<Profile> getProfileRepository() {
+	public MetaRepository<Profile> getProfileMetaRepository() {
 		return profileRepository;
 	}
 
 	@Override
-	public MetaRepository<Profile> getProfileRR() {
-		return profileRepository;
-	}
-
-	@Override
-	public Repository<Tool<?, ?>> getToolRepository() {
-		return toolRepository;
-	}
-
-	@Override
-	public MetaRepository<Tool<?, ?>> getToolRR() {
+	public MetaRepository<Tool<?, ?>> getToolMetaRepository() {
 		return toolRepository;
 	}
 

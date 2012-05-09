@@ -5,6 +5,14 @@ import org.vanda.studio.util.Observable;
 public interface MetaRepository<T> {
 
 	<T1 extends T> void addRepository(Repository<T1> r);
+	
+	Observable<T> getAddObservable();
+	
+	Observable<T> getModifyObservable();
+	
+	Repository<T> getRepository();
+
+	Observable<T> getRemoveObservable();
 
 	Observable<Repository<? extends T>> getRepositoryAddObservable();
 

@@ -29,7 +29,7 @@ public class SimpleModuleInstance<V, I extends ToolInstance, T extends Tool<V, I
 					factory);
 		}
 		repository = new SimpleRepository<V, I, T>(loader);
-		app.getToolRR().addRepository(repository);
+		app.getToolMetaRepository().addRepository(repository);
 		editor = module.createEditor(app);
 	}
 

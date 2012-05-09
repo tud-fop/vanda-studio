@@ -140,7 +140,7 @@ public class WorkflowEditor {
 				// clear seems to reset the zoom, so we call notify at the end
 				((mxGraphModel) palettegraph.getModel()).clear();
 				ArrayList<Tool<?, ?>> items = new ArrayList<Tool<?, ?>>(app
-						.getToolRepository().getItems());
+						.getToolMetaRepository().getRepository().getItems());
 				Collections.sort(items, new Comparator<Tool<?,?>>() {
 					@Override
 					public int compare(Tool<?,?> o1, Tool<?,?> o2) {

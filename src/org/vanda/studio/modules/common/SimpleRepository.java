@@ -85,7 +85,7 @@ public class SimpleRepository<V, I extends ToolInstance, T extends Tool<V, I>>
 	@Override
 	public void refresh() {
 		if (loader != null) {
-			RefreshHelper<V, I, T> r = new RefreshHelper<V, I, T>(items);
+			RefreshHelper<T> r = new RefreshHelper<T>(items);
 			loader.load(r);
 			items = r.getNewItems();
 			Util.notifyAll(addObservable, r.getAdds());
@@ -93,7 +93,7 @@ public class SimpleRepository<V, I extends ToolInstance, T extends Tool<V, I>>
 		}
 	}
 
-	protected static class RefreshHelper<V, I extends ToolInstance, T extends Tool<V, I>>
+	protected static class RefreshHelper<T>
 			implements Observer<T> {
 
 		protected LinkedList<T> adds;
