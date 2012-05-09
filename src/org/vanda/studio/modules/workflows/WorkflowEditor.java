@@ -26,11 +26,14 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.hyper.AtomicHyperJob;
+import org.vanda.studio.model.hyper.CompositeHyperJob;
 import org.vanda.studio.model.hyper.HyperConnection;
 import org.vanda.studio.model.hyper.HyperJob;
 import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.model.hyper.Serialization;
+import org.vanda.studio.model.workflows.Linker;
 import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.modules.workflows.jgraph.Adapter;
 import org.vanda.studio.modules.workflows.jgraph.JobRendering;
 import org.vanda.studio.util.Action;
@@ -103,8 +106,21 @@ public class WorkflowEditor {
 						this));
 		*/
 		
-		//XXX temporary menu entries for saving and loading hyperworkflows
+		//XXX temporary menu entries for closing and saving HyperWorkflows
 		final HyperWorkflow<?,?> finHwf = hwf;
+		app.getWindowSystem().addAction(new Action() {
+
+			@Override
+			public String getName() {
+				return "Close Hyperworkflow";
+			}
+
+			@Override
+			public void invoke() {
+				close();
+			}
+		});
+		
 		app.getWindowSystem().addAction(new Action() {
 			public String getName() {
 				return "Save HyperWorkflow";
@@ -153,33 +169,6 @@ public class WorkflowEditor {
 
 					Serialization.save(finHwf, filePath);
 					System.out.println("TODO: saved to file " + filePath);					
-				}
-			}
-		});
-		
-		app.getWindowSystem().addAction(new Action() {
-			@Override
-			public String getName() {
-				return "Open Hyperworkflow";
-			}
-
-			@Override
-			public void invoke() {
-				// create a new file opening dialog
-				JFileChooser chooser = new JFileChooser("");
-				chooser.setDialogType(JFileChooser.OPEN_DIALOG);
-				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				chooser.setFileFilter(new FileNameExtensionFilter(
-						"Nested Hyperworkflows (*.nhwf)", "nhwf"));
-				chooser.setVisible(true);
-				int result = chooser.showOpenDialog(null);
-
-				// once file choice is approved, load the chosen file
-				if (result == JFileChooser.APPROVE_OPTION) {
-					File chosenFile = chooser.getSelectedFile();
-					String filePath = chosenFile.getPath();
-
-					new WorkflowEditor(app, Serialization.load(filePath, app));
 				}
 			}
 		});
@@ -243,6 +232,25 @@ public class WorkflowEditor {
 				hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
 				d[1] += 90;
 			}
+			
+			//XXX testing display of nested tools in palette
+			ArrayList<Linker<?,?,?>> linkers = new ArrayList<Linker<?,?,?>>(app
+					.getLinkerRepository().getItems());
+			Collections.sort(linkers, new Comparator<Linker<?,?,?>>() {
+				@Override
+				public int compare(Linker<?,?,?> o1, Linker<?,?,?> o2) {
+					return o1.getName().compareTo(o2.getName());
+				}
+			});
+			
+			for (Linker<?,?,?> linker : linkers) {
+				HyperJob<?> hj = new CompositeHyperJob(linker, new SimpleToolInstance(), 
+						new HyperWorkflow(app.getCompilerRepository().getItem("compilerId")));
+				hj.setDimensions(d);
+				hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
+				d[1] += 90;
+			}
+			//XXX END TEST
 		} finally {
 			palettegraph.getModel().endUpdate();
 		}

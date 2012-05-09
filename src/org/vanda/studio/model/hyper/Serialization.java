@@ -8,6 +8,7 @@ import java.io.Writer;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.workflows.Compiler;
+import org.vanda.studio.model.workflows.Linker;
 import org.vanda.studio.model.workflows.Tool;
 import org.vanda.studio.util.MultiplexObserver;
 
@@ -29,6 +30,7 @@ public class Serialization {
 		File file = new File(pathToFile);
 		XStream xs = new XStream();
 		xs.registerConverter(new CompilerConverter(app));
+		xs.registerConverter(new LinkerConverter(app));
 		xs.registerConverter(new MultiplexObserverConverter(app));
 		xs.registerConverter(new ToolConverter(app));
 		Object result = null;
@@ -63,6 +65,7 @@ public class Serialization {
 				Writer output = new BufferedWriter(fileWriter);
 				XStream xs = new XStream();
 				xs.registerConverter(new CompilerConverter(null));
+				xs.registerConverter(new LinkerConverter(null));
 				xs.registerConverter(new MultiplexObserverConverter(null));
 				xs.registerConverter(new ToolConverter(null));
 				
@@ -92,7 +95,7 @@ public class Serialization {
 				MarshallingContext context) {
 
 			// simply save compiler id
-			writer.startNode("id");
+			writer.startNode("compilerId");
 			writer.setValue(((Compiler<?,?>)value).getId());
 			writer.endNode();	
 		}
@@ -115,6 +118,47 @@ public class Serialization {
 			// activate this converter for all classes that 
 			// implement the Compiler interface
 			return Compiler.class.isAssignableFrom(clazz);
+		}
+
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static class LinkerConverter implements Converter {
+
+		Application app;
+		
+		public LinkerConverter(Application app) {
+			this.app = app;
+		}
+		
+		@Override
+		public void marshal(Object value, HierarchicalStreamWriter writer,
+				MarshallingContext context) {
+
+			// simply save compiler id
+			writer.startNode("linkerId");
+			writer.setValue(((Linker<?,?,?>)value).getId());
+			writer.endNode();	
+		}
+
+		@Override
+		public Object unmarshal(HierarchicalStreamReader reader,
+				UnmarshallingContext context) {
+			
+			// extract compiler id from xml and load it from repository
+			reader.moveDown();
+			String linkerId = reader.getValue();
+			Linker<?,?,?> linker= app.getLinkerRepository().getItem(linkerId);
+			reader.moveUp();
+			
+			return linker;
+		}
+
+		@Override
+		public boolean canConvert(Class clazz) {
+			// activate this converter for all classes that 
+			// implement the Linker interface
+			return Linker.class.isAssignableFrom(clazz);
 		}
 
 	}
@@ -162,7 +206,7 @@ public class Serialization {
 				MarshallingContext context) {
 
 			// simply save tool id
-			writer.startNode("id");
+			writer.startNode("toolId");
 			writer.setValue(((Tool<?,?>)value).getId());
 			writer.endNode();	
 		}

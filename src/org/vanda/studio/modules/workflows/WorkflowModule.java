@@ -1,18 +1,26 @@
 package org.vanda.studio.modules.workflows;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.model.generation.Artifact;
 import org.vanda.studio.model.generation.ArtifactConn;
 import org.vanda.studio.model.generation.ArtifactFactory;
+import org.vanda.studio.model.generation.InvokationWorkflow;
 import org.vanda.studio.model.generation.Port;
 import org.vanda.studio.model.generation.Profile;
+import org.vanda.studio.model.generation.ShellFragment;
 import org.vanda.studio.model.generation.ShellView;
 import org.vanda.studio.model.hyper.HyperWorkflow;
+import org.vanda.studio.model.hyper.Serialization;
 import org.vanda.studio.model.workflows.Compiler;
+import org.vanda.studio.model.workflows.Linker;
 import org.vanda.studio.model.workflows.RendererAssortment;
 import org.vanda.studio.model.workflows.Tool;
 import org.vanda.studio.model.workflows.ToolInstance;
@@ -41,6 +49,7 @@ public class WorkflowModule implements Module {
 
 			app.getWindowSystem().addSeparator();			
 			
+			// BEGIN TEMPORARY CODE
 			//XXX adding three tools to repository for testing purposes
 			SimpleRepository<Tool<ShellView,ToolInstance>> tr 
 				= new SimpleRepository<Tool<ShellView,ToolInstance>>(
@@ -187,7 +196,9 @@ public class WorkflowModule implements Module {
 			tr.addItem(sourceTool);
 			tr.addItem(algoTool);
 			tr.addItem(sinkTool);
+			app.getToolRR().addRepository(tr);
 			
+			//XXX adding compiler to repository for testing purposes
 			SimpleRepository<Compiler<Object, ShellView>> cr 
 			= new SimpleRepository<Compiler<Object, ShellView>>(
 					null);
@@ -200,7 +211,7 @@ public class WorkflowModule implements Module {
 				
 				@Override
 				public String getId() {
-					return "cId";
+					return "compilerId";
 				}
 				
 				public String getName() {
@@ -230,11 +241,85 @@ public class WorkflowModule implements Module {
 				}};
 			
 			cr.addItem(compiler);
-			
-			//END of testing code
-			
-			app.getToolRR().addRepository(tr);
 			app.getCompilerRR().addRepository(cr);
+			
+			//XXX adding linker to repository for testing purposes
+			SimpleRepository<Linker<ShellFragment, ShellView, ToolInstance>> lr 
+			= new SimpleRepository<Linker<ShellFragment, ShellView, ToolInstance>>(null);
+			
+			Linker<ShellFragment, ShellView, ToolInstance> linker 
+			= new Linker<ShellFragment, ShellView, ToolInstance>() {
+				
+				@Override
+				public String getContact() {
+					return "afischer";
+				}
+				
+				@Override
+				public String getId() {
+					return "linkerId";
+				}
+				
+				@Override
+				public String getName() {
+					return "myLinker";
+				}
+				
+				@Override
+				public String getVersion() {
+					return "version";
+				}
+				
+				@Override
+				public void appendActions(List<Action> as) {
+				}
+				
+				@Override
+				public <T extends ArtifactConn, A extends Artifact<T>> A link(
+						ArtifactFactory<T, A, ?, ShellView> af, InvokationWorkflow<?, ?, ShellFragment> pre,
+						ToolInstance instance) {
+					return af.createIdentity();
+				}
+				
+				@Override
+				public boolean checkInputTypes(List<String> outer, List<String> inner) {
+					return true;
+				}
+				
+				@Override
+				public boolean checkOutputTypes(List<String> outer, List<String> inner) {
+					return true;
+				}
+				
+				@Override
+				public List<Port> convertInputPorts(List<Port> ips) {
+					return ips;
+				}
+				
+				@Override
+				public List<Port> convertOutputPorts(List<Port> ops) {
+					return ops;
+				}
+				
+				@Override
+				public ToolInstance createInstance() {
+					return new SimpleToolInstance();
+				}
+
+				@Override
+				public Class<ShellFragment> getFragmentType() {
+					return ShellFragment.class;
+				}
+
+				@Override
+				public Class<ShellView> getViewType() {
+					return ShellView.class;
+				}
+			};
+			
+			lr.addItem(linker);
+			app.getLinkerRR().addRepository(lr);
+			//END of testing code
 			
 			/*
 			 * Action save = new SaveWorkflowAction(editor);
@@ -249,11 +334,12 @@ public class WorkflowModule implements Module {
 			 * 
 			 * app.getWindowSystem().addSeparator();
 			 * 
-			 * app.getWindowSystem().addAction(new OpenWorkflowAction());
+			 * 
 			 */
+			app.getWindowSystem().addAction(new OpenWorkflowAction());
 			app.getWindowSystem().addAction(new NewWorkflowAction());
 		}
-
+		
 		/*
 		 * determines the active WorkflowEditorTab of the specified
 		 * WorkflowEditor
@@ -319,7 +405,7 @@ public class WorkflowModule implements Module {
 					
 					@Override
 					public String getId() {
-						return "cId";
+						return "compilerId";
 					}
 					
 					public String getName() {
@@ -350,7 +436,6 @@ public class WorkflowModule implements Module {
 			}
 		}
 
-		/*
 		protected class OpenWorkflowAction implements Action {
 			@Override
 			public String getName() {
@@ -373,17 +458,12 @@ public class WorkflowModule implements Module {
 					File chosenFile = chooser.getSelectedFile();
 					String filePath = chosenFile.getPath();
 
-					// create term (file)
-					VWorkflow t = factory.createInstance(
-							WorkflowModuleInstance.this, new File(filePath));
-					// do something with the repository
-					// repository.addItem(t); FIXME
-					// open editor for term
-					openEditor(t);
+					new WorkflowEditor(app, Serialization.load(filePath, app));
 				}
 			}
 		}
-
+		
+		/*
 		protected static class SaveWorkflowAction implements Action {
 
 			protected Editor<VWorkflow> editor;
