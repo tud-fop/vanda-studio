@@ -55,7 +55,7 @@ public class WorkflowEditor {
 	protected mxGraphComponent component;
 	protected Adapter renderer;
 	protected mxGraph palettegraph;
-	protected mxGraphComponent palette;
+	protected mxGraphComponent paletteComponent;
 	protected JSplitPane mainpane;
 
 	public WorkflowEditor(Application a, HyperWorkflow<?, ?> hwf) {
@@ -67,7 +67,7 @@ public class WorkflowEditor {
 
 		palettegraph = JobRendering.createGraph();
 		palettegraph.setCellsLocked(true);
-		palette = new mxGraphComponent(palettegraph);
+		paletteComponent = new mxGraphComponent(palettegraph);
 		//palette.getGraphControl().addMouseListener(
 		//		new EditMouseAdapter(app, palette));
 		component = new mxGraphComponent(renderer.getGraph());
@@ -79,14 +79,14 @@ public class WorkflowEditor {
 		component.addKeyListener(new DelKeyListener(app, component));
 		updatePalette();
 		mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
-				palette);
+				paletteComponent);
 		mainpane.setOneTouchExpandable(true);
 		// mainpane.setDividerLocation(320);
 		mainpane.setResizeWeight(1);
 		mainpane.setDividerSize(6);
 		mainpane.setBorder(null);
 
-		app.getUIModeObservable().addObserver(new UIModeObserver(app, palette));
+		app.getUIModeObservable().addObserver(new UIModeObserver(app, paletteComponent));
 		app.getUIModeObservable().addObserver(new UIModeObserver(app, component));
 		app.getWindowSystem().addContentWindow("", "the Workflow", null,
 				getComponent(),	null /*
@@ -246,6 +246,10 @@ public class WorkflowEditor {
 			for (Linker<?,?,?> linker : linkers) {
 				HyperJob<?> hj = new CompositeHyperJob(linker, new SimpleToolInstance(), 
 						new HyperWorkflow(app.getCompilerRepository().getItem("compilerId")));
+				
+				// FIXME DO NOT set the name of hj by overriding the getName() method,
+				// this leads to hj being a WorkflowEditor!!!
+				
 				hj.setDimensions(d);
 				hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
 				d[1] += 90;

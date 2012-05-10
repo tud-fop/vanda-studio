@@ -1,35 +1,69 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.vanda.studio.model.hyper.CompositeHyperJob;
 import org.vanda.studio.model.hyper.HyperConnection;
 import org.vanda.studio.model.hyper.HyperJob;
 import org.vanda.studio.model.hyper.HyperWorkflow;
+import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Pair;
 
-import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxICell;
-import com.mxgraph.model.mxIGraphModel;
-import com.mxgraph.model.mxGraphModel.mxChildChange;
-import com.mxgraph.model.mxGraphModel.mxGeometryChange;
-import com.mxgraph.model.mxGraphModel.mxTerminalChange;
-import com.mxgraph.model.mxGraphModel.mxValueChange;
-import com.mxgraph.util.mxEvent;
-import com.mxgraph.util.mxEventObject;
-import com.mxgraph.util.mxUndoableEdit;
-import com.mxgraph.util.mxEventSource.mxIEventListener;
-import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
 
 // TODO do something about all those unchecked conversions and raw types
 
 public class Adapter {
 
+	protected GraphRenderer renderer;
+	protected HyperWorkflow<?,?> hwf;
+	protected Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> addObserver;
+	protected Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> modifyObserver;
+	protected Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> removeObserver;
+	protected Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> connectObserver;
+	protected Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> disconnectObserver;
+	
+	public <F, V> Adapter(HyperWorkflow<F, V> root) {
+		
+		addObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
+		modifyObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
+		removeObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
+		connectObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>();
+		disconnectObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>();
+		renderer = new GraphRenderer(root);
+	}
+	
+	<F, V> void bind(HyperWorkflow<F, V> hwf) {
+		hwf.getAddObservable().addObserver((Observer) addObserver);
+		hwf.getModifyObservable().addObserver((Observer) modifyObserver);
+		hwf.getRemoveObservable().addObserver((Observer) removeObserver);
+		hwf.getConnectObservable().addObserver((Observer) connectObserver);
+		hwf.getDisconnectObservable().addObserver(
+				(Observer) disconnectObserver);
+	}
+	
+	@SuppressWarnings({ "unchecked" })
+	<F, V> void unbind(HyperWorkflow<F, V> hwf) {
+		// XXX this could blow up big time
+		hwf.getAddObservable().removeObserver((Observer) addObserver);
+		hwf.getModifyObservable().removeObserver((Observer) modifyObserver);
+		hwf.getRemoveObservable().removeObserver((Observer) removeObserver);
+		hwf.getConnectObservable().removeObserver((Observer) connectObserver);
+		hwf.getDisconnectObservable().removeObserver(
+				(Observer) disconnectObserver);
+		for (HyperJob<V> c : hwf.getChildren()) {
+			if (c instanceof CompositeHyperJob<?, ?, ?, ?>) {
+				CompositeHyperJob<?, V, ?, ?> chj = (CompositeHyperJob<?, V, ?, ?>) c;
+				unbind(chj.getWorkflow());
+			}
+		}
+	}
+	
+	public mxGraph getGraph() {
+		return renderer.graph;
+	}
+	
+	/*
 	protected HyperWorkflow<?, ?> root;
 	protected Graph graph;
 	protected ChangeListener changeListener;
@@ -287,11 +321,6 @@ public class Adapter {
 		return graph;
 	}
 
-	/**
-	 * keeps the size of a cell big enough to contain all its children properly
-	 * 
-	 * @param cell
-	 */
 //	private void preventTooSmallNested(Object cell) {
 //		mxIGraphModel model = graph.getModel();
 //		Object value = model.getValue(cell);
@@ -401,8 +430,8 @@ public class Adapter {
 
 		// prevent shrinking cell too much leading to label being too big
 		// resizeToFitLabel(cell);
-		/*if (graph.isAutoSizeCell(cell))
-			graph.updateCellSize(cell, true);*/ // XXX was:
+		// if (graph.isAutoSizeCell(cell))
+		//	graph.updateCellSize(cell, true); // XXX was:
 												// resizeToFitLabel(cell);
 
 		// prevent resizing a NestedHyperworkflow too much, otherwise
@@ -425,18 +454,18 @@ public class Adapter {
 		// FIXME does not work properly
 		// check if parent changed (only if both hwf and corresponding cell have
 		// parents)
-		/*
-		 * if (model.getParent(cell) != null && to.getParent() != null &&
-		 * !model.getParent(cell).equals(translation.get(to.getParent()))) {
-		 * 
-		 * System.out.println("parent of " + to + " has changed to " +
-		 * ((HyperWorkflow) model.getValue(model.getParent(cell))) .getName());
-		 * 
-		 * Hyperworkflow newParent = (Hyperworkflow) model.getValue(model
-		 * .getParent(cell)); objectRemoveObservable.notify(to);
-		 * to.setParent(newParent); objectAddObservable.notify(to);
-		 * graph.refresh(); }
-		 */
+		
+		// if (model.getParent(cell) != null && to.getParent() != null &&
+		// !model.getParent(cell).equals(translation.get(to.getParent()))) {
+		 
+		// System.out.println("parent of " + to + " has changed to " +
+		// ((HyperWorkflow) model.getValue(model.getParent(cell))) .getName());
+		 
+		// Hyperworkflow newParent = (Hyperworkflow) model.getValue(model
+		// .getParent(cell)); objectRemoveObservable.notify(to);
+		// to.setParent(newParent); objectAddObservable.notify(to);
+		// graph.refresh(); }
+		
 	}
 
 	protected class ChangeListener implements mxIEventListener {
@@ -461,6 +490,7 @@ public class Adapter {
 							if (translation.remove(value) != null) {
 								HyperWorkflow
 										.removeChildGeneric((HyperJob<?>) value);
+								
 							}
 						} else if (value instanceof HyperConnection<?>) {
 							if (translation.remove(value) != null) {
@@ -488,11 +518,11 @@ public class Adapter {
 					// component is moved to change its geometry
 					// maybe this is the geometryChange of connections?
 
-					/*
-					 * // assert (false);
-					 * System.out.println("mxValueChange of: " + ((mxCell)
-					 * ((mxValueChange) c).getCell()) .getValue());
-					 */
+					
+					// // assert (false);
+					// System.out.println("mxValueChange of: " + ((mxCell)
+					// ((mxValueChange) c).getCell()) .getValue());
+					
 				} else if (c instanceof mxGeometryChange) {
 					Object cell = ((mxGeometryChange) c).getCell();
 					if (model.getValue(cell) instanceof HyperJob<?>)
@@ -514,7 +544,7 @@ public class Adapter {
 			}
 		}
 	}
-
+	*/
 }
 
 /**
