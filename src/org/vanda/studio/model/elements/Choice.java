@@ -49,7 +49,7 @@ public final class Choice implements Element {
 
 	@Override
 	public String getName() {
-		return "chose";
+		return "CHOOSE";
 	}
 
 	@Override

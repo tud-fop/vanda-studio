@@ -125,7 +125,7 @@ public class Dictionary {
 		 * Is true when a character has been read form the file but not yet
 		 * processed.
 		 * 
-		 * @see DictView.Dictionary.MyBufferedReader#bufferedChar
+		 * @see Dictionary.MyBufferedReader#bufferedChar
 		 */
 		private boolean charIsBuffered = false;
 

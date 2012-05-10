@@ -16,7 +16,7 @@ import org.vanda.studio.util.Action;
 public interface WindowSystem {
 	/**
 	 */
-	void addAction(Action a);
+	void addAction(JComponent c, Action a);
 
 	/**
 	 * Creates a new tab in the main pane.

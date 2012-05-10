@@ -108,6 +108,9 @@ public final class PartiallyUnfolded<F> {
 	 * cropOr may delete Choice nodes.
 	 */
 	private void advance() {
+		// we are on a choice node, go backwards one step
+		position--;
+		// now go find the next choice node
 		while (position > 0
 				&& (!parent.children.get(position - 1).job.isChoice() || deleted
 						.get(position - 1)))

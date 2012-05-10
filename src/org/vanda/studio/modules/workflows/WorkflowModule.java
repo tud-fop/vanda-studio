@@ -27,95 +27,284 @@ public class WorkflowModule implements Module {
 	protected static class WorkflowModuleInstance {
 
 		Application app;
+		
+		private static class Plain2Snt extends Tool<Object> {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("English", "Sentence Corpus"));
+				inputPorts.add(new Port("French", "Sentence Corpus"));
+				outputPorts.add(new Port("Parallel", "GIZA.snt"));
+				outputPorts.add(new Port("English.vcb", "GIZA.vcb"));
+				outputPorts.add(new Port("French.vcb", "GIZA.vcb"));
+			}
+			
+			public String getAuthor() {
+				return "buechse";
+			}
+			public String getCategory() {
+				return "alignments";
+			}
+			public String getDate() {
+				return "date";
+			}
+			public String getDescription() {
+				return "Converts two plain text files into GIZA++ files";
+			}
+			public String getId() {
+				return "plain2snt";
+			}
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+			public String getName() {
+				return "plain2snt";
+			}
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+			public Class<Object> getFragmentType() {
+				return Object.class;
+			}
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+			public void appendActions(List<Action> as) {
+			}
+		}
+
+		private static class GIZA extends Tool<Object> {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("Parallel", "GIZA.snt"));
+				inputPorts.add(new Port("English.vcb", "GIZA.vcb"));
+				inputPorts.add(new Port("French.vcb", "GIZA.vcb"));
+				outputPorts.add(new Port("Alignments", "GIZA Alignments"));
+			}
+			
+			public String getAuthor() {
+				return "buechse";
+			}
+			public String getCategory() {
+				return "alignments";
+			}
+			public String getDate() {
+				return "date";
+			}
+			public String getDescription() {
+				return "computes alignments and translation tables";
+			}
+			public String getId() {
+				return "GIZA";
+			}
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+			public String getName() {
+				return "GIZA";
+			}
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+			public Class<Object> getFragmentType() {
+				return Object.class;
+			}
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+			public void appendActions(List<Action> as) {
+			}
+		}
+
+		private static class Berkeley extends Tool<Object> {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("Corpus", "Sentence Corpus"));
+				inputPorts.add(new Port("Grammar", "BerkeleyGrammar.sm6"));
+				outputPorts.add(new Port("Tree Corpus", "Penn Tree Corpus"));
+			}
+			
+			public String getAuthor() {
+				return "buechse";
+			}
+			public String getCategory() {
+				return "parsing";
+			}
+			public String getDate() {
+				return "date";
+			}
+			public String getDescription() {
+				return "Berkeley parser using a state-split grammar";
+			}
+			public String getId() {
+				return "BerkeleyParser";
+			}
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+			public String getName() {
+				return "Berkeley Parser";
+			}
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+			public Class<Object> getFragmentType() {
+				return Object.class;
+			}
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+			public void appendActions(List<Action> as) {
+			}
+		}
+
+		private static class Tokenizer extends Tool<Object> {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("Corpus", "Sentence Corpus"));
+				outputPorts.add(new Port("Tokenized Corpus", "Sentence Corpus"));
+			}
+			
+			public String getAuthor() {
+				return "buechse";
+			}
+			public String getCategory() {
+				return "corpus tools";
+			}
+			public String getDate() {
+				return "date";
+			}
+			public String getDescription() {
+				return "Converts some special characters into tokens, such as ( into -LLB-";
+			}
+			public String getId() {
+				return "BerkeleyTokenizer";
+			}
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+			public String getName() {
+				return "Berkeley Tokenizer";
+			}
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+			public Class<Object> getFragmentType() {
+				return Object.class;
+			}
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+			public void appendActions(List<Action> as) {
+			}
+		}
+
+		private static class PennToInt extends Tool<Object> {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("Tree Corpus", "Penn Tree Corpus"));
+				outputPorts.add(new Port("Integerized Tree Corpus", "Penn Tree Corpus"));
+				outputPorts.add(new Port("Conversion Table", "TokenMap"));
+			}
+			
+			public String getAuthor() {
+				return "buechse";
+			}
+			public String getCategory() {
+				return "corpus tools";
+			}
+			public String getDate() {
+				return "date";
+			}
+			public String getDescription() {
+				return "Converts words into integers, creates a conversion table";
+			}
+			public String getId() {
+				return "PennToInt";
+			}
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+			public String getName() {
+				return "PennToInt";
+			}
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+			public Class<Object> getFragmentType() {
+				return Object.class;
+			}
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+			public void appendActions(List<Action> as) {
+			}
+		}
+
+		private static class GHKM extends Tool<Object> {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("Alignment", "GIZA Alignments"));
+				inputPorts.add(new Port("Integerized Tree Corpus", "Penn Tree Corpus"));
+				inputPorts.add(new Port("Conversion Table", "TokenMap"));
+				outputPorts.add(new Port("Rules", "GHKM Hypergraph"));
+				outputPorts.add(new Port("Conversion Table", "TokenMap"));
+			}
+			
+			public String getAuthor() {
+				return "buechse";
+			}
+			public String getCategory() {
+				return "rule extraction";
+			}
+			public String getDate() {
+				return "date";
+			}
+			public String getDescription() {
+				return "Extracts GHKM rules from a GIZA alignment and an integizered tree corpus";
+			}
+			public String getId() {
+				return "HyperGHKM";
+			}
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+			public String getName() {
+				return "GHKM";
+			}
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+			public Class<Object> getFragmentType() {
+				return Object.class;
+			}
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+			public void appendActions(List<Action> as) {
+			}
+		}
 
 		public WorkflowModuleInstance(Application a) {
 			app = a;
 
-			app.getWindowSystem().addSeparator();			
+			//app.getWindowSystem().addSeparator();			
 			
-			//XXX adding three tools to repository for testing purposes
 			SimpleRepository<Object,Tool<Object>> tr 
 				= new SimpleRepository<Object,Tool<Object>>(
 						null);
 			
-			Tool<Object> sourceTool = new Tool<Object>() {	
-				public String getAuthor() {
-					return "afischer";
-				}
-				public String getCategory() {
-					return "testCategory";
-				}
-				public String getDate() {
-					return "date";
-				}
-				public String getDescription() {
-					return "TestSource";
-				}
-				public String getId() {
-					return "sourceId";
-				}
-				public List<Port> getInputPorts() {
-					return new ArrayList<Port>();
-				}
-				public String getName() {
-					return "Source";
-				}
-				public List<Port> getOutputPorts() {
-					Port p = new Port("outputPort", "portType");
-					List<Port> list = new ArrayList<Port>();
-					list.add(p);
-					return list;
-				}
-				public Class<Object> getFragmentType() {
-					return Object.class;
-				}
-				public <R> R selectRenderer(RendererAssortment<R> ra) {
-					return ra.selectSinkRenderer();
-				}
-				public void appendActions(List<Action> as) {
-				}
-			};
-			
-			Tool<Object> algoTool = new Tool<Object>() {	
-				public String getAuthor() {
-					return "afischer";
-				}
-				public String getCategory() {
-					return "testCategory";
-				}
-				public String getDate() {
-					return "date";
-				}
-				public String getDescription() {
-					return "TestAlgo";
-				}
-				public String getId() {
-					return "algoId";
-				}
-				public List<Port> getInputPorts() {
-					Port p = new Port("inputPort", "portType");
-					List<Port> list = new ArrayList<Port>();
-					list.add(p);
-					return list;
-				}
-				public String getName() {
-					return "Algo";
-				}
-				public List<Port> getOutputPorts() {
-					Port p = new Port("outputPort", "portType");
-					List<Port> list = new ArrayList<Port>();
-					list.add(p);
-					return list;
-				}
-				public Class<Object> getFragmentType() {
-					return Object.class;
-				}
-				public <R> R selectRenderer(RendererAssortment<R> ra) {
-					return ra.selectSinkRenderer();
-				}
-				public void appendActions(List<Action> as) {
-				}
-			};
+			tr.addItem(new Plain2Snt());
+			tr.addItem(new GIZA());
+			tr.addItem(new Berkeley());
+			tr.addItem(new Tokenizer());
+			tr.addItem(new PennToInt());
+			tr.addItem(new GHKM());
 			
 			Tool<Object> sinkTool = new Tool<Object>() {	
 				public String getAuthor() {
@@ -155,10 +344,7 @@ public class WorkflowModule implements Module {
 				}
 			};
 			
-			tr.addItem(sourceTool);
-			tr.addItem(algoTool);
 			tr.addItem(sinkTool);
-			//END of testing code
 			
 			app.getToolMetaRepository().addRepository(tr);
 			
@@ -177,7 +363,7 @@ public class WorkflowModule implements Module {
 			 * 
 			 * app.getWindowSystem().addAction(new OpenWorkflowAction());
 			 */
-			app.getWindowSystem().addAction(new NewWorkflowAction());
+			app.getWindowSystem().addAction(null, new NewWorkflowAction());
 		}
 
 		/*
@@ -201,38 +387,12 @@ public class WorkflowModule implements Module {
 			}
 
 			return weTab;
-		}
-
-		protected static class CloseWorkflowAction implements Action {
-
-			protected Editor<VWorkflow> editor;
-
-			public CloseWorkflowAction(Editor<VWorkflow> e) {
-				this.editor = e;
-			}
-
-			@Override
-			public String getName() {
-				return "Close Hyperworkflow";
-			}
-
-			@Override
-			public void invoke() {
-				WorkflowEditor we = (WorkflowEditor) editor;
-
-				WorkflowEditorTab weTab = getActiveTab(we);
-				if (weTab != null) {
-					we.close(weTab.vworkflow);
-				} else {
-					assert (false);
-				}
-			}
 		}*/
 
 		protected class NewWorkflowAction implements Action {
 			@Override
 			public String getName() {
-				return "New Hyperworkflow";
+				return "New Workflow";
 			}
 
 			@Override
@@ -274,70 +434,7 @@ public class WorkflowModule implements Module {
 				}
 			}
 		}
+		*/
 
-		protected static class SaveWorkflowAction implements Action {
-
-			protected Editor<VWorkflow> editor;
-
-			public SaveWorkflowAction(Editor<VWorkflow> e) {
-				this.editor = e;
-			}
-
-			@Override
-			public String getName() {
-				return "Save Workflow";
-			}
-
-			@Override
-			public void invoke() {
-				// create a new file opening dialog
-				JFileChooser chooser = new JFileChooser("") {
-					@Override
-					public void approveSelection() {
-						File f = getSelectedFile();
-						if (f.exists() && getDialogType() == SAVE_DIALOG) {
-							int result = JOptionPane.showConfirmDialog(this,
-									"The file exists already. Replace?",
-									"Existing file",
-									JOptionPane.YES_NO_CANCEL_OPTION);
-							switch (result) {
-							case JOptionPane.YES_OPTION:
-								super.approveSelection();
-								return;
-							case JOptionPane.NO_OPTION:
-								return;
-							case JOptionPane.CANCEL_OPTION:
-								cancelSelection();
-								return;
-							default:
-								return;
-							}
-						}
-						super.approveSelection();
-					}
-				};
-
-				chooser.setDialogType(JFileChooser.SAVE_DIALOG);
-				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				chooser.setFileFilter(new FileNameExtensionFilter(
-						"Nested Hyperworkflows (*.nhwf)", "nhwf"));
-				chooser.setVisible(true);
-				int result = chooser.showSaveDialog(null);
-
-				// once file choice is approved, save the chosen file
-				if (result == JFileChooser.APPROVE_OPTION) {
-					File chosenFile = chooser.getSelectedFile();
-					String filePath = chosenFile.getPath();
-
-					WorkflowEditorTab weTab = getActiveTab((WorkflowEditor) editor);
-					if (weTab != null) {
-						weTab.nhwf.save(filePath);
-						System.out.println("TODO: saved to file " + filePath);
-					} else {
-						assert (false);
-					}
-				}
-			}
-		}*/
 	}
 }

@@ -36,7 +36,7 @@ import org.vanda.studio.modules.dictionaries.Dictionary.MyDouble;
 import org.vanda.studio.util.Observer;
 
 /**
- * The class DictView is a Swing-Component for viewing the output of the EM
+ * The class DictView is a Swing Component for viewing the output of the EM
  * algorithm for training a probablistic bilingual dictionary.
  * 
  * @author stueber

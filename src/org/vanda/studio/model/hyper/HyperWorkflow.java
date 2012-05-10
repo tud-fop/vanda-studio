@@ -3,6 +3,7 @@ package org.vanda.studio.model.hyper;
 import java.util.Collection;
 import java.util.ListIterator;
 
+import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Pair;
 
@@ -16,6 +17,8 @@ public interface HyperWorkflow<F> {
 	public abstract void addConnection(Connection<F> cc);
 	
 	public abstract Job<?> dereference(ListIterator<Integer> address);
+	
+	public abstract ImmutableWorkflow<F> freeze() throws Exception;
 
 	public abstract Observable<Pair<MutableWorkflow<F>, Job<F>>> getAddObservable();
 	

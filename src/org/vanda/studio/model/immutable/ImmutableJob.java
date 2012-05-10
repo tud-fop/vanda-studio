@@ -27,29 +27,29 @@ public abstract class ImmutableJob<F> {
 
 	public static void appendOutput(ArrayList<Integer> outputs, StringBuilder lines) {
 		if (outputs.size() != 1)
-			lines.append("(");
+			lines.append('(');
 		if (outputs.size() != 0) {
 			lines.append("x");
-			lines.append(outputs.get(1));
+			lines.append(outputs.get(0));
 		}
 		for (int i = 1; i < outputs.size(); i++) {
-			lines.append(" , x");
+			lines.append(", x");
 			lines.append(outputs.get(i));
 		}
 		if (outputs.size() != 1)
-			lines.append(")");		
+			lines.append(')');		
 	}
 	
 	public static void appendInput(ArrayList<Integer> inputs, StringBuilder lines) {
 		lines.append('(');
 		if (inputs.size() != 0) {
 			lines.append("x");
-			lines.append(inputs.get(1));
+			lines.append(inputs.get(0));
 		}
 		for (int i = 1; i < inputs.size(); i++) {
-			lines.append(" , x");
+			lines.append(", x");
 			lines.append(inputs.get(i));
 		}
-		lines.append('(');
+		lines.append(')');
 	}
 }

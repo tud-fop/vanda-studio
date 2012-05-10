@@ -8,29 +8,33 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.elements.Choice;
 import org.vanda.studio.model.elements.Element;
-import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.Literal;
-import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.hyper.AtomicJob;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.modules.workflows.jgraph.Adapter;
 import org.vanda.studio.modules.workflows.jgraph.JobRendering;
 import org.vanda.studio.util.Action;
@@ -57,7 +61,7 @@ public class WorkflowEditor {
 
 	public WorkflowEditor(Application a, MutableWorkflow<?> hwf) {
 		app = a;
-		
+
 		this.hwf = hwf;
 
 		renderer = new Adapter(hwf);
@@ -65,8 +69,8 @@ public class WorkflowEditor {
 		palettegraph = JobRendering.createGraph();
 		palettegraph.setCellsLocked(true);
 		palette = new mxGraphComponent(palettegraph);
-		//palette.getGraphControl().addMouseListener(
-		//		new EditMouseAdapter(app, palette));
+		// palette.getGraphControl().addMouseListener(
+		// new EditMouseAdapter(app, palette));
 		component = new mxGraphComponent(renderer.getGraph());
 		component.setDragEnabled(false);
 		component.getGraphControl().addMouseListener(
@@ -83,25 +87,26 @@ public class WorkflowEditor {
 		mainpane.setDividerSize(6);
 		mainpane.setBorder(null);
 
+		getComponent().setName("Workflow");
+
 		app.getUIModeObservable().addObserver(new UIModeObserver(app, palette));
-		app.getUIModeObservable().addObserver(new UIModeObserver(app, component));
-		app.getWindowSystem().addContentWindow("", "the Workflow", null,
-				getComponent(),	null /*
-				new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(
-						this)*/);
+		app.getUIModeObservable().addObserver(
+				new UIModeObserver(app, component));
+		// enable save button in menu
+		app.getWindowSystem().addAction(getComponent(),
+				new SaveWorkflowAction());
+		// enable close button in menu
+		app.getWindowSystem().addAction(getComponent(),
+				new CheckWorkflowAction());
+		app.getWindowSystem().addAction(getComponent(),
+				new CloseWorkflowAction());
+		app.getWindowSystem().addContentWindow("", getComponent().getName(),
+				null, getComponent(), null
+		/*
+		 * new WorkflowModule.WorkflowModuleInstance .CloseWorkflowAction( this)
+		 */);
 		app.getWindowSystem().focusContentWindow(getComponent());
 		getComponent().requestFocusInWindow();
-		/*
-		// enable save button in menu
-		app.getWindowSystem().enableAction(
-				new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction(
-						this));
-
-		// enable close button in menu
-		app.getWindowSystem().enableAction(
-				new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(
-						this));
-		*/
 	}
 
 	static {
@@ -118,56 +123,42 @@ public class WorkflowEditor {
 	public void close() {
 		// remove tab
 		app.getWindowSystem().removeContentWindow(getComponent());
-		/*
-		if (tabs.isEmpty()) {
-			// disable saving option in menu
-			app
-					.getWindowSystem()
-					.disableAction(
-							new WorkflowModule.WorkflowModuleInstance.SaveWorkflowAction(
-									this));
-			// disable closing option in menu
-			app
-					.getWindowSystem()
-					.disableAction(
-							new WorkflowModule.WorkflowModuleInstance.CloseWorkflowAction(
-									this));
-		}*/
 	}
 
-		public JComponent getComponent() {
-			return mainpane;
-		}
+	public JComponent getComponent() {
+		return mainpane;
+	}
 
-		protected void updatePalette() {
-			palettegraph.getModel().beginUpdate();
-			try {
-				// clear seems to reset the zoom, so we call notify at the end
-				((mxGraphModel) palettegraph.getModel()).clear();
-				ArrayList<Element> items = new ArrayList<Element>(app
-						.getToolMetaRepository().getRepository().getItems());
-				items.add(new Choice());
-				items.add(new Literal("String", ""));
-				Collections.sort(items, new Comparator<Element>() {
-					@Override
-					public int compare(Element o1, Element o2) {
-						return o1.getCategory().compareTo(o2.getCategory());
-					}
-				});
-
-				// top left corner of first palette tool, width, height
-				double[] d = { 20, 10, 100, 80 };
-				for (Element item : items) {
-					Job<?> hj = new AtomicJob(item);
-					hj.setDimensions(d);
-					hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
-					d[1] += 90;
+	protected void updatePalette() {
+		palettegraph.getModel().beginUpdate();
+		try {
+			// clear seems to reset the zoom, so we call notify at the end
+			((mxGraphModel) palettegraph.getModel()).clear();
+			ArrayList<Element> items = new ArrayList<Element>(app
+					.getToolMetaRepository().getRepository().getItems());
+			items.add(new Choice());
+			items.add(new Literal("String", ""));
+			Collections.sort(items, new Comparator<Element>() {
+				@Override
+				public int compare(Element o1, Element o2) {
+					return o1.getCategory().compareTo(o2.getCategory());
 				}
-			} finally {
-				palettegraph.getModel().endUpdate();
+			});
+
+			// top left corner of first palette tool, width, height
+			double[] d = { 20, 10, 100, 80 };
+			for (Element item : items) {
+				Job<?> hj = new AtomicJob(item);
+				hj.setDimensions(d);
+				hj.selectRenderer(JobRendering.getRendererAssortment()).render(
+						hj, palettegraph, null);
+				d[1] += 90;
 			}
-			// TODO notifyUIMode(app);
+		} finally {
+			palettegraph.getModel().endUpdate();
 		}
+		// TODO notifyUIMode(app);
+	}
 
 	/**
 	 * Handles KeyEvents such as removing cells when focussed and pressing DEL
@@ -201,12 +192,16 @@ public class WorkflowEditor {
 				for (Object o : cells) {
 					// FIXME this is no longer possible
 					if (mod.isEdge(o))
-						((Job) ((Connection) mod.getValue(o)).getSource()).getParent().removeConnection((Connection) mod.getValue(o));
-					//	HyperWorkflow.removeConnectionGeneric((Connection<?>) mod.getValue(o));
+						((Job) ((Connection) mod.getValue(o)).getSource())
+								.getParent().removeConnection(
+										(Connection) mod.getValue(o));
+					// HyperWorkflow.removeConnectionGeneric((Connection<?>)
+					// mod.getValue(o));
 				}
 				for (Object o : cells) {
 					if (mod.isVertex(o) && mod.getValue(o) instanceof Job<?>)
-						MutableWorkflow.removeChildGeneric((Job<?>) mod.getValue(o));
+						MutableWorkflow.removeChildGeneric((Job<?>) mod
+								.getValue(o));
 				}
 			}
 
@@ -246,14 +241,14 @@ public class WorkflowEditor {
 			// show context menu when right clicking a node or an edge
 			if (e.getButton() == 3) {
 				Object cell = component.getCellAt(e.getX(), e.getY());
-				final Object value = component.getGraph().getModel().getValue(
-						cell);
+				final Object value = component.getGraph().getModel()
+						.getValue(cell);
 
 				PopupMenu menu = null;
 
 				// create connection specific context menu
 				if (value instanceof Connection<?>) {
-					//menu = new PopupMenu(((Connection<?>) value).toString());
+					// menu = new PopupMenu(((Connection<?>) value).toString());
 					menu = new PopupMenu(cell.toString());
 
 					@SuppressWarnings("serial")
@@ -261,7 +256,8 @@ public class WorkflowEditor {
 						@Override
 						public void fireActionPerformed(ActionEvent e) {
 							// FIXME oh noes, see above
-							// HyperWorkflow.removeConnectionGeneric((Connection<?>) value);
+							// HyperWorkflow.removeConnectionGeneric((Connection<?>)
+							// value);
 						}
 					};
 
@@ -281,7 +277,8 @@ public class WorkflowEditor {
 						JMenuItem item = new JMenuItem("Remove Vertex") {
 							@Override
 							public void fireActionPerformed(ActionEvent e) {
-								MutableWorkflow.removeChildGeneric((Job<?>) value);
+								MutableWorkflow
+										.removeChildGeneric((Job<?>) value);
 							}
 						};
 
@@ -305,7 +302,7 @@ public class WorkflowEditor {
 									a.invoke();
 								}
 							};
-							menu.add(item);							
+							menu.add(item);
 						}
 					}
 					menu.show(e.getComponent(), e.getX(), e.getY());
@@ -340,9 +337,12 @@ public class WorkflowEditor {
 
 			// translate view to keep mouse point as fixpoint
 			double scaleAfter = component.getGraph().getView().getScale();
-			component.getGraph().getView().scaleAndTranslate(scaleAfter,
-					-e.getX() * (1.0 - 1.0 / scaleAfter),
-					-e.getY() * (1.0 - 1.0 / scaleAfter));
+			component
+					.getGraph()
+					.getView()
+					.scaleAndTranslate(scaleAfter,
+							-e.getX() * (1.0 - 1.0 / scaleAfter),
+							-e.getY() * (1.0 - 1.0 / scaleAfter));
 		}
 	}
 
@@ -375,6 +375,103 @@ public class WorkflowEditor {
 				component.zoomTo(1.5, false);
 			else
 				component.zoomActual();
+		}
+	}
+
+	protected class SaveWorkflowAction implements Action {
+
+		public SaveWorkflowAction() {
+		}
+
+		@Override
+		public String getName() {
+			return "Save Workflow";
+		}
+
+		@Override
+		public void invoke() {
+			// create a new file opening dialog
+			@SuppressWarnings("serial")
+			JFileChooser chooser = new JFileChooser("") {
+				@Override
+				public void approveSelection() {
+					File f = getSelectedFile();
+					if (f.exists() && getDialogType() == SAVE_DIALOG) {
+						int result = JOptionPane.showConfirmDialog(this,
+								"The file exists already. Replace?",
+								"Existing file",
+								JOptionPane.YES_NO_CANCEL_OPTION);
+						switch (result) {
+						case JOptionPane.YES_OPTION:
+							super.approveSelection();
+							return;
+						case JOptionPane.NO_OPTION:
+							return;
+						case JOptionPane.CANCEL_OPTION:
+							cancelSelection();
+							return;
+						default:
+							return;
+						}
+					}
+					super.approveSelection();
+				}
+			};
+
+			chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			chooser.setFileFilter(new FileNameExtensionFilter(
+					"Nested Hyperworkflows (*.nhwf)", "nhwf"));
+			chooser.setVisible(true);
+			int result = chooser.showSaveDialog(null);
+
+			// once file choice is approved, save the chosen file
+			if (result == JFileChooser.APPROVE_OPTION) {
+				File chosenFile = chooser.getSelectedFile();
+				String filePath = chosenFile.getPath();
+
+				// hwf.save(filePath);
+			}
+		}
+	}
+
+	protected class CheckWorkflowAction implements Action {
+
+		@Override
+		public String getName() {
+			return "Check Workflow";
+		}
+
+		@Override
+		public void invoke() {
+			try {
+				ImmutableWorkflow iwf = hwf.freeze();
+				StringBuilder sb = new StringBuilder();
+				iwf.appendText(sb);
+				System.out.print(sb);
+				List<ImmutableWorkflow> iwfs = iwf.unfold();
+				for (ImmutableWorkflow i : iwfs) {
+					sb = new StringBuilder();
+					i.appendText(sb);
+					System.out.print(sb);				
+				}
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	protected class CloseWorkflowAction implements Action {
+
+		@Override
+		public String getName() {
+			return "Close Workflow";
+		}
+
+		@Override
+		public void invoke() {
+			close();
 		}
 	}
 }

@@ -8,29 +8,32 @@ import java.util.ListIterator;
 import java.util.Map;
 
 public final class ImmutableWorkflow<F> {
-	
+
 	final ArrayList<JobInfo<F>> children;
 	final int[] tokenSource;
 	private final Map<Integer, ImmutableJob<F>> deref;
-	
+
 	/**
 	 * 
-	 * @param children topological sort of children
-	 * @param maxtoken maximum token
+	 * @param children
+	 *            topological sort of children
+	 * @param maxtoken
+	 *            maximum token
 	 */
 	public ImmutableWorkflow(ArrayList<JobInfo<F>> children, int maxtoken) {
 		this.children = children;
 		deref = new HashMap<Integer, ImmutableJob<F>>();
 		tokenSource = new int[maxtoken];
-		for (int i = 0; i < children.size(); i++) {
-			JobInfo<F> ji = children.get(i);
-			for (Integer tok : ji.outputs)
-				tokenSource[tok.intValue()] = i;
-			deref.put(ji.address, ji.job);
+		if (maxtoken > 0) {
+			for (int i = 0; i < children.size(); i++) {
+				JobInfo<F> ji = children.get(i);
+				for (Integer tok : ji.outputs)
+					tokenSource[tok.intValue()] = i;
+				deref.put(ji.address, ji.job);
+			}
 		}
 	}
-	
-	
+
 	public ImmutableJob<?> dereference(ListIterator<Integer> address) {
 		assert (address != null && address.hasNext());
 		ImmutableJob<?> hj = deref.get(address.next());
@@ -43,14 +46,12 @@ public final class ImmutableWorkflow<F> {
 		return children;
 	}
 
-
 	public List<ImmutableWorkflow<F>> unfold() {
 		if (tokenSource.length == 0)
 			return Collections.singletonList(this);
 		else
 			return new Unfolder<F>(this).unfold();
 	}
-
 
 	public void appendText(StringBuilder sections) {
 		ArrayList<Integer> outputs = new ArrayList<Integer>();
@@ -62,7 +63,7 @@ public final class ImmutableWorkflow<F> {
 			}
 			if (ji.job.isOutputPort()) {
 				outputs.add(ji.inputs.get(0));
-				
+
 			}
 		}
 		StringBuilder lines = new StringBuilder();

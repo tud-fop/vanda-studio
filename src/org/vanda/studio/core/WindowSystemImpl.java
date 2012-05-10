@@ -3,6 +3,7 @@
  */
 package org.vanda.studio.core;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -21,6 +22,8 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.UIMode;
@@ -34,13 +37,6 @@ import org.vanda.studio.util.Observer;
  */
 public class WindowSystemImpl implements WindowSystem {
 
-	protected class Window {
-		String id;
-		String title;
-		Icon icon;
-		JComponent component;
-	}
-
 	protected final Application app;
 	protected JFrame mainWindow;
 	protected JTabbedPane contentPane;
@@ -48,6 +44,7 @@ public class WindowSystemImpl implements WindowSystem {
 	protected JMenuBar menuBar;
 	protected JMenu fileMenu;
 	protected HashMap<UIMode, JRadioButtonMenuItem> modeMenuItems;
+	protected HashMap<JComponent, JMenu> windowMenus;
 	protected ButtonGroup modeGroup;
 
 	/**
@@ -76,7 +73,7 @@ public class WindowSystemImpl implements WindowSystem {
 
 		// Create a simple JMenuBar
 		menuBar = new JMenuBar();
-		fileMenu = new JMenu("File");
+		fileMenu = new JMenu("Studio");
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
@@ -89,7 +86,7 @@ public class WindowSystemImpl implements WindowSystem {
 		addSeparator();
 		menuBar.add(fileMenu);
 
-		JMenu optionsMenu = new JMenu("UI Mode");
+		final JMenu optionsMenu = new JMenu("UI Mode");
 		modeGroup = new ButtonGroup();
 		modeMenuItems = new HashMap<UIMode, JRadioButtonMenuItem>();
 		Collection<UIMode> modes = app.getUIModes();
@@ -115,6 +112,8 @@ public class WindowSystemImpl implements WindowSystem {
 			}
 		});
 		menuBar.add(optionsMenu);
+		
+		windowMenus = new HashMap<JComponent, JMenu>();
 
 		mainWindow.setJMenuBar(menuBar);
 
@@ -134,6 +133,22 @@ public class WindowSystemImpl implements WindowSystem {
 		inner.setResizeWeight(1);
 		inner.setDividerSize(6);
 		inner.setBorder(null);
+		
+		contentPane.addChangeListener(new ChangeListener () {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				Component c = contentPane.getSelectedComponent();
+				JMenu menu = windowMenus.get(c);
+				if (menuBar.getMenu(1) != menu)
+					if (menuBar.getMenu(1) != optionsMenu)
+						menuBar.remove(1);
+					if (menu != null)
+						menuBar.add(menu, 1);
+				
+			}
+			
+		});
 
 		// Puts everything together
 		// mainWindow.getContentPane().setLayout(new BorderLayout());
@@ -153,7 +168,7 @@ public class WindowSystemImpl implements WindowSystem {
 	}
 
 	@Override
-	public void addAction(final Action a) {
+	public void addAction(JComponent c, final Action a) {
 		JMenuItem item = new JMenuItem(a.getName());
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -161,7 +176,15 @@ public class WindowSystemImpl implements WindowSystem {
 				a.invoke();
 			}
 		});
-		fileMenu.insert(item, 0);
+		if (c != null) {
+			JMenu menu = windowMenus.get(c);
+			if (menu == null) {
+				menu = new JMenu(c.getName());
+				windowMenus.put(c, menu);
+			}
+			menu.add(item);
+		} else
+			fileMenu.insert(item, 0);
 	}
 
 	/**

@@ -64,11 +64,13 @@ public class Unfolder<F> {
 		/*
 		 * step 1: unfold children separately, putting everything into a map
 		 */
-		ArrayList<NAryDigit<F>> counters = new ArrayList<NAryDigit<F>>();
+		ArrayList<NAryDigit<F>> counters = new ArrayList<NAryDigit<F>>(parent.children.size());
 		for (int i = 0; i < parent.children.size(); i++) {
 			List<ImmutableJob<F>> js = parent.children.get(i).job.unfold();
 			if (js != null)
-				counters.set(i, new NAryDigit<F>(js));
+				counters.add(new NAryDigit<F>(js));
+			else
+				counters.add(null);
 		}
 		/*
 		 * step 2: resolve Choice nodes, pruning everything that is no longer
@@ -92,13 +94,13 @@ public class Unfolder<F> {
 			// since carry is true at the bottom of the loop, counters should be
 			// reset
 			for (int i = 0; i < counters.size(); i++) {
-				assert (counters.get(i).isReset());
+				assert (counters.get(i) == null || counters.get(i).isReset());
 			}
 			/*
 			 * go through all combinations and create the corresponding
 			 * JobWorkflows
 			 */
-			boolean carry = p.remaining > 0;
+			boolean carry = p.remaining == 0;
 			while (!carry) {
 				ArrayList<JobInfo<F>> children = new ArrayList<JobInfo<F>>(
 						p.remaining);
@@ -115,14 +117,16 @@ public class Unfolder<F> {
 									new Choice(1)), ji.address,
 									new ArrayList<Integer>(1), ji.outputs,
 									ji.outCount);
-							jinew.inputs.set(1, p.choiceMap.get(i));
-						} else {
+							jinew.inputs.add(p.choiceMap.get(i));
+						} else if (counters.get(i) != null) {
 							jinew = new JobInfo<F>(
 									counters.get(i).getCurrent(), ji.address,
 									ji.inputs, ji.outputs, ji.outCount);
+						} else {
+							jinew = ji;
 						}
 						children.add(jinew);
-						if (carry)
+						if (carry && counters.get(i) != null)
 							carry = counters.get(i).advance();
 					}
 				}
