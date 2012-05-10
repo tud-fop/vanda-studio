@@ -1,12 +1,7 @@
-package org.vanda.studio.model.workflows;
+package org.vanda.studio.model.elements;
 
 import java.util.List;
 
-import org.vanda.studio.model.generation.Artifact;
-import org.vanda.studio.model.generation.ArtifactConn;
-import org.vanda.studio.model.generation.ArtifactFactory;
-import org.vanda.studio.model.generation.InvokationWorkflow;
-import org.vanda.studio.model.generation.Port;
 import org.vanda.studio.util.HasActions;
 
 /*
@@ -35,8 +30,8 @@ import org.vanda.studio.util.HasActions;
  * @param <F>
  */
 public interface Linker<IF, F> extends HasActions {
-	<T extends ArtifactConn, A extends Artifact<T>> A link(
-			ArtifactFactory<T, A, ?, F> af, InvokationWorkflow<?, ?, IF> pre);
+	/*<T extends ArtifactConn, A extends Artifact<T>> A link(
+			ArtifactFactory<T, A, ?, F> af, InvokationWorkflow<?, ?, IF> pre);*/
 
 	/**
 	 * Check whether the (inferred) outer types and the (inferred) inner types
@@ -78,7 +73,7 @@ public interface Linker<IF, F> extends HasActions {
 	 */
 	List<Port> convertOutputPorts(List<Port> ops);
 	
-	Class<IF> getFragmentType();
+	Class<IF> getInnerFragmentType();
 
-	Class<F> getViewType();
+	Class<F> getFragmentType();
 }

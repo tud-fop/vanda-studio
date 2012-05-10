@@ -1,19 +1,19 @@
-package org.vanda.studio.model.generation;
+package org.vanda.studio.model.hyper;
 
-public class Connection<E> {
-	private final E source;
+public class Connection<F> {
+	private final Job<F> source;
 	private final int sourcePort;
-	private final E target;
+	private final Job<F> target;
 	private final int targetPort;
 
-	public Connection(E source, int sourcePort, E target, int targetPort) {
+	public Connection(Job<F> source, int sourcePort, Job<F> target, int targetPort) {
 		this.source = source;
 		this.sourcePort = sourcePort;
 		this.target = target;
 		this.targetPort = targetPort;
 	}
 
-	public final E getSource() {
+	public final Job<F> getSource() {
 		return source;
 	}
 
@@ -21,7 +21,7 @@ public class Connection<E> {
 		return sourcePort;
 	}
 
-	public final E getTarget() {
+	public final Job<F> getTarget() {
 		return target;
 	}
 

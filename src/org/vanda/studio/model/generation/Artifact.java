@@ -2,6 +2,7 @@ package org.vanda.studio.model.generation;
 
 import java.util.List;
 
+import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.util.HasActions;
 
 public interface Artifact<T extends ArtifactConn> extends HasActions {

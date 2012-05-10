@@ -8,14 +8,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.vanda.studio.model.generation.Artifact;
-import org.vanda.studio.model.generation.ArtifactConn;
-import org.vanda.studio.model.generation.ArtifactFactory;
-import org.vanda.studio.model.generation.Port;
-import org.vanda.studio.model.generation.ShellView;
-import org.vanda.studio.model.workflows.RendererAssortment;
+import org.vanda.studio.model.elements.Element;
+import org.vanda.studio.model.elements.Port;
+import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.modules.common.ModuleInstance;
-import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.modules.common.ToolFactory;
 import org.vanda.studio.util.Action;
 
@@ -24,17 +20,17 @@ import org.vanda.studio.util.Action;
  * @author buechse
  * 
  */
-public class VDictionaryFactory implements ToolFactory<ShellView, VDictionary> {
+public class VDictionaryFactory implements ToolFactory<Object, VDictionary> {
 	
 	@Override
 	public VDictionary createInstance(
-		ModuleInstance<ShellView, VDictionary> mod,
+		ModuleInstance<Object, VDictionary> mod,
 		File f)
 	{
 		return new VDictionaryImpl(mod, f);
 	}
 	
-	protected static class VDictionaryImpl implements VDictionary {
+	protected static class VDictionaryImpl extends VDictionary {
 		
 		protected static final List<Port> inports;
 		protected static final List<Port> outports;
@@ -45,7 +41,7 @@ public class VDictionaryFactory implements ToolFactory<ShellView, VDictionary> {
 			outports.add(new Port("dictionary", "dictionary"));
 		}
 		
-		ModuleInstance<ShellView, VDictionary> mod;
+		ModuleInstance<Object, VDictionary> mod;
 		File file;
 		String author;
 		String category;
@@ -54,7 +50,7 @@ public class VDictionaryFactory implements ToolFactory<ShellView, VDictionary> {
 		String id;
 		String name;
 		
-		public VDictionaryImpl(ModuleInstance<ShellView, VDictionary> mod, File file) {
+		public VDictionaryImpl(ModuleInstance<Object, VDictionary> mod, File file) {
 			this.mod = mod;
 			this.file = file;
 			author = "unknown";
@@ -82,6 +78,11 @@ public class VDictionaryFactory implements ToolFactory<ShellView, VDictionary> {
 						mod.openEditor(VDictionaryImpl.this);
 					}
 				});
+		}
+		
+		@Override
+		public Element clone() {
+			return this;
 		}
 
 		@Override
@@ -137,13 +138,12 @@ public class VDictionaryFactory implements ToolFactory<ShellView, VDictionary> {
 		/*@Override
 		public <T extends ArtifactConn, A extends Artifact<T>, F> A createArtifact(
 				ArtifactFactory<T, A, F, ShellView> af) {
-			// TODO Auto-generated method stub
 			return null;
 		}*/
 
 		@Override
-		public Class<ShellView> getFragmentType() {
-			return ShellView.class;
+		public Class<Object> getFragmentType() {
+			return Object.class;
 		}
 		
 	}

@@ -11,10 +11,8 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.app.MetaRepository;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
-import org.vanda.studio.model.generation.Profile;
-import org.vanda.studio.model.workflows.Compiler;
-import org.vanda.studio.model.workflows.Linker;
-import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.elements.Linker;
+import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 
@@ -27,9 +25,9 @@ public final class ApplicationImpl implements Application {
 	protected UIMode mode;
 	protected final ArrayList<UIMode> modes;
 	protected final MultiplexObserver<Application> modeObservable;
-	protected final CompositeRepository<Compiler<?, ?>> compilerRepository;
+	// protected final CompositeRepository<Compiler<?, ?>> compilerRepository;
 	protected final CompositeRepository<Linker<?, ?>> linkerRepository;
-	protected final CompositeRepository<Profile> profileRepository;
+	// protected final CompositeRepository<Profile> profileRepository;
 	protected final CompositeRepository<Tool<?>> toolRepository;
 	protected final MultiplexObserver<Application> shutdownObservable;
 	protected final WindowSystemImpl windowSystem;
@@ -39,9 +37,9 @@ public final class ApplicationImpl implements Application {
 		addUIModes(modes);
 		mode = modes.get(0);
 		modeObservable = new MultiplexObserver<Application>();
-		compilerRepository = new CompositeRepository<Compiler<?,?>>();
+		// compilerRepository = new CompositeRepository<Compiler<?,?>>();
 		linkerRepository = new CompositeRepository<Linker<?,?>>();
-		profileRepository = new CompositeRepository<Profile>();
+		// profileRepository = new CompositeRepository<Profile>();
 		toolRepository = new CompositeRepository<Tool<?>>();
 		shutdownObservable = new MultiplexObserver<Application>();
 		windowSystem = new WindowSystemImpl(this);
@@ -129,20 +127,22 @@ public final class ApplicationImpl implements Application {
 			});
 	}
 
+	/*
 	@Override
 	public MetaRepository<Compiler<?, ?>> getCompilerMetaRepository() {
 		return compilerRepository;
-	}
+	}*/
 
 	@Override
 	public MetaRepository<Linker<?, ?>> getLinkerMetaRepository() {
 		return linkerRepository;
 	}
 
+	/*
 	@Override
 	public MetaRepository<Profile> getProfileMetaRepository() {
 		return profileRepository;
-	}
+	}*/
 
 	@Override
 	public MetaRepository<Tool<?>> getToolMetaRepository() {

@@ -6,7 +6,7 @@ package org.vanda.studio.modules.common;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.util.Observer;
 
 /**

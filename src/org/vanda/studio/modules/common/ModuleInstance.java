@@ -3,7 +3,7 @@
  */
 package org.vanda.studio.modules.common;
 
-import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.util.Observer;
 
 /**

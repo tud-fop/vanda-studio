@@ -21,11 +21,16 @@ import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.model.hyper.AtomicHyperJob;
-import org.vanda.studio.model.hyper.HyperConnection;
-import org.vanda.studio.model.hyper.HyperJob;
+import org.vanda.studio.model.elements.Choice;
+import org.vanda.studio.model.elements.Element;
+import org.vanda.studio.model.elements.InputPort;
+import org.vanda.studio.model.elements.Literal;
+import org.vanda.studio.model.elements.Tool;
+import org.vanda.studio.model.hyper.AtomicJob;
+import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.HyperWorkflow;
-import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.hyper.Job;
+import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.workflows.jgraph.Adapter;
 import org.vanda.studio.modules.workflows.jgraph.JobRendering;
 import org.vanda.studio.util.Action;
@@ -50,7 +55,7 @@ public class WorkflowEditor {
 	protected mxGraphComponent palette;
 	protected JSplitPane mainpane;
 
-	public WorkflowEditor(Application a, HyperWorkflow<?> hwf) {
+	public WorkflowEditor(Application a, MutableWorkflow<?> hwf) {
 		app = a;
 		
 		this.hwf = hwf;
@@ -139,19 +144,21 @@ public class WorkflowEditor {
 			try {
 				// clear seems to reset the zoom, so we call notify at the end
 				((mxGraphModel) palettegraph.getModel()).clear();
-				ArrayList<Tool<?>> items = new ArrayList<Tool<?>>(app
+				ArrayList<Element> items = new ArrayList<Element>(app
 						.getToolMetaRepository().getRepository().getItems());
-				Collections.sort(items, new Comparator<Tool<?>>() {
+				items.add(new Choice());
+				items.add(new Literal("String", ""));
+				Collections.sort(items, new Comparator<Element>() {
 					@Override
-					public int compare(Tool<?> o1, Tool<?> o2) {
+					public int compare(Element o1, Element o2) {
 						return o1.getCategory().compareTo(o2.getCategory());
 					}
 				});
 
 				// top left corner of first palette tool, width, height
 				double[] d = { 20, 10, 100, 80 };
-				for (Tool<?> item : items) {
-					HyperJob<?> hj = AtomicHyperJob.create(item);
+				for (Element item : items) {
+					Job<?> hj = new AtomicJob(item);
 					hj.setDimensions(d);
 					hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
 					d[1] += 90;
@@ -194,12 +201,12 @@ public class WorkflowEditor {
 				for (Object o : cells) {
 					// FIXME this is no longer possible
 					if (mod.isEdge(o))
-						((HyperJob) ((HyperConnection) mod.getValue(o)).getSource()).getParent().removeConnection((HyperConnection) mod.getValue(o));
-					//	HyperWorkflow.removeConnectionGeneric((HyperConnection<?>) mod.getValue(o));
+						((Job) ((Connection) mod.getValue(o)).getSource()).getParent().removeConnection((Connection) mod.getValue(o));
+					//	HyperWorkflow.removeConnectionGeneric((Connection<?>) mod.getValue(o));
 				}
 				for (Object o : cells) {
-					if (mod.isVertex(o) && mod.getValue(o) instanceof HyperJob<?>)
-						HyperWorkflow.removeChildGeneric((HyperJob<?>) mod.getValue(o));
+					if (mod.isVertex(o) && mod.getValue(o) instanceof Job<?>)
+						MutableWorkflow.removeChildGeneric((Job<?>) mod.getValue(o));
 				}
 			}
 
@@ -245,8 +252,8 @@ public class WorkflowEditor {
 				PopupMenu menu = null;
 
 				// create connection specific context menu
-				if (value instanceof HyperConnection<?>) {
-					//menu = new PopupMenu(((HyperConnection<?>) value).toString());
+				if (value instanceof Connection<?>) {
+					//menu = new PopupMenu(((Connection<?>) value).toString());
 					menu = new PopupMenu(cell.toString());
 
 					@SuppressWarnings("serial")
@@ -254,7 +261,7 @@ public class WorkflowEditor {
 						@Override
 						public void fireActionPerformed(ActionEvent e) {
 							// FIXME oh noes, see above
-							// HyperWorkflow.removeConnectionGeneric((HyperConnection<?>) value);
+							// HyperWorkflow.removeConnectionGeneric((Connection<?>) value);
 						}
 					};
 
@@ -265,16 +272,16 @@ public class WorkflowEditor {
 				}
 
 				// create node specific context menu
-				if (value instanceof HyperJob<?>) {
-					menu = new PopupMenu(((HyperJob<?>) value).getName());
+				if (value instanceof Job<?>) {
+					menu = new PopupMenu(((Job<?>) value).getName());
 
 					// only create a remove action if it's not a palette tool
-					if (((HyperJob<?>) value).getParent() != null) {
+					if (((Job<?>) value).getParent() != null) {
 						@SuppressWarnings("serial")
 						JMenuItem item = new JMenuItem("Remove Vertex") {
 							@Override
 							public void fireActionPerformed(ActionEvent e) {
-								HyperWorkflow.removeChildGeneric((HyperJob<?>) value);
+								MutableWorkflow.removeChildGeneric((Job<?>) value);
 							}
 						};
 

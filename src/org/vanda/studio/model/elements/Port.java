@@ -1,4 +1,4 @@
-package org.vanda.studio.model.generation;
+package org.vanda.studio.model.elements;
 
 /**
  * Port of a Tool. Currently, the type is just represented as a String.

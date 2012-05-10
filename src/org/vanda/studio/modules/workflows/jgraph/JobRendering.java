@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.model.workflows.RendererAssortment;
-import org.vanda.studio.model.generation.Port;
-import org.vanda.studio.model.hyper.HyperJob;
+import org.vanda.studio.model.elements.Port;
+import org.vanda.studio.model.elements.RendererAssortment;
+import org.vanda.studio.model.hyper.Job;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -150,10 +150,14 @@ public class JobRendering {
 		@Override
 		public void addStyle(Map<String, Object> style) {
 			//style.put(mxConstants.STYLE_AUTOSIZE, "0");
+			style.put(mxConstants.STYLE_SPACING, 10);
+			style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
+			style.put(mxConstants.STYLE_AUTOSIZE, "1");
+			style.put(mxConstants.STYLE_RESIZABLE, "0");
 		}
 
 		@Override
-		public void render(HyperJob<?> hj, mxGraph g, Object parentCell) {
+		public void render(Job<?> hj, mxGraph g, Object parentCell) {
 			Object parent = parentCell;
 			if (parentCell == null) {
 				parent = g.getDefaultParent();
@@ -253,7 +257,9 @@ public class JobRendering {
 	protected static class ChoiceNodeRenderer extends DefaultRenderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
+			super.addStyle(style);
 			style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
+			style.put(mxConstants.STYLE_NOLABEL, "true");
 		}
 
 		@Override
@@ -265,12 +271,9 @@ public class JobRendering {
 	protected static class GrammarRenderer extends DefaultRenderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
+			super.addStyle(style);
 			style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RHOMBUS);
 			style.put(mxConstants.STYLE_PERIMETER, mxPerimeter.RhombusPerimeter);
-			style.put(mxConstants.STYLE_SPACING, 10);
-			style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
-			style.put(mxConstants.STYLE_AUTOSIZE, "1");
-			style.put(mxConstants.STYLE_RESIZABLE, "0");
 		}
 
 		@Override

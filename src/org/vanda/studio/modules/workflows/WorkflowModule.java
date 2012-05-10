@@ -5,18 +5,11 @@ import java.util.List;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.model.generation.Artifact;
-import org.vanda.studio.model.generation.ArtifactConn;
-import org.vanda.studio.model.generation.ArtifactFactory;
-import org.vanda.studio.model.generation.Port;
-import org.vanda.studio.model.generation.Profile;
-import org.vanda.studio.model.generation.ShellView;
-import org.vanda.studio.model.hyper.HyperWorkflow;
-import org.vanda.studio.model.workflows.Compiler;
-import org.vanda.studio.model.workflows.RendererAssortment;
-import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.elements.Port;
+import org.vanda.studio.model.elements.RendererAssortment;
+import org.vanda.studio.model.elements.Tool;
+import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.common.SimpleRepository;
-import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.util.Action;
 
 public class WorkflowModule implements Module {
@@ -30,7 +23,7 @@ public class WorkflowModule implements Module {
 	public String getName() {
 		return "Workflows"; // Module for Vanda Studio";
 	}
-
+	
 	protected static class WorkflowModuleInstance {
 
 		Application app;
@@ -41,11 +34,11 @@ public class WorkflowModule implements Module {
 			app.getWindowSystem().addSeparator();			
 			
 			//XXX adding three tools to repository for testing purposes
-			SimpleRepository<ShellView,Tool<ShellView>> tr 
-				= new SimpleRepository<ShellView,Tool<ShellView>>(
+			SimpleRepository<Object,Tool<Object>> tr 
+				= new SimpleRepository<Object,Tool<Object>>(
 						null);
 			
-			Tool<ShellView> sourceTool = new Tool<ShellView>() {	
+			Tool<Object> sourceTool = new Tool<Object>() {	
 				public String getAuthor() {
 					return "afischer";
 				}
@@ -73,8 +66,8 @@ public class WorkflowModule implements Module {
 					list.add(p);
 					return list;
 				}
-				public Class<ShellView> getFragmentType() {
-					return ShellView.class;
+				public Class<Object> getFragmentType() {
+					return Object.class;
 				}
 				public <R> R selectRenderer(RendererAssortment<R> ra) {
 					return ra.selectSinkRenderer();
@@ -83,7 +76,7 @@ public class WorkflowModule implements Module {
 				}
 			};
 			
-			Tool<ShellView> algoTool = new Tool<ShellView>() {	
+			Tool<Object> algoTool = new Tool<Object>() {	
 				public String getAuthor() {
 					return "afischer";
 				}
@@ -114,8 +107,8 @@ public class WorkflowModule implements Module {
 					list.add(p);
 					return list;
 				}
-				public Class<ShellView> getFragmentType() {
-					return ShellView.class;
+				public Class<Object> getFragmentType() {
+					return Object.class;
 				}
 				public <R> R selectRenderer(RendererAssortment<R> ra) {
 					return ra.selectSinkRenderer();
@@ -124,7 +117,7 @@ public class WorkflowModule implements Module {
 				}
 			};
 			
-			Tool<ShellView> sinkTool = new Tool<ShellView>() {	
+			Tool<Object> sinkTool = new Tool<Object>() {	
 				public String getAuthor() {
 					return "afischer";
 				}
@@ -152,8 +145,8 @@ public class WorkflowModule implements Module {
 				public List<Port> getOutputPorts() {
 					return new ArrayList<Port>();
 				}
-				public Class<ShellView> getFragmentType() {
-					return ShellView.class;
+				public Class<Object> getFragmentType() {
+					return Object.class;
 				}
 				public <R> R selectRenderer(RendererAssortment<R> ra) {
 					return ra.selectSinkRenderer();
@@ -244,7 +237,7 @@ public class WorkflowModule implements Module {
 
 			@Override
 			public void invoke() {
-				new WorkflowEditor(app, new HyperWorkflow<ShellView>(ShellView.class));
+				new WorkflowEditor(app, new MutableWorkflow<Object>(Object.class));
 			}
 		}
 

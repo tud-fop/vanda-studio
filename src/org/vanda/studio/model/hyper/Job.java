@@ -2,31 +2,33 @@ package org.vanda.studio.model.hyper;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ListIterator;
 
-import org.vanda.studio.model.generation.Port;
-import org.vanda.studio.model.generation.WorkflowElement;
-import org.vanda.studio.model.workflows.RendererAssortment;
+import org.vanda.studio.model.elements.Port;
+import org.vanda.studio.model.elements.RendererAssortment;
+import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.util.HasActions;
 
-public abstract class HyperJob<F> implements WorkflowElement, HasActions, Cloneable {
+public abstract class Job<F> implements HasActions, Cloneable {
 	
 	protected double[] dimensions = new double[4];
 	
 	protected HyperWorkflow<F> parent;
 	
 	@Override
-	public HyperJob<F> clone() throws CloneNotSupportedException {
+	public Job<F> clone() throws CloneNotSupportedException {
 		@SuppressWarnings("unchecked")
-		HyperJob<F> cl = (HyperJob<F>) super.clone();
+		Job<F> cl = (Job<F>) super.clone();
 		cl.dimensions = Arrays.copyOf(dimensions, 4);
 		return cl;
 	}
+	
+	public abstract Job<?> dereference(ListIterator<Integer> address);
 	
 	public double getHeight() {
 		return dimensions[3];
 	}
 
-	@Override
 	public abstract List<Port> getInputPorts();
 
 	public abstract String getName();
@@ -35,7 +37,6 @@ public abstract class HyperJob<F> implements WorkflowElement, HasActions, Clonea
 		return parent;
 	}
 
-	@Override
 	public abstract List<Port> getOutputPorts();
 	
 	public abstract Class<F> getFragmentType();
@@ -56,7 +57,7 @@ public abstract class HyperJob<F> implements WorkflowElement, HasActions, Clonea
 
 	public abstract boolean isOutputPort();
 
-	public abstract List<HyperJob<F>> unfold() throws CloneNotSupportedException;
+	public abstract ImmutableJob<F> freeze() throws Exception;
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);
 	

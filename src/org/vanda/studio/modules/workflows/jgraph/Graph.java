@@ -1,8 +1,8 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import org.vanda.studio.model.hyper.CompositeHyperJob;
-import org.vanda.studio.model.hyper.HyperJob;
-import org.vanda.studio.model.hyper.HyperWorkflow;
+import org.vanda.studio.model.hyper.CompositeJob;
+import org.vanda.studio.model.hyper.Job;
+import org.vanda.studio.model.hyper.MutableWorkflow;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -46,8 +46,8 @@ class Graph extends mxGraph {
 
 		Object value = model.getValue(cell);
 
-		if (value instanceof HyperJob<?>)
-			return ((HyperJob<?>) value).getName();
+		if (value instanceof Job<?>)
+			return ((Job<?>) value).getName();
 		else
 			return "";
 	}
@@ -61,9 +61,9 @@ class Graph extends mxGraph {
 			@Override
 			protected Object cloneValue() {
 				Object value = getValue();
-				if (value instanceof HyperJob<?>) {
+				if (value instanceof Job<?>) {
 					try {
-						return ((HyperJob<?>) value).clone();
+						return ((Job<?>) value).clone();
 					} catch (CloneNotSupportedException e) {
 						return super.cloneValue();
 					}
@@ -125,7 +125,7 @@ class Graph extends mxGraph {
 	public boolean isValidDropTarget(Object cell, Object[] cells) {
 		// works more or less, we just need the right nodes
 		Object t = ((mxCell) cell).getValue();
-		return t instanceof HyperWorkflow<?>;
+		return t instanceof MutableWorkflow<?>;
 	}
 
 	// Removes the folding icon from simple jobs and disables folding
@@ -133,7 +133,7 @@ class Graph extends mxGraph {
 	@Override
 	public boolean isCellFoldable(Object cell, boolean collapse) {
 		mxCell c = (mxCell) cell;
-		return c.getValue() instanceof CompositeHyperJob<?, ?>;
+		return c.getValue() instanceof CompositeJob<?, ?>;
 	}
 
 }

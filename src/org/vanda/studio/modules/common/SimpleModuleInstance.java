@@ -3,8 +3,7 @@ package org.vanda.studio.modules.common;
 import java.io.File;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.model.workflows.Tool;
-import org.vanda.studio.modules.common.SimpleLoader;
+import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.util.Observer;
 
 public class SimpleModuleInstance<V, T extends Tool<V>>

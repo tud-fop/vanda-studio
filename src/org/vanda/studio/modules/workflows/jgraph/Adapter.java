@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.model.hyper.CompositeHyperJob;
-import org.vanda.studio.model.hyper.HyperConnection;
-import org.vanda.studio.model.hyper.HyperJob;
+import org.vanda.studio.model.hyper.CompositeJob;
+import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.HyperWorkflow;
+import org.vanda.studio.model.hyper.Job;
+import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Pair;
 
@@ -35,7 +36,7 @@ public class Adapter {
 	protected ChangeListener changeListener;
 	protected Map<Object, mxICell> translation;
 
-	public <F> Adapter(HyperWorkflow<F> root) {
+	public <F> Adapter(MutableWorkflow<F> root) {
 		this.root = root;
 		translation = new HashMap<Object, mxICell>();
 		graph = new Graph();
@@ -54,7 +55,7 @@ public class Adapter {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <F, IF> void render(CompositeHyperJob<IF, F> parent,
+	private <F, IF> void render(CompositeJob<IF, F> parent,
 			HyperWorkflow<IF> hwf) {
 		if (!translation.containsKey(hwf)) {
 			mxCell cell = null;
@@ -84,29 +85,29 @@ public class Adapter {
 			hwf.getConnectObservable().addObserver((Observer) connectObserver);
 			hwf.getDisconnectObservable().addObserver(
 					(Observer) disconnectObserver);
-			for (HyperJob<IF> c : hwf.getChildren())
+			for (Job<IF> c : hwf.getChildren())
 				render(hwf, c);
 			// FIXME this no longer exists
-			// for (HyperConnection<IF> cc : hwf.getConnections())
+			// for (Connection<IF> cc : hwf.getConnections())
 			// render(hwf, cc);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private <F, IF> void render(HyperWorkflow<F> parent, HyperJob<F> hj) {
+	private <F, IF> void render(HyperWorkflow<F> parent, Job<F> hj) {
 		if (!translation.containsKey(hj)) {
 			Object parentCell = translation.get(parent);
 			hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj,
 					graph, parentCell);
-			if (hj instanceof CompositeHyperJob<?, ?>) {
+			if (hj instanceof CompositeJob<?, ?>) {
 				// render recursively
-				render((CompositeHyperJob<F, IF>) hj,
-						((CompositeHyperJob<F, IF>) hj).getWorkflow());
+				render((CompositeJob<F, IF>) hj,
+						((CompositeJob<F, IF>) hj).getWorkflow());
 			}
 		}
 	}
 
-	private <F> void render(HyperWorkflow<F> parent, HyperConnection<F> cc) {
+	private <F> void render(MutableWorkflow<F> parent, Connection<F> cc) {
 		Object cell = translation.get(cc);
 
 		if (cell == null) {
@@ -158,19 +159,19 @@ public class Adapter {
 
 	}
 
-	Observer<Pair<HyperWorkflow<?>, HyperJob<?>>> addObserver = new Observer<Pair<HyperWorkflow<?>, HyperJob<?>>>() {
+	Observer<Pair<MutableWorkflow<?>, Job<?>>> addObserver = new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
-		public void notify(Pair<HyperWorkflow<?>, HyperJob<?>> event) {
+		public void notify(Pair<MutableWorkflow<?>, Job<?>> event) {
 			// XXX type supernova
-			render((HyperWorkflow) event.fst, (HyperJob) event.snd);
+			render((MutableWorkflow) event.fst, (Job) event.snd);
 		}
 	};
 
-	Observer<Pair<HyperWorkflow<?>, HyperJob<?>>> modifyObserver = new Observer<Pair<HyperWorkflow<?>, HyperJob<?>>>() {
+	Observer<Pair<MutableWorkflow<?>, Job<?>>> modifyObserver = new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
 
 		@Override
-		public void notify(Pair<HyperWorkflow<?>, HyperJob<?>> event) {
+		public void notify(Pair<MutableWorkflow<?>, Job<?>> event) {
 			Object cell = translation.get(event.snd);
 			mxIGraphModel model = graph.getModel();
 			mxGeometry geo = model.getGeometry(cell);
@@ -188,31 +189,31 @@ public class Adapter {
 		}
 	};
 
-	Observer<Pair<HyperWorkflow<?>, HyperJob<?>>> removeObserver = new Observer<Pair<HyperWorkflow<?>, HyperJob<?>>>() {
+	Observer<Pair<MutableWorkflow<?>, Job<?>>> removeObserver = new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
 		@Override
-		public void notify(Pair<HyperWorkflow<?>, HyperJob<?>> event) {
+		public void notify(Pair<MutableWorkflow<?>, Job<?>> event) {
 			Object cell = translation.get(event.snd);
 			if (cell != null) {
 				graph.removeCells(new Object[] { cell });
-				if (event.snd instanceof CompositeHyperJob<?, ?>) {
-					unbind(((CompositeHyperJob<?, ?>) event.snd).getWorkflow());
+				if (event.snd instanceof CompositeJob<?, ?>) {
+					unbind(((CompositeJob<?, ?>) event.snd).getWorkflow());
 				}
 			}
 		}
 	};
 
-	Observer<Pair<HyperWorkflow<?>, HyperConnection<?>>> connectObserver = new Observer<Pair<HyperWorkflow<?>, HyperConnection<?>>>() {
+	Observer<Pair<MutableWorkflow<?>, Connection<?>>> connectObserver = new Observer<Pair<MutableWorkflow<?>, Connection<?>>>() {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
-		public void notify(Pair<HyperWorkflow<?>, HyperConnection<?>> event) {
+		public void notify(Pair<MutableWorkflow<?>, Connection<?>> event) {
 			// XXX type supernova
-			render((HyperWorkflow) event.fst, (HyperConnection) event.snd);
+			render((MutableWorkflow) event.fst, (Connection) event.snd);
 		}
 	};
 
-	Observer<Pair<HyperWorkflow<?>, HyperConnection<?>>> disconnectObserver = new Observer<Pair<HyperWorkflow<?>, HyperConnection<?>>>() {
+	Observer<Pair<MutableWorkflow<?>, Connection<?>>> disconnectObserver = new Observer<Pair<MutableWorkflow<?>, Connection<?>>>() {
 		@Override
-		public void notify(Pair<HyperWorkflow<?>, HyperConnection<?>> event) {
+		public void notify(Pair<MutableWorkflow<?>, Connection<?>> event) {
 			mxICell cell = translation.remove(event.snd);
 			if (cell != null) {
 				assert (cell.getValue() == event.snd);
@@ -233,9 +234,9 @@ public class Adapter {
 		hwf.getConnectObservable().removeObserver((Observer) connectObserver);
 		hwf.getDisconnectObservable().removeObserver(
 				(Observer) disconnectObserver);
-		for (HyperJob<F> c : hwf.getChildren()) {
-			if (c instanceof CompositeHyperJob<?, ?>) {
-				CompositeHyperJob<?, F> chj = (CompositeHyperJob<?, F>) c;
+		for (Job<F> c : hwf.getChildren()) {
+			if (c instanceof CompositeJob<?, ?>) {
+				CompositeJob<?, F> chj = (CompositeJob<?, F>) c;
 				unbind(chj.getWorkflow());
 			}
 		}
@@ -246,8 +247,8 @@ public class Adapter {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
 		mxGeometry geo = model.getGeometry(cell);
-		assert (model.isVertex(cell) && value instanceof HyperJob<?>);
-		HyperJob<?> hj = (HyperJob<?>) value;
+		assert (model.isVertex(cell) && value instanceof Job<?>);
+		Job<?> hj = (Job<?>) value;
 
 		// make sure the node does not already exist (i.e. is in map)
 		if (model.getParent(cell) != null && !translation.containsKey(hj)) {
@@ -257,8 +258,8 @@ public class Adapter {
 			// add hyperjob to parent hyperworkflow
 			// XXX this could blow up, typewise
 			Object parent = ((mxCell) cell).getParent().getValue();
-			assert (parent instanceof HyperWorkflow<?>);
-			((HyperWorkflow<?>) parent).addChild((HyperJob) hj);
+			assert (parent instanceof MutableWorkflow<?>);
+			((HyperWorkflow<?>) parent).addChild((Job) hj);
 
 			// set dimensions of to
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
@@ -283,10 +284,10 @@ public class Adapter {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
 		mxGeometry geo = model.getGeometry(cell);
-		assert (model.isVertex(cell) && value instanceof HyperJob<?>);
-		HyperJob<?> hj = (HyperJob<?>) value;
+		assert (model.isVertex(cell) && value instanceof Job<?>);
+		Job<?> hj = (Job<?>) value;
 
-		if (hj instanceof CompositeHyperJob<?, ?>) {
+		if (hj instanceof CompositeJob<?, ?>) {
 			double minWidth = 0;
 			double minHeight = 0;
 
@@ -294,7 +295,7 @@ public class Adapter {
 			for (int i = 0; i < model.getChildCount(cell); i++) {
 				mxCell child = (mxCell) model.getChildAt(cell, i);
 
-				if (child.getValue() instanceof HyperJob<?>) {
+				if (child.getValue() instanceof Job<?>) {
 					double childRightBorder = child.getGeometry().getX()
 							+ child.getGeometry().getWidth();
 					double childBottomBorder = child.getGeometry().getY()
@@ -335,7 +336,7 @@ public class Adapter {
 	protected void updateEdge(mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
-		HyperConnection<?> conn = null;
+		Connection<?> conn = null;
 		assert (model.isEdge(cell));
 		Object source = model.getTerminal(cell, true);
 		Object target = model.getTerminal(cell, false);
@@ -348,17 +349,17 @@ public class Adapter {
 			Object tparval = model.getValue(model.getParent(target));
 
 			assert (sval instanceof PortAdapter && tval instanceof PortAdapter
-					&& sparval instanceof HyperJob<?> && tparval instanceof HyperJob<?>);
+					&& sparval instanceof Job<?> && tparval instanceof Job<?>);
 
 			// a previously loaded connection is updated, don't change anything
-			if (value instanceof HyperConnection<?>) {
-				conn = (HyperConnection<?>) value;
+			if (value instanceof Connection<?>) {
+				conn = (Connection<?>) value;
 				if (!translation.containsKey(conn))
 					translation.put(conn, cell);
 			} else {
 				// a new connection has been inserted by the user via GUI
-				conn = new HyperConnection((HyperJob<?>) sparval,
-						((PortAdapter) sval).index, (HyperJob<?>) tparval,
+				conn = new Connection((Job<?>) sparval,
+						((PortAdapter) sval).index, (Job<?>) tparval,
 						((PortAdapter) tval).index);
 				assert (conn.getSource().getParent() == conn.getTarget()
 						.getParent());
@@ -367,7 +368,7 @@ public class Adapter {
 				translation.put(conn, cell);
 				model.setValue(cell, conn);
 				((HyperWorkflow) cell.getParent().getValue())
-						.addConnection((HyperConnection) conn);
+						.addConnection((Connection) conn);
 			}
 		}
 	}
@@ -376,8 +377,8 @@ public class Adapter {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
 		mxGeometry geo = model.getGeometry(cell);
-		assert (model.isVertex(cell) && value instanceof HyperJob<?>);
-		HyperJob<?> hj = (HyperJob<?>) value;
+		assert (model.isVertex(cell) && value instanceof Job<?>);
+		Job<?> hj = (Job<?>) value;
 
 		// TODO maybe adjust hj.dimensions within each of the following called
 		// functions?
@@ -434,37 +435,35 @@ public class Adapter {
 				// - child change (add/remove)
 				// - value change
 				// - geometry change
-				// - ??? terminal change
 				if (c instanceof mxChildChange) {
 					mxChildChange cc = (mxChildChange) c;
 					mxICell cell = (mxICell) cc.getChild();
 					Object value = model.getValue(cell);
 					if (cc.getParent() == null) {
 						// something has been removed
-						if (value instanceof HyperJob<?>) {
+						if (value instanceof Job<?>) {
 							if (translation.remove(value) != null) {
-								HyperWorkflow
-										.removeChildGeneric((HyperJob<?>) value);
+								MutableWorkflow
+										.removeChildGeneric((Job<?>) value);
 							}
-						} else if (value instanceof HyperConnection<?>) {
+						} else if (value instanceof Connection<?>) {
 							if (translation.remove(value) != null) {
 								// FIXME no longer available
-								if (((HyperJob) ((HyperConnection) value)
-										.getSource()).getParent() != null)
-									((HyperJob) ((HyperConnection) value)
-											.getSource()).getParent()
-											.removeConnection(
-													(HyperConnection) value);
+								if (((Job) ((Connection) value).getSource())
+										.getParent() != null)
+									((Job) ((Connection) value).getSource())
+											.getParent().removeConnection(
+													(Connection) value);
 								// HyperWorkflow
-								// .removeConnectionGeneric((HyperConnection<?>)
+								// .removeConnectionGeneric((Connection<?>)
 								// value);
 							}
 						}
 					} else {
 						// something has been added
-						if (value instanceof HyperJob<?>) {
+						if (value instanceof Job<?>) {
 							addNode(cell);
-						} else if (value instanceof HyperConnection<?>) {
+						} else if (value instanceof Connection<?>) {
 							// happens when a loaded nhwf contains connection
 							// and they are added to the graph
 							updateEdge(cell);
@@ -487,21 +486,8 @@ public class Adapter {
 					 */
 				} else if (c instanceof mxGeometryChange) {
 					Object cell = ((mxGeometryChange) c).getCell();
-					if (model.getValue(cell) instanceof HyperJob<?>)
+					if (model.getValue(cell) instanceof Job<?>)
 						updateNode(cell);
-				} else if (c instanceof mxTerminalChange) {
-					// NOTE this case should not happen
-					// creation of a new edge or loading an edge calls
-					// updateEdge already and as of now terminals do not
-					// change, connection can only be created and/or removed
-
-					// FIXME correction: this case should be removed entirely,
-					// we do not care about terminal changes at all
-					// assert (false);
-
-					// just do the same thing as for an added edge
-					// Object cell = ((mxTerminalChange) c).getCell();
-					// updateEdge(cell);
 				}
 			}
 		}

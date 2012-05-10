@@ -25,6 +25,10 @@ public class Token implements Cloneable {
 		return result;
 	}
 	
+	public int getMaxToken() {
+		return counter;
+	}
+	
 	public Integer makeToken() {
 		Integer result = local.poll();
 		if (result == null)	{

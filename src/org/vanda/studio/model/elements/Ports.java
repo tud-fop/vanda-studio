@@ -1,33 +1,36 @@
-package org.vanda.studio.model.generation;
+package org.vanda.studio.model.elements;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.vanda.studio.model.elements.Port;
-
 /**
- * A class containing some supporting functions for Artifacts and
- * ArtifactFactories.
+ * A class containing some supporting functions for Ports.
  * 
  * @author mbue
  * 
  */
-public class Artifacts {
+public class Ports {
 	// TODO implement caching also for the other members
 	private static SoftReference<ArrayList<Port>> _choiceInputs;
 	private static SoftReference<List<Port>> choiceInputs;
-	public static List<Port> identityInputs;
-	public static List<Port> identityOutputs;
-	public static List<Port> choiceOutputs;
+	public final static List<Port> identityInputs;
+	public final static List<Port> identityOutputs;
+	public final static List<Port> choiceOutputs;
+	public final static List<Port> inputPortOutputs;
+	public final static List<Port> outputPortInputs;
+	public final static List<Port> literalOutputs;
 
-	{
+	static {
 		identityInputs = Collections.singletonList(new Port("idin", "a"));
 		identityOutputs = Collections.singletonList(new Port("idout", "a"));
 		_choiceInputs = null;
 		choiceInputs = null;
 		choiceOutputs = Collections.singletonList(new Port("orout", "a"));
+		inputPortOutputs = Collections.singletonList(new Port("inputportout", "a"));
+		outputPortInputs = Collections.singletonList(new Port("outputportin", "a"));
+		literalOutputs = Collections.singletonList(new Port("literalport", "a"));
 	}
 
 	public static List<Port> getChoiceInputPorts(int n) {

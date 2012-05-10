@@ -8,7 +8,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.vanda.studio.app.Repository;
-import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.elements.Element;
+import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
@@ -92,7 +93,7 @@ public class SimpleRepository<V, T extends Tool<V>>
 		}
 	}
 
-	protected static class RefreshHelper<T>
+	protected static class RefreshHelper<T extends Element>
 			implements Observer<T> {
 
 		protected LinkedList<T> adds;
@@ -111,10 +112,10 @@ public class SimpleRepository<V, T extends Tool<V>>
 		public void notify(T newitem) {
 			T item = items.remove(newitem.getId());
 			if (item != null) {
-				if (item.getDate().equals(newitem.getDate()))
+				//if (item.getDate().equals(newitem.getDate()))
 					newitem = item;
-				else
-					removes.add(item);
+				//else
+				//	removes.add(item);
 			}
 			newitems.put(newitem.getId(), newitem);
 			if (item != newitem)

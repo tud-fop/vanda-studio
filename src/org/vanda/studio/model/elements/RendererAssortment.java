@@ -1,4 +1,4 @@
-package org.vanda.studio.model.workflows;
+package org.vanda.studio.model.elements;
 
 /**
  * This approach allows having the renderer completely oblivious of the possible
