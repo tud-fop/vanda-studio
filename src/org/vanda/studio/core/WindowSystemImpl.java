@@ -8,8 +8,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
@@ -45,6 +47,7 @@ public class WindowSystemImpl implements WindowSystem {
 	protected JMenu fileMenu;
 	protected HashMap<UIMode, JRadioButtonMenuItem> modeMenuItems;
 	protected HashMap<JComponent, JMenu> windowMenus;
+	protected HashMap<JComponent, List<JComponent>> windowTools;
 	protected ButtonGroup modeGroup;
 
 	/**
@@ -114,6 +117,7 @@ public class WindowSystemImpl implements WindowSystem {
 		menuBar.add(optionsMenu);
 		
 		windowMenus = new HashMap<JComponent, JMenu>();
+		windowTools = new HashMap<JComponent, List<JComponent>>();
 
 		mainWindow.setJMenuBar(menuBar);
 
@@ -129,8 +133,8 @@ public class WindowSystemImpl implements WindowSystem {
 		JSplitPane inner = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				contentPane, toolPane);
 		inner.setOneTouchExpandable(true);
-		inner.setDividerLocation(1.0);
-		inner.setResizeWeight(1);
+		inner.setDividerLocation(0.7);
+		inner.setResizeWeight(0.7);
 		inner.setDividerSize(6);
 		inner.setBorder(null);
 		
@@ -140,20 +144,40 @@ public class WindowSystemImpl implements WindowSystem {
 			public void stateChanged(ChangeEvent e) {
 				Component c = contentPane.getSelectedComponent();
 				JMenu menu = windowMenus.get(c);
-				if (menuBar.getMenu(1) != menu)
-					if (menuBar.getMenu(1) != optionsMenu)
+				if (menuBar.getMenu(1) != menu) {
+					if (menuBar.getMenu(1) != optionsMenu) {
 						menuBar.remove(1);
-					if (menu != null)
+					}
+					if (menu != null) {
 						menuBar.add(menu, 1);
-				
+					}
+				}
+				mainWindow.setJMenuBar(menuBar); // XXX why is this necessary?
+				int idx = toolPane.getSelectedIndex();
+				toolPane.removeAll();
+				List<JComponent> tcs = windowTools.get(null);
+				if (tcs != null) {
+					for (JComponent tc : tcs)
+						toolPane.add(tc);
+				}
+				tcs = windowTools.get(c);
+				if (tcs != null) {
+					for (JComponent tc : tcs)
+						toolPane.add(tc);
+				}
+				try {
+					toolPane.setSelectedIndex(idx);
+				} catch (IndexOutOfBoundsException ex) {
+					// ignore
+				}
 			}
 			
 		});
 
 		// Puts everything together
 		// mainWindow.getContentPane().setLayout(new BorderLayout());
-		mainWindow.getContentPane().add(/* inner */contentPane); // BorderLayout.CENTER
-		// mainWindow.getContentPane().add(statusBar, BorderLayout.SOUTH);
+		mainWindow.getContentPane().add(inner); // BorderLayout.CENTER
+		//mainWindow.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -206,8 +230,15 @@ public class WindowSystemImpl implements WindowSystem {
 	/**
 	 */
 	@Override
-	public void addToolWindow(String id, String title, Icon i, JComponent c) {
-		toolPane.add(title, c);
+	public void addToolWindow(JComponent window, String id, String title, Icon i, JComponent c) {
+		List<JComponent> tcs = windowTools.get(window);
+		if (tcs == null) {
+			tcs = new ArrayList<JComponent>();
+			windowTools.put(window, tcs);
+		}
+		tcs.add(c);
+		if (contentPane.getSelectedComponent() == window)
+			toolPane.add(c);
 	}
 
 	@Override
@@ -243,13 +274,19 @@ public class WindowSystemImpl implements WindowSystem {
 	@Override
 	public void removeContentWindow(JComponent c) {
 		contentPane.remove(c);
+		windowTools.remove(c);
 	}
 
 	/**
 	 */
 	@Override
-	public void removeToolWindow(JComponent c) {
-		toolPane.remove(c);
+	public void removeToolWindow(JComponent window, JComponent c) {
+		List<JComponent> tcs = windowTools.get(window);
+		if (tcs != null) {
+			tcs.remove(c);
+		}
+		if (contentPane.getSelectedComponent() == window)
+			toolPane.remove(c);
 	}
 
 }

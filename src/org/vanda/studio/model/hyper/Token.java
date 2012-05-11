@@ -1,13 +1,14 @@
 package org.vanda.studio.model.hyper;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Token implements Cloneable {
 
-	private static LinkedList<Integer> global;
+	private static ArrayList<Integer> global;
 	
 	static {
-		global = new LinkedList<Integer>();
+		global = new ArrayList<Integer>();
 	}
 	
 	LinkedList<Integer> local;
@@ -34,8 +35,8 @@ public class Token implements Cloneable {
 		if (result == null)	{
 			while (counter >= global.size())
 				global.add(new Integer(counter));
+			result = global.get(counter);
 			counter++;
-			result = global.getLast();
 		}
 		return result;
 	}

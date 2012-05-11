@@ -13,6 +13,7 @@ import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Tool;
+import org.vanda.studio.util.Message;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 
@@ -24,6 +25,7 @@ public final class ApplicationImpl implements Application {
 
 	protected UIMode mode;
 	protected final ArrayList<UIMode> modes;
+	protected final MultiplexObserver<Message> messageObservable;
 	protected final MultiplexObserver<Application> modeObservable;
 	// protected final CompositeRepository<Compiler<?, ?>> compilerRepository;
 	protected final CompositeRepository<Linker<?, ?>> linkerRepository;
@@ -35,6 +37,7 @@ public final class ApplicationImpl implements Application {
 	public ApplicationImpl() {
 		modes = new ArrayList<UIMode>();
 		addUIModes(modes);
+		messageObservable = new MultiplexObserver<Message>();
 		mode = modes.get(0);
 		modeObservable = new MultiplexObserver<Application>();
 		// compilerRepository = new CompositeRepository<Compiler<?,?>>();
@@ -147,6 +150,16 @@ public final class ApplicationImpl implements Application {
 	@Override
 	public MetaRepository<Tool<?>> getToolMetaRepository() {
 		return toolRepository;
+	}
+
+	@Override
+	public Observable<Message> getMessageObservable() {
+		return messageObservable;
+	}
+
+	@Override
+	public void sendMessage(Message m) {
+		messageObservable.notify(m);
 	}
 
 }

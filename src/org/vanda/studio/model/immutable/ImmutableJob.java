@@ -24,32 +24,39 @@ public abstract class ImmutableJob<F> {
 	public abstract void appendText(ArrayList<Integer> inputs,
 			ArrayList<Integer> outputs, StringBuilder lines,
 			StringBuilder sections);
+	
+	public static void appendInput(ArrayList<Integer> inputs, StringBuilder lines) {
+		lines.append('(');
+		if (inputs.size() != 0) {
+			appendVariable(inputs.get(0), lines);
+		}
+		for (int i = 1; i < inputs.size(); i++) {
+			lines.append(", ");
+			appendVariable(inputs.get(i), lines);
+		}
+		lines.append(')');
+	}
 
 	public static void appendOutput(ArrayList<Integer> outputs, StringBuilder lines) {
 		if (outputs.size() != 1)
 			lines.append('(');
 		if (outputs.size() != 0) {
-			lines.append("x");
-			lines.append(outputs.get(0));
+			appendVariable(outputs.get(0), lines);
 		}
 		for (int i = 1; i < outputs.size(); i++) {
-			lines.append(", x");
-			lines.append(outputs.get(i));
+			lines.append(", ");
+			appendVariable(outputs.get(i), lines);
 		}
 		if (outputs.size() != 1)
 			lines.append(')');		
 	}
 	
-	public static void appendInput(ArrayList<Integer> inputs, StringBuilder lines) {
-		lines.append('(');
-		if (inputs.size() != 0) {
+	public static void appendVariable(Integer tok, StringBuilder lines) {
+		if (tok == null)
+			lines.append("?");
+		else {
 			lines.append("x");
-			lines.append(inputs.get(0));
+			lines.append(tok);
 		}
-		for (int i = 1; i < inputs.size(); i++) {
-			lines.append(", x");
-			lines.append(inputs.get(i));
-		}
-		lines.append(')');
 	}
 }

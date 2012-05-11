@@ -7,6 +7,7 @@ import java.util.Collection;
 
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Tool;
+import org.vanda.studio.util.Message;
 import org.vanda.studio.util.Observable;
 
 /**
@@ -55,6 +56,8 @@ public interface Application {
 	 * 
 	Repository<Repository<WorkflowDescription>> getWorkflowRR();
 	*/
+	
+	Observable<Message> getMessageObservable();
 
 	/**
 	 */
@@ -75,6 +78,10 @@ public interface Application {
 	/**
 	 */
 	WindowSystem getWindowSystem();
+	
+	/**
+	 */
+	void sendMessage(Message m);
 
 	/**
 	 */

@@ -88,8 +88,8 @@ public class Adapter {
 			for (Job<IF> c : hwf.getChildren())
 				render(hwf, c);
 			// FIXME this no longer exists
-			// for (Connection<IF> cc : hwf.getConnections())
-			// render(hwf, cc);
+			for (Connection<IF> cc : hwf.getConnections())
+				render(hwf, cc);
 		}
 	}
 
@@ -107,7 +107,7 @@ public class Adapter {
 		}
 	}
 
-	private <F> void render(MutableWorkflow<F> parent, Connection<F> cc) {
+	private <F> void render(HyperWorkflow<F> parent, Connection<F> cc) {
 		Object cell = translation.get(cc);
 
 		if (cell == null) {
@@ -124,7 +124,7 @@ public class Adapter {
 				assert (source.getValue() == cc.getSource());
 				assert (target.getValue() == cc.getTarget());
 
-				source = source.getChildAt(cc.getSourcePort());
+				source = source.getChildAt(cc.getSourcePort()+cc.getSource().getInputPorts().size());
 				target = target.getChildAt(cc.getTargetPort());
 
 				graph.getModel().beginUpdate();

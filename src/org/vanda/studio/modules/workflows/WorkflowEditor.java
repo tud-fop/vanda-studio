@@ -21,7 +21,9 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -31,13 +33,14 @@ import org.vanda.studio.model.elements.Element;
 import org.vanda.studio.model.elements.Literal;
 import org.vanda.studio.model.hyper.AtomicJob;
 import org.vanda.studio.model.hyper.Connection;
-import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.model.hyper.Serialization;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.modules.workflows.jgraph.Adapter;
 import org.vanda.studio.modules.workflows.jgraph.JobRendering;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Util;
@@ -52,12 +55,13 @@ public class WorkflowEditor {
 
 	protected Application app;
 
-	protected HyperWorkflow<?> hwf;
+	protected MutableWorkflow<?> hwf;
 	protected mxGraphComponent component;
 	protected Adapter renderer;
 	protected mxGraph palettegraph;
 	protected mxGraphComponent palette;
 	protected JSplitPane mainpane;
+	protected JTextArea inspector;
 
 	public WorkflowEditor(Application a, MutableWorkflow<?> hwf) {
 		app = a;
@@ -86,6 +90,11 @@ public class WorkflowEditor {
 		mainpane.setResizeWeight(1);
 		mainpane.setDividerSize(6);
 		mainpane.setBorder(null);
+		
+		inspector = new JTextArea();
+		
+		JScrollPane therealinspector = new JScrollPane(inspector);
+		therealinspector.setName("Inspector");
 
 		getComponent().setName("Workflow");
 
@@ -102,11 +111,26 @@ public class WorkflowEditor {
 				new CloseWorkflowAction());
 		app.getWindowSystem().addContentWindow("", getComponent().getName(),
 				null, getComponent(), null
-		/*
-		 * new WorkflowModule.WorkflowModuleInstance .CloseWorkflowAction( this)
-		 */);
+				/*
+				 * new WorkflowModule.WorkflowModuleInstance .CloseWorkflowAction( this)
+				 */);
+		app.getWindowSystem().addToolWindow(getComponent(), "inspector", "Inspector", null, therealinspector);
 		app.getWindowSystem().focusContentWindow(getComponent());
 		getComponent().requestFocusInWindow();
+		
+		Observer<Object> recheckObserver = new Observer<Object>() {
+
+			@Override
+			public void notify(Object event) {
+				checkWorkflow();
+			}
+			
+		};
+		
+		hwf.getAddObservable().addObserver(recheckObserver);
+		hwf.getRemoveObservable().addObserver(recheckObserver);
+		hwf.getConnectObservable().addObserver(recheckObserver);
+		hwf.getDisconnectObservable().addObserver(recheckObserver);
 	}
 
 	static {
@@ -117,6 +141,26 @@ public class WorkflowEditor {
 		} catch (ClassNotFoundException cnfe) {
 			// do nothing
 			System.out.println("Problem!");
+		}
+	}
+	
+	protected void checkWorkflow() {
+		try {
+			ImmutableWorkflow iwf = hwf.freeze();
+			StringBuilder sb = new StringBuilder();
+			iwf.appendText(sb);
+			//System.out.print(sb);
+			sb.append("Instances\n");
+			List<ImmutableWorkflow> iwfs = iwf.unfold();
+			for (ImmutableWorkflow i : iwfs) {
+				sb.append("-------\n\n");
+				i.appendText(sb);
+				sb.append("\n");
+			}
+			inspector.setText(sb.toString());
+		}
+		catch (Exception e) {
+			app.sendMessage(new ExceptionMessage(e));
 		}
 	}
 
@@ -152,7 +196,7 @@ public class WorkflowEditor {
 				hj.setDimensions(d);
 				hj.selectRenderer(JobRendering.getRendererAssortment()).render(
 						hj, palettegraph, null);
-				d[1] += 90;
+				d[1] += 60;
 			}
 		} finally {
 			palettegraph.getModel().endUpdate();
@@ -421,7 +465,7 @@ public class WorkflowEditor {
 			chooser.setDialogType(JFileChooser.SAVE_DIALOG);
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			chooser.setFileFilter(new FileNameExtensionFilter(
-					"Nested Hyperworkflows (*.nhwf)", "nhwf"));
+					"Hyperworkflows (*.hwf)", "hwf"));
 			chooser.setVisible(true);
 			int result = chooser.showSaveDialog(null);
 
@@ -429,8 +473,7 @@ public class WorkflowEditor {
 			if (result == JFileChooser.APPROVE_OPTION) {
 				File chosenFile = chooser.getSelectedFile();
 				String filePath = chosenFile.getPath();
-
-				// hwf.save(filePath);
+				Serialization.save(hwf, filePath);
 			}
 		}
 	}
@@ -444,21 +487,7 @@ public class WorkflowEditor {
 
 		@Override
 		public void invoke() {
-			try {
-				ImmutableWorkflow iwf = hwf.freeze();
-				StringBuilder sb = new StringBuilder();
-				iwf.appendText(sb);
-				System.out.print(sb);
-				List<ImmutableWorkflow> iwfs = iwf.unfold();
-				for (ImmutableWorkflow i : iwfs) {
-					sb = new StringBuilder();
-					i.appendText(sb);
-					System.out.print(sb);				
-				}
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
+			checkWorkflow();
 		}
 	}
 

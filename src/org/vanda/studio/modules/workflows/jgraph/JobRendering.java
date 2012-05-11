@@ -259,6 +259,7 @@ public class JobRendering {
 		public void addStyle(Map<String, Object> style) {
 			super.addStyle(style);
 			style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
+			style.put(mxConstants.STYLE_PERIMETER, mxPerimeter.EllipsePerimeter);
 			style.put(mxConstants.STYLE_NOLABEL, "true");
 		}
 
@@ -303,7 +304,7 @@ public class JobRendering {
 		}
 	}
 
-	protected static final int PORT_DIAMETER = 20;
+	protected static final int PORT_DIAMETER = 14;
 
 	protected static final int PORT_RADIUS = PORT_DIAMETER / 2;
 

@@ -88,6 +88,9 @@ public final class PartiallyUnfolded<F> {
 		int pos = position - 1;
 		choiceMap.put(pos, ji.inputs.get(i));
 		// Third, propagate removal of unnecessary elements
+		// but don't remove the or node itself
+		// TODO only remove nodes that have been touched 
+		pos--;
 		while (pos >= 0) {
 			if (outCount[pos] == 0) {
 				ji = parent.children.get(pos);

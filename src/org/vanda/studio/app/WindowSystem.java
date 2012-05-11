@@ -33,7 +33,7 @@ public interface WindowSystem {
 	
 	/**
 	 */
-	void addToolWindow(String id, String title, Icon i, JComponent c);
+	void addToolWindow(JComponent window, String id, String title, Icon i, JComponent c);
 
 	/**
 	 */
@@ -53,6 +53,6 @@ public interface WindowSystem {
 
 	/**
 	 */
-	void removeToolWindow(JComponent c);
+	void removeToolWindow(JComponent window, JComponent c);
 
 }

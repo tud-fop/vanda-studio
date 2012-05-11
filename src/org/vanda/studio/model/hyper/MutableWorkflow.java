@@ -1,5 +1,7 @@
 package org.vanda.studio.model.hyper;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.vanda.studio.util.MultiplexObserver;
@@ -56,7 +58,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	@Override
 	public void addChild(Job<F> hj) {
 		assert (hj.getFragmentType() == null || hj.getFragmentType() == getFragmentType());
-		assert (hj.parent == null);
+		assert (hj.parent == null || hj.parent == this);
 		if (!children.containsKey(hj)) {
 			children.put(hj, new DJobInfo(hj));
 			hj.parent = this;
@@ -168,7 +170,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			}
 			for (int i = 0; i < ji.outputs.size(); i++) {
 				removeConnection(hj, i, null, 0, null);
-				token.recycleToken(i);
+				token.recycleToken(ji.outputs.get(i));
 			}
 			address.recycleToken(ji.address);
 			children.remove(hj);
@@ -230,7 +232,8 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			TokenValue<F> tv = li.next();
 			if (target == null || tv.hj == target && tv.port == targetPort) {
 				DJobInfo tji = children.get(tv.hj);
-				assert (sji.outputs.get(sourcePort) == tji.inputs.get(tv.port));
+				// TODO the equals is just here because interning doesn't persist
+				assert (sji.outputs.get(sourcePort).equals(tji.inputs.get(tv.port)));
 				tji.inputs.set(tv.port, null);
 				tji.inputsBlocked--;
 				sji.outCount--;
@@ -246,6 +249,18 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 											sourcePort, target, targetPort)));
 			}
 		}
+	}
+
+	@Override
+	public List<Connection<F>> getConnections() {
+		// XXX only for putting existing HyperGraphs into the GUI
+		LinkedList<Connection<F>> conn = new LinkedList<Connection<F>>();
+		for (Pair<TokenValue<F>, List<TokenValue<F>>> c : connections.values()) {
+			for (TokenValue<F> tv : c.snd) {
+				conn.add(new Connection<F>(c.fst.hj, c.fst.port, tv.hj, tv.port));
+			}
+		}
+		return conn;
 	}
 
 	/*

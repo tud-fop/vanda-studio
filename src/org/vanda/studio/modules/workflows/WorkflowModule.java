@@ -1,7 +1,11 @@
 package org.vanda.studio.modules.workflows;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
@@ -9,6 +13,7 @@ import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.model.hyper.Serialization;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
 
@@ -363,6 +368,7 @@ public class WorkflowModule implements Module {
 			 * 
 			 * app.getWindowSystem().addAction(new OpenWorkflowAction());
 			 */
+			app.getWindowSystem().addAction(null, new OpenWorkflowAction());
 			app.getWindowSystem().addAction(null, new NewWorkflowAction());
 		}
 
@@ -401,11 +407,10 @@ public class WorkflowModule implements Module {
 			}
 		}
 
-		/*
 		protected class OpenWorkflowAction implements Action {
 			@Override
 			public String getName() {
-				return "Open Hyperworkflow";
+				return "Open Workflow";
 			}
 
 			@Override
@@ -415,7 +420,7 @@ public class WorkflowModule implements Module {
 				chooser.setDialogType(JFileChooser.OPEN_DIALOG);
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				chooser.setFileFilter(new FileNameExtensionFilter(
-						"Nested Hyperworkflows (*.nhwf)", "nhwf"));
+						"Hyperworkflows (*.hwf)", "hwf"));
 				chooser.setVisible(true);
 				int result = chooser.showOpenDialog(null);
 
@@ -423,18 +428,11 @@ public class WorkflowModule implements Module {
 				if (result == JFileChooser.APPROVE_OPTION) {
 					File chosenFile = chooser.getSelectedFile();
 					String filePath = chosenFile.getPath();
-
-					// create term (file)
-					VWorkflow t = factory.createInstance(
-							WorkflowModuleInstance.this, new File(filePath));
-					// do something with the repository
-					// repository.addItem(t); FIXME
-					// open editor for term
-					openEditor(t);
+					MutableWorkflow<?> hwf = Serialization.load(filePath, app);
+					new WorkflowEditor(app, hwf);
 				}
 			}
 		}
-		*/
 
 	}
 }

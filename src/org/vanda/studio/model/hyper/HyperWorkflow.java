@@ -1,6 +1,7 @@
 package org.vanda.studio.model.hyper;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
@@ -37,5 +38,7 @@ public interface HyperWorkflow<F> {
 	public abstract void removeChild(Job<F> hj);
 
 	public abstract void removeConnection(Connection<F> cc);
+
+	public abstract List<Connection<F>> getConnections();
 
 }
