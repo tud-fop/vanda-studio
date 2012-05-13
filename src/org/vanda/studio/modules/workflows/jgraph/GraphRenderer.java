@@ -9,21 +9,22 @@ import org.vanda.studio.model.hyper.HyperConnection;
 import org.vanda.studio.model.hyper.HyperJob;
 import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.util.MultiplexObserver;
+import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Pair;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxICell;
-import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
 import com.mxgraph.model.mxGraphModel.mxTerminalChange;
 import com.mxgraph.model.mxGraphModel.mxValueChange;
+import com.mxgraph.model.mxICell;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
-import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
+import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
 
@@ -32,18 +33,74 @@ public class GraphRenderer {
 	protected mxGraph graph;
 	protected ChangeListener changeListener;
 	protected Map<Object, mxICell> translation;
-	protected Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> addObserver;
-	protected Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> modifyObserver;
-	protected Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> removeObserver;
-	protected Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> connectObserver;
-	protected Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> disconnectObserver;
+	protected MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> addObserver;
+	protected MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> modifyObserver;
+	protected MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> removeObserver;
+	protected MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> connectObserver;
+	protected MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> disconnectObserver;
 
 	public <F, V> GraphRenderer(HyperWorkflow<F, V> root) {
-		addObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
-		modifyObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
-		removeObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
-		connectObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>();
-		disconnectObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>();
+		addObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>() {
+			@SuppressWarnings({ "unchecked" })
+			@Override
+			public void notify(Pair<HyperWorkflow<?, ?>, HyperJob<?>> event) {
+				// XXX type supernova
+				render((HyperWorkflow) event.fst, (HyperJob) event.snd);
+			}
+		};
+		modifyObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>() {
+			@Override
+			public void notify(Pair<HyperWorkflow<?, ?>, HyperJob<?>> event) {
+				Object cell = translation.get(event.snd);
+				mxIGraphModel model = graph.getModel();
+				mxGeometry geo = model.getGeometry(cell);
+				if (geo.getX() != event.snd.getX()
+						|| geo.getY() != event.snd.getY()
+						|| geo.getWidth() != event.snd.getWidth()
+						|| geo.getHeight() != event.snd.getHeight()) {
+					mxGeometry ng = (mxGeometry) geo.clone();
+					ng.setX(event.snd.getX());
+					ng.setY(event.snd.getY());
+					ng.setWidth(event.snd.getWidth());
+					ng.setHeight(event.snd.getHeight());
+					model.setGeometry(cell, ng);
+				}
+			}
+		};
+		removeObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>() {
+			@Override
+			public void notify(Pair<HyperWorkflow<?, ?>, HyperJob<?>> event) {
+				Object cell = translation.get(event.snd);
+				if (cell != null) {
+					graph.removeCells(new Object[] { cell });
+					if (event.snd instanceof CompositeHyperJob<?, ?, ?, ?>) {
+						unbind(((CompositeHyperJob<?, ?, ?, ?>) event.snd)
+								.getWorkflow());
+					}
+				}
+			}
+		};
+		connectObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>() {
+			@SuppressWarnings({ "unchecked" })
+			@Override
+			public void notify(Pair<HyperWorkflow<?, ?>, HyperConnection<?>> event) {
+				// XXX type supernova
+				render((HyperWorkflow) event.fst, (HyperConnection) event.snd);
+			}
+		};
+		disconnectObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>() {
+			@Override
+			public void notify(Pair<HyperWorkflow<?, ?>, HyperConnection<?>> event) {
+				mxICell cell = translation.remove(event.snd);
+				if (cell != null) {
+					assert (cell.getValue() == event.snd);
+					assert (graph.isCellDeletable(cell));
+					graph.removeCells(new Object[] { cell });
+					assert (!graph.getModel().contains(cell));
+					graph.refresh(); // XXX necessary?
+				}
+			}
+		};
 		
 		translation = new HashMap<Object, mxICell>();
 		graph = new Graph();
@@ -51,8 +108,6 @@ public class GraphRenderer {
 		// bind defaultParent of the graph and the root hyperworkflow
 		// to each other and save them in the node mapping
 		((mxCell) graph.getDefaultParent()).setValue(root);
-		// translation.put(root, (mxICell) graph.getDefaultParent());
-		// translation.put(null, (mxICell) graph.getDefaultParent());
 		
 		// bind graph; for example, react on new, changed, or deleted elements
 		changeListener = new ChangeListener();
@@ -61,6 +116,47 @@ public class GraphRenderer {
 		render(null, root);
 	}
 
+	public Observable<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> getAddObservable() {
+		return addObserver;
+	}
+	public Observable<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> getModifyObservable() {
+		return modifyObserver;
+	}
+	public Observable<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> getRemoveObservable() {
+		return removeObserver;
+	}
+	public Observable<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> getConnectObservable() {
+		return connectObserver;
+	}
+	public Observable<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> getDisconnectObservable() {
+		return disconnectObserver;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private <F, V> void bind(HyperWorkflow<F, V> hwf) {
+		hwf.getAddObservable().addObserver((Observer) addObserver);
+		hwf.getModifyObservable().addObserver((Observer) modifyObserver);
+		hwf.getRemoveObservable().addObserver((Observer) removeObserver);
+		hwf.getConnectObservable().addObserver((Observer) connectObserver);
+		hwf.getDisconnectObservable().addObserver((Observer) disconnectObserver);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private <F, V> void unbind(HyperWorkflow<F, V> hwf) {
+		// XXX this could blow up big time
+		hwf.getAddObservable().removeObserver((Observer) addObserver);
+		hwf.getModifyObservable().removeObserver((Observer) modifyObserver);
+		hwf.getRemoveObservable().removeObserver((Observer) removeObserver);
+		hwf.getConnectObservable().removeObserver((Observer) connectObserver);
+		hwf.getDisconnectObservable().removeObserver((Observer) disconnectObserver);
+		for (HyperJob<V> c : hwf.getChildren()) {
+			if (c instanceof CompositeHyperJob<?, ?, ?, ?>) {
+				CompositeHyperJob<?, V, ?, ?> chj = (CompositeHyperJob<?, V, ?, ?>) c;
+				unbind(chj.getWorkflow());
+			}
+		}
+	}
+	
 	@SuppressWarnings({ "unchecked"})
 	private <F, V, IV> void render(CompositeHyperJob<F, V, IV, ?> parent,
 			HyperWorkflow<F, IV> hwf) {
@@ -87,6 +183,7 @@ public class GraphRenderer {
 			translation.put(hwf, cell);
 			// XXX this could blow up big time
 			// TODO bind
+			bind(hwf);
 			for (HyperJob<IV> c : hwf.getChildren())
 				render(hwf, c);
 			for (HyperConnection<IV> cc : hwf.getConnections())

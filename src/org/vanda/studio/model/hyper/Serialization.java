@@ -31,7 +31,7 @@ public class Serialization {
 		XStream xs = new XStream();
 		xs.registerConverter(new CompilerConverter(app));
 		xs.registerConverter(new LinkerConverter(app));
-		xs.registerConverter(new MultiplexObserverConverter(app));
+		xs.registerConverter(new MultiplexObserverConverter());
 		xs.registerConverter(new ToolConverter(app));
 		Object result = null;
 		try {
@@ -66,7 +66,7 @@ public class Serialization {
 				XStream xs = new XStream();
 				xs.registerConverter(new CompilerConverter(null));
 				xs.registerConverter(new LinkerConverter(null));
-				xs.registerConverter(new MultiplexObserverConverter(null));
+				xs.registerConverter(new MultiplexObserverConverter());
 				xs.registerConverter(new ToolConverter(null));
 				
 				xs.omitField(HyperWorkflow.class, "blockedPortsMap");
@@ -81,7 +81,6 @@ public class Serialization {
 		return false;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private static class CompilerConverter implements Converter {
 
 		Application app;
@@ -113,6 +112,7 @@ public class Serialization {
 			return compiler;
 		}
 
+		@SuppressWarnings("rawtypes")
 		@Override
 		public boolean canConvert(Class clazz) {
 			// activate this converter for all classes that 
@@ -122,7 +122,6 @@ public class Serialization {
 
 	}
 	
-	@SuppressWarnings("unchecked")
 	private static class LinkerConverter implements Converter {
 
 		Application app;
@@ -154,6 +153,7 @@ public class Serialization {
 			return linker;
 		}
 
+		@SuppressWarnings("rawtypes")
 		@Override
 		public boolean canConvert(Class clazz) {
 			// activate this converter for all classes that 
@@ -163,19 +163,14 @@ public class Serialization {
 
 	}
 	
-	@SuppressWarnings("unchecked")
 	private static class MultiplexObserverConverter implements Converter {
-		Application app;
-		
-		public MultiplexObserverConverter(Application app) {
-			this.app = app;
-		}
 		
 		@Override
 		public void marshal(Object value, HierarchicalStreamWriter writer,
 				MarshallingContext context) {
 		}
 
+		@SuppressWarnings("rawtypes")
 		@Override
 		public Object unmarshal(HierarchicalStreamReader reader,
 				UnmarshallingContext context) {
@@ -185,6 +180,7 @@ public class Serialization {
 			return tool;
 		}
 
+		@SuppressWarnings("rawtypes")
 		@Override
 		public boolean canConvert(Class clazz) {
 			// activate this converter for all classes that 
@@ -193,7 +189,6 @@ public class Serialization {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private static class ToolConverter implements Converter {
 		Application app;
 		
@@ -224,6 +219,7 @@ public class Serialization {
 			return tool;
 		}
 
+		@SuppressWarnings("rawtypes")
 		@Override
 		public boolean canConvert(Class clazz) {
 			// activate this converter for all classes that 

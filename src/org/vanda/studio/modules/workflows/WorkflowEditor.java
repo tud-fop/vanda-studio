@@ -33,6 +33,7 @@ import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.model.hyper.Serialization;
 import org.vanda.studio.model.workflows.Linker;
 import org.vanda.studio.model.workflows.Tool;
+import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.modules.workflows.jgraph.Adapter;
 import org.vanda.studio.modules.workflows.jgraph.JobRendering;
@@ -244,7 +245,7 @@ public class WorkflowEditor {
 			});
 			
 			for (Linker<?,?,?> linker : linkers) {
-				HyperJob<?> hj = new CompositeHyperJob(linker, new SimpleToolInstance(), 
+				HyperJob<?> hj = new MyCompositeHyperJob(linker, new SimpleToolInstance(), 
 						new HyperWorkflow(app.getCompilerRepository().getItem("compilerId")));
 				
 				// FIXME DO NOT set the name of hj by overriding the getName() method,
@@ -261,6 +262,19 @@ public class WorkflowEditor {
 		// TODO notifyUIMode(app);
 	}
 
+	protected static class MyCompositeHyperJob extends CompositeHyperJob {
+
+		public MyCompositeHyperJob(Linker linker, ToolInstance instance,
+				HyperWorkflow workflow) {
+			super(linker, instance, workflow);
+		}
+		
+		public String getName() {
+			return "ShellBox";
+		}
+		
+	}
+	
 	/**
 	 * Handles KeyEvents such as removing cells when focussed and pressing DEL
 	 * 

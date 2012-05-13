@@ -16,41 +16,33 @@ import com.mxgraph.view.mxGraph;
 public class Adapter {
 
 	protected GraphRenderer renderer;
-	protected HyperWorkflow<?,?> hwf;
-	protected Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> addObserver;
-	protected Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> modifyObserver;
-	protected Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> removeObserver;
-	protected Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> connectObserver;
-	protected Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> disconnectObserver;
+	protected MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> addObserver;
+	protected MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> modifyObserver;
+	protected MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> removeObserver;
+	protected MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> connectObserver;
+	protected MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> disconnectObserver;
 	
 	public <F, V> Adapter(HyperWorkflow<F, V> root) {
-		
-		addObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
-		modifyObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
-		removeObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
-		connectObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>();
-		disconnectObserver = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>>();
 		renderer = new GraphRenderer(root);
 	}
 	
-	<F, V> void bind(HyperWorkflow<F, V> hwf) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private <F, V> void bind(HyperWorkflow<F, V> hwf) {
 		hwf.getAddObservable().addObserver((Observer) addObserver);
 		hwf.getModifyObservable().addObserver((Observer) modifyObserver);
 		hwf.getRemoveObservable().addObserver((Observer) removeObserver);
 		hwf.getConnectObservable().addObserver((Observer) connectObserver);
-		hwf.getDisconnectObservable().addObserver(
-				(Observer) disconnectObserver);
+		hwf.getDisconnectObservable().addObserver((Observer) disconnectObserver);
 	}
 	
-	@SuppressWarnings({ "unchecked" })
-	<F, V> void unbind(HyperWorkflow<F, V> hwf) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private <F, V> void unbind(HyperWorkflow<F, V> hwf) {
 		// XXX this could blow up big time
 		hwf.getAddObservable().removeObserver((Observer) addObserver);
 		hwf.getModifyObservable().removeObserver((Observer) modifyObserver);
 		hwf.getRemoveObservable().removeObserver((Observer) removeObserver);
 		hwf.getConnectObservable().removeObserver((Observer) connectObserver);
-		hwf.getDisconnectObservable().removeObserver(
-				(Observer) disconnectObserver);
+		hwf.getDisconnectObservable().removeObserver((Observer) disconnectObserver);
 		for (HyperJob<V> c : hwf.getChildren()) {
 			if (c instanceof CompositeHyperJob<?, ?, ?, ?>) {
 				CompositeHyperJob<?, V, ?, ?> chj = (CompositeHyperJob<?, V, ?, ?>) c;
@@ -63,6 +55,7 @@ public class Adapter {
 		return renderer.graph;
 	}
 	
+//----------------------------------------------------------------------------------------------
 	/*
 	protected HyperWorkflow<?, ?> root;
 	protected Graph graph;
@@ -112,12 +105,7 @@ public class Adapter {
 				cell = (mxCell) graph.getDefaultParent();
 			translation.put(hwf, cell);
 			// XXX this could blow up big time
-			hwf.getAddObservable().addObserver((Observer) addObserver);
-			hwf.getModifyObservable().addObserver((Observer) modifyObserver);
-			hwf.getRemoveObservable().addObserver((Observer) removeObserver);
-			hwf.getConnectObservable().addObserver((Observer) connectObserver);
-			hwf.getDisconnectObservable().addObserver(
-					(Observer) disconnectObserver);
+			bind(hwf);
 			for (HyperJob<IV> c : hwf.getChildren())
 				render(hwf, c);
 			for (HyperConnection<IV> cc : hwf.getConnections())
@@ -261,6 +249,17 @@ public class Adapter {
 		}
 	};
 
+	@SuppressWarnings({ "unchecked" })
+	<F, V> void bind(HyperWorkflow<F, V> hwf) {
+		// XXX this could blow up big time
+		hwf.getAddObservable().addObserver((Observer) addObserver);
+		hwf.getModifyObservable().addObserver((Observer) modifyObserver);
+		hwf.getRemoveObservable().addObserver((Observer) removeObserver);
+		hwf.getConnectObservable().addObserver((Observer) connectObserver);
+		hwf.getDisconnectObservable().addObserver(
+				(Observer) disconnectObserver);
+	}
+	
 	@SuppressWarnings({ "unchecked" })
 	<F, V> void unbind(HyperWorkflow<F, V> hwf) {
 		// XXX this could blow up big time
