@@ -15,7 +15,6 @@ public class OutputPort implements Element {
 
 	@Override
 	public void appendActions(List<Action> as) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -43,6 +42,10 @@ public class OutputPort implements Element {
 	public String getName() {
 		return "outport["+Integer.toString(number)+"]";
 	}
+	
+	public int getNumber() {
+		return number;
+	}
 
 	@Override
 	public List<Port> getOutputPorts() {
@@ -51,7 +54,7 @@ public class OutputPort implements Element {
 
 	@Override
 	public <R> R selectRenderer(RendererAssortment<R> ra) {
-		return ra.selectSinkRenderer(); // FIXME !!!
+		return ra.selectOutputPortRenderer();
 	}
 
 	@Override

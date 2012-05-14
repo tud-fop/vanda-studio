@@ -115,7 +115,7 @@ public class Unfolder<F> {
 							// substitute choice with identity
 							jinew = new JobInfo<F>(new AtomicImmutableJob<F>(
 									new Choice(1)), ji.address,
-									new ArrayList<Integer>(1), ji.outputs,
+									new ArrayList<Object>(1), ji.outputs,
 									ji.outCount);
 							jinew.inputs.add(p.choiceMap.get(i));
 						} else if (counters.get(i) != null) {
@@ -130,7 +130,7 @@ public class Unfolder<F> {
 							carry = counters.get(i).advance();
 					}
 				}
-				ImmutableWorkflow<F> wf = new ImmutableWorkflow<F>(children, 0);
+				ImmutableWorkflow<F> wf = new ImmutableWorkflow<F>(children, parent.token, 0);
 				result.add(wf);
 			}
 		}

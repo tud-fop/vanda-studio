@@ -10,12 +10,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.model.elements.Port;
+import org.vanda.studio.model.elements.Ports;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.hyper.Serialization;
+import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.ExceptionMessage;
 
 public class WorkflowModule implements Module {
 
@@ -37,11 +40,11 @@ public class WorkflowModule implements Module {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("English", "Sentence Corpus"));
-				inputPorts.add(new Port("French", "Sentence Corpus"));
-				outputPorts.add(new Port("Parallel", "GIZA.snt"));
-				outputPorts.add(new Port("English.vcb", "GIZA.vcb"));
-				outputPorts.add(new Port("French.vcb", "GIZA.vcb"));
+				inputPorts.add(new Port("English", new CompositeType("Sentence Corpus")));
+				inputPorts.add(new Port("French", new CompositeType("Sentence Corpus")));
+				outputPorts.add(new Port("Parallel", new CompositeType("GIZA.snt")));
+				outputPorts.add(new Port("English.vcb", new CompositeType("GIZA.vcb")));
+				outputPorts.add(new Port("French.vcb", new CompositeType("GIZA.vcb")));
 			}
 			
 			public String getAuthor() {
@@ -82,10 +85,10 @@ public class WorkflowModule implements Module {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("Parallel", "GIZA.snt"));
-				inputPorts.add(new Port("English.vcb", "GIZA.vcb"));
-				inputPorts.add(new Port("French.vcb", "GIZA.vcb"));
-				outputPorts.add(new Port("Alignments", "GIZA Alignments"));
+				inputPorts.add(new Port("Parallel", new CompositeType("GIZA.snt")));
+				inputPorts.add(new Port("English.vcb", new CompositeType("GIZA.vcb")));
+				inputPorts.add(new Port("French.vcb", new CompositeType("GIZA.vcb")));
+				outputPorts.add(new Port("Alignments", new CompositeType("GIZA Alignments")));
 			}
 			
 			public String getAuthor() {
@@ -126,9 +129,9 @@ public class WorkflowModule implements Module {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("Corpus", "Sentence Corpus"));
-				inputPorts.add(new Port("Grammar", "BerkeleyGrammar.sm6"));
-				outputPorts.add(new Port("Tree Corpus", "Penn Tree Corpus"));
+				inputPorts.add(new Port("Corpus", new CompositeType("Sentence Corpus")));
+				inputPorts.add(new Port("Grammar", new CompositeType("BerkeleyGrammar.sm6")));
+				outputPorts.add(new Port("Tree Corpus", new CompositeType("Penn Tree Corpus")));
 			}
 			
 			public String getAuthor() {
@@ -169,8 +172,8 @@ public class WorkflowModule implements Module {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("Corpus", "Sentence Corpus"));
-				outputPorts.add(new Port("Tokenized Corpus", "Sentence Corpus"));
+				inputPorts.add(new Port("Corpus", new CompositeType("Sentence Corpus")));
+				outputPorts.add(new Port("Tokenized Corpus", new CompositeType("Sentence Corpus")));
 			}
 			
 			public String getAuthor() {
@@ -211,9 +214,9 @@ public class WorkflowModule implements Module {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("Tree Corpus", "Penn Tree Corpus"));
-				outputPorts.add(new Port("Integerized Tree Corpus", "Penn Tree Corpus"));
-				outputPorts.add(new Port("Conversion Table", "TokenMap"));
+				inputPorts.add(new Port("Tree Corpus", new CompositeType("Penn Tree Corpus")));
+				outputPorts.add(new Port("Integerized Tree Corpus", new CompositeType("Penn Tree Corpus")));
+				outputPorts.add(new Port("Conversion Table", new CompositeType("TokenMap")));
 			}
 			
 			public String getAuthor() {
@@ -254,11 +257,11 @@ public class WorkflowModule implements Module {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("Alignment", "GIZA Alignments"));
-				inputPorts.add(new Port("Integerized Tree Corpus", "Penn Tree Corpus"));
-				inputPorts.add(new Port("Conversion Table", "TokenMap"));
-				outputPorts.add(new Port("Rules", "GHKM Hypergraph"));
-				outputPorts.add(new Port("Conversion Table", "TokenMap"));
+				inputPorts.add(new Port("Alignment", new CompositeType("GIZA Alignments")));
+				inputPorts.add(new Port("Integerized Tree Corpus", new CompositeType("Penn Tree Corpus")));
+				inputPorts.add(new Port("Conversion Table", new CompositeType("TokenMap")));
+				outputPorts.add(new Port("Rules", new CompositeType("GHKM Hypergraph")));
+				outputPorts.add(new Port("Conversion Table", new CompositeType("TokenMap")));
 			}
 			
 			public String getAuthor() {
@@ -328,7 +331,7 @@ public class WorkflowModule implements Module {
 					return "sinkId";
 				}
 				public List<Port> getInputPorts() {
-					Port p = new Port("inputPort", "portType");
+					Port p = new Port("inputPort", Ports.typeVariable);
 					List<Port> list = new ArrayList<Port>();
 					list.add(p);
 					return list;
@@ -428,8 +431,13 @@ public class WorkflowModule implements Module {
 				if (result == JFileChooser.APPROVE_OPTION) {
 					File chosenFile = chooser.getSelectedFile();
 					String filePath = chosenFile.getPath();
-					MutableWorkflow<?> hwf = Serialization.load(filePath, app);
-					new WorkflowEditor(app, hwf);
+					MutableWorkflow<?> hwf;
+					try {
+						hwf = Serialization.load(app, filePath);
+						new WorkflowEditor(app, hwf);
+					} catch (Exception e) {
+						app.sendMessage(new ExceptionMessage(e));
+					}
 				}
 			}
 		}

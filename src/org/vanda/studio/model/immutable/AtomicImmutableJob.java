@@ -8,6 +8,7 @@ import org.vanda.studio.model.elements.Choice;
 import org.vanda.studio.model.elements.Element;
 import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.OutputPort;
+import org.vanda.studio.model.elements.Port;
 
 public class AtomicImmutableJob<F> extends ImmutableJob<F> {
 
@@ -38,8 +39,8 @@ public class AtomicImmutableJob<F> extends ImmutableJob<F> {
 	}
 
 	@Override
-	public void appendText(ArrayList<Integer> inputs,
-			ArrayList<Integer> outputs, StringBuilder lines,
+	public void appendText(ArrayList<Object> inputs,
+			ArrayList<Object> outputs, StringBuilder lines,
 			StringBuilder sections) {
 		if (!(element instanceof OutputPort || element instanceof InputPort)) {
 			appendOutput(outputs, lines);
@@ -58,6 +59,16 @@ public class AtomicImmutableJob<F> extends ImmutableJob<F> {
 	@Override
 	public boolean isOutputPort() {
 		return element instanceof OutputPort;
+	}
+
+	@Override
+	public List<Port> getInputPorts() {
+		return element.getInputPorts();
+	}
+
+	@Override
+	public List<Port> getOutputPorts() {
+		return element.getOutputPorts();
 	}
 
 }

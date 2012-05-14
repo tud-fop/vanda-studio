@@ -17,7 +17,6 @@ public class Literal implements Element {
 
 	@Override
 	public void appendActions(List<Action> as) {
-		// TODO Auto-generated method stub
 
 	}
 	
@@ -53,7 +52,7 @@ public class Literal implements Element {
 
 	@Override
 	public <R> R selectRenderer(RendererAssortment<R> ra) {
-		return ra.selectCorpusRenderer(); // FIXME !!!
+		return ra.selectLiteralRenderer();
 	}
 
 	@Override

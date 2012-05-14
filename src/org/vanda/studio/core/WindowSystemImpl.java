@@ -265,6 +265,16 @@ public class WindowSystemImpl implements WindowSystem {
 	}
 
 	@Override
+	public void focusToolWindow(JComponent c) {
+		try {
+			toolPane.setSelectedComponent(c);
+		} catch (IllegalArgumentException e) {
+			// if the component is not in there, then the corresponding
+			// window is not focused, and we ignore the request
+		}
+	}
+	
+	@Override
 	public void focusContentWindow(JComponent c) {
 		contentPane.setSelectedComponent(c);
 	}

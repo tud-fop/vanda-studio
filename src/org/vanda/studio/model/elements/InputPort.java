@@ -15,7 +15,6 @@ public final class InputPort implements Element {
 
 	@Override
 	public void appendActions(List<Action> as) {
-		// TODO Auto-generated method stub
 		
 	}
 	
@@ -43,6 +42,10 @@ public final class InputPort implements Element {
 	public String getName() {
 		return "inport["+Integer.toString(number)+"]";
 	}
+	
+	public int getNumber() {
+		return number;
+	}
 
 	@Override
 	public List<Port> getOutputPorts() {
@@ -51,7 +54,7 @@ public final class InputPort implements Element {
 
 	@Override
 	public <R> R selectRenderer(RendererAssortment<R> ra) {
-		return ra.selectGrammarRenderer(); // FIXME!!!
+		return ra.selectInputPortRenderer();
 	}
 
 	@Override

@@ -4,9 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.vanda.studio.model.elements.Port;
+
 public abstract class ImmutableJob<F> {
 
 	public abstract ImmutableJob<?> dereference(ListIterator<Integer> address);
+
+	public abstract List<Port> getInputPorts();
+
+	public abstract List<Port> getOutputPorts();
 
 	public abstract boolean isChoice();
 
@@ -21,11 +27,11 @@ public abstract class ImmutableJob<F> {
 	 */
 	public abstract List<ImmutableJob<F>> unfold();
 
-	public abstract void appendText(ArrayList<Integer> inputs,
-			ArrayList<Integer> outputs, StringBuilder lines,
+	public abstract void appendText(ArrayList<Object> inputs,
+			ArrayList<Object> outputs, StringBuilder lines,
 			StringBuilder sections);
 	
-	public static void appendInput(ArrayList<Integer> inputs, StringBuilder lines) {
+	public static void appendInput(ArrayList<Object> inputs, StringBuilder lines) {
 		lines.append('(');
 		if (inputs.size() != 0) {
 			appendVariable(inputs.get(0), lines);
@@ -37,7 +43,7 @@ public abstract class ImmutableJob<F> {
 		lines.append(')');
 	}
 
-	public static void appendOutput(ArrayList<Integer> outputs, StringBuilder lines) {
+	public static void appendOutput(ArrayList<Object> outputs, StringBuilder lines) {
 		if (outputs.size() != 1)
 			lines.append('(');
 		if (outputs.size() != 0) {
@@ -51,7 +57,7 @@ public abstract class ImmutableJob<F> {
 			lines.append(')');		
 	}
 	
-	public static void appendVariable(Integer tok, StringBuilder lines) {
+	public static void appendVariable(Object tok, StringBuilder lines) {
 		if (tok == null)
 			lines.append("?");
 		else {

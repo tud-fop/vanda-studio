@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public final class JobInfo<F> {
 	public final ImmutableJob<F> job;
-	public final Integer address;
-	public final ArrayList<Integer> inputs;
-	public final ArrayList<Integer> outputs;
+	public final Object address;
+	public final ArrayList<Object> inputs;
+	public final ArrayList<Object> outputs;
 	public final int outCount;
 
 	/**
@@ -17,8 +17,8 @@ public final class JobInfo<F> {
 	 * @param outputs
 	 * @param outCount
 	 */
-	public JobInfo(ImmutableJob<F> job, Integer address,
-			ArrayList<Integer> inputs, ArrayList<Integer> outputs, int outCount) {
+	public JobInfo(ImmutableJob<F> job, Object address,
+			ArrayList<Object> inputs, ArrayList<Object> outputs, int outCount) {
 		this.job = job;
 		this.address = address;
 		this.inputs = inputs;

@@ -16,7 +16,6 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
-import com.mxgraph.model.mxGraphModel.mxTerminalChange;
 import com.mxgraph.model.mxGraphModel.mxValueChange;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
@@ -87,7 +86,6 @@ public class Adapter {
 					(Observer) disconnectObserver);
 			for (Job<IF> c : hwf.getChildren())
 				render(hwf, c);
-			// FIXME this no longer exists
 			for (Connection<IF> cc : hwf.getConnections())
 				render(hwf, cc);
 		}
@@ -124,7 +122,8 @@ public class Adapter {
 				assert (source.getValue() == cc.getSource());
 				assert (target.getValue() == cc.getTarget());
 
-				source = source.getChildAt(cc.getSourcePort()+cc.getSource().getInputPorts().size());
+				source = source.getChildAt(cc.getSourcePort()
+						+ cc.getSource().getInputPorts().size());
 				target = target.getChildAt(cc.getTargetPort());
 
 				graph.getModel().beginUpdate();
@@ -220,7 +219,7 @@ public class Adapter {
 				assert (graph.isCellDeletable(cell));
 				graph.removeCells(new Object[] { cell });
 				assert (!graph.getModel().contains(cell));
-				graph.refresh(); // XXX necessary?
+				// graph.refresh(); // necessary?
 			}
 		}
 	};
@@ -280,6 +279,7 @@ public class Adapter {
 	 * 
 	 * @param cell
 	 */
+	@SuppressWarnings("unused")
 	private void preventTooSmallNested(Object cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
@@ -448,15 +448,8 @@ public class Adapter {
 							}
 						} else if (value instanceof Connection<?>) {
 							if (translation.remove(value) != null) {
-								// FIXME no longer available
-								if (((Job) ((Connection) value).getSource())
-										.getParent() != null)
-									((Job) ((Connection) value).getSource())
-											.getParent().removeConnection(
-													(Connection) value);
-								// HyperWorkflow
-								// .removeConnectionGeneric((Connection<?>)
-								// value);
+								MutableWorkflow
+										.removeConnectionGeneric((Connection<?>) value);
 							}
 						}
 					} else {

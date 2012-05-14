@@ -60,7 +60,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		assert (hj.getFragmentType() == null || hj.getFragmentType() == getFragmentType());
 		assert (hj.parent == null || hj.parent == this);
 		if (!children.containsKey(hj)) {
-			children.put(hj, new DJobInfo(hj));
+			children.put(hj, new DJobInfo<F>(this, hj));
 			hj.parent = this;
 			addObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(
 					this, hj));
@@ -78,11 +78,11 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	public void addConnection(Connection<F> cc) {
 		assert (children.containsKey(cc.getSource()) && children.containsKey(cc
 				.getTarget()));
-		DJobInfo sji = children.get(cc.getSource());
-		DJobInfo tji = children.get(cc.getTarget());
+		DJobInfo<F> sji = children.get(cc.getSource());
+		DJobInfo<F> tji = children.get(cc.getTarget());
 		if (tji.inputs.get(cc.getTargetPort()) != null)
 			throw new RuntimeException("!!!"); // FIXME better exception
-		Integer tok = sji.outputs.get(cc.getSourcePort());
+		Object tok = sji.outputs.get(cc.getSourcePort());
 		tji.inputs.set(cc.getTargetPort(), tok);
 		tji.inputsBlocked++;
 		connections.get(tok).snd.add(new TokenValue<F>(cc.getTarget(), cc
@@ -158,11 +158,11 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	@Override
 	public void removeChild(Job<F> hj) {
 		assert (hj.parent == this);
-		DJobInfo ji = children.get(hj);
+		DJobInfo<F> ji = children.get(hj);
 		if (ji != null) {
 			hj.parent = null;
 			for (int i = 0; i < ji.inputs.size(); i++) {
-				Integer tok = ji.inputs.get(i);
+				Object tok = ji.inputs.get(i);
 				if (tok != null) {
 					TokenValue<F> stv = connections.get(tok).fst;
 					removeConnection(stv.hj, stv.port, hj, i, null);
@@ -172,11 +172,20 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 				removeConnection(hj, i, null, 0, null);
 				token.recycleToken(ji.outputs.get(i));
 			}
+			deref.remove(ji.address);
 			address.recycleToken(ji.address);
 			children.remove(hj);
 			removeObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(
 					this, hj));
 		}
+	}
+
+	public static <F> void removeConnectionGeneric(Connection<F> cc) {
+		HyperWorkflow<F> parent = cc.getSource().getParent();
+		if (parent == null)
+			parent = cc.getTarget().getParent();
+		if (parent != null)
+			parent.removeConnection(cc);
 	}
 
 	/*
@@ -204,8 +213,8 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	}
 
 	@Override
-	public Integer getAddress(Job<F> child) {
-		DJobInfo ji = children.get(child);
+	public Object getAddress(Job<F> child) {
+		DJobInfo<F> ji = children.get(child);
 		if (ji != null)
 			return ji.address;
 		else
@@ -225,15 +234,14 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	 */
 	public void removeConnection(Job<F> source, int sourcePort,
 			Job<F> target, int targetPort, Connection<F> cc) {
-		DJobInfo sji = children.get(source);
+		DJobInfo<F> sji = children.get(source);
 		ListIterator<TokenValue<F>> li = connections.get(sji.outputs
 				.get(sourcePort)).snd.listIterator();
 		while (li.hasNext()) {
 			TokenValue<F> tv = li.next();
 			if (target == null || tv.hj == target && tv.port == targetPort) {
-				DJobInfo tji = children.get(tv.hj);
-				// TODO the equals is just here because interning doesn't persist
-				assert (sji.outputs.get(sourcePort).equals(tji.inputs.get(tv.port)));
+				DJobInfo<F> tji = children.get(tv.hj);
+				assert (sji.outputs.get(sourcePort) == tji.inputs.get(tv.port));
 				tji.inputs.set(tv.port, null);
 				tji.inputsBlocked--;
 				sji.outCount--;
@@ -253,7 +261,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 
 	@Override
 	public List<Connection<F>> getConnections() {
-		// XXX only for putting existing HyperGraphs into the GUI
+		// only for putting existing HyperGraphs into the GUI
 		LinkedList<Connection<F>> conn = new LinkedList<Connection<F>>();
 		for (Pair<TokenValue<F>, List<TokenValue<F>>> c : connections.values()) {
 			for (TokenValue<F> tv : c.snd) {

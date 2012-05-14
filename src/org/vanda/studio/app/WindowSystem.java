@@ -47,6 +47,8 @@ public interface WindowSystem {
 	 */
 	void focusContentWindow(JComponent c);
 	
+	void focusToolWindow(JComponent c);
+	
 	/**
 	 */
 	void removeContentWindow(JComponent c); 

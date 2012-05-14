@@ -24,11 +24,14 @@ public class JobRendering {
 	protected static Renderer grammarRenderer = new GrammarRenderer();
 	protected static Renderer orRenderer = new ChoiceNodeRenderer();
 	protected static Renderer sinkRenderer = new SinkRenderer();
-	protected static Renderer termRenderer = new TermRenderer();
-	protected static Renderer textRenderer = new TextRenderer();
+	protected static Renderer workflowRenderer = new WorkflowRenderer();
+	protected static Renderer literalRenderer = new LiteralRenderer();
+	protected static Renderer inputPortRenderer = new InputPortRenderer();
+	protected static Renderer outputPortRenderer = new OutputPortRenderer();
 	protected static Renderer[] renderers = { algorithmRenderer,
 			corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
-			termRenderer, textRenderer };
+			workflowRenderer, literalRenderer, inputPortRenderer,
+			outputPortRenderer };
 	protected static mxStylesheet stylesheet;
 	protected static int refCount = 0;
 	private static JGraphRendererAssortment rs = new JGraphRendererAssortment();
@@ -36,7 +39,7 @@ public class JobRendering {
 	// helper class
 	private JobRendering() {
 	}
-	
+
 	public static mxGraph createGraph() {
 		return new Graph();
 	}
@@ -82,7 +85,7 @@ public class JobRendering {
 		style.put(mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
 		style.put(mxConstants.STYLE_PORT_CONSTRAINT, mxConstants.DIRECTION_EAST);
 		stylesheet.putCellStyle("outport", style);
-		
+
 		return stylesheet;
 	}
 
@@ -136,20 +139,32 @@ public class JobRendering {
 		}
 
 		@Override
-		public Renderer selectTermRenderer() {
-			return JobRendering.termRenderer;
+		public Renderer selectWorkflowRenderer() {
+			return JobRendering.workflowRenderer;
 		}
 
 		@Override
-		public Renderer selectTextRenderer() {
-			return JobRendering.textRenderer;
+		public Renderer selectLiteralRenderer() {
+			return JobRendering.literalRenderer;
+		}
+
+		@Override
+		public Renderer selectInputPortRenderer() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Renderer selectOutputPortRenderer() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
 	protected abstract static class DefaultRenderer implements Renderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
-			//style.put(mxConstants.STYLE_AUTOSIZE, "0");
+			// style.put(mxConstants.STYLE_AUTOSIZE, "0");
 			style.put(mxConstants.STYLE_SPACING, 10);
 			style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
 			style.put(mxConstants.STYLE_AUTOSIZE, "1");
@@ -173,8 +188,9 @@ public class JobRendering {
 				v.setConnectable(false);
 
 				if (g.isAutoSizeCell(v))
-					g.updateCellSize(v, true); // XXX was: g.ensureMinimumCellSize(v);
-				//System.out.println(g.isAutoSizeCell(v));
+					g.updateCellSize(v, true); // XXX was:
+												// g.ensureMinimumCellSize(v);
+				// System.out.println(g.isAutoSizeCell(v));
 
 				// insert a cell for every input port
 				List<Port> in = hj.getInputPorts();
@@ -290,17 +306,31 @@ public class JobRendering {
 		}
 	}
 
-	protected static class TermRenderer extends DefaultRenderer {
+	protected static class WorkflowRenderer extends DefaultRenderer {
 		@Override
 		public String getStyleName() {
 			return "term";
 		}
 	}
 
-	protected static class TextRenderer extends DefaultRenderer {
+	protected static class LiteralRenderer extends DefaultRenderer {
 		@Override
 		public String getStyleName() {
 			return "text";
+		}
+	}
+
+	protected static class InputPortRenderer extends DefaultRenderer {
+		@Override
+		public String getStyleName() {
+			return "inputPort";
+		}
+	}
+
+	protected static class OutputPortRenderer extends DefaultRenderer {
+		@Override
+		public String getStyleName() {
+			return "outputPort";
 		}
 	}
 

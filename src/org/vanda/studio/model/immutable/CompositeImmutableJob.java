@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.vanda.studio.model.elements.Linker;
+import org.vanda.studio.model.elements.Port;
 
 public class CompositeImmutableJob<IF, F> extends ImmutableJob<F> {
 
@@ -49,8 +50,8 @@ public class CompositeImmutableJob<IF, F> extends ImmutableJob<F> {
 
 
 	@Override
-	public void appendText(ArrayList<Integer> inputs,
-			ArrayList<Integer> outputs, StringBuilder lines,
+	public void appendText(ArrayList<Object> inputs,
+			ArrayList<Object> outputs, StringBuilder lines,
 			StringBuilder sections) {
 		workflow.appendText(sections);
 		appendOutput(outputs, lines);
@@ -70,6 +71,20 @@ public class CompositeImmutableJob<IF, F> extends ImmutableJob<F> {
 	@Override
 	public boolean isOutputPort() {
 		return false;
+	}
+
+
+	@Override
+	public List<Port> getInputPorts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List<Port> getOutputPorts() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

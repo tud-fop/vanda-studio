@@ -90,9 +90,9 @@ public class WorkflowEditor {
 		mainpane.setResizeWeight(1);
 		mainpane.setDividerSize(6);
 		mainpane.setBorder(null);
-		
+
 		inspector = new JTextArea();
-		
+
 		JScrollPane therealinspector = new JScrollPane(inspector);
 		therealinspector.setName("Inspector");
 
@@ -111,22 +111,23 @@ public class WorkflowEditor {
 				new CloseWorkflowAction());
 		app.getWindowSystem().addContentWindow("", getComponent().getName(),
 				null, getComponent(), null
-				/*
-				 * new WorkflowModule.WorkflowModuleInstance .CloseWorkflowAction( this)
-				 */);
-		app.getWindowSystem().addToolWindow(getComponent(), "inspector", "Inspector", null, therealinspector);
+		/*
+		 * new WorkflowModule.WorkflowModuleInstance .CloseWorkflowAction( this)
+		 */);
+		app.getWindowSystem().addToolWindow(getComponent(), "inspector",
+				"Inspector", null, therealinspector);
 		app.getWindowSystem().focusContentWindow(getComponent());
 		getComponent().requestFocusInWindow();
-		
+
 		Observer<Object> recheckObserver = new Observer<Object>() {
 
 			@Override
 			public void notify(Object event) {
 				checkWorkflow();
 			}
-			
+
 		};
-		
+
 		hwf.getAddObservable().addObserver(recheckObserver);
 		hwf.getRemoveObservable().addObserver(recheckObserver);
 		hwf.getConnectObservable().addObserver(recheckObserver);
@@ -143,14 +144,22 @@ public class WorkflowEditor {
 			System.out.println("Problem!");
 		}
 	}
-	
+
+	@SuppressWarnings("rawtypes")
 	protected void checkWorkflow() {
 		try {
 			ImmutableWorkflow iwf = hwf.freeze();
 			StringBuilder sb = new StringBuilder();
 			iwf.appendText(sb);
-			//System.out.print(sb);
+			// System.out.print(sb);
+			if (!iwf.isSane()) {
+				sb.append("Warning: Your workflow(s) are not executable!\n"
+						+ "The most likely reason is that some input port "
+						+ "is not connected.\n\n");
+			} else
+				iwf.typeCheck();
 			sb.append("Instances\n");
+			@SuppressWarnings("unchecked")
 			List<ImmutableWorkflow> iwfs = iwf.unfold();
 			for (ImmutableWorkflow i : iwfs) {
 				sb.append("-------\n\n");
@@ -158,8 +167,7 @@ public class WorkflowEditor {
 				sb.append("\n");
 			}
 			inspector.setText(sb.toString());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			app.sendMessage(new ExceptionMessage(e));
 		}
 	}
@@ -192,6 +200,7 @@ public class WorkflowEditor {
 			// top left corner of first palette tool, width, height
 			double[] d = { 20, 10, 100, 80 };
 			for (Element item : items) {
+				@SuppressWarnings("rawtypes")
 				Job<?> hj = new AtomicJob(item);
 				hj.setDimensions(d);
 				hj.selectRenderer(JobRendering.getRendererAssortment()).render(
@@ -234,13 +243,10 @@ public class WorkflowEditor {
 				Object[] cells = g.getSelectionCells();
 				// delete connections first, followed by nodes
 				for (Object o : cells) {
-					// FIXME this is no longer possible
 					if (mod.isEdge(o))
-						((Job) ((Connection) mod.getValue(o)).getSource())
-								.getParent().removeConnection(
-										(Connection) mod.getValue(o));
-					// HyperWorkflow.removeConnectionGeneric((Connection<?>)
-					// mod.getValue(o));
+						MutableWorkflow
+								.removeConnectionGeneric((Connection<?>) mod
+										.getValue(o));
 				}
 				for (Object o : cells) {
 					if (mod.isVertex(o) && mod.getValue(o) instanceof Job<?>)
@@ -299,9 +305,8 @@ public class WorkflowEditor {
 					JMenuItem item = new JMenuItem("Remove Connection") {
 						@Override
 						public void fireActionPerformed(ActionEvent e) {
-							// FIXME oh noes, see above
-							// HyperWorkflow.removeConnectionGeneric((Connection<?>)
-							// value);
+							MutableWorkflow
+									.removeConnectionGeneric((Connection<?>) value);
 						}
 					};
 
@@ -473,7 +478,11 @@ public class WorkflowEditor {
 			if (result == JFileChooser.APPROVE_OPTION) {
 				File chosenFile = chooser.getSelectedFile();
 				String filePath = chosenFile.getPath();
-				Serialization.save(hwf, filePath);
+				try {
+					Serialization.save(app, hwf, filePath);
+				} catch (Exception e) {
+					app.sendMessage(new ExceptionMessage(e));
+				}
 			}
 		}
 	}

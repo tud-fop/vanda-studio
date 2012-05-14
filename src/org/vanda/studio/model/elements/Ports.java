@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.TypeVariable;
+import org.vanda.studio.util.Token;
+
 /**
  * A class containing some supporting functions for Ports.
  * 
@@ -13,6 +17,7 @@ import java.util.List;
  */
 public class Ports {
 	// TODO implement caching also for the other members
+	public final static Type typeVariable = new TypeVariable(Token.getToken(0));
 	private static SoftReference<ArrayList<Port>> _choiceInputs;
 	private static SoftReference<List<Port>> choiceInputs;
 	public final static List<Port> identityInputs;
@@ -23,14 +28,14 @@ public class Ports {
 	public final static List<Port> literalOutputs;
 
 	static {
-		identityInputs = Collections.singletonList(new Port("idin", "a"));
-		identityOutputs = Collections.singletonList(new Port("idout", "a"));
+		identityInputs = Collections.singletonList(new Port("idin", typeVariable));
+		identityOutputs = Collections.singletonList(new Port("idout", typeVariable));
 		_choiceInputs = null;
 		choiceInputs = null;
-		choiceOutputs = Collections.singletonList(new Port("orout", "a"));
-		inputPortOutputs = Collections.singletonList(new Port("inputportout", "a"));
-		outputPortInputs = Collections.singletonList(new Port("outputportin", "a"));
-		literalOutputs = Collections.singletonList(new Port("literalport", "a"));
+		choiceOutputs = Collections.singletonList(new Port("orout", typeVariable));
+		inputPortOutputs = Collections.singletonList(new Port("inputportout", typeVariable));
+		outputPortInputs = Collections.singletonList(new Port("outputportin", typeVariable));
+		literalOutputs = Collections.singletonList(new Port("literalport", typeVariable));
 	}
 
 	public static List<Port> getChoiceInputPorts(int n) {
@@ -52,7 +57,7 @@ public class Ports {
 		}
 		// if necessary, add ports
 		while (_ci.size() < n)
-			_ci.add(new Port("orin#" + Integer.toString(_ci.size()), "a"));
+			_ci.add(new Port("orin#" + Integer.toString(_ci.size()), typeVariable));
 		return ci.subList(0, n);
 	}
 

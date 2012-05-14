@@ -23,7 +23,7 @@ public interface HyperWorkflow<F> {
 
 	public abstract Observable<Pair<MutableWorkflow<F>, Job<F>>> getAddObservable();
 	
-	public abstract Integer getAddress(Job<F> child);
+	public abstract Object getAddress(Job<F> child);
 	
 	public abstract Collection<Job<F>> getChildren();
 

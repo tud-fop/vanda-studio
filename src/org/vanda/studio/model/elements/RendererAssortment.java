@@ -12,13 +12,17 @@ public interface RendererAssortment<R> {
 	R selectCorpusRenderer();
 
 	R selectGrammarRenderer();
+	
+	R selectLiteralRenderer();
+	
+	R selectInputPortRenderer();
+	
+	R selectOutputPortRenderer();
 
 	R selectOrRenderer();
 
 	R selectSinkRenderer();
 
-	R selectTermRenderer();
-
-	R selectTextRenderer();
+	R selectWorkflowRenderer();
 
 }
