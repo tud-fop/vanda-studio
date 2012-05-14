@@ -397,42 +397,7 @@ public class WorkflowModule implements Module {
 
 			@Override
 			public void invoke() {				
-				new WorkflowEditor(app, new HyperWorkflow<Object, ShellView>(new Compiler<Object, ShellView>() {
-
-					public String getContact() {
-						return "buechse";
-					}
-					
-					@Override
-					public String getId() {
-						return "compilerId";
-					}
-					
-					public String getName() {
-						return "myCompiler";
-					}
-					
-					public String getVersion() {
-						return "version";
-					}
-					
-					@Override
-					public ArtifactFactory<?, ?, Object, ShellView> createArtifactFactory(
-							Profile profile) {
-						// TODO Auto-generated method stub
-						return null;
-					}
-
-					@Override
-					public Class<Object> getFragmentType() {
-						// TODO Auto-generated method stub
-						return Object.class;
-					}
-
-					@Override
-					public Class<ShellView> getViewType() {
-						return ShellView.class;
-					}}));
+				new WorkflowEditor(app, new HyperWorkflow(app.getCompilerRepository().getItem("compilerId")));
 			}
 		}
 

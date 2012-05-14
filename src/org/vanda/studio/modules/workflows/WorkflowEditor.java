@@ -36,6 +36,7 @@ import org.vanda.studio.model.workflows.Tool;
 import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.modules.workflows.jgraph.Adapter;
+import org.vanda.studio.modules.workflows.jgraph.GraphRenderer;
 import org.vanda.studio.modules.workflows.jgraph.JobRendering;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.HasActions;
@@ -54,7 +55,7 @@ public class WorkflowEditor {
 
 	protected HyperWorkflow<?, ?> hwf;
 	protected mxGraphComponent component;
-	protected Adapter renderer;
+	protected Adapter componentAdapter;
 	protected mxGraph palettegraph;
 	protected mxGraphComponent paletteComponent;
 	protected JSplitPane mainpane;
@@ -64,20 +65,20 @@ public class WorkflowEditor {
 		
 		this.hwf = hwf;
 
-		renderer = new Adapter(hwf);
+		componentAdapter = new Adapter(hwf);
 
-		palettegraph = JobRendering.createGraph();
-		palettegraph.setCellsLocked(true);
-		paletteComponent = new mxGraphComponent(palettegraph);
-		//palette.getGraphControl().addMouseListener(
-		//		new EditMouseAdapter(app, palette));
-		component = new mxGraphComponent(renderer.getGraph());
+		component = new mxGraphComponent(componentAdapter.getGraph());
 		component.setDragEnabled(false);
 		component.getGraphControl().addMouseListener(
 				new EditMouseAdapter(app, component));
 		component.getGraphControl().addMouseWheelListener(
 				new MouseZoomAdapter(app, component));
 		component.addKeyListener(new DelKeyListener(app, component));
+		palettegraph = JobRendering.createGraph();
+		palettegraph.setCellsLocked(true);
+		paletteComponent = new mxGraphComponent(palettegraph);
+		//palette.getGraphControl().addMouseListener(
+		//		new EditMouseAdapter(app, palette));
 		updatePalette();
 		mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
 				paletteComponent);
@@ -211,7 +212,11 @@ public class WorkflowEditor {
 		return mainpane;
 	}
 
-	protected void updatePalette() {
+	@SuppressWarnings("unchecked")
+	protected mxGraph updatePalette() {
+		
+		GraphRenderer renderer = new GraphRenderer(null);
+		
 		palettegraph.getModel().beginUpdate();
 		try {
 			// clear seems to reset the zoom, so we call notify at the end
@@ -260,8 +265,11 @@ public class WorkflowEditor {
 			palettegraph.getModel().endUpdate();
 		}
 		// TODO notifyUIMode(app);
+		
+		return renderer.getGraph();
 	}
 
+	@SuppressWarnings("unchecked")
 	protected static class MyCompositeHyperJob extends CompositeHyperJob {
 
 		public MyCompositeHyperJob(Linker linker, ToolInstance instance,
