@@ -37,13 +37,11 @@ import org.vanda.studio.model.workflows.ToolInstance;
 import org.vanda.studio.modules.common.SimpleToolInstance;
 import org.vanda.studio.modules.workflows.jgraph.Adapter;
 import org.vanda.studio.modules.workflows.jgraph.GraphRenderer;
-import org.vanda.studio.modules.workflows.jgraph.JobRendering;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Util;
 
-import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxGraphTransferable;
@@ -244,7 +242,6 @@ public class WorkflowEditor {
 				d[1] += 90;
 			}
 			
-			//XXX testing display of nested tools in palette
 			ArrayList<Linker<?,?,?>> linkers = new ArrayList<Linker<?,?,?>>(app
 					.getLinkerRepository().getItems());
 			Collections.sort(linkers, new Comparator<Linker<?,?,?>>() {
@@ -263,7 +260,6 @@ public class WorkflowEditor {
 				renderer.render(null, hj);
 				d[1] += 90;
 			}
-			//XXX END TEST
 		} finally {
 //			palettegraph.getModel().endUpdate();
 		}
