@@ -17,7 +17,7 @@ public class Adapter {
 	protected GraphRenderer renderer;
 	
 	public <F, V> Adapter(HyperWorkflow<F, V> root) {
-		renderer = new GraphRenderer(root);
+		renderer = new GraphRenderer(root, false);
 		renderer.getAddObservable().addObserver(rendererAddObserver);
 		renderer.getModifyObservable().addObserver(rendererModifyObserver);
 		renderer.getRemoveObservable().addObserver(rendererRemoveObserver);
@@ -113,10 +113,19 @@ public class Adapter {
 		@SuppressWarnings({ "unchecked" })
 		@Override
 		public void notify(Pair<HyperWorkflow<?, ?>, HyperJob<?>> event) {
+			// happens when rendering a loaded HyperWorkflow
 			if (event.fst != null && event.snd == null) {
 				System.out.println("bind Adapter to " + event.fst);
 				bind(event.fst);
 			} else {
+				// happens whenever a user adds nodes from within the GUI
+				
+				// bind observer to newly added HyperWorkflow
+				if (event.snd instanceof CompositeHyperJob<?,?,?,?>) {
+					System.out.println("bind...");
+					bind(((CompositeHyperJob)event.snd).getWorkflow());
+				}
+				
 				System.out.println("renderer added HyperJob '" + event.snd.getName() + "' to " + event.fst);
 				event.fst.addChild((HyperJob)event.snd);
 			}

@@ -1,5 +1,6 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
+import org.vanda.studio.model.generation.Workflow;
 import org.vanda.studio.model.hyper.CompositeHyperJob;
 import org.vanda.studio.model.hyper.HyperJob;
 import org.vanda.studio.model.hyper.HyperWorkflow;
@@ -104,6 +105,9 @@ class Graph extends mxGraph {
 	public boolean isCellSelectable(Object cell) {
 		if (getModel().getValue(cell) instanceof PortAdapter)
 			return false;
+		if (getModel().getValue(cell) instanceof Workflow<?,?>)
+			return false;
+		
 		return super.isCellSelectable(cell);
 	}
 

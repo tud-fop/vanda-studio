@@ -29,6 +29,7 @@ import com.mxgraph.view.mxGraph;
 
 public class GraphRenderer {
 
+	private boolean paletteRenderer;
 	private mxGraph graph;
 	private ChangeListener changeListener;
 	private Map<Object, mxICell> translation;
@@ -38,7 +39,9 @@ public class GraphRenderer {
 	private MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> connectObservable;
 	private MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> disconnectObservable;
 
-	public <F, V> GraphRenderer(HyperWorkflow<F,V> root) {
+	public <F, V> GraphRenderer(HyperWorkflow<F,V> root, boolean paletteRenderer) {
+		this.paletteRenderer = paletteRenderer;
+		
 		addObservable = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
 		modifyObservable = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
 		removeObservable = new MultiplexObserver<Pair<HyperWorkflow<?, ?>, HyperJob<?>>>();
@@ -51,12 +54,13 @@ public class GraphRenderer {
 		// bind defaultParent of the graph and the root hyperworkflow
 		// to each other and save them in the node mapping
 		((mxCell) graph.getDefaultParent()).setValue(root);
+		//translation.put(null, (mxICell) graph.getDefaultParent());
 		
 		// bind graph; for example, react on new, changed, or deleted elements
 		changeListener = new ChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
 	}
-
+	
 	public Observable<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> getAddObservable() {
 		return addObservable;
 	}
@@ -106,14 +110,13 @@ public class GraphRenderer {
 				mxGeometry geo = null;
 				mxGeometry geop = parentCell.getGeometry();
 				if (geop != null) {
-					geo = new mxGeometry(0, 0, geop.getWidth(),
-							geop.getHeight());
-					geo.setRelative(true);
+					geo = new mxGeometry(10, 10, geop.getWidth()-20,
+							geop.getHeight()-20);
+					geo.setRelative(false);
 				}
 
-				cell = new mxCell(hwf, geo, "");
+				cell = new mxCell(hwf, geo, "fillColor=#caffee;opacity=50");
 				cell.setVertex(true);
-
 				graph.addCell(cell, parentCell);
 			} else
 				cell = (mxCell) graph.getDefaultParent();
@@ -129,11 +132,12 @@ public class GraphRenderer {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <F, V, IV> void render(HyperWorkflow<F, V> parent, HyperJob<V> hj) {
+	public <F, V, IV> void render(HyperWorkflow<F, V> parent, HyperJob<V> hj) {
 		if (!translation.containsKey(hj)) {
 			Object parentCell = translation.get(parent);
 			hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj,
 					graph, parentCell);
+			
 			if (hj instanceof CompositeHyperJob<?, ?, ?, ?>) {
 				// render recursively
 				render((CompositeHyperJob<F, V, IV, ?>) hj,
@@ -206,10 +210,10 @@ public class GraphRenderer {
 		HyperJob<?> hj = (HyperJob<?>) value;
 
 		// make sure the node does not already exist (i.e. is in map)
-		if (model.getParent(cell) != null && !translation.containsKey(hj)) {
+		if (/*model.getParent(cell) != null &&*/ !translation.containsKey(hj)) {
 			// add to map
 			translation.put(hj, cell);
-
+			
 			// add hyperjob to parent hyperworkflow
 			// XXX this could blow up, typewise
 			Object parent = ((mxCell) cell).getParent().getValue();
@@ -220,13 +224,11 @@ public class GraphRenderer {
 			// because it was loaded from a previously saved file
 			// only set the parenting HyperWorkflow correctly
 			if (((HyperWorkflow<?, ?>) parent).getChildren().contains(hj)) {
-				//FIXME don't change parent directly, use observable to do that
 				hj.setParent((HyperWorkflow) parent);
 			} else {
 				// the HyperJob was just added by the user via the GUI, hence
 				// add it to its parent cell's HyperWorkflow
 				
-				//XXX((HyperWorkflow<?, ?>) parent).addChild((HyperJob) hj);
 				// notify observer that a node has been added
 				addObservable.notify(new Pair<HyperWorkflow<?,?>, HyperJob<?>>((HyperWorkflow) parent, hj));
 			}
@@ -235,7 +237,7 @@ public class GraphRenderer {
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 					geo.getHeight() };
 			hj.setDimensions(dim);
-			//FIXME do not change dimensions directly, use observable to do that
+			modifyObservable.notify(new Pair<HyperWorkflow<?,?>, HyperJob<?>>(hj.getParent(),hj));
 		}
 	}
 
@@ -284,7 +286,6 @@ public class GraphRenderer {
 				translation.put(conn, cell);
 				model.setValue(cell, conn);
 				
-				//XXX((HyperWorkflow) cell.getParent().getValue()).addConnection((HyperConnection) conn);
 				// notify observer that an edge has been added
 				connectObservable.notify(new Pair<HyperWorkflow<?,?>, HyperConnection<?>>((HyperWorkflow) cell.getParent().getValue(), conn));
 			}
@@ -337,7 +338,15 @@ public class GraphRenderer {
 					} else {
 						// something has been added
 						if (value instanceof HyperJob<?>) {
-							addNode(cell);
+							if (paletteRenderer) {
+								// palette renderer does not need a changeListener
+								// except for filling translation map
+								
+								if (!translation.containsKey((HyperJob<?>)value))
+									translation.put((HyperJob<?>)value, cell);
+							} else {
+								addNode(cell);
+							}
 						} else if (value instanceof HyperConnection<?>) {
 							// happens when a loaded nhwf contains connection
 							// and they are added to the graph

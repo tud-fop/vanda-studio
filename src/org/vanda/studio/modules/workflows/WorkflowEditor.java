@@ -74,12 +74,16 @@ public class WorkflowEditor {
 		component.getGraphControl().addMouseWheelListener(
 				new MouseZoomAdapter(app, component));
 		component.addKeyListener(new DelKeyListener(app, component));
-		palettegraph = JobRendering.createGraph();
-		palettegraph.setCellsLocked(true);
-		paletteComponent = new mxGraphComponent(palettegraph);
-		//palette.getGraphControl().addMouseListener(
-		//		new EditMouseAdapter(app, palette));
-		updatePalette();
+//		palettegraph = JobRendering.createGraph();
+//		palettegraph.setCellsLocked(true);
+//		//palette.getGraphControl().addMouseListener(
+//		//		new EditMouseAdapter(app, palette));
+//		updatePalette();
+//		paletteComponent = new mxGraphComponent(palettegraph);
+		paletteComponent = new mxGraphComponent(updatePalette());
+		paletteComponent.getGraph().setCellsLocked(true);
+		paletteComponent.setConnectable(false);
+		
 		mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
 				paletteComponent);
 		mainpane.setOneTouchExpandable(true);
@@ -215,12 +219,12 @@ public class WorkflowEditor {
 	@SuppressWarnings("unchecked")
 	protected mxGraph updatePalette() {
 		
-		GraphRenderer renderer = new GraphRenderer(null);
+		GraphRenderer renderer = new GraphRenderer(null, true);
 		
-		palettegraph.getModel().beginUpdate();
+//		palettegraph.getModel().beginUpdate();
 		try {
 			// clear seems to reset the zoom, so we call notify at the end
-			((mxGraphModel) palettegraph.getModel()).clear();
+//			((mxGraphModel) palettegraph.getModel()).clear();
 			ArrayList<Tool<?, ?>> items = new ArrayList<Tool<?, ?>>(app
 					.getToolRepository().getItems());
 			Collections.sort(items, new Comparator<Tool<?,?>>() {
@@ -235,7 +239,8 @@ public class WorkflowEditor {
 			for (Tool<?, ?> item : items) {
 				HyperJob<?> hj = AtomicHyperJob.create(item);
 				hj.setDimensions(d);
-				hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
+//				hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
+				renderer.render(null, hj);
 				d[1] += 90;
 			}
 			
@@ -253,16 +258,14 @@ public class WorkflowEditor {
 				HyperJob<?> hj = new MyCompositeHyperJob(linker, new SimpleToolInstance(), 
 						new HyperWorkflow(app.getCompilerRepository().getItem("compilerId")));
 				
-				// FIXME DO NOT set the name of hj by overriding the getName() method,
-				// this leads to hj being a WorkflowEditor!!!
-				
 				hj.setDimensions(d);
-				hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
+//				hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj, palettegraph, null);
+				renderer.render(null, hj);
 				d[1] += 90;
 			}
 			//XXX END TEST
 		} finally {
-			palettegraph.getModel().endUpdate();
+//			palettegraph.getModel().endUpdate();
 		}
 		// TODO notifyUIMode(app);
 		
