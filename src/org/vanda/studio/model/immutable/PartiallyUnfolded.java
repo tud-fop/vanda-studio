@@ -5,8 +5,6 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.vanda.studio.util.Token;
-
 /**
  * An intermediate representation in which some Choice nodes may have been
  * resolved.
@@ -89,7 +87,7 @@ public final class PartiallyUnfolded<F> {
 		for (int j = 0; j < ji.inputs.size(); j++) {
 			Object tok2 = ji.inputs.get(j);
 			if (j != i && tok2 != null) {
-				int src = parent.tokenSource[((Token.InternedInteger) ji.inputs.get(j)).intValue()];
+				int src = parent.tokenSource[ji.inputs.get(j).intValue()];
 				outCount[src]--;
 				touched.set(src);
 			}
@@ -104,7 +102,7 @@ public final class PartiallyUnfolded<F> {
 				for (int j = 0; j < ji.inputs.size(); j++) {
 					Object tok2 = ji.inputs.get(j);
 					if (tok2 != null)
-						outCount[parent.tokenSource[((Token.InternedInteger) ji.inputs.get(j)).intValue()]]--;
+						outCount[parent.tokenSource[ji.inputs.get(j).intValue()]]--;
 				}
 				deleted.set(position);
 				remaining--;

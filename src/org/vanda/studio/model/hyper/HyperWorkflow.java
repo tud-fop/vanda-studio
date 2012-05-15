@@ -7,38 +7,37 @@ import java.util.ListIterator;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Pair;
+import org.vanda.studio.util.TokenSource.Token;
 
 public interface HyperWorkflow<F> {
 
 	public abstract HyperWorkflow<F> clone()
 			throws CloneNotSupportedException;
 
-	public abstract void addChild(Job<F> hj);
+	public abstract Token addChild(Job<F> hj);
 
-	public abstract void addConnection(Connection<F> cc);
+	public abstract Token addConnection(Connection cc);
 	
-	public abstract Job<?> dereference(ListIterator<Object> address);
+	public abstract Job<?> dereference(ListIterator<Token> address);
 	
 	public abstract ImmutableWorkflow<F> freeze() throws Exception;
 
-	public abstract Observable<Pair<MutableWorkflow<F>, Job<F>>> getAddObservable();
+	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getAddObservable();
 	
-	public abstract Object getAddress(Job<F> child);
-	
-	public abstract Collection<Job<F>> getChildren();
+	public abstract Collection<Token> getChildren();
 
-	public abstract Observable<Pair<MutableWorkflow<F>, Connection<F>>> getConnectObservable();
+	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getConnectObservable();
 
-	public abstract Observable<Pair<MutableWorkflow<F>, Connection<F>>> getDisconnectObservable();
+	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getDisconnectObservable();
 
-	public abstract Observable<Pair<MutableWorkflow<F>, Job<F>>> getModifyObservable();
+	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getModifyObservable();
 
-	public abstract Observable<Pair<MutableWorkflow<F>, Job<F>>> getRemoveObservable();
+	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getRemoveObservable();
 
-	public abstract void removeChild(Job<F> hj);
+	public abstract void removeChild(Token address);
 
-	public abstract void removeConnection(Connection<F> cc);
+	public abstract void removeConnection(Token address);
 
-	public abstract List<Connection<F>> getConnections();
+	public abstract List<Connection> getConnections();
 
 }

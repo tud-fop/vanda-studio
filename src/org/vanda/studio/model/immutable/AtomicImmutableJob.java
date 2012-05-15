@@ -9,6 +9,7 @@ import org.vanda.studio.model.elements.Element;
 import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.elements.Port;
+import org.vanda.studio.util.TokenSource.Token;
 
 public class AtomicImmutableJob<F> extends ImmutableJob<F> {
 
@@ -19,7 +20,7 @@ public class AtomicImmutableJob<F> extends ImmutableJob<F> {
 	}
 
 	@Override
-	public ImmutableJob<?> dereference(ListIterator<Object> address) {
+	public ImmutableJob<?> dereference(ListIterator<Token> address) {
 		assert (!address.hasNext());
 		return this;
 	}
@@ -39,9 +40,8 @@ public class AtomicImmutableJob<F> extends ImmutableJob<F> {
 	}
 
 	@Override
-	public void appendText(ArrayList<Object> inputs,
-			ArrayList<Object> outputs, StringBuilder lines,
-			StringBuilder sections) {
+	public void appendText(ArrayList<Token> inputs, ArrayList<Token> outputs,
+			StringBuilder lines, StringBuilder sections) {
 		if (!(element instanceof OutputPort || element instanceof InputPort)) {
 			appendOutput(outputs, lines);
 			lines.append(" = ");

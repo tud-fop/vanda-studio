@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.vanda.studio.util.Token;
+import org.vanda.studio.util.TokenSource;
 
 public final class CompositeType extends Type {
 
@@ -48,7 +48,7 @@ public final class CompositeType extends Type {
 	}
 
 	@Override
-	public void freshMap(Token t, Map<Object, Object> m) {
+	public void freshMap(TokenSource t, Map<Object, Object> m) {
 		for (Type c : children) {
 			c.freshMap(t, m);
 		}

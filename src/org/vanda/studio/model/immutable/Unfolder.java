@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.vanda.studio.model.elements.Choice;
+import org.vanda.studio.util.TokenSource.Token;
 
 public class Unfolder<F> {
 
@@ -120,7 +120,7 @@ public class Unfolder<F> {
 							 * ArrayList<Object>(1), ji.outputs, ji.outCount);
 							 * jinew.inputs.add(p.choiceMap.get(i));
 							 */
-							ArrayList<Object> inputs = new ArrayList<Object>(
+							ArrayList<Token> inputs = new ArrayList<Token>(
 									ji.inputs.size());
 							for (int j = 0; j < ji.inputs.size(); j++)
 								if (j == p.choiceMap.get(i))

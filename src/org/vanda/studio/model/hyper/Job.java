@@ -8,12 +8,11 @@ import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.util.HasActions;
+import org.vanda.studio.util.TokenSource.Token;
 
 public abstract class Job<F> implements HasActions, Cloneable {
 	
 	protected double[] dimensions = new double[4];
-	
-	protected HyperWorkflow<F> parent;
 	
 	@Override
 	public Job<F> clone() throws CloneNotSupportedException {
@@ -23,7 +22,7 @@ public abstract class Job<F> implements HasActions, Cloneable {
 		return cl;
 	}
 	
-	public abstract Job<?> dereference(ListIterator<Object> address);
+	public abstract Job<?> dereference(ListIterator<Token> address);
 	
 	public double getHeight() {
 		return dimensions[3];
@@ -33,10 +32,6 @@ public abstract class Job<F> implements HasActions, Cloneable {
 
 	public abstract String getName();
 	
-	public HyperWorkflow<F> getParent() {
-		return parent;
-	}
-
 	public abstract List<Port> getOutputPorts();
 	
 	public abstract Class<F> getFragmentType();

@@ -21,7 +21,7 @@ import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.Message;
 import org.vanda.studio.util.Observer;
-import org.vanda.studio.util.Token;
+import org.vanda.studio.util.TokenSource;
 
 public class MessageModule implements Module {
 

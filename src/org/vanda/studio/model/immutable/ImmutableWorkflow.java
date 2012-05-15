@@ -16,13 +16,13 @@ import org.vanda.studio.model.types.Equation;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.TypeVariable;
 import org.vanda.studio.model.types.Types;
-import org.vanda.studio.util.Token;
-import org.vanda.studio.util.Token.InternedInteger;
+import org.vanda.studio.util.TokenSource;
+import org.vanda.studio.util.TokenSource.Token;
 
 public final class ImmutableWorkflow<F> {
 
 	final ArrayList<JobInfo<F>> children;
-	final Token token;
+	final TokenSource token;
 	final int[] tokenSource;
 	private final Map<Object, ImmutableJob<F>> deref;
 	private Type[] types;
@@ -34,7 +34,7 @@ public final class ImmutableWorkflow<F> {
 	 * @param maxtoken
 	 *            maximum token
 	 */
-	public ImmutableWorkflow(ArrayList<JobInfo<F>> children, Token token,
+	public ImmutableWorkflow(ArrayList<JobInfo<F>> children, TokenSource token,
 			int maxtoken) {
 		this.children = children;
 		deref = new HashMap<Object, ImmutableJob<F>>();
@@ -44,14 +44,14 @@ public final class ImmutableWorkflow<F> {
 			JobInfo<F> ji = children.get(i);
 			if (maxtoken > 0) {
 				for (Object tok : ji.outputs)
-					tokenSource[((Token.InternedInteger) tok).intValue()] = i;
+					tokenSource[((TokenSource.Token) tok).intValue()] = i;
 			}
 			deref.put(ji.address, ji.job);
 		}
 		types = null;
 	}
 
-	public ImmutableJob<?> dereference(ListIterator<Object> address) {
+	public ImmutableJob<?> dereference(ListIterator<Token> address) {
 		assert (address != null && address.hasNext());
 		ImmutableJob<?> hj = deref.get(address.next());
 		if (hj != null)
@@ -64,11 +64,11 @@ public final class ImmutableWorkflow<F> {
 	}
 
 	public Type getType(Object variable) {
-		if (types == null || !(variable instanceof InternedInteger)
-				|| ((InternedInteger) variable).intValue() >= types.length)
+		if (types == null || !(variable instanceof Token)
+				|| ((Token) variable).intValue() >= types.length)
 			return null;
 		else
-			return types[((InternedInteger) variable).intValue()];
+			return types[((Token) variable).intValue()];
 	}
 
 	public boolean isSane() {
@@ -89,7 +89,7 @@ public final class ImmutableWorkflow<F> {
 	}
 
 	public void typeCheck() throws Exception {
-		Token t = token.clone();
+		TokenSource t = token.clone();
 		Map<Object, Object> rename = null;
 		Set<Equation> s = new HashSet<Equation>();
 		for (JobInfo<F> ji : children) {
@@ -121,13 +121,13 @@ public final class ImmutableWorkflow<F> {
 		Types.unify(s);
 		types = new Type[token.getMaxToken()];
 		for (Equation e : s) {
-			InternedInteger i = (InternedInteger) ((TypeVariable) e.lhs).variable;
+			Token i = (Token) ((TypeVariable) e.lhs).variable;
 			if (i.intValue() < types.length)
 				types[i.intValue()] = e.rhs;
 		}
 		for (int i = 0; i < types.length; i++)
 			if (types[i] == null)
-				types[i] = new TypeVariable(Token.getToken(i));
+				types[i] = new TypeVariable(TokenSource.getToken(i));
 		System.out.println(s);
 	}
 
@@ -139,8 +139,8 @@ public final class ImmutableWorkflow<F> {
 	}
 
 	public void appendText(StringBuilder sections) {
-		ArrayList<Object> outputs = new ArrayList<Object>();
-		ArrayList<Object> inputs = new ArrayList<Object>();
+		ArrayList<Token> outputs = new ArrayList<Token>();
+		ArrayList<Token> inputs = new ArrayList<Token>();
 		ArrayList<JobInfo<F>> inputJI = new ArrayList<JobInfo<F>>();
 		ArrayList<JobInfo<F>> outputJI = new ArrayList<JobInfo<F>>();
 		for (JobInfo<F> ji : children) {

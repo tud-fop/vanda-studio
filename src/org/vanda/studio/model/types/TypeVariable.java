@@ -2,7 +2,7 @@ package org.vanda.studio.model.types;
 
 import java.util.Map;
 
-import org.vanda.studio.util.Token;
+import org.vanda.studio.util.TokenSource;
 
 public final class TypeVariable extends Type {
 	
@@ -28,7 +28,7 @@ public final class TypeVariable extends Type {
 	}
 
 	@Override
-	public void freshMap(Token t, Map<Object, Object> m) {
+	public void freshMap(TokenSource t, Map<Object, Object> m) {
 		if (!m.containsKey(variable))
 			m.put(variable, t.makeToken());
 	}

@@ -9,6 +9,7 @@ import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.TokenSource.Token;
 
 public class CompositeJob<IF, F> extends Job<F> {
 
@@ -76,7 +77,7 @@ public class CompositeJob<IF, F> extends Job<F> {
 	}
 
 	@Override
-	public Job<?> dereference(ListIterator<Object> address) {
+	public Job<?> dereference(ListIterator<Token> address) {
 		if (address.hasNext())
 			return workflow.dereference(address);
 		else

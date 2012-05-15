@@ -7,13 +7,14 @@ import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
+import org.vanda.studio.util.TokenSource.Token;
 
 public final class Model<F> {
 
 	public abstract static class SingleObjectSelection {
-		public final List<Object> parent;
+		public final List<Token> parent;
 
-		public SingleObjectSelection(List<Object> parent) {
+		public SingleObjectSelection(List<Token> parent) {
 			this.parent = parent;
 		}
 
@@ -35,11 +36,11 @@ public final class Model<F> {
 	}
 
 	public static class ConnectionSelection extends SingleObjectSelection {
-		private final Connection<?> cc;
+		private final Token address;
 		
-		public ConnectionSelection(List<Object> parent, Connection<?> cc) {
+		public ConnectionSelection(List<Token> parent, Token address) {
 			super(parent);
-			this.cc = cc;
+			this.address = address;
 		}
 
 		@Override

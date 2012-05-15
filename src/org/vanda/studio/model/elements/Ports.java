@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.TypeVariable;
-import org.vanda.studio.util.Token;
+import org.vanda.studio.util.TokenSource;
 
 /**
  * A class containing some supporting functions for Ports.
@@ -17,7 +17,7 @@ import org.vanda.studio.util.Token;
  */
 public class Ports {
 	// TODO implement caching also for the other members
-	public final static Type typeVariable = new TypeVariable(Token.getToken(0));
+	public final static Type typeVariable = new TypeVariable(TokenSource.getToken(0));
 	private static SoftReference<ArrayList<Port>> _choiceInputs;
 	private static SoftReference<List<Port>> choiceInputs;
 	public final static List<Port> identityInputs;

@@ -11,6 +11,7 @@ import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.TokenSource.Token;
 
 public class AtomicJob<F> extends Job<F> {
 	private final Element element;
@@ -76,7 +77,7 @@ public class AtomicJob<F> extends Job<F> {
 	}
 
 	@Override
-	public Job<?> dereference(ListIterator<Object> address) {
+	public Job<?> dereference(ListIterator<Token> address) {
 		assert (!address.hasNext());
 		return this;
 	}
