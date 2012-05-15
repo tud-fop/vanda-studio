@@ -47,8 +47,8 @@ public class WorkflowModule implements Module {
 				outputPorts.add(new Port("French.vcb", new CompositeType("GIZA.vcb")));
 			}
 			
-			public String getAuthor() {
-				return "buechse";
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
 			}
 			public String getCategory() {
 				return "alignments";
@@ -91,8 +91,8 @@ public class WorkflowModule implements Module {
 				outputPorts.add(new Port("Alignments", new CompositeType("GIZA Alignments")));
 			}
 			
-			public String getAuthor() {
-				return "buechse";
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
 			}
 			public String getCategory() {
 				return "alignments";
@@ -134,8 +134,8 @@ public class WorkflowModule implements Module {
 				outputPorts.add(new Port("Tree Corpus", new CompositeType("Penn Tree Corpus")));
 			}
 			
-			public String getAuthor() {
-				return "buechse";
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
 			}
 			public String getCategory() {
 				return "parsing";
@@ -176,8 +176,8 @@ public class WorkflowModule implements Module {
 				outputPorts.add(new Port("Tokenized Corpus", new CompositeType("Sentence Corpus")));
 			}
 			
-			public String getAuthor() {
-				return "buechse";
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
 			}
 			public String getCategory() {
 				return "corpus tools";
@@ -219,8 +219,8 @@ public class WorkflowModule implements Module {
 				outputPorts.add(new Port("Conversion Table", new CompositeType("TokenMap")));
 			}
 			
-			public String getAuthor() {
-				return "buechse";
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
 			}
 			public String getCategory() {
 				return "corpus tools";
@@ -264,8 +264,8 @@ public class WorkflowModule implements Module {
 				outputPorts.add(new Port("Conversion Table", new CompositeType("TokenMap")));
 			}
 			
-			public String getAuthor() {
-				return "buechse";
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
 			}
 			public String getCategory() {
 				return "rule extraction";
@@ -315,8 +315,8 @@ public class WorkflowModule implements Module {
 			tr.addItem(new GHKM());
 			
 			Tool<Object> sinkTool = new Tool<Object>() {	
-				public String getAuthor() {
-					return "afischer";
+				public String getContact() {
+					return "Anja.Fischer@mailbox.tu-dresden.de";
 				}
 				public String getCategory() {
 					return "testCategory";
@@ -406,7 +406,7 @@ public class WorkflowModule implements Module {
 
 			@Override
 			public void invoke() {
-				new WorkflowEditor(app, new MutableWorkflow<Object>(Object.class));
+				new WorkflowEditorImpl(app, new MutableWorkflow<Object>(Object.class));
 			}
 		}
 
@@ -434,7 +434,7 @@ public class WorkflowModule implements Module {
 					MutableWorkflow<?> hwf;
 					try {
 						hwf = Serialization.load(app, filePath);
-						new WorkflowEditor(app, hwf);
+						new WorkflowEditorImpl(app, hwf);
 					} catch (Exception e) {
 						app.sendMessage(new ExceptionMessage(e));
 					}

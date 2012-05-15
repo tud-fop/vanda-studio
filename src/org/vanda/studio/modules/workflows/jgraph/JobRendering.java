@@ -150,14 +150,12 @@ public class JobRendering {
 
 		@Override
 		public Renderer selectInputPortRenderer() {
-			// TODO Auto-generated method stub
-			return null;
+			return JobRendering.inputPortRenderer;
 		}
 
 		@Override
 		public Renderer selectOutputPortRenderer() {
-			// TODO Auto-generated method stub
-			return null;
+			return JobRendering.outputPortRenderer;
 		}
 	}
 

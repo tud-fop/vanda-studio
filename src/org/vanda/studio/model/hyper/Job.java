@@ -23,7 +23,7 @@ public abstract class Job<F> implements HasActions, Cloneable {
 		return cl;
 	}
 	
-	public abstract Job<?> dereference(ListIterator<Integer> address);
+	public abstract Job<?> dereference(ListIterator<Object> address);
 	
 	public double getHeight() {
 		return dimensions[3];
@@ -66,5 +66,11 @@ public abstract class Job<F> implements HasActions, Cloneable {
 		assert(d.length == 4);
 		System.arraycopy(d, 0, dimensions, 0, 4);
 	}
+
+	public abstract String getContact();
+
+	public abstract String getCategory();
+	
+	public abstract String getDescription();
 
 }

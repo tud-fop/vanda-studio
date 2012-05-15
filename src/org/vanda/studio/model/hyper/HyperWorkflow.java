@@ -17,7 +17,7 @@ public interface HyperWorkflow<F> {
 
 	public abstract void addConnection(Connection<F> cc);
 	
-	public abstract Job<?> dereference(ListIterator<Integer> address);
+	public abstract Job<?> dereference(ListIterator<Object> address);
 	
 	public abstract ImmutableWorkflow<F> freeze() throws Exception;
 

@@ -8,20 +8,20 @@ import org.vanda.studio.util.Action;
  * Choice node. A choice node with one input port acts as identity.
  * 
  * @author buechse
- *
+ * 
  */
 public final class Choice implements Element {
 
 	private int inputs;
-	
+
 	public Choice() {
 		this(2);
 	}
-	
+
 	public Choice(int inputs) {
 		this.inputs = inputs;
 	}
-	
+
 	@Override
 	public Element clone() {
 		return new Choice(inputs);
@@ -70,6 +70,18 @@ public final class Choice implements Element {
 	@Override
 	public String getCategory() {
 		return "basics";
+	}
+
+	@Override
+	public String getContact() {
+		return "Vanda Studio Team";
+	}
+
+	@Override
+	public String getDescription() {
+		return "A CHOOSE node in a hyperworkflow determines several "
+				+ "possibilities of generating workflows. Each possibility "
+				+ "corresponds to choosing one of the incoming connections.";
 	}
 
 }

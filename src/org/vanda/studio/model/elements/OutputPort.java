@@ -62,4 +62,14 @@ public class OutputPort implements Element {
 		return "basics";
 	}
 
+	@Override
+	public String getContact() {
+		return "Vanda Studio Team";
+	}
+
+	@Override
+	public String getDescription() {
+		return "";
+	}
+
 }

@@ -8,6 +8,10 @@ public interface Element extends HasActions, Cloneable {
 	
 	public Element clone() throws CloneNotSupportedException;
 	
+	public String getContact();
+
+	public String getDescription();
+
 	public Class<?> getFragmentType();
 
 	/**

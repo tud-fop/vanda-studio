@@ -8,7 +8,7 @@ import org.vanda.studio.model.elements.Port;
 
 public abstract class ImmutableJob<F> {
 
-	public abstract ImmutableJob<?> dereference(ListIterator<Integer> address);
+	public abstract ImmutableJob<?> dereference(ListIterator<Object> address);
 
 	public abstract List<Port> getInputPorts();
 

@@ -19,7 +19,7 @@ public class AtomicImmutableJob<F> extends ImmutableJob<F> {
 	}
 
 	@Override
-	public ImmutableJob<?> dereference(ListIterator<Integer> address) {
+	public ImmutableJob<?> dereference(ListIterator<Object> address) {
 		assert (!address.hasNext());
 		return this;
 	}

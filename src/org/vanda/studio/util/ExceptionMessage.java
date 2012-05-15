@@ -8,9 +8,9 @@ import java.util.List;
 public final class ExceptionMessage implements Message {
 
 	private final Date d;
-	private final Exception e;
+	private final Throwable e;
 
-	public ExceptionMessage(Exception e) {
+	public ExceptionMessage(Throwable e) {
 		this.d = new Date();
 		this.e = e;
 		e.printStackTrace();

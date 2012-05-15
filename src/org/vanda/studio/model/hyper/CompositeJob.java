@@ -76,11 +76,26 @@ public class CompositeJob<IF, F> extends Job<F> {
 	}
 
 	@Override
-	public Job<?> dereference(ListIterator<Integer> address) {
+	public Job<?> dereference(ListIterator<Object> address) {
 		if (address.hasNext())
 			return workflow.dereference(address);
 		else
 			return this;
+	}
+
+	@Override
+	public String getContact() {
+		return linker.getContact();
+	}
+
+	@Override
+	public String getCategory() {
+		return linker.getCategory();
+	}
+
+	@Override
+	public String getDescription() {
+		return linker.getDescription();
 	}
 
 }

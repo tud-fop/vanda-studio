@@ -13,9 +13,11 @@ import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.types.Equation;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.TypeVariable;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Token;
+import org.vanda.studio.util.Token.InternedInteger;
 
 public final class ImmutableWorkflow<F> {
 
@@ -23,6 +25,7 @@ public final class ImmutableWorkflow<F> {
 	final Token token;
 	final int[] tokenSource;
 	private final Map<Object, ImmutableJob<F>> deref;
+	private Type[] types;
 
 	/**
 	 * 
@@ -37,17 +40,18 @@ public final class ImmutableWorkflow<F> {
 		deref = new HashMap<Object, ImmutableJob<F>>();
 		this.token = token;
 		tokenSource = new int[maxtoken];
-		if (maxtoken > 0) {
-			for (int i = 0; i < children.size(); i++) {
-				JobInfo<F> ji = children.get(i);
+		for (int i = 0; i < children.size(); i++) {
+			JobInfo<F> ji = children.get(i);
+			if (maxtoken > 0) {
 				for (Object tok : ji.outputs)
 					tokenSource[((Token.InternedInteger) tok).intValue()] = i;
-				deref.put(ji.address, ji.job);
 			}
+			deref.put(ji.address, ji.job);
 		}
+		types = null;
 	}
 
-	public ImmutableJob<?> dereference(ListIterator<Integer> address) {
+	public ImmutableJob<?> dereference(ListIterator<Object> address) {
 		assert (address != null && address.hasNext());
 		ImmutableJob<?> hj = deref.get(address.next());
 		if (hj != null)
@@ -57,6 +61,14 @@ public final class ImmutableWorkflow<F> {
 
 	public ArrayList<JobInfo<F>> getChildren() {
 		return children;
+	}
+
+	public Type getType(Object variable) {
+		if (types == null || !(variable instanceof InternedInteger)
+				|| ((InternedInteger) variable).intValue() >= types.length)
+			return null;
+		else
+			return types[((InternedInteger) variable).intValue()];
 	}
 
 	public boolean isSane() {
@@ -105,8 +117,17 @@ public final class ImmutableWorkflow<F> {
 				}
 			}
 		}
-		//System.out.println(s);
+		// System.out.println(s);
 		Types.unify(s);
+		types = new Type[token.getMaxToken()];
+		for (Equation e : s) {
+			InternedInteger i = (InternedInteger) ((TypeVariable) e.lhs).variable;
+			if (i.intValue() < types.length)
+				types[i.intValue()] = e.rhs;
+		}
+		for (int i = 0; i < types.length; i++)
+			if (types[i] == null)
+				types[i] = new TypeVariable(Token.getToken(i));
 		System.out.println(s);
 	}
 

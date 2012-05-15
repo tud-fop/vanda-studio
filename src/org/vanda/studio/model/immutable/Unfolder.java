@@ -64,7 +64,8 @@ public class Unfolder<F> {
 		/*
 		 * step 1: unfold children separately, putting everything into a map
 		 */
-		ArrayList<NAryDigit<F>> counters = new ArrayList<NAryDigit<F>>(parent.children.size());
+		ArrayList<NAryDigit<F>> counters = new ArrayList<NAryDigit<F>>(
+				parent.children.size());
 		for (int i = 0; i < parent.children.size(); i++) {
 			List<ImmutableJob<F>> js = parent.children.get(i).job.unfold();
 			if (js != null)
@@ -113,11 +114,21 @@ public class Unfolder<F> {
 						JobInfo<F> jinew = null;
 						if (ji.job.isChoice()) {
 							// substitute choice with identity
-							jinew = new JobInfo<F>(new AtomicImmutableJob<F>(
-									new Choice(1)), ji.address,
-									new ArrayList<Object>(1), ji.outputs,
-									ji.outCount);
-							jinew.inputs.add(p.choiceMap.get(i));
+							/*
+							 * jinew = new JobInfo<F>(new AtomicImmutableJob<F>(
+							 * new Choice(1)), ji.address, new
+							 * ArrayList<Object>(1), ji.outputs, ji.outCount);
+							 * jinew.inputs.add(p.choiceMap.get(i));
+							 */
+							ArrayList<Object> inputs = new ArrayList<Object>(
+									ji.inputs.size());
+							for (int j = 0; j < ji.inputs.size(); j++)
+								if (j == p.choiceMap.get(i))
+									inputs.add(ji.inputs.get(j));
+								else
+									inputs.add(null);
+							jinew = new JobInfo<F>(ji.job, ji.address, inputs,
+									ji.outputs, ji.outCount);
 						} else if (counters.get(i) != null) {
 							jinew = new JobInfo<F>(
 									counters.get(i).getCurrent(), ji.address,
@@ -130,7 +141,8 @@ public class Unfolder<F> {
 							carry = counters.get(i).advance();
 					}
 				}
-				ImmutableWorkflow<F> wf = new ImmutableWorkflow<F>(children, parent.token, 0);
+				ImmutableWorkflow<F> wf = new ImmutableWorkflow<F>(children,
+						parent.token, 0);
 				result.add(wf);
 			}
 		}

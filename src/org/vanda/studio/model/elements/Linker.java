@@ -73,6 +73,12 @@ public interface Linker<IF, F> extends HasActions {
 	 */
 	List<Port> convertOutputPorts(List<Port> ops);
 	
+	String getCategory();
+	
+	String getContact();
+	
+	String getDescription();
+	
 	Class<IF> getInnerFragmentType();
 
 	Class<F> getFragmentType();

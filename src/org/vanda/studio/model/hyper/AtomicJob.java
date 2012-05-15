@@ -23,6 +23,10 @@ public class AtomicJob<F> extends Job<F> {
 	public AtomicJob<F> clone() throws CloneNotSupportedException {
 		return new AtomicJob<F>(element.clone());
 	}
+	
+	public Element getElement() {
+		return element;
+	}
 
 	@Override
 	public List<Port> getInputPorts() {
@@ -72,8 +76,23 @@ public class AtomicJob<F> extends Job<F> {
 	}
 
 	@Override
-	public Job<?> dereference(ListIterator<Integer> address) {
+	public Job<?> dereference(ListIterator<Object> address) {
 		assert (!address.hasNext());
 		return this;
+	}
+
+	@Override
+	public String getContact() {
+		return element.getContact();
+	}
+
+	@Override
+	public String getCategory() {
+		return element.getCategory();
+	}
+
+	@Override
+	public String getDescription() {
+		return element.getDescription();
 	}
 }

@@ -75,15 +75,17 @@ public final class CompositeType extends Type {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(constructor);
-		sb.append('(');
 		ListIterator<Type> it = children.listIterator();
-		while (it.hasNext()) {
-			sb.append(it.next().toString());
-			if (it.hasNext()) {
-				sb.append(", ");
+		if (it.hasNext()) {
+			sb.append('(');
+			while (it.hasNext()) {
+				sb.append(it.next().toString());
+				if (it.hasNext()) {
+					sb.append(", ");
+				}
 			}
+			sb.append(')');
 		}
-		sb.append(')');
 		return sb.toString();
 	}
 

@@ -9,7 +9,7 @@ import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Pair;
 
 public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
-		HyperWorkflow<F> {
+		HyperWorkflow<F>, Cloneable {
 
 	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> addObservable;
 	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> modifyObservable;
@@ -147,6 +147,14 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		if (hj.parent != null)
 			hj.parent.removeChild(hj);
 	}
+	
+	public Object getVariable(Job<F> source, int sourcePort) {
+		DJobInfo<F> ji = children.get(source);
+		if (ji != null && 0 <= sourcePort && sourcePort < ji.outputs.size()) {
+			return ji.outputs.get(sourcePort);
+		} else
+			return null;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -204,7 +212,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	}
 
 	@Override
-	public Job<?> dereference(ListIterator<Integer> address) {
+	public Job<?> dereference(ListIterator<Object> address) {
 		assert (address != null && address.hasNext());
 		Job<?> hj = deref.get(address.next());
 		if (hj != null)

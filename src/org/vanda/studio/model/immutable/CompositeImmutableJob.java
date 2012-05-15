@@ -12,7 +12,7 @@ public class CompositeImmutableJob<IF, F> extends ImmutableJob<F> {
 
 	private final Linker<IF, F> linker;
 
-	private ImmutableWorkflow<IF> workflow; // not final because of clone()
+	private final ImmutableWorkflow<IF> workflow;
 
 	public CompositeImmutableJob(Linker<IF, F> linker, ImmutableWorkflow<IF> workflow) {
 		this.linker = linker;
@@ -21,7 +21,7 @@ public class CompositeImmutableJob<IF, F> extends ImmutableJob<F> {
 	
 	
 	@Override
-	public ImmutableJob<?> dereference(ListIterator<Integer> address) {
+	public ImmutableJob<?> dereference(ListIterator<Object> address) {
 		if (address.hasNext())
 			return workflow.dereference(address);
 		else
@@ -40,6 +40,10 @@ public class CompositeImmutableJob<IF, F> extends ImmutableJob<F> {
 
 	public Linker<IF, F> getLinker() {
 		return linker;
+	}
+	
+	public ImmutableWorkflow<IF> getWorkflow() {
+		return workflow;
 	}
 
 

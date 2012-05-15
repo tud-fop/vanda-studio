@@ -20,8 +20,8 @@ public final class PartiallyUnfolded<F> {
 	public final BitSet deleted;
 	public final BitSet touched;
 	private int position;
-	// extraMap maps choice nodes (via index) to the chosen token
-	public final HashMap<Integer, Object> choiceMap;
+	// extraMap maps choice nodes (via index) to the chosen port
+	public final HashMap<Integer, Integer> choiceMap;
 	private final int[] outCount;
 
 	public PartiallyUnfolded(ImmutableWorkflow<F> parent) {
@@ -32,7 +32,7 @@ public final class PartiallyUnfolded<F> {
 		position = parent.children.size()-1;
 		while (position >= 0 && !parent.children.get(position).job.isChoice())
 			position--;
-		choiceMap = new HashMap<Integer, Object>();
+		choiceMap = new HashMap<Integer, Integer>();
 		outCount = new int[parent.children.size()];
 		for (int i = 0; i < outCount.length; i++)
 			outCount[i] = parent.children.get(i).outCount;
@@ -44,7 +44,7 @@ public final class PartiallyUnfolded<F> {
 		deleted = (BitSet) parent.deleted.clone();
 		touched = (BitSet) parent.touched.clone();
 		position = parent.position;
-		choiceMap = new HashMap<Integer, Object>(parent.choiceMap);
+		choiceMap = new HashMap<Integer, Integer>(parent.choiceMap);
 		outCount = Arrays.copyOf(parent.outCount, position);
 	}
 
@@ -94,8 +94,8 @@ public final class PartiallyUnfolded<F> {
 				touched.set(src);
 			}
 		}
-		// Second, put the chosen token on record
-		choiceMap.put(position, ji.inputs.get(i));
+		// Second, put the chosen /*token*/ port on record
+		choiceMap.put(position, /*ji.inputs.get(i)*/i);
 		// Third, find next or node, propagating removal of unnecessary elements
 		position--;
 		while (position >= 0) {

@@ -11,6 +11,7 @@ import java.util.List;
 import org.vanda.studio.model.elements.Element;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
+import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.modules.common.ModuleInstance;
 import org.vanda.studio.modules.common.ToolFactory;
 import org.vanda.studio.util.Action;
@@ -38,7 +39,7 @@ public class VDictionaryFactory implements ToolFactory<Object, VDictionary> {
 		static {
 			inports = new ArrayList<Port>();
 			outports = new ArrayList<Port>();
-			outports.add(new Port("dictionary", "dictionary"));
+			outports.add(new Port("dictionary", new CompositeType("dictionary")));
 		}
 		
 		ModuleInstance<Object, VDictionary> mod;
@@ -86,7 +87,7 @@ public class VDictionaryFactory implements ToolFactory<Object, VDictionary> {
 		}
 
 		@Override
-		public String getAuthor() {
+		public String getContact() {
 			return author;
 		}
 		
