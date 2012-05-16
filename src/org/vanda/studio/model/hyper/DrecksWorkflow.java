@@ -14,19 +14,8 @@ import org.vanda.studio.util.TokenSource.Token;
 
 public class DrecksWorkflow<F> {
 
-	/*
-	protected static class TokenValue<F> {
-		public final Token hj;
-		public final int port;
-
-		public TokenValue(Token hj, int port) {
-			this.hj = hj;
-			this.port = port;
-		}
-	}*/
-
-	protected static class DConnInfo {
-		public final Token address;  // XXX somewhat redundant
+	protected static final class DConnInfo {
+		public final Token address; // somewhat redundant, but makes life easier
 		public final Token variable;
 		public final Connection cc; // super-redundant
 
@@ -37,9 +26,9 @@ public class DrecksWorkflow<F> {
 		}
 	}
 
-	protected static class DJobInfo<F> {
+	protected static final class DJobInfo<F> {
 		public final Job<F> job;
-		public final Token address; // XXX somewhat redundant
+		public final Token address; // somewhat redundant, but makes life easier
 		public final ArrayList<Token> inputs;
 		public int inputsBlocked;
 		public final ArrayList<Token> outputs;
@@ -48,7 +37,7 @@ public class DrecksWorkflow<F> {
 
 		public DJobInfo(DrecksWorkflow<F> parent, Job<F> j) {
 			job = j;
-			address = parent.addressSource.makeToken();
+			address = parent.childAddressSource.makeToken();
 			inputs = new ArrayList<Token>(j.getInputPorts().size());
 			for (int i = 0; i < j.getInputPorts().size(); i++)
 				inputs.add(null);
@@ -57,16 +46,9 @@ public class DrecksWorkflow<F> {
 			for (int i = 0; i < j.getOutputPorts().size(); i++) {
 				Token t = parent.variableSource.makeToken();
 				outputs.add(t);
-				/*
-				parent.connections.put(t,
-						new Pair<TokenValue<F>, List<TokenValue<F>>>(
-								new TokenValue<F>(address, i),
-								new LinkedList<TokenValue<F>>()));
-								*/
 			}
 			outCount = 0;
 			topSortInputsBlocked = 0;
-			// parent.deref.put(address, j);
 		}
 
 		public DJobInfo(DJobInfo<F> ji) throws CloneNotSupportedException {
@@ -84,7 +66,8 @@ public class DrecksWorkflow<F> {
 	}
 
 	protected final TokenSource variableSource;
-	protected final TokenSource addressSource;
+	protected final TokenSource childAddressSource;
+	protected final TokenSource connectionAddressSource;
 	protected final ArrayList<DJobInfo<F>> children;
 	// protected final Map<Token, Pair<TokenValue<F>, List<TokenValue<F>>>>
 	// connections;
@@ -97,7 +80,8 @@ public class DrecksWorkflow<F> {
 		children = new ArrayList<DJobInfo<F>>();
 		connections = new ArrayList<DConnInfo>();
 		variableSource = new TokenSource();
-		addressSource = new TokenSource();
+		childAddressSource = new TokenSource();
+		connectionAddressSource = new TokenSource();
 	}
 
 	public DrecksWorkflow(DrecksWorkflow<F> hyperWorkflow)
@@ -110,13 +94,9 @@ public class DrecksWorkflow<F> {
 			children.add(new DJobInfo<F>(it.next()));
 		connections = new ArrayList<DConnInfo>(hyperWorkflow.connections);
 		variableSource = hyperWorkflow.variableSource.clone();
-		addressSource = hyperWorkflow.addressSource.clone();
+		childAddressSource = hyperWorkflow.childAddressSource.clone();
+		connectionAddressSource = hyperWorkflow.connectionAddressSource.clone();
 	}
-
-	/*
-	 * public ImmutableWorkflow<F> clone() throws CloneNotSupportedException {
-	 * return new ImmutableWorkflow<F>(this); }
-	 */
 
 	public Collection<Token> getChildren() {
 		ArrayList<Token> result = new ArrayList<Token>();
@@ -157,21 +137,23 @@ public class DrecksWorkflow<F> {
 	}
 
 	public ImmutableWorkflow<F> freeze() throws Exception {
-		ArrayList<DJobInfo<F>> topsort = new ArrayList<DJobInfo<F>>(
-				children.size());
+		// Two steps. Step 1: topological sort
+		// XXX potential optimization: compute forward star
+		int count = 0;
 		LinkedList<DJobInfo<F>> workingset = new LinkedList<DJobInfo<F>>();
 		for (DJobInfo<F> ji : children) {
 			if (ji != null) {
 				ji.topSortInputsBlocked = ji.inputsBlocked;
 				if (ji.topSortInputsBlocked == 0)
 					workingset.add(ji);
+				count++;
 			}
 		}
+		ArrayList<DJobInfo<F>> topsort = new ArrayList<DJobInfo<F>>(count);
 		while (!workingset.isEmpty()) {
 			DJobInfo<F> ji = workingset.pop();
 			topsort.add(ji);
 			for (Token tok : ji.outputs)
-				// for (TokenValue<F> tv : connections.get(tok).snd) {
 				for (DConnInfo ci : connections) {
 					if (ci != null && ci.variable == tok) {
 						DJobInfo<F> ji2 = children.get(ci.cc.target.intValue());
@@ -181,7 +163,8 @@ public class DrecksWorkflow<F> {
 					}
 				}
 		}
-		if (topsort.size() == children.size()) {
+		// Step 2: actual freeze
+		if (topsort.size() == count) {
 			ArrayList<JobInfo<F>> imch = new ArrayList<JobInfo<F>>(
 					topsort.size());
 			for (DJobInfo<F> ji : topsort) {
@@ -189,14 +172,11 @@ public class DrecksWorkflow<F> {
 						new ArrayList<Token>(ji.inputs), new ArrayList<Token>(
 								ji.outputs), ji.outCount));
 			}
-			return new ImmutableWorkflow<F>(imch, variableSource, variableSource.getMaxToken());
+			return new ImmutableWorkflow<F>(imch, variableSource,
+					variableSource.getMaxToken());
 		} else
 			throw new Exception(
 					"could not do topological sort; cycles probable");
 	}
-	/*
-	 * public List<MutableWorkflow<F>> unfold() throws
-	 * CloneNotSupportedException { return new Unfolder<F>(this).unfold(); }
-	 */
 
 }

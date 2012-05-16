@@ -88,7 +88,8 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		if (tji.inputs.get(cc.targetPort) != null)
 			throw new RuntimeException("!!!"); // FIXME better exception
 		Token tok = sji.outputs.get(cc.sourcePort);
-		DConnInfo ci = new DConnInfo(addressSource.makeToken(), tok, cc);
+		DConnInfo ci = new DConnInfo(connectionAddressSource.makeToken(), tok,
+				cc);
 		tji.inputs.set(cc.targetPort, tok);
 		tji.inputsBlocked++;
 		if (ci.address.intValue() < connections.size())
@@ -155,11 +156,21 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		return removeObservable;
 	}
 
-	public Object getVariable(Token source, int sourcePort) {
+	@Override
+	public Token getVariable(Token source, int sourcePort) {
 		DJobInfo<F> ji = children.get(source.intValue());
 		if (ji != null && 0 <= sourcePort && sourcePort < ji.outputs.size()) {
 			return ji.outputs.get(sourcePort);
 		} else
+			return null;
+	}
+
+	@Override
+	public Token getVariable(Token address) {
+		DConnInfo ci = connections.get(address.intValue());
+		if (ci != null)
+			return ci.variable;
+		else
 			return null;
 	}
 
@@ -184,8 +195,8 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			for (int i = 0; i < ji.outputs.size(); i++) {
 				variableSource.recycleToken(ji.outputs.get(i));
 			}
-			addressSource.recycleToken(ji.address);
 			children.set(ji.address.intValue(), null);
+			childAddressSource.recycleToken(ji.address);
 			removeObservable.notify(new Pair<MutableWorkflow<F>, Token>(this,
 					ji.address));
 		}
@@ -209,6 +220,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			tji.inputsBlocked--;
 			sji.outCount--;
 			connections.set(address.intValue(), null);
+			connectionAddressSource.recycleToken(address);
 			disconnectObservable.notify(new Pair<MutableWorkflow<F>, Token>(
 					this, address));
 
@@ -216,24 +228,45 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	}
 
 	@Override
-	public Job<?> dereference(ListIterator<Token> address) {
-		assert (address != null && address.hasNext());
-		DJobInfo<?> ji = children.get(address.next().intValue());
+	public HyperWorkflow<?> dereference(ListIterator<Token> address) {
+		assert (address != null);
+		if (address.hasNext()) {
+			DJobInfo<?> ji = children.get(address.next().intValue());
+			if (ji != null)
+				return ji.job.dereference(address);
+			else
+				return null;
+		} else
+			return this;
+	}
+
+	@Override
+	public List<Token> getConnections() {
+		// only for putting existing HyperGraphs into the GUI
+		LinkedList<Token> conn = new LinkedList<Token>();
+		for (DConnInfo ci : connections) {
+			if (ci != null)
+				conn.add(ci.address);
+		}
+		return conn;
+	}
+
+	@Override
+	public Job<F> getChild(Token address) {
+		DJobInfo<F> ji = children.get(address.intValue());
 		if (ji != null)
-			return ji.job.dereference(address);
+			return ji.job;
 		else
 			return null;
 	}
 
 	@Override
-	public List<Connection> getConnections() {
-		// only for putting existing HyperGraphs into the GUI
-		LinkedList<Connection> conn = new LinkedList<Connection>();
-		for (DConnInfo ci : connections) {
-			if (ci != null)
-				conn.add(ci.cc);
-		}
-		return conn;
+	public Connection getConnection(Token address) {
+		DConnInfo ci = connections.get(address.intValue());
+		if (ci != null)
+			return ci.cc;
+		else
+			return null;
 	}
 
 	/*

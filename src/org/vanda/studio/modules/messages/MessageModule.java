@@ -1,11 +1,8 @@
 package org.vanda.studio.modules.messages;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -13,15 +10,9 @@ import javax.swing.JScrollPane;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.model.types.CompositeType;
-import org.vanda.studio.model.types.Equation;
-import org.vanda.studio.model.types.Type;
-import org.vanda.studio.model.types.TypeVariable;
-import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.Message;
 import org.vanda.studio.util.Observer;
-import org.vanda.studio.util.TokenSource;
 
 public class MessageModule implements Module {
 
@@ -84,7 +75,7 @@ public class MessageModule implements Module {
 			messageList = new JList(listModel);
 			scrollPane = new JScrollPane(messageList);
 			scrollPane.setName("Messages");
-			app.getWindowSystem().addToolWindow(null, "messages", "Messages", null, scrollPane);
+			app.getWindowSystem().addToolWindow(null, null, scrollPane);
 			app.getMessageObservable().addObserver(this);
 			app.sendMessage(new Message() {
 				

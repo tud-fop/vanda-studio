@@ -9,7 +9,7 @@ import org.vanda.studio.util.TokenSource.Token;
 
 public abstract class ImmutableJob<F> {
 
-	public abstract ImmutableJob<?> dereference(ListIterator<Token> address);
+	public abstract ImmutableWorkflow<?> dereference(ListIterator<Token> path);
 
 	public abstract List<Port> getInputPorts();
 

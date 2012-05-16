@@ -77,9 +77,8 @@ public class AtomicJob<F> extends Job<F> {
 	}
 
 	@Override
-	public Job<?> dereference(ListIterator<Token> address) {
-		assert (!address.hasNext());
-		return this;
+	public HyperWorkflow<?> dereference(ListIterator<Token> address) {
+		return null;
 	}
 
 	@Override

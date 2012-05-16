@@ -1,6 +1,8 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,8 +11,13 @@ import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.modules.workflows.Model;
+import org.vanda.studio.modules.workflows.Model.ConnectionSelection;
+import org.vanda.studio.modules.workflows.Model.JobSelection;
+import org.vanda.studio.modules.workflows.Model.WorkflowSelection;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Pair;
+import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -25,253 +32,174 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxGraphSelectionModel.mxSelectionChange;
 
-// TODO do something about all those unchecked conversions and raw types
+/**
+ * Translate workflow events into render/modify/remove calls -- they manipulate
+ * the graph. Translate graph events into updateNode/updateEdge calls -- they
+ * manipulate the workflow.
+ * 
+ * The workflow itself is represented as a node carrying a WorkflowAdapter
+ * instance, which translates child and connection addresses into graph cells.
+ * This translation is updated when the graph notifies us of changes (i.e., in
+ * updateNode and updateEdge).
+ * 
+ * @author buechse
+ * 
+ */
+public final class Adapter {
 
-public class Adapter {
+	protected class ChangeListener implements mxIEventListener {
+		@Override
+		public void invoke(Object sender, mxEventObject evt) {
+			mxIGraphModel gmodel = graph.getModel();
+			mxUndoableEdit edit = (mxUndoableEdit) evt.getProperty("edit");
+			List<mxUndoableChange> changes = edit.getChanges();
+			for (mxUndoableChange c : changes) {
+				// process the following changes:
+				// - child change (add/remove)
+				// - value change
+				// - geometry change
+				if (c instanceof mxChildChange) {
+					mxChildChange cc = (mxChildChange) c;
+					mxICell cell = (mxICell) cc.getChild();
+					Object value = gmodel.getValue(cell);
+					if (cc.getParent() == null) {
+						// something has been removed
+						// we make an exception and do not call helper methods
+						if (value instanceof Token) {
+							WorkflowAdapter wa = (WorkflowAdapter) ((mxICell) cc
+									.getPrevious()).getValue();
+							if (gmodel.isVertex(cell)) {
+								if (wa.removeChild((Token) value) != null)
+									wa.workflow.removeChild((Token) value);
+							} else {
+								if (wa.removeConnection((Token) value) != null)
+									wa.workflow.removeConnection((Token) value);
+							}
+						} else if (value instanceof WorkflowAdapter) {
+							System.out.println("Curious thing just happened!");
+						}
+					} else {
+						// something has been added
+						if (gmodel.isVertex(cell))
+							updateNode(cell);
+						else if (gmodel.isEdge(cell))
+							updateEdge(cell);
+					}
+				} else if (c instanceof mxValueChange) {
+					// fires when a connection was inserted and then any
+					// component is moved to change its geometry
+					// maybe this is the geometryChange of connections?
 
-	protected HyperWorkflow<?> root;
-	protected Graph graph;
-	protected ChangeListener changeListener;
-	protected Map<Object, mxICell> translation;
+					/*
+					 * // assert (false);
+					 * System.out.println("mxValueChange of: " + ((mxCell)
+					 * ((mxValueChange) c).getCell()) .getValue());
+					 */
+				} else if (c instanceof mxGeometryChange) {
+					Object cell = ((mxGeometryChange) c).getCell();
+					if (gmodel.isVertex(cell))
+						updateNode(cell);
+				} else if (c instanceof mxSelectionChange) {
+					Object cell = graph.getSelectionCell();
+					if (cell != null) {
+						LinkedList<Token> path = new LinkedList<Token>();
+						Object cl = (mxCell) gmodel.getParent(cell);
+						while (cl != null) {
+							if (gmodel.getValue(cl) instanceof Token)
+								path.addFirst((Token) gmodel.getValue(cl));
+							cl = gmodel.getParent(cl);
+						}
+						if (gmodel.isEdge(cell) && gmodel.getValue(cell) instanceof Token) {
+							model.setSelection(new ConnectionSelection(path,
+									(Token) gmodel.getValue(cell)));
+						} else if (gmodel.isVertex(cell) && gmodel.getValue(cell) instanceof Token) {
+							model.setSelection(new JobSelection(path, (Token) gmodel.getValue(cell)));
+						} else if (gmodel.getValue(cell) instanceof WorkflowAdapter) {
+							model.setSelection(new WorkflowSelection(path));
+						}
+					} else {
+						List<Token> el = Collections.emptyList();
+						model.setSelection(new WorkflowSelection(el));
+					}
+				}
+			}
+		}
+	}
 
-	public <F> Adapter(MutableWorkflow<F> root) {
-		this.root = root;
-		translation = new HashMap<Object, mxICell>();
+	protected final Model<?> model;
+	protected final Graph graph;
+	protected final ChangeListener changeListener;
+	protected final Map<HyperWorkflow<?>, mxICell> translation;
+
+	public <F> Adapter(Model<?> model) {
+		this.model = model;
+		translation = new HashMap<HyperWorkflow<?>, mxICell>();
 		graph = new Graph();
 
-		// bind defaultParent of the graph and the root hyperworkflow
-		// to each other and save them in the node mapping
-		((mxCell) graph.getDefaultParent()).setValue(root);
-		// translation.put(root, (mxICell) graph.getDefaultParent());
-		// translation.put(null, (mxICell) graph.getDefaultParent());
+		model.getAddObservable().addObserver(new Observer<Pair<MutableWorkflow<?>, Token>>() {
+			@Override
+			public void notify(Pair<MutableWorkflow<?>, Token> event) {
+				renderChild((MutableWorkflow<?>) event.fst, event.snd);
+			}
+		});
 
-		// bind graph; for example, react on new, changed, or deleted elements
+		model.getModifyObservable().addObserver(new Observer<Pair<MutableWorkflow<?>, Token>>() {
+			@Override
+			public void notify(Pair<MutableWorkflow<?>, Token> event) {
+				modifyChild(event.fst, event.snd);
+			}
+		});
+
+		model.getRemoveObservable().addObserver(new Observer<Pair<MutableWorkflow<?>, Token>>() {
+			@Override
+			public void notify(Pair<MutableWorkflow<?>, Token> event) {
+				removeChild(event.fst, event.snd);
+			}
+		});
+
+		model.getConnectObservable().addObserver(new Observer<Pair<MutableWorkflow<?>, Token>>() {
+			@Override
+			public void notify(Pair<MutableWorkflow<?>, Token> event) {
+				renderConnection((MutableWorkflow<?>) event.fst, event.snd);
+			}
+		});
+
+		model.getDisconnectObservable().addObserver(new Observer<Pair<MutableWorkflow<?>, Token>>() {
+			@Override
+			public void notify(Pair<MutableWorkflow<?>, Token> event) {
+				removeConnection(event.fst, event.snd);
+			}
+		});
+
 		changeListener = new ChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
+		graph.getSelectionModel().addListener(mxEvent.UNDO, changeListener);
 
-		render(null, root);
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <F, IF> void render(CompositeJob<IF, F> parent,
-			HyperWorkflow<IF> hwf) {
-		if (!translation.containsKey(hwf)) {
-			mxCell cell = null;
-			if (parent != null) {
-				mxICell parentCell = translation.get(parent);
-				// cell = graph.insertVertex(parentCell, "", hwf, 0, 0, 1, 1,
-				// "");
-				mxGeometry geo = null;
-				mxGeometry geop = parentCell.getGeometry();
-				if (geop != null) {
-					geo = new mxGeometry(0, 0, geop.getWidth(),
-							geop.getHeight());
-					geo.setRelative(true);
-				}
-
-				cell = new mxCell(hwf, geo, "");
-				cell.setVertex(true);
-
-				graph.addCell(cell, parentCell);
-			} else
-				cell = (mxCell) graph.getDefaultParent();
-			translation.put(hwf, cell);
-			// XXX this could blow up big time
-			hwf.getAddObservable().addObserver((Observer) addObserver);
-			hwf.getModifyObservable().addObserver((Observer) modifyObserver);
-			hwf.getRemoveObservable().addObserver((Observer) removeObserver);
-			hwf.getConnectObservable().addObserver((Observer) connectObserver);
-			hwf.getDisconnectObservable().addObserver(
-					(Observer) disconnectObserver);
-			for (Job<IF> c : hwf.getChildren())
-				render(hwf, c);
-			for (Connection<IF> cc : hwf.getConnections())
-				render(hwf, cc);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private <F, IF> void render(HyperWorkflow<F> parent, Job<F> hj) {
-		if (!translation.containsKey(hj)) {
-			Object parentCell = translation.get(parent);
-			hj.selectRenderer(JobRendering.getRendererAssortment()).render(hj,
-					graph, parentCell);
-			if (hj instanceof CompositeJob<?, ?>) {
-				// render recursively
-				render((CompositeJob<F, IF>) hj,
-						((CompositeJob<F, IF>) hj).getWorkflow());
-			}
-		}
-	}
-
-	private <F> void render(HyperWorkflow<F> parent, Connection<F> cc) {
-		Object cell = translation.get(cc);
-
-		if (cell == null) {
-			Object parentCell = translation.get(parent);
-			assert (parentCell != null);
-			if (parentCell == null) {
-				parentCell = graph.getDefaultParent();
-			}
-
-			mxICell source = (mxICell) translation.get(cc.getSource());
-			mxICell target = (mxICell) translation.get(cc.getTarget());
-
-			if (source != null && target != null) {
-				assert (source.getValue() == cc.getSource());
-				assert (target.getValue() == cc.getTarget());
-
-				source = source.getChildAt(cc.getSourcePort()
-						+ cc.getSource().getInputPorts().size());
-				target = target.getChildAt(cc.getTargetPort());
-
-				graph.getModel().beginUpdate();
-				try {
-					// create new edge based on given parent and retrieved
-					// source and target
-					mxCell edge = new mxCell(cc, new mxGeometry(), null);
-					// edge.setId(null);
-					edge.setEdge(true);
-					edge.setSource(source);
-					edge.setTarget(target);
-
-					// add edge to the graph
-					graph.addCell(edge, parentCell);
-
-					// NOTE: g.insertEdge(parent, id, value, source, target)
-					// does NOT work correctly. It fires too many
-					// mxChildChanges
-					// and does not insert the edge within the given parent
-					// the problem seems to be the method
-					// g.createEdge(parent, id, value, source, target,
-					// style)
-					// FIXME maybe the problem is not the jgraph API but
-					// some
-					// weird code I wrote concerning inner taarget ports
-				} finally {
-					graph.getModel().endUpdate();
-				}
-			} else
-				assert (false);
-		}
-
-	}
-
-	Observer<Pair<MutableWorkflow<?>, Job<?>>> addObserver = new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		@Override
-		public void notify(Pair<MutableWorkflow<?>, Job<?>> event) {
-			// XXX type supernova
-			render((MutableWorkflow) event.fst, (Job) event.snd);
-		}
-	};
-
-	Observer<Pair<MutableWorkflow<?>, Job<?>>> modifyObserver = new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
-
-		@Override
-		public void notify(Pair<MutableWorkflow<?>, Job<?>> event) {
-			Object cell = translation.get(event.snd);
-			mxIGraphModel model = graph.getModel();
-			mxGeometry geo = model.getGeometry(cell);
-			if (geo.getX() != event.snd.getX()
-					|| geo.getY() != event.snd.getY()
-					|| geo.getWidth() != event.snd.getWidth()
-					|| geo.getHeight() != event.snd.getHeight()) {
-				mxGeometry ng = (mxGeometry) geo.clone();
-				ng.setX(event.snd.getX());
-				ng.setY(event.snd.getY());
-				ng.setWidth(event.snd.getWidth());
-				ng.setHeight(event.snd.getHeight());
-				model.setGeometry(cell, ng);
-			}
-		}
-	};
-
-	Observer<Pair<MutableWorkflow<?>, Job<?>>> removeObserver = new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
-		@Override
-		public void notify(Pair<MutableWorkflow<?>, Job<?>> event) {
-			Object cell = translation.get(event.snd);
-			if (cell != null) {
-				graph.removeCells(new Object[] { cell });
-				if (event.snd instanceof CompositeJob<?, ?>) {
-					unbind(((CompositeJob<?, ?>) event.snd).getWorkflow());
-				}
-			}
-		}
-	};
-
-	Observer<Pair<MutableWorkflow<?>, Connection<?>>> connectObserver = new Observer<Pair<MutableWorkflow<?>, Connection<?>>>() {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		@Override
-		public void notify(Pair<MutableWorkflow<?>, Connection<?>> event) {
-			// XXX type supernova
-			render((MutableWorkflow) event.fst, (Connection) event.snd);
-		}
-	};
-
-	Observer<Pair<MutableWorkflow<?>, Connection<?>>> disconnectObserver = new Observer<Pair<MutableWorkflow<?>, Connection<?>>>() {
-		@Override
-		public void notify(Pair<MutableWorkflow<?>, Connection<?>> event) {
-			mxICell cell = translation.remove(event.snd);
-			if (cell != null) {
-				assert (cell.getValue() == event.snd);
-				assert (graph.isCellDeletable(cell));
-				graph.removeCells(new Object[] { cell });
-				assert (!graph.getModel().contains(cell));
-				// graph.refresh(); // necessary?
-			}
-		}
-	};
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	<F> void unbind(HyperWorkflow<F> hwf) {
-		// XXX this could blow up big time
-		hwf.getAddObservable().removeObserver((Observer) addObserver);
-		hwf.getModifyObservable().removeObserver((Observer) modifyObserver);
-		hwf.getRemoveObservable().removeObserver((Observer) removeObserver);
-		hwf.getConnectObservable().removeObserver((Observer) connectObserver);
-		hwf.getDisconnectObservable().removeObserver(
-				(Observer) disconnectObserver);
-		for (Job<F> c : hwf.getChildren()) {
-			if (c instanceof CompositeJob<?, ?>) {
-				CompositeJob<?, F> chj = (CompositeJob<?, F>) c;
-				unbind(chj.getWorkflow());
-			}
-		}
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected void addNode(mxICell cell) {
-		mxIGraphModel model = graph.getModel();
-		Object value = model.getValue(cell);
-		mxGeometry geo = model.getGeometry(cell);
-		assert (model.isVertex(cell) && value instanceof Job<?>);
-		Job<?> hj = (Job<?>) value;
-
-		// make sure the node does not already exist (i.e. is in map)
-		if (model.getParent(cell) != null && !translation.containsKey(hj)) {
-			// add to map
-			translation.put(hj, cell);
-
-			// add hyperjob to parent hyperworkflow
-			// XXX this could blow up, typewise
-			Object parent = ((mxCell) cell).getParent().getValue();
-			assert (parent instanceof MutableWorkflow<?>);
-			((HyperWorkflow<?>) parent).addChild((Job) hj);
-
-			// set dimensions of to
-			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
-					geo.getHeight() };
-			hj.setDimensions(dim);
-
-			System.out.println("JGraphRenderer.addNode(): added "
-					+ hj.getName());
-		}
+		render(null, model.getRoot());
 	}
 
 	public mxGraph getGraph() {
 		return graph;
+	}
+
+	public void modifyChild(MutableWorkflow<?> hwf, Token address) {
+		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
+		mxICell cell = wa.getChild(address);
+		Job<?> job = hwf.getChild(address);
+		mxIGraphModel model = graph.getModel();
+		mxGeometry geo = model.getGeometry(cell);
+		if (geo.getX() != job.getX() || geo.getY() != job.getY()
+				|| geo.getWidth() != job.getWidth()
+				|| geo.getHeight() != job.getHeight()) {
+			mxGeometry ng = (mxGeometry) geo.clone();
+			ng.setX(job.getX());
+			ng.setY(job.getY());
+			ng.setWidth(job.getWidth());
+			ng.setHeight(job.getHeight());
+			model.setGeometry(cell, ng);
+		}
 	}
 
 	/**
@@ -279,15 +207,12 @@ public class Adapter {
 	 * 
 	 * @param cell
 	 */
-	@SuppressWarnings("unused")
 	private void preventTooSmallNested(Object cell) {
 		mxIGraphModel model = graph.getModel();
-		Object value = model.getValue(cell);
+		// Object value = model.getValue(cell);
 		mxGeometry geo = model.getGeometry(cell);
-		assert (model.isVertex(cell) && value instanceof Job<?>);
-		Job<?> hj = (Job<?>) value;
 
-		if (hj instanceof CompositeJob<?, ?>) {
+		if (/* hj instanceof CompositeJob<?, ?> */true) {
 			double minWidth = 0;
 			double minHeight = 0;
 
@@ -312,176 +237,192 @@ public class Adapter {
 			// adjust x coordinate of cell according to appropriate size
 			if (geo.getWidth() < minWidth && !model.isCollapsed(cell)) {
 				geo.setWidth(minWidth);
-				if (geo.getX() > hj.getX()) {
-					geo.setX(hj.getX() + hj.getWidth() - minWidth);
-				}
+				/*
+				 * if (geo.getX() > hj.getX()) { geo.setX(hj.getX() +
+				 * hj.getWidth() - minWidth); }
+				 */
 			}
 
 			// adjust y coordinate of cell according to appropriate size
 			if (geo.getHeight() < minHeight && !model.isCollapsed(cell)) {
 				geo.setHeight(minHeight);
-				if (geo.getY() > hj.getY()) {
-					geo.setY(hj.getY() + hj.getHeight() - minHeight);
-				}
+				/*
+				 * if (geo.getY() > hj.getY()) { geo.setY(hj.getY() +
+				 * hj.getHeight() - minHeight); }
+				 */
 			}
 
 			// set the new geometry and refresh graph to make changes visible
 			model.setGeometry(cell, geo);
 			graph.refresh();
-		} else
-			return;
+		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected void updateEdge(mxICell cell) {
-		mxIGraphModel model = graph.getModel();
-		Object value = model.getValue(cell);
-		Connection<?> conn = null;
-		assert (model.isEdge(cell));
-		Object source = model.getTerminal(cell, true);
-		Object target = model.getTerminal(cell, false);
+	public void removeChild(MutableWorkflow<?> hwf, Token address) {
+		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
+		mxICell cell = wa.getChild(address);
+		if (cell != null)
+			graph.removeCells(new Object[] { cell });
+	}
 
-		// ignore "unfinished" edges
-		if (source != null && target != null) {
-			Object sval = model.getValue(source);
-			Object tval = model.getValue(target);
-			Object sparval = model.getValue(model.getParent(source));
-			Object tparval = model.getValue(model.getParent(target));
+	public void removeConnection(MutableWorkflow<?> hwf, Token address) {
+		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
+		mxICell cell = wa.getConnection(address);
+		if (cell != null) {
+			assert (cell.getValue() == address);
+			graph.removeCells(new Object[] { cell });
+		}
+	}
 
-			assert (sval instanceof PortAdapter && tval instanceof PortAdapter
-					&& sparval instanceof Job<?> && tparval instanceof Job<?>);
+	private void render(mxICell parent, MutableWorkflow<?> hwf) {
+		if (!translation.containsKey(hwf)) {
+			mxCell cell = null;
+			if (parent != null) {
+				mxGeometry geo = null;
+				mxGeometry geop = parent.getGeometry();
+				if (geop != null) {
+					geo = new mxGeometry(0, 0, geop.getWidth(),
+							geop.getHeight());
+					geo.setRelative(true);
+				}
 
-			// a previously loaded connection is updated, don't change anything
-			if (value instanceof Connection<?>) {
-				conn = (Connection<?>) value;
-				if (!translation.containsKey(conn))
-					translation.put(conn, cell);
+				cell = new mxCell(new WorkflowAdapter(hwf), geo, "");
+				cell.setVertex(true);
+
+				graph.addCell(cell, parent);
 			} else {
-				// a new connection has been inserted by the user via GUI
-				conn = new Connection((Job<?>) sparval,
-						((PortAdapter) sval).index, (Job<?>) tparval,
-						((PortAdapter) tval).index);
-				assert (conn.getSource().getParent() == conn.getTarget()
-						.getParent());
-				assert (conn.getSource().getParent() == cell.getParent()
-						.getValue());
-				translation.put(conn, cell);
-				model.setValue(cell, conn);
-				((HyperWorkflow) cell.getParent().getValue())
-						.addConnection((Connection) conn);
+				cell = (mxCell) graph.getDefaultParent();
+				cell.setValue(new WorkflowAdapter(hwf));
+			}
+			translation.put(hwf, cell);
+			if (hwf != null) {
+				for (Token address : hwf.getChildren())
+					renderChild(hwf, address);
+				for (Token address : hwf.getConnections())
+					renderConnection(hwf, address);
 			}
 		}
 	}
 
-	protected void updateNode(Object cell) {
-		mxIGraphModel model = graph.getModel();
-		Object value = model.getValue(cell);
-		mxGeometry geo = model.getGeometry(cell);
-		assert (model.isVertex(cell) && value instanceof Job<?>);
-		Job<?> hj = (Job<?>) value;
-
-		// TODO maybe adjust hj.dimensions within each of the following called
-		// functions?
-
-		// prevent shrinking cell too much leading to label being too big
-		// resizeToFitLabel(cell);
-		/*
-		 * if (graph.isAutoSizeCell(cell)) graph.updateCellSize(cell, true);
-		 */// XXX was:
-			// resizeToFitLabel(cell);
-
-		// prevent resizing a NestedHyperworkflow too much, otherwise
-		// its child nodes are moved outside of its bounds
-		// preventTooSmallNested(cell);
-
-		// resize parent cells if child nodes are resized over left or top
-		// bounds
-		// graph.extendParent(cell); // XXX was: resizeParentOfCell(cell);
-
-		// check if changes occurred to the given cell
-		if (geo.getX() != hj.getX() || geo.getY() != hj.getY()
-				|| geo.getWidth() != hj.getWidth()
-				|| geo.getHeight() != hj.getHeight()) {
-			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
-					geo.getHeight() };
-			hj.setDimensions(dim);
+	public void renderChild(HyperWorkflow<?> parent, Token address) {
+		mxICell parentCell = translation.get(parent);
+		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
+		Job<?> hj = parent.getChild(address);
+		mxICell cell = wa.removeInter(hj);
+		if (cell != null) {
+			wa.setChild(address, cell);
+			cell.setValue(address);
+		} else if (wa.getChild(address) == null) {
+			cell = hj.selectRenderer(JobRendering.getRendererAssortment())
+					.render(hj, graph, parentCell);
+			// render recursively
+			if (hj instanceof CompositeJob<?, ?>)
+				render(cell, ((CompositeJob<?, ?>) hj).getWorkflow());
 		}
-
-		// FIXME does not work properly
-		// check if parent changed (only if both hwf and corresponding cell have
-		// parents)
-		/*
-		 * if (model.getParent(cell) != null && to.getParent() != null &&
-		 * !model.getParent(cell).equals(translation.get(to.getParent()))) {
-		 * 
-		 * System.out.println("parent of " + to + " has changed to " +
-		 * ((HyperWorkflow) model.getValue(model.getParent(cell))) .getName());
-		 * 
-		 * Hyperworkflow newParent = (Hyperworkflow) model.getValue(model
-		 * .getParent(cell)); objectRemoveObservable.notify(to);
-		 * to.setParent(newParent); objectAddObservable.notify(to);
-		 * graph.refresh(); }
-		 */
 	}
 
-	protected class ChangeListener implements mxIEventListener {
-		@Override
-		public void invoke(Object sender, mxEventObject evt) {
-			mxIGraphModel model = graph.getModel();
-			mxUndoableEdit edit = (mxUndoableEdit) evt.getProperty("edit");
-			List<mxUndoableChange> changes = edit.getChanges();
-			for (mxUndoableChange c : changes) {
-				// process the following changes:
-				// - child change (add/remove)
-				// - value change
-				// - geometry change
-				if (c instanceof mxChildChange) {
-					mxChildChange cc = (mxChildChange) c;
-					mxICell cell = (mxICell) cc.getChild();
-					Object value = model.getValue(cell);
-					if (cc.getParent() == null) {
-						// something has been removed
-						if (value instanceof Job<?>) {
-							if (translation.remove(value) != null) {
-								MutableWorkflow
-										.removeChildGeneric((Job<?>) value);
-							}
-						} else if (value instanceof Connection<?>) {
-							if (translation.remove(value) != null) {
-								MutableWorkflow
-										.removeConnectionGeneric((Connection<?>) value);
-							}
-						}
-					} else {
-						// something has been added
-						if (value instanceof Job<?>) {
-							addNode(cell);
-						} else if (value instanceof Connection<?>) {
-							// happens when a loaded nhwf contains connection
-							// and they are added to the graph
-							updateEdge(cell);
-						} else if (value == null || value.equals("")) {
-							// check if a new edge is added
-							if (model.isEdge(cell)) {
-								updateEdge(cell);
-							}
-						}
-					}
-				} else if (c instanceof mxValueChange) {
-					// fires when a connection was inserted and then any
-					// component is moved to change its geometry
-					// maybe this is the geometryChange of connections?
+	public <F> void renderConnection(HyperWorkflow<F> parent, Token address) {
+		mxICell parentCell = translation.get(parent);
+		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
 
-					/*
-					 * // assert (false);
-					 * System.out.println("mxValueChange of: " + ((mxCell)
-					 * ((mxValueChange) c).getCell()) .getValue());
-					 */
-				} else if (c instanceof mxGeometryChange) {
-					Object cell = ((mxGeometryChange) c).getCell();
-					if (model.getValue(cell) instanceof Job<?>)
-						updateNode(cell);
+		Connection cc = parent.getConnection(address);
+		mxICell cell = wa.removeInter(cc);
+		if (cell != null) {
+			wa.setConnection(address, cell);
+			cell.setValue(address);
+			// update selection so it reflects the new value
+			if (graph.getSelectionCell() == cell)
+				graph.setSelectionCell(cell);
+		} else if (wa.getConnection(address) == null) {
+			mxICell source = wa.getChild(cc.source);
+			mxICell target = wa.getChild(cc.target);
+
+			if (source != null && target != null) {
+				assert (source.getValue() == cc.source && target.getValue() == cc.target);
+
+				graph.getModel().beginUpdate();
+				try {
+					graph.insertEdge(
+							parent,
+							null,
+							address,
+							source.getChildAt(cc.sourcePort
+									+ parent.getChild(cc.source)
+											.getInputPorts().size()),
+							target.getChildAt(cc.targetPort));
+				} finally {
+					graph.getModel().endUpdate();
 				}
+			} else
+				assert (false);
+		}
+
+	}
+
+	protected void updateEdge(mxICell cell) {
+		mxIGraphModel model = graph.getModel();
+		Object value = model.getValue(cell);
+		Object parentCell = model.getParent(cell);
+		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(parentCell);
+		if (value instanceof Token) {
+			// a previously loaded connection is updated, don't change anything
+			assert (wa.getConnection((Token) value) == cell);
+		} else {
+			assert ("".equals(value) || value == null);
+			// a new connection has been inserted by the user via GUI
+			Object source = model.getTerminal(cell, true);
+			Object target = model.getTerminal(cell, false);
+
+			// ignore "unfinished" edges
+			if (source != null && target != null) {
+				Object sval = model.getValue(source);
+				Object tval = model.getValue(target);
+				Object sparval = model.getValue(model.getParent(source));
+				Object tparval = model.getValue(model.getParent(target));
+
+				assert (sval instanceof PortAdapter
+						&& tval instanceof PortAdapter
+						&& sparval instanceof Token && tparval instanceof Token);
+
+				Connection cc = new Connection((Token) sparval,
+						((PortAdapter) sval).index, (Token) tparval,
+						((PortAdapter) tval).index);
+				wa.putInter(cc, cell);
+				cell.setValue(cc);
+				wa.workflow.addConnection(cc);
+			}
+		}
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected void updateNode(Object cell) {
+		mxIGraphModel model = graph.getModel();
+		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(model
+				.getParent(cell));
+
+		Object value = model.getValue(cell);
+		mxGeometry geo = model.getGeometry(cell);
+
+		if (value instanceof Job) {
+			// set dimensions of job
+			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
+					geo.getHeight() };
+			((Job) value).setDimensions(dim);
+			wa.putInter((Job) value, (mxICell) cell);
+			wa.workflow.addChild((Job) value);
+		} else if (value instanceof Token) {
+			assert (wa.getChild((Token) value) == cell);
+			if (graph.isAutoSizeCell(cell))
+				graph.updateCellSize(cell, true); // was: resizeToFitLabel(cell)
+			preventTooSmallNested(cell);
+			graph.extendParent(cell); // was: resizeParentOfCell(cell)
+			Job<?> job = wa.workflow.getChild((Token) model.getValue(cell));
+			if (geo.getX() != job.getX() || geo.getY() != job.getY()
+					|| geo.getWidth() != job.getWidth()
+					|| geo.getHeight() != job.getHeight()) {
+				double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
+						geo.getHeight() };
+				job.setDimensions(dim);
 			}
 		}
 	}

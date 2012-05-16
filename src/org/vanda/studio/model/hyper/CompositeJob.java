@@ -67,7 +67,7 @@ public class CompositeJob<IF, F> extends Job<F> {
 		return "";
 	}
 
-	public HyperWorkflow<IF> getWorkflow() {
+	public MutableWorkflow<IF> getWorkflow() {
 		return workflow;
 	}
 
@@ -77,11 +77,8 @@ public class CompositeJob<IF, F> extends Job<F> {
 	}
 
 	@Override
-	public Job<?> dereference(ListIterator<Token> address) {
-		if (address.hasNext())
-			return workflow.dereference(address);
-		else
-			return this;
+	public HyperWorkflow<?> dereference(ListIterator<Token> address) {
+		return workflow.dereference(address);
 	}
 
 	@Override

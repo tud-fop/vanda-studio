@@ -51,12 +51,16 @@ public final class ImmutableWorkflow<F> {
 		types = null;
 	}
 
-	public ImmutableJob<?> dereference(ListIterator<Token> address) {
-		assert (address != null && address.hasNext());
-		ImmutableJob<?> hj = deref.get(address.next());
-		if (hj != null)
-			hj = hj.dereference(address);
-		return hj;
+	public ImmutableWorkflow<?> dereference(ListIterator<Token> path) {
+		assert (path != null);
+		if (path.hasNext()) {
+			ImmutableJob<?> job = deref.get(path.next());
+			if (job != null)
+				return job.dereference(path);
+			else
+				return null;
+		} else
+			return this;
 	}
 
 	public ArrayList<JobInfo<F>> getChildren() {
@@ -128,7 +132,7 @@ public final class ImmutableWorkflow<F> {
 		for (int i = 0; i < types.length; i++)
 			if (types[i] == null)
 				types[i] = new TypeVariable(TokenSource.getToken(i));
-		System.out.println(s);
+		// System.out.println(s);
 	}
 
 	public List<ImmutableWorkflow<F>> unfold() {

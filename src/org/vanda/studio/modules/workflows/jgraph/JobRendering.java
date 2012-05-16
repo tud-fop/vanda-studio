@@ -170,25 +170,25 @@ public class JobRendering {
 		}
 
 		@Override
-		public void render(Job<?> hj, mxGraph g, Object parentCell) {
+		public mxCell render(Job<?> hj, mxGraph g, Object parentCell) {
 			Object parent = parentCell;
 			if (parentCell == null) {
 				parent = g.getDefaultParent();
 			}
 
+			mxCell v = null;
 			g.getModel().beginUpdate();
 			try {
 				// insert new node into the graph that has the specified hwf as
 				// value and that shared the same dimensions
-				mxCell v = (mxCell) g.insertVertex(parent, null, hj, hj.getX(),
+				v = (mxCell) g.insertVertex(parent, null, hj, hj.getX(),
 						hj.getY(), hj.getWidth(), hj.getHeight(),
 						this.getStyleName());
 				v.setConnectable(false);
 
 				if (g.isAutoSizeCell(v))
-					g.updateCellSize(v, true); // XXX was:
-												// g.ensureMinimumCellSize(v);
-				// System.out.println(g.isAutoSizeCell(v));
+					g.updateCellSize(v, true);
+				// was: g.ensureMinimumCellSize(v);
 
 				// insert a cell for every input port
 				List<Port> in = hj.getInputPorts();
@@ -220,36 +220,10 @@ public class JobRendering {
 					g.addCell(port, v);
 				}
 
-				// in case of NestedHyperworkflow also add inner ports, then
-				// port children of a node are in the following order:
-				// regular input ports, regular output ports, inner source
-				// ports,
-				// inner target ports
-				/*
-				 * if (hwf instanceof NestedHyperworkflow) { for (int i = 0; i <
-				 * in.size(); i++) { mxGeometry geo = new mxGeometry(0, (i +
-				 * 1.0) / (in.size() + 1.0), PORT_DIAMETER, PORT_DIAMETER);
-				 * geo.setOffset(new mxPoint(0, -PORT_RADIUS));
-				 * geo.setRelative(true);
-				 * 
-				 * mxCell port = new mxCell(new Port(false, i + in.size()), geo,
-				 * "port"); port.setVertex(true);
-				 * 
-				 * g.addCell(port, v); }
-				 * 
-				 * for (int i = 0; i < out.size(); i++) { mxGeometry geo = new
-				 * mxGeometry(1, (i + 1.0) / (out.size() + 1.0), PORT_DIAMETER,
-				 * PORT_DIAMETER); geo.setOffset(new mxPoint(-PORT_DIAMETER,
-				 * -PORT_RADIUS)); geo.setRelative(true);
-				 * 
-				 * mxCell port = new mxCell(new Port(true, i + out.size()), geo,
-				 * "port"); port.setVertex(true);
-				 * 
-				 * g.addCell(port, v); } }
-				 */
 			} finally {
 				g.getModel().endUpdate();
 			}
+			return v;
 		}
 
 	}

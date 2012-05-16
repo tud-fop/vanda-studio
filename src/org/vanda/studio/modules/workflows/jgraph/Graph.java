@@ -2,7 +2,7 @@ package org.vanda.studio.modules.workflows.jgraph;
 
 import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Job;
-import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -20,7 +20,7 @@ class Graph extends mxGraph {
 		// graph.setCellsMovable(false);
 		setCellsEditable(false);
 		setCollapseToPreferredSize(true);
-		//setAutoSizeCells(true);
+		// setAutoSizeCells(true);
 		setExtendParents(true);
 		setExtendParentsOnAdd(true);
 		setCellsResizable(true);
@@ -46,10 +46,19 @@ class Graph extends mxGraph {
 
 		Object value = model.getValue(cell);
 
-		if (value instanceof Job<?>)
-			return ((Job<?>) value).getName();
-		else
-			return "";
+		if (model.isVertex(cell)) {
+			if (value instanceof Job<?>)
+				return ((Job<?>) value).getName();
+			else if (value instanceof Token) {
+				Object parentCell = model.getParent(cell);
+				Object wa = model.getValue(parentCell);
+				if (wa instanceof WorkflowAdapter) {
+					return ((WorkflowAdapter) wa).workflow.getChild(
+							(Token) value).getName();
+				}
+			}
+		}
+		return "";
 	}
 
 	@Override
@@ -78,21 +87,6 @@ class Graph extends mxGraph {
 
 		return vertex;
 	}
-
-	/*
-	 * XXX this is probably covered by updateCellSize? public void
-	 * ensureMinimumCellSize(Object cell) { mxGeometry cellGeo =
-	 * getModel().getGeometry(cell);
-	 * 
-	 * Font font = mxUtils.getFont(getCellStyle(cell)); FontMetrics fm =
-	 * mxUtils.getFontMetrics(font); int labelWidth =
-	 * fm.stringWidth(getLabel(cell)) + 20; int labelHeight = font.getSize() +
-	 * 20;
-	 * 
-	 * if (cellGeo.getWidth() < labelWidth) cellGeo.setWidth(labelWidth); if
-	 * (cellGeo.getHeight() < labelHeight) cellGeo.setHeight(labelHeight);
-	 * getModel().setGeometry(cell, cellGeo); refresh(); }
-	 */
 
 	@Override
 	public void finalize() throws Throwable {
@@ -124,14 +118,14 @@ class Graph extends mxGraph {
 	@Override
 	public boolean isValidDropTarget(Object cell, Object[] cells) {
 		// works more or less, we just need the right nodes
-		Object t = ((mxCell) cell).getValue();
-		return t instanceof MutableWorkflow<?>;
+		return ((mxCell) cell).getValue() instanceof WorkflowAdapter;
 	}
 
 	// Removes the folding icon from simple jobs and disables folding
 	// Allows folding of NestedHyperworkflows
 	@Override
 	public boolean isCellFoldable(Object cell, boolean collapse) {
+		// FIXME this won't work
 		mxCell c = (mxCell) cell;
 		return c.getValue() instanceof CompositeJob<?, ?>;
 	}

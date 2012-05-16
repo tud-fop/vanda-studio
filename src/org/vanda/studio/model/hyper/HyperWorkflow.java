@@ -18,9 +18,13 @@ public interface HyperWorkflow<F> {
 
 	public abstract Token addConnection(Connection cc);
 	
-	public abstract Job<?> dereference(ListIterator<Token> address);
+	public abstract HyperWorkflow<?> dereference(ListIterator<Token> address);
 	
 	public abstract ImmutableWorkflow<F> freeze() throws Exception;
+	
+	public abstract Job<F> getChild(Token address);
+	
+	public abstract Connection getConnection(Token address);
 
 	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getAddObservable();
 	
@@ -38,6 +42,10 @@ public interface HyperWorkflow<F> {
 
 	public abstract void removeConnection(Token address);
 
-	public abstract List<Connection> getConnections();
+	public abstract List<Token> getConnections();
+
+	public abstract Token getVariable(Token source, int sourcePort);
+
+	public abstract Token getVariable(Token address);
 
 }

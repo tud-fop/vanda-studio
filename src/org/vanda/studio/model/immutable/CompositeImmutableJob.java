@@ -22,11 +22,11 @@ public class CompositeImmutableJob<IF, F> extends ImmutableJob<F> {
 	}
 
 	@Override
-	public ImmutableJob<?> dereference(ListIterator<Token> address) {
-		if (address.hasNext())
-			return workflow.dereference(address);
+	public ImmutableWorkflow<?> dereference(ListIterator<Token> path) {
+		if (path.hasNext())
+			return workflow.dereference(path);
 		else
-			return this;
+			return null;
 	}
 
 	@Override

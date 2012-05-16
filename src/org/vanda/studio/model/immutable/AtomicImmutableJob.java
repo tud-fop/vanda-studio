@@ -20,9 +20,8 @@ public class AtomicImmutableJob<F> extends ImmutableJob<F> {
 	}
 
 	@Override
-	public ImmutableJob<?> dereference(ListIterator<Token> address) {
-		assert (!address.hasNext());
-		return this;
+	public ImmutableWorkflow<?> dereference(ListIterator<Token> path) {
+		return null;
 	}
 
 	@Override

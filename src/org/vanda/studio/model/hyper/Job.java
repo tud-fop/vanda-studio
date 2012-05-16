@@ -22,7 +22,7 @@ public abstract class Job<F> implements HasActions, Cloneable {
 		return cl;
 	}
 	
-	public abstract Job<?> dereference(ListIterator<Token> address);
+	public abstract HyperWorkflow<?> dereference(ListIterator<Token> address);
 	
 	public double getHeight() {
 		return dimensions[3];

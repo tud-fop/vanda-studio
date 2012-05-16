@@ -20,12 +20,11 @@ public interface WindowSystem {
 
 	/**
 	 * Creates a new tab in the main pane.
-	 * The tab title and the component it has to hold are mandatory.
-	 * The rest are optional parameters. The action a is invoked when
+	 * The action a is invoked when
 	 * the little x-button within the tab title is clicked. If a null action is
 	 * used, the tab will simply be removed from the display.
 	 */
-	void addContentWindow(String id, String title, Icon i, JComponent c, Action a);
+	void addContentWindow(Icon i, JComponent c, Action a);
 
 	/**
 	 */
@@ -33,7 +32,7 @@ public interface WindowSystem {
 	
 	/**
 	 */
-	void addToolWindow(JComponent window, String id, String title, Icon i, JComponent c);
+	void addToolWindow(JComponent window, Icon i, JComponent c);
 
 	/**
 	 */

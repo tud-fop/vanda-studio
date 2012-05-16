@@ -214,8 +214,8 @@ public class WindowSystemImpl implements WindowSystem {
 	/**
 	 */
 	@Override
-	public void addContentWindow(String id, String title, Icon i, JComponent c, Action a) {
-		contentPane.add(title, c);
+	public void addContentWindow(Icon i, JComponent c, Action a) {
+		contentPane.add(c);
 		contentPane.setTabComponentAt(contentPane.getTabCount() - 1,
 				new ButtonTabComponent(contentPane, a));
 	}
@@ -230,7 +230,7 @@ public class WindowSystemImpl implements WindowSystem {
 	/**
 	 */
 	@Override
-	public void addToolWindow(JComponent window, String id, String title, Icon i, JComponent c) {
+	public void addToolWindow(JComponent window, Icon i, JComponent c) {
 		List<JComponent> tcs = windowTools.get(window);
 		if (tcs == null) {
 			tcs = new ArrayList<JComponent>();

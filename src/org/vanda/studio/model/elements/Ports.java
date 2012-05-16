@@ -16,7 +16,7 @@ import org.vanda.studio.util.TokenSource;
  * 
  */
 public class Ports {
-	// TODO implement caching also for the other members
+	// implement caching also for the other members?
 	public final static Type typeVariable = new TypeVariable(TokenSource.getToken(0));
 	private static SoftReference<ArrayList<Port>> _choiceInputs;
 	private static SoftReference<List<Port>> choiceInputs;
