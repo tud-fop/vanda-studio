@@ -84,4 +84,9 @@ public final class Choice implements Element {
 				+ "corresponds to choosing one of the incoming connections.";
 	}
 
+	@Override
+	public String getVersion() {
+		return "n/a";
+	}
+
 }

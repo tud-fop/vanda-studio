@@ -72,4 +72,9 @@ public class OutputPort implements Element {
 		return "";
 	}
 
+	@Override
+	public String getVersion() {
+		return "n/a";
+	}
+
 }

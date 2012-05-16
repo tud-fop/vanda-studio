@@ -4,12 +4,10 @@ import java.util.List;
 
 import org.vanda.studio.util.HasActions;
 
-public interface Element extends HasActions, Cloneable {
+public interface Element extends RepositoryItem, HasActions, Cloneable {
 	
 	public Element clone() throws CloneNotSupportedException;
 	
-	public String getContact();
-
 	public String getDescription();
 
 	public Class<?> getFragmentType();
@@ -20,12 +18,8 @@ public interface Element extends HasActions, Cloneable {
 	 */
 	String getCategory();
 
-	public String getId();
-	
 	public List<Port> getInputPorts();
 	
-	public String getName();
-
 	public List<Port> getOutputPorts();
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);

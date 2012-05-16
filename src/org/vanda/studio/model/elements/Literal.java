@@ -70,4 +70,9 @@ public class Literal implements Element {
 		return "";
 	}
 
+	@Override
+	public String getVersion() {
+		return "n/a";
+	}
+
 }

@@ -94,6 +94,11 @@ public class AlgorithmsModule implements Module {
 
 			public void appendActions(List<Action> as) {
 			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-16";
+			}
 		}
 
 		private static class GIZA extends Tool<Object> {
@@ -152,6 +157,11 @@ public class AlgorithmsModule implements Module {
 
 			public void appendActions(List<Action> as) {
 			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-16";
+			}
 		}
 
 		private static class Berkeley extends Tool<Object> {
@@ -208,6 +218,11 @@ public class AlgorithmsModule implements Module {
 
 			public void appendActions(List<Action> as) {
 			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-16";
+			}
 		}
 
 		private static class Tokenizer extends Tool<Object> {
@@ -261,6 +276,11 @@ public class AlgorithmsModule implements Module {
 			}
 
 			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-16";
 			}
 		}
 
@@ -317,6 +337,11 @@ public class AlgorithmsModule implements Module {
 			}
 
 			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-16";
 			}
 		}
 
@@ -378,12 +403,17 @@ public class AlgorithmsModule implements Module {
 
 			public void appendActions(List<Action> as) {
 			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-16";
+			}
 		}
 
 		public WorkflowModuleInstance(Application a) {
 			app = a;
 
-			SimpleRepository<Object, Tool<Object>> tr = new SimpleRepository<Object, Tool<Object>>(
+			SimpleRepository<Tool<Object>> tr = new SimpleRepository<Tool<Object>>(
 					null);
 
 			tr.addItem(new Plain2Snt());
@@ -438,6 +468,11 @@ public class AlgorithmsModule implements Module {
 				}
 
 				public void appendActions(List<Action> as) {
+				}
+
+				@Override
+				public String getVersion() {
+					return "n/a";
 				}
 			};
 

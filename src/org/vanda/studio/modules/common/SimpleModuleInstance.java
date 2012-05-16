@@ -14,7 +14,7 @@ public class SimpleModuleInstance<V, T extends Tool<V>>
 	protected ToolFactory<V, T> factory;
 	protected SimpleLoader<V, T> loader;
 	protected SimpleModule<V, T> module;
-	protected SimpleRepository<V, T> repository;
+	protected SimpleRepository<T> repository;
 
 	public SimpleModuleInstance(Application a, SimpleModule<V, T> m) {
 		app = a;
@@ -26,7 +26,7 @@ public class SimpleModuleInstance<V, T extends Tool<V>>
 					SimpleLoader.createExtensionFilter(module.getExtension()),
 					factory);
 		}
-		repository = new SimpleRepository<V, T>(loader);
+		repository = new SimpleRepository<T>(loader);
 		app.getToolMetaRepository().addRepository(repository);
 		editor = module.createEditor(app);
 	}

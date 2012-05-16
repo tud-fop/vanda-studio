@@ -72,4 +72,9 @@ public final class InputPort implements Element {
 		return "";
 	}
 
+	@Override
+	public String getVersion() {
+		return "n/a";
+	}
+
 }
