@@ -64,6 +64,7 @@ public class Adapter {
 		@Override
 		public void notify(Pair<HyperWorkflow<?, ?>, HyperJob<?>> event) {
 			System.out.println("hwf added something");
+			renderer.render((HyperWorkflow)event.fst, event.snd);
 		}
 	};
 	private Observer<Pair<HyperWorkflow<?, ?>, HyperJob<?>>> hwfModifyObserver 
@@ -92,6 +93,7 @@ public class Adapter {
 		@Override
 		public void notify(Pair<HyperWorkflow<?, ?>, HyperConnection<?>> event) {
 			System.out.println("hwf connected something");
+			renderer.render((HyperWorkflow)event.fst, event.snd);
 		}
 	};
 	private Observer<Pair<HyperWorkflow<?, ?>, HyperConnection<?>>> hwfDisconnectObserver 
@@ -122,8 +124,8 @@ public class Adapter {
 				
 				// bind observer to newly added HyperWorkflow
 				if (event.snd instanceof CompositeHyperJob<?,?,?,?>) {
-					System.out.println("bind...");
-					bind(((CompositeHyperJob)event.snd).getWorkflow());
+					//System.out.println("bind...");
+					//bind(((CompositeHyperJob)event.snd).getWorkflow());
 				}
 				
 				System.out.println("renderer added HyperJob '" + event.snd.getName() + "' to " + event.fst);

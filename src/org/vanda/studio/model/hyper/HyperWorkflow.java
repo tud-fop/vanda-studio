@@ -24,7 +24,7 @@ import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Pair;
 
 public final class HyperWorkflow<F, V> extends
-		Workflow<HyperJob<V>, HyperConnection<V>> {
+		Workflow<HyperJob<V>, HyperConnection<V>> implements Cloneable {
 
 	private Map<HyperJob<V>, BitSet> blockedPortsMap;
 	private final Compiler<F, V> compiler;

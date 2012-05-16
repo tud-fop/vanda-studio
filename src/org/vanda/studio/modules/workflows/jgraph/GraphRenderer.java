@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.vanda.studio.model.generation.Workflow;
 import org.vanda.studio.model.hyper.CompositeHyperJob;
 import org.vanda.studio.model.hyper.HyperConnection;
 import org.vanda.studio.model.hyper.HyperJob;
@@ -146,7 +147,7 @@ public class GraphRenderer {
 		}
 	}
 
-	private <F, V> void render(HyperWorkflow<F, V> parent, HyperConnection<V> cc) {
+	protected <F, V> void render(HyperWorkflow<F, V> parent, HyperConnection<V> cc) {
 		Object cell = translation.get(cc);
 
 		if (cell == null) {
@@ -213,6 +214,21 @@ public class GraphRenderer {
 		if (/*model.getParent(cell) != null &&*/ !translation.containsKey(hj)) {
 			// add to map
 			translation.put(hj, cell);
+			
+			// add the contained HyperWorkflow to translation map
+			// FIXME: somehow, probably due to cloning process, the HyperWorkflow-mxCell
+			// does not contain the same hyperWorkflow value as the parent HyperJob
+			if (hj instanceof CompositeHyperJob<?,?,?,?>) {
+				int index = -1;
+				for (int i = 0; i < model.getChildCount(cell); i ++) {
+					if (model.getValue(model.getChildAt(cell, i)) instanceof HyperWorkflow<?,?>) {
+						assert (index < 0);
+						index = i;
+					}
+				}
+				assert (index >= 0);
+				translation.put(((CompositeHyperJob<?,?,?,?>)hj).getWorkflow(), (mxICell) model.getChildAt(cell, index));
+			}
 			
 			// add hyperjob to parent hyperworkflow
 			// XXX this could blow up, typewise
@@ -298,7 +314,7 @@ public class GraphRenderer {
 		mxGeometry geo = model.getGeometry(cell);
 		assert (model.isVertex(cell) && value instanceof HyperJob<?>);
 		HyperJob<?> hj = (HyperJob<?>) value;
-
+		
 		// check if changes occurred to the given cell
 		if (geo.getX() != hj.getX() || geo.getY() != hj.getY()
 				|| geo.getWidth() != hj.getWidth()
@@ -306,6 +322,13 @@ public class GraphRenderer {
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 					geo.getHeight() };
 			hj.setDimensions(dim);
+			
+			if (translation.containsKey(hj) && hj instanceof CompositeHyperJob<?,?,?,?>) {
+				mxICell workflowCell = translation.get(((CompositeHyperJob<?,?,?,?>)hj).getWorkflow());
+				workflowCell.setGeometry(new mxGeometry(10,10, hj.getWidth()-20, hj.getHeight()-20));
+				graph.refresh();
+			}
+			
 			modifyObservable.notify(new Pair<HyperWorkflow<?,?>, HyperJob<?>>(hj.getParent(), hj));
 		}
 	}
