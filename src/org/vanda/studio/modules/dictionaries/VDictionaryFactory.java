@@ -97,7 +97,7 @@ public class VDictionaryFactory implements ToolFactory<Object, VDictionary> {
 		}
 		
 		@Override
-		public String getDate() {
+		public String getVersion() {
 			return date;
 		}
 	

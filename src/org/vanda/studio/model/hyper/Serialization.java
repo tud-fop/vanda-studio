@@ -108,7 +108,6 @@ public final class Serialization {
 		@Override
 		public Object unmarshal(HierarchicalStreamReader reader,
 				UnmarshallingContext context) {
-
 			// extract compiler id from xml and load it from repository
 			reader.moveDown();
 			String linkerId = reader.getValue();
@@ -175,7 +174,5 @@ public final class Serialization {
 			return ((Tool<?>) obj).getId();
 		}
 	}
-	
-	
-	// DJobInfo
+
 }

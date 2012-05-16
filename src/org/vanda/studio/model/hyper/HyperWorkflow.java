@@ -17,17 +17,17 @@ public interface HyperWorkflow<F> {
 	public abstract Token addChild(Job<F> hj);
 
 	public abstract Token addConnection(Connection cc);
-	
+
 	public abstract HyperWorkflow<?> dereference(ListIterator<Token> address);
-	
+
 	public abstract ImmutableWorkflow<F> freeze() throws Exception;
-	
+
 	public abstract Job<F> getChild(Token address);
-	
+
 	public abstract Connection getConnection(Token address);
 
 	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getAddObservable();
-	
+
 	public abstract Collection<Token> getChildren();
 
 	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getConnectObservable();

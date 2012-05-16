@@ -40,16 +40,14 @@ public class WorkflowModule implements Module {
 			toolFactories.add(new DebuggerTool());
 			toolFactories.add(new InspectorTool());
 			toolFactories.add(new ToolFactory() {
-
 				@Override
 				public Object instantiate(WorkflowEditor wfe, Model<?> m) {
 					Action a = new SaveWorkflowAction(m);
 					wfe.addAction(a);
 					return a;
 				}
-				
 			});
-			
+
 			app.getWindowSystem().addAction(null, new OpenWorkflowAction());
 			app.getWindowSystem().addAction(null, new NewWorkflowAction());
 		}
@@ -100,7 +98,7 @@ public class WorkflowModule implements Module {
 		}
 
 		protected class SaveWorkflowAction implements Action {
-			
+
 			private final Model<?> model;
 
 			public SaveWorkflowAction(Model<?> model) {

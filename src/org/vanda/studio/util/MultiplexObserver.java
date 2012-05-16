@@ -48,7 +48,7 @@ public class MultiplexObserver<T> implements Observable<T>, Observer<T>, Cloneab
 		if (o == null)
 			throw new IllegalArgumentException("observer must not be null");
 		if (!observers.remove(o))
-			throw new UnsupportedOperationException("attempt to remove unregistereed observer");
+			throw new UnsupportedOperationException("attempt to remove unregistered observer");
 	}
 
 	/**

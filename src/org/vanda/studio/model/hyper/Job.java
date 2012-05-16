@@ -11,9 +11,9 @@ import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.TokenSource.Token;
 
 public abstract class Job<F> implements HasActions, Cloneable {
-	
+
 	protected double[] dimensions = new double[4];
-	
+
 	@Override
 	public Job<F> clone() throws CloneNotSupportedException {
 		@SuppressWarnings("unchecked")
@@ -21,9 +21,9 @@ public abstract class Job<F> implements HasActions, Cloneable {
 		cl.dimensions = Arrays.copyOf(dimensions, 4);
 		return cl;
 	}
-	
+
 	public abstract HyperWorkflow<?> dereference(ListIterator<Token> address);
-	
+
 	public double getHeight() {
 		return dimensions[3];
 	}
@@ -31,9 +31,9 @@ public abstract class Job<F> implements HasActions, Cloneable {
 	public abstract List<Port> getInputPorts();
 
 	public abstract String getName();
-	
+
 	public abstract List<Port> getOutputPorts();
-	
+
 	public abstract Class<F> getFragmentType();
 
 	public double getWidth() {
@@ -55,7 +55,7 @@ public abstract class Job<F> implements HasActions, Cloneable {
 	public abstract ImmutableJob<F> freeze() throws Exception;
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);
-	
+
 	/** { x, y, width, height } */
 	public void setDimensions(double[] d) {
 		assert(d.length == 4);
@@ -65,7 +65,7 @@ public abstract class Job<F> implements HasActions, Cloneable {
 	public abstract String getContact();
 
 	public abstract String getCategory();
-	
+
 	public abstract String getDescription();
 
 }

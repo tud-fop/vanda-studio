@@ -29,7 +29,7 @@ import org.vanda.studio.util.HasActions;
  * @param <IF>
  * @param <F>
  */
-public interface Linker<IF, F> extends HasActions {
+public interface Linker<IF, F> extends HasActions, RepositoryItem {
 	/*<T extends ArtifactConn, A extends Artifact<T>> A link(
 			ArtifactFactory<T, A, ?, F> af, InvokationWorkflow<?, ?, IF> pre);*/
 
@@ -72,10 +72,8 @@ public interface Linker<IF, F> extends HasActions {
 	 * @return
 	 */
 	List<Port> convertOutputPorts(List<Port> ops);
-	
+
 	String getCategory();
-	
-	String getContact();
 	
 	String getDescription();
 	
