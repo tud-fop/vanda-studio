@@ -28,10 +28,11 @@ public class JobRendering {
 	protected static Renderer literalRenderer = new LiteralRenderer();
 	protected static Renderer inputPortRenderer = new InputPortRenderer();
 	protected static Renderer outputPortRenderer = new OutputPortRenderer();
+	protected static Renderer boxRenderer = new BoxRenderer();
 	protected static Renderer[] renderers = { algorithmRenderer,
 			corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
 			workflowRenderer, literalRenderer, inputPortRenderer,
-			outputPortRenderer };
+			outputPortRenderer, boxRenderer };
 	protected static mxStylesheet stylesheet;
 	protected static int refCount = 0;
 	private static JGraphRendererAssortment rs = new JGraphRendererAssortment();
@@ -156,6 +157,11 @@ public class JobRendering {
 		@Override
 		public Renderer selectOutputPortRenderer() {
 			return JobRendering.outputPortRenderer;
+		}
+
+		@Override
+		public Renderer selectBoxRenderer() {
+			return JobRendering.boxRenderer;
 		}
 	}
 
@@ -303,6 +309,21 @@ public class JobRendering {
 		@Override
 		public String getStyleName() {
 			return "outputPort";
+		}
+	}
+
+	protected static class BoxRenderer extends DefaultRenderer {
+		@Override
+		public void addStyle(Map<String, Object> style) {
+			style.put(mxConstants.STYLE_SPACING, 10);
+			style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
+			style.put(mxConstants.STYLE_AUTOSIZE, "0");
+			style.put(mxConstants.STYLE_RESIZABLE, "1");
+		}
+		
+		@Override
+		public String getStyleName() {
+			return "box";
 		}
 	}
 

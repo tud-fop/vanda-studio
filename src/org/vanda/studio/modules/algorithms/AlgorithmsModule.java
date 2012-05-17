@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
+import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.Ports;
 import org.vanda.studio.model.elements.RendererAssortment;
@@ -58,10 +59,6 @@ public class AlgorithmsModule implements Module {
 
 			public String getCategory() {
 				return "alignments";
-			}
-
-			public String getDate() {
-				return "date";
 			}
 
 			public String getDescription() {
@@ -123,10 +120,6 @@ public class AlgorithmsModule implements Module {
 				return "alignments";
 			}
 
-			public String getDate() {
-				return "date";
-			}
-
 			public String getDescription() {
 				return "computes alignments and translation tables";
 			}
@@ -184,10 +177,6 @@ public class AlgorithmsModule implements Module {
 				return "parsing";
 			}
 
-			public String getDate() {
-				return "date";
-			}
-
 			public String getDescription() {
 				return "Berkeley parser using a state-split grammar";
 			}
@@ -241,10 +230,6 @@ public class AlgorithmsModule implements Module {
 
 			public String getCategory() {
 				return "corpus tools";
-			}
-
-			public String getDate() {
-				return "date";
 			}
 
 			public String getDescription() {
@@ -302,10 +287,6 @@ public class AlgorithmsModule implements Module {
 
 			public String getCategory() {
 				return "corpus tools";
-			}
-
-			public String getDate() {
-				return "date";
 			}
 
 			public String getDescription() {
@@ -369,10 +350,6 @@ public class AlgorithmsModule implements Module {
 				return "rule extraction";
 			}
 
-			public String getDate() {
-				return "date";
-			}
-
 			public String getDescription() {
 				return "Extracts GHKM rules from a GIZA alignment and an integizered tree corpus";
 			}
@@ -409,6 +386,77 @@ public class AlgorithmsModule implements Module {
 				return "2012-05-16";
 			}
 		}
+		
+		private static class TheLinker implements Linker<Object, Object> {
+
+			@Override
+			public void appendActions(List<Action> as) {
+				
+			}
+
+			@Override
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			@Override
+			public String getId() {
+				return "boxlinker";
+			}
+
+			@Override
+			public String getName() {
+				return "Box";
+			}
+
+			@Override
+			public String getVersion() {
+				return "n/a";
+			}
+
+			@Override
+			public boolean checkInputTypes(List<String> outer,
+					List<String> inner) {
+				return true;
+			}
+
+			@Override
+			public boolean checkOutputTypes(List<String> outer,
+					List<String> inner) {
+				return true;
+			}
+
+			@Override
+			public List<Port> convertInputPorts(List<Port> ips) {
+				return ips;
+			}
+
+			@Override
+			public List<Port> convertOutputPorts(List<Port> ops) {
+				return ops;
+			}
+
+			@Override
+			public String getCategory() {
+				return "Boxes";
+			}
+
+			@Override
+			public String getDescription() {
+				return "";
+			}
+
+			@Override
+			public Class<Object> getInnerFragmentType() {
+				return Object.class;
+			}
+
+			@Override
+			public Class<Object> getFragmentType() {
+				return Object.class;
+			}
+			
+		}
 
 		public WorkflowModuleInstance(Application a) {
 			app = a;
@@ -430,10 +478,6 @@ public class AlgorithmsModule implements Module {
 
 				public String getCategory() {
 					return "testCategory";
-				}
-
-				public String getDate() {
-					return "date";
 				}
 
 				public String getDescription() {
@@ -477,8 +521,13 @@ public class AlgorithmsModule implements Module {
 			};
 
 			tr.addItem(sinkTool);
-
 			app.getToolMetaRepository().addRepository(tr);
+			
+			SimpleRepository<Linker<?, ?>> lr = new SimpleRepository<Linker<?, ?>>(
+					null);
+			lr.addItem(new TheLinker());
+			app.getLinkerMetaRepository().addRepository(lr);
+
 		}
 	}
 

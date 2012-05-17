@@ -1,6 +1,7 @@
 package org.vanda.studio.model.immutable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -29,11 +30,13 @@ public class Unfolder<F> {
 		private final List<ImmutableJob<F>> jobs;
 		private ListIterator<ImmutableJob<F>> iterator;
 		private ImmutableJob<F> current;
+		private boolean reset;
 
 		public NAryDigit(List<ImmutableJob<F>> jobs) {
 			assert (!jobs.isEmpty());
 			this.jobs = jobs;
 			iterator = jobs.listIterator();
+			reset = true;
 			current = iterator.next();
 		}
 
@@ -44,8 +47,11 @@ public class Unfolder<F> {
 		 */
 		public boolean advance() {
 			boolean carry = !iterator.hasNext();
-			if (carry)
+			if (carry) {
 				iterator = jobs.listIterator();
+				reset = true;
+			} else
+				reset = false;
 			current = iterator.next();
 			return carry;
 		}
@@ -55,7 +61,7 @@ public class Unfolder<F> {
 		}
 
 		public boolean isReset() {
-			return !iterator.hasPrevious();
+			return reset;
 		}
 	}
 
@@ -68,9 +74,15 @@ public class Unfolder<F> {
 				parent.children.size());
 		for (int i = 0; i < parent.children.size(); i++) {
 			List<ImmutableJob<F>> js = parent.children.get(i).job.unfold();
-			if (js != null)
+			if (js != null) {
+				if (js.size() == 0) {
+					List<ImmutableWorkflow<F>> el = Collections.emptyList();
+					// ######################
+					return el;
+					// ######################
+				}
 				counters.add(new NAryDigit<F>(js));
-			else
+			} else
 				counters.add(null);
 		}
 		/*

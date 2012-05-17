@@ -9,9 +9,13 @@ import javax.swing.JComponent;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.elements.Choice;
 import org.vanda.studio.model.elements.Element;
+import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Literal;
+import org.vanda.studio.model.elements.RepositoryItem;
 import org.vanda.studio.model.hyper.AtomicJob;
+import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Job;
+import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.workflows.jgraph.JobRendering;
 import org.vanda.studio.util.Observer;
 
@@ -23,7 +27,7 @@ public class Palette {
 	protected final Application app;
 	protected final mxGraph graph;
 	protected final mxGraphComponent component;
-	
+
 	public Palette(Application app) {
 		this.app = app;
 		graph = JobRendering.createGraph();
@@ -36,39 +40,48 @@ public class Palette {
 					component.zoomTo(1.5, false);
 				else
 					component.zoomActual();
-			}			
+			}
 		});
 	}
-	
+
 	public JComponent getComponent() {
 		return component;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void update() {
 		graph.getModel().beginUpdate();
 		try {
 			// clear seems to reset the zoom, so we call notify at the end
 			((mxGraphModel) graph.getModel()).clear();
-			ArrayList<Element> items = new ArrayList<Element>(app
+			ArrayList<RepositoryItem> items = new ArrayList<RepositoryItem>(app
 					.getToolMetaRepository().getRepository().getItems());
+			items.addAll(app
+					.getLinkerMetaRepository().getRepository().getItems());
 			items.add(new Choice());
 			items.add(new Literal("String", ""));
-			Collections.sort(items, new Comparator<Element>() {
+			Collections.sort(items, new Comparator<RepositoryItem>() {
 				@Override
-				public int compare(Element o1, Element o2) {
+				public int compare(RepositoryItem o1, RepositoryItem o2) {
 					return o1.getCategory().compareTo(o2.getCategory());
 				}
 			});
 
 			// top left corner of first palette tool, width, height
 			double[] d = { 20, 10, 100, 80 };
-			for (Element item : items) {
-				@SuppressWarnings("rawtypes")
-				Job<?> hj = new AtomicJob(item);
-				hj.setDimensions(d);
-				hj.selectRenderer(JobRendering.getRendererAssortment()).render(
-						hj, graph, null);
-				d[1] += 60;
+			for (RepositoryItem item : items) {
+				Job<?> hj = null;
+				if (item instanceof Element)
+					hj = new AtomicJob((Element) item);
+				else if (item instanceof Linker)
+					hj = new CompositeJob((Linker) item, new MutableWorkflow(
+							((Linker) item).getInnerFragmentType()));
+				if (hj != null) {
+					hj.setDimensions(d);
+					hj.selectRenderer(JobRendering.getRendererAssortment())
+							.render(hj, graph, null);
+					d[1] += 60;
+				}
 			}
 		} finally {
 			graph.getModel().endUpdate();

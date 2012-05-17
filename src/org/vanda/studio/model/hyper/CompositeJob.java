@@ -59,7 +59,7 @@ public class CompositeJob<IF, F> extends Job<F> {
 
 	@Override
 	public <R> R selectRenderer(RendererAssortment<R> ra) {
-		return ra.selectAlgorithmRenderer();
+		return ra.selectBoxRenderer();
 	}
 
 	@Override

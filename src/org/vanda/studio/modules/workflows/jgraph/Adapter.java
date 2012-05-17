@@ -64,28 +64,41 @@ public final class Adapter {
 					mxChildChange cc = (mxChildChange) c;
 					mxICell cell = (mxICell) cc.getChild();
 					Object value = gmodel.getValue(cell);
-					if (cc.getParent() == null) {
+					boolean migrateSelection = false;
+					if (cc.getPrevious() != null) {
 						// something has been removed
 						// we make an exception and do not call helper methods
+						if (cell == graph.getSelectionCell()) {
+							migrateSelection = true;
+							model.setSelection(null);
+						}
 						if (value instanceof Token) {
 							WorkflowAdapter wa = (WorkflowAdapter) ((mxICell) cc
 									.getPrevious()).getValue();
 							if (gmodel.isVertex(cell)) {
-								if (wa.removeChild((Token) value) != null)
+								if (wa.removeChild((Token) value) != null) {
+									cell.setValue(wa.workflow.getChild((Token) value));
 									wa.workflow.removeChild((Token) value);
+								}
 							} else {
-								if (wa.removeConnection((Token) value) != null)
+								if (wa.removeConnection((Token) value) != null) {
+									cell.setValue(wa.workflow.getConnection((Token) value));
 									wa.workflow.removeConnection((Token) value);
+								}
 							}
 						} else if (value instanceof WorkflowAdapter) {
 							System.out.println("Curious thing just happened!");
 						}
-					} else {
+					}
+					if (cc.getParent() != null) {
 						// something has been added
 						if (gmodel.isVertex(cell))
 							updateNode(cell);
 						else if (gmodel.isEdge(cell))
 							updateEdge(cell);
+					}
+					if (migrateSelection) {
+						graph.setSelectionCell(cell);
 					}
 				} else if (c instanceof mxValueChange) {
 					// fires when a connection was inserted and then any
@@ -111,11 +124,14 @@ public final class Adapter {
 								path.addFirst((Token) gmodel.getValue(cl));
 							cl = gmodel.getParent(cl);
 						}
-						if (gmodel.isEdge(cell) && gmodel.getValue(cell) instanceof Token) {
+						if (gmodel.isEdge(cell)
+								&& gmodel.getValue(cell) instanceof Token) {
 							model.setSelection(new ConnectionSelection(path,
 									(Token) gmodel.getValue(cell)));
-						} else if (gmodel.isVertex(cell) && gmodel.getValue(cell) instanceof Token) {
-							model.setSelection(new JobSelection(path, (Token) gmodel.getValue(cell)));
+						} else if (gmodel.isVertex(cell)
+								&& gmodel.getValue(cell) instanceof Token) {
+							model.setSelection(new JobSelection(path,
+									(Token) gmodel.getValue(cell)));
 						} else if (gmodel.getValue(cell) instanceof WorkflowAdapter) {
 							model.setSelection(new WorkflowSelection(path));
 						}
@@ -138,40 +154,46 @@ public final class Adapter {
 		translation = new HashMap<HyperWorkflow<?>, mxICell>();
 		graph = new Graph();
 
-		model.getAddObservable().addObserver(new Observer<Pair<MutableWorkflow<?>, Token>>() {
-			@Override
-			public void notify(Pair<MutableWorkflow<?>, Token> event) {
-				renderChild((MutableWorkflow<?>) event.fst, event.snd);
-			}
-		});
+		model.getAddObservable().addObserver(
+				new Observer<Pair<MutableWorkflow<?>, Token>>() {
+					@Override
+					public void notify(Pair<MutableWorkflow<?>, Token> event) {
+						renderChild((MutableWorkflow<?>) event.fst, event.snd);
+					}
+				});
 
-		model.getModifyObservable().addObserver(new Observer<Pair<MutableWorkflow<?>, Token>>() {
-			@Override
-			public void notify(Pair<MutableWorkflow<?>, Token> event) {
-				modifyChild(event.fst, event.snd);
-			}
-		});
+		model.getModifyObservable().addObserver(
+				new Observer<Pair<MutableWorkflow<?>, Token>>() {
+					@Override
+					public void notify(Pair<MutableWorkflow<?>, Token> event) {
+						modifyChild(event.fst, event.snd);
+					}
+				});
 
-		model.getRemoveObservable().addObserver(new Observer<Pair<MutableWorkflow<?>, Token>>() {
-			@Override
-			public void notify(Pair<MutableWorkflow<?>, Token> event) {
-				removeChild(event.fst, event.snd);
-			}
-		});
+		model.getRemoveObservable().addObserver(
+				new Observer<Pair<MutableWorkflow<?>, Token>>() {
+					@Override
+					public void notify(Pair<MutableWorkflow<?>, Token> event) {
+						removeChild(event.fst, event.snd);
+					}
+				});
 
-		model.getConnectObservable().addObserver(new Observer<Pair<MutableWorkflow<?>, Token>>() {
-			@Override
-			public void notify(Pair<MutableWorkflow<?>, Token> event) {
-				renderConnection((MutableWorkflow<?>) event.fst, event.snd);
-			}
-		});
+		model.getConnectObservable().addObserver(
+				new Observer<Pair<MutableWorkflow<?>, Token>>() {
+					@Override
+					public void notify(Pair<MutableWorkflow<?>, Token> event) {
+						renderConnection((MutableWorkflow<?>) event.fst,
+								event.snd);
+					}
+				});
 
-		model.getDisconnectObservable().addObserver(new Observer<Pair<MutableWorkflow<?>, Token>>() {
-			@Override
-			public void notify(Pair<MutableWorkflow<?>, Token> event) {
-				removeConnection(event.fst, event.snd);
-			}
-		});
+		model.getDisconnectObservable().addObserver(
+				new Observer<Pair<MutableWorkflow<?>, Token>>() {
+					@Override
+					public void notify(Pair<MutableWorkflow<?>, Token> event) {
+						removeConnection(event.fst, event.snd);
+					}
+				});
 
 		changeListener = new ChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
@@ -275,22 +297,50 @@ public final class Adapter {
 	}
 
 	private void render(mxICell parent, MutableWorkflow<?> hwf) {
+		// two reasons why we might not know about hwf:
+		// a) it is not in the graph
+		// b) it is in the graph, but because of (complex) drag'n'drop
 		if (!translation.containsKey(hwf)) {
 			mxCell cell = null;
 			if (parent != null) {
-				mxGeometry geo = null;
-				mxGeometry geop = parent.getGeometry();
-				if (geop != null) {
-					geo = new mxGeometry(0, 0, geop.getWidth(),
-							geop.getHeight());
-					geo.setRelative(true);
+				// check whether we have case b)
+				int i = parent.getChildCount() - 1;
+				while (i >= 0
+						&& !(parent.getChildAt(i).getValue() instanceof WorkflowAdapter))
+					i--;
+				if (i >= 0
+						&& parent.getChildAt(i).getValue() instanceof WorkflowAdapter) {
+					// case b) -- make new WorkflowAdapter as the old one is
+					// most likely obsolete
+					cell = (mxCell) parent.getChildAt(i);
+					WorkflowAdapter wa = new WorkflowAdapter(hwf);
+					for (i = 0; i < cell.getChildCount(); i++) {
+						mxICell cl = cell.getChildAt(i);
+						if (cl.getValue() instanceof Token) {
+							if (cl.isVertex())
+								wa.setChild((Token) cl.getValue(), cl);
+							else if (cl.isEdge())
+								wa.setConnection((Token) cl.getValue(), cl);
+						}
+					}
+					cell.setValue(wa);
+				} else {
+					// case a)
+					mxGeometry geo = null;
+					mxGeometry geop = parent.getGeometry();
+					if (geop != null) {
+						geo = new mxGeometry(.1, .1, geop.getWidth() - 10,
+								geop.getHeight() - 10);
+						geo.setRelative(true);
+					}
+
+					cell = new mxCell(new WorkflowAdapter(hwf), geo, "");
+					cell.setVertex(true);
+
+					graph.addCell(cell, parent);
 				}
-
-				cell = new mxCell(new WorkflowAdapter(hwf), geo, "");
-				cell.setVertex(true);
-
-				graph.addCell(cell, parent);
 			} else {
+				// only a) applies here
 				cell = (mxCell) graph.getDefaultParent();
 				cell.setValue(new WorkflowAdapter(hwf));
 			}
@@ -315,10 +365,10 @@ public final class Adapter {
 		} else if (wa.getChild(address) == null) {
 			cell = hj.selectRenderer(JobRendering.getRendererAssortment())
 					.render(hj, graph, parentCell);
-			// render recursively
-			if (hj instanceof CompositeJob<?, ?>)
-				render(cell, ((CompositeJob<?, ?>) hj).getWorkflow());
 		}
+		// render recursively / recompute WorkflowAdapters
+		if (hj instanceof CompositeJob<?, ?>)
+			render(cell, ((CompositeJob<?, ?>) hj).getWorkflow());
 	}
 
 	public <F> void renderConnection(HyperWorkflow<F> parent, Token address) {
@@ -397,32 +447,39 @@ public final class Adapter {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected void updateNode(Object cell) {
 		mxIGraphModel model = graph.getModel();
-		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(model
-				.getParent(cell));
-
 		Object value = model.getValue(cell);
-		mxGeometry geo = model.getGeometry(cell);
+		if (value instanceof WorkflowAdapter) {
+			// do nothing
+		} else {
+			WorkflowAdapter wa = (WorkflowAdapter) model.getValue(model
+					.getParent(cell));
 
-		if (value instanceof Job) {
-			// set dimensions of job
-			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
-					geo.getHeight() };
-			((Job) value).setDimensions(dim);
-			wa.putInter((Job) value, (mxICell) cell);
-			wa.workflow.addChild((Job) value);
-		} else if (value instanceof Token) {
-			assert (wa.getChild((Token) value) == cell);
-			if (graph.isAutoSizeCell(cell))
-				graph.updateCellSize(cell, true); // was: resizeToFitLabel(cell)
-			preventTooSmallNested(cell);
-			graph.extendParent(cell); // was: resizeParentOfCell(cell)
-			Job<?> job = wa.workflow.getChild((Token) model.getValue(cell));
-			if (geo.getX() != job.getX() || geo.getY() != job.getY()
-					|| geo.getWidth() != job.getWidth()
-					|| geo.getHeight() != job.getHeight()) {
+			mxGeometry geo = model.getGeometry(cell);
+
+			if (value instanceof Job) {
+				// set dimensions of job
 				double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 						geo.getHeight() };
-				job.setDimensions(dim);
+				((Job) value).setDimensions(dim);
+				wa.putInter((Job) value, (mxICell) cell);
+				wa.workflow.addChild((Job) value);
+			} else if (value instanceof Token) {
+				// the following condition can be violated when dragging stuff
+				if (wa.getChild((Token) value) == cell) {
+					if (graph.isAutoSizeCell(cell))
+						graph.updateCellSize(cell, true); // was:
+															// resizeToFitLabel(cell)
+					preventTooSmallNested(cell);
+					graph.extendParent(cell); // was: resizeParentOfCell(cell)
+					Job<?> job = wa.workflow.getChild((Token) model.getValue(cell));
+					if (geo.getX() != job.getX() || geo.getY() != job.getY()
+							|| geo.getWidth() != job.getWidth()
+							|| geo.getHeight() != job.getHeight()) {
+						double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
+								geo.getHeight() };
+						job.setDimensions(dim);
+					}
+				}
 			}
 		}
 	};

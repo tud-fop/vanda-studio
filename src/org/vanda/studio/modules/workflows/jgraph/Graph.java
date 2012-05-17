@@ -16,7 +16,7 @@ class Graph extends mxGraph {
 		JobRendering.refStylesheet(1);
 		setCellsCloneable(false);
 		setSplitEnabled(false);
-		// graph.setDropEnabled(false);
+		// setDropEnabled(false);
 		// graph.setCellsMovable(false);
 		setCellsEditable(false);
 		setCollapseToPreferredSize(true);
@@ -53,8 +53,8 @@ class Graph extends mxGraph {
 				Object parentCell = model.getParent(cell);
 				Object wa = model.getValue(parentCell);
 				if (wa instanceof WorkflowAdapter) {
-					return ((WorkflowAdapter) wa).workflow.getChild(
-							(Token) value).getName();
+					return "" /*((WorkflowAdapter) wa).workflow.getChild(
+							(Token) value).getName()*/;
 				}
 			}
 		}
@@ -119,7 +119,6 @@ class Graph extends mxGraph {
 
 	@Override
 	public boolean isValidDropTarget(Object cell, Object[] cells) {
-		// works more or less, we just need the right nodes
 		return ((mxCell) cell).getValue() instanceof WorkflowAdapter;
 	}
 

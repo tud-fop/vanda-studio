@@ -8,6 +8,8 @@ package org.vanda.studio.model.elements;
 public interface RendererAssortment<R> {
 
 	R selectAlgorithmRenderer();
+	
+	R selectBoxRenderer();
 
 	R selectCorpusRenderer();
 

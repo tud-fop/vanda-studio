@@ -72,10 +72,6 @@ public interface Linker<IF, F> extends HasActions, RepositoryItem {
 	 * @return
 	 */
 	List<Port> convertOutputPorts(List<Port> ops);
-
-	String getCategory();
-	
-	String getDescription();
 	
 	Class<IF> getInnerFragmentType();
 
