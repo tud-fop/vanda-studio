@@ -4,6 +4,7 @@ import org.vanda.studio.model.hyper.CompositeJob;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxMultiplicity;
 
@@ -32,6 +33,17 @@ class Graph extends mxGraph {
 			public String check(mxGraph graph, Object edge, Object source,
 					Object target, int sourceOut, int targetIn) {
 				if (targetIn == 0)
+					return null;
+				else
+					return countError;
+			}
+		}, new mxMultiplicity(false,
+				null, null, null, 0, "1", null, ".", "", false) {
+			@Override
+			public String check(mxGraph graph, Object edge, Object source,
+					Object target, int sourceOut, int targetIn) {
+				mxIGraphModel model = graph.getModel();
+				if (model.getParent(model.getParent(source)) == model.getParent(model.getParent(target)))
 					return null;
 				else
 					return countError;
