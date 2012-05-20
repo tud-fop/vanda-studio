@@ -12,19 +12,19 @@ import org.vanda.studio.util.TokenSource.Token;
 public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		HyperWorkflow<F>, Cloneable {
 
-	private final MultiplexObserver<Pair<MutableWorkflow<F>, Token>> addObservable;
-	private final MultiplexObserver<Pair<MutableWorkflow<F>, Token>> modifyObservable;
-	private final MultiplexObserver<Pair<MutableWorkflow<F>, Token>> removeObservable;
-	private final MultiplexObserver<Pair<MutableWorkflow<F>, Token>> connectObservable;
-	private final MultiplexObserver<Pair<MutableWorkflow<F>, Token>> disconnectObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> addObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> modifyObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> removeObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow<F>, Connection>> connectObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow<F>, Connection>> disconnectObservable;
 
 	public MutableWorkflow(Class<F> fragmentType) {
 		super(fragmentType);
-		addObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Token>>();
-		modifyObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Token>>();
-		removeObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Token>>();
-		connectObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Token>>();
-		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Token>>();
+		addObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>>();
+		modifyObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>>();
+		removeObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>>();
+		connectObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Connection>>();
+		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Connection>>();
 	}
 
 	public MutableWorkflow(MutableWorkflow<F> hyperWorkflow)
@@ -56,12 +56,14 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	 */
 	@Override
 	public Token addChild(Job<F> hj) {
-		assert (hj.getFragmentType() == null || hj.getFragmentType() == getFragmentType());
+		assert (hj.address == null && (hj.getFragmentType() == null || hj
+				.getFragmentType() == getFragmentType()));
+		hj.address = childAddressSource.makeToken();
 		DJobInfo<F> ji = new DJobInfo<F>(this, hj);
-		if (ji.address.intValue() < children.size())
-			children.set(ji.address.intValue(), ji);
+		if (hj.address.intValue() < children.size())
+			children.set(hj.address.intValue(), ji);
 		else {
-			assert (ji.address.intValue() == children.size());
+			assert (hj.address.intValue() == children.size());
 			children.add(ji);
 		}
 		/*
@@ -69,9 +71,8 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		 * DJobInfo<F>(this, hj)); hj.parent = this; addObservable.notify(new
 		 * Pair<MutableWorkflow<F>, Job<F>>( this, hj)); }
 		 */
-		addObservable.notify(new Pair<MutableWorkflow<F>, Token>(this,
-				ji.address));
-		return ji.address;
+		addObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(this, hj));
+		return hj.address;
 	}
 
 	/*
@@ -83,27 +84,28 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	 */
 	@Override
 	public Token addConnection(Connection cc) {
+		assert (cc.address == null);
 		DJobInfo<F> sji = children.get(cc.source.intValue());
 		DJobInfo<F> tji = children.get(cc.target.intValue());
 		if (tji.inputs.get(cc.targetPort) != null)
 			throw new RuntimeException("!!!"); // FIXME better exception
 		Token tok = sji.outputs.get(cc.sourcePort);
-		DConnInfo ci = new DConnInfo(connectionAddressSource.makeToken(), tok,
-				cc);
+		DConnInfo ci = new DConnInfo(tok, cc);
+		cc.address = connectionAddressSource.makeToken();
 		tji.inputs.set(cc.targetPort, tok);
 		tji.inputsBlocked++;
-		if (ci.address.intValue() < connections.size())
-			connections.set(ci.address.intValue(), ci);
+		if (cc.address.intValue() < connections.size())
+			connections.set(cc.address.intValue(), ci);
 		else {
-			assert (ci.address.intValue() == connections.size());
+			assert (cc.address.intValue() == connections.size());
 			connections.add(ci);
 		}
 		// connections.get(tok).snd.add(new TokenValue<F>(cc.getTarget(), cc
 		// .getTargetPort()));
 		sji.outCount++;
-		connectObservable.notify(new Pair<MutableWorkflow<F>, Token>(this,
-				ci.address));
-		return ci.address;
+		connectObservable.notify(new Pair<MutableWorkflow<F>, Connection>(this,
+				cc));
+		return cc.address;
 	}
 
 	/*
@@ -112,7 +114,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	 * @see org.vanda.studio.model.hyper.HyperWorkflow#getAddObservable()
 	 */
 	@Override
-	public Observable<Pair<MutableWorkflow<F>, Token>> getAddObservable() {
+	public Observable<Pair<MutableWorkflow<F>, Job<F>>> getAddObservable() {
 		return addObservable;
 	}
 
@@ -122,7 +124,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	 * @see org.vanda.studio.model.hyper.HyperWorkflow#getConnectObservable()
 	 */
 	@Override
-	public Observable<Pair<MutableWorkflow<F>, Token>> getConnectObservable() {
+	public Observable<Pair<MutableWorkflow<F>, Connection>> getConnectObservable() {
 		return connectObservable;
 	}
 
@@ -132,7 +134,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	 * @see org.vanda.studio.model.hyper.HyperWorkflow#getDisconnectObservable()
 	 */
 	@Override
-	public Observable<Pair<MutableWorkflow<F>, Token>> getDisconnectObservable() {
+	public Observable<Pair<MutableWorkflow<F>, Connection>> getDisconnectObservable() {
 		return disconnectObservable;
 	}
 
@@ -142,7 +144,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	 * @see org.vanda.studio.model.hyper.HyperWorkflow#getModifyObservable()
 	 */
 	@Override
-	public Observable<Pair<MutableWorkflow<F>, Token>> getModifyObservable() {
+	public Observable<Pair<MutableWorkflow<F>, Job<F>>> getModifyObservable() {
 		return modifyObservable;
 	}
 
@@ -152,7 +154,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	 * @see org.vanda.studio.model.hyper.HyperWorkflow#getRemoveObservable()
 	 */
 	@Override
-	public Observable<Pair<MutableWorkflow<F>, Token>> getRemoveObservable() {
+	public Observable<Pair<MutableWorkflow<F>, Job<F>>> getRemoveObservable() {
 		return removeObservable;
 	}
 
@@ -189,16 +191,17 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 				DConnInfo ci = connections.get(i);
 				if (ci != null) {
 					if (ci.cc.source == address || ci.cc.target == address)
-						removeConnection(ci.address);
+						removeConnection(ci.cc.address);
 				}
 			}
 			for (int i = 0; i < ji.outputs.size(); i++) {
 				variableSource.recycleToken(ji.outputs.get(i));
 			}
-			children.set(ji.address.intValue(), null);
-			childAddressSource.recycleToken(ji.address);
-			removeObservable.notify(new Pair<MutableWorkflow<F>, Token>(this,
-					ji.address));
+			children.set(ji.job.address.intValue(), null);
+			removeObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(this,
+					ji.job));
+			ji.job.address = null;
+			childAddressSource.recycleToken(address);
 		}
 	}
 
@@ -220,10 +223,11 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			tji.inputsBlocked--;
 			sji.outCount--;
 			connections.set(address.intValue(), null);
+			disconnectObservable
+					.notify(new Pair<MutableWorkflow<F>, Connection>(this,
+							ci.cc));
+			ci.cc.address = null;
 			connectionAddressSource.recycleToken(address);
-			disconnectObservable.notify(new Pair<MutableWorkflow<F>, Token>(
-					this, address));
-
 		}
 	}
 
@@ -241,12 +245,12 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	}
 
 	@Override
-	public List<Token> getConnections() {
+	public List<Connection> getConnections() {
 		// only for putting existing HyperGraphs into the GUI
-		LinkedList<Token> conn = new LinkedList<Token>();
+		LinkedList<Connection> conn = new LinkedList<Connection>();
 		for (DConnInfo ci : connections) {
 			if (ci != null)
-				conn.add(ci.address);
+				conn.add(ci.cc);
 		}
 		return conn;
 	}

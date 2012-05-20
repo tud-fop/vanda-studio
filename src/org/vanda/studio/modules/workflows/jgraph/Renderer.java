@@ -12,5 +12,5 @@ public interface Renderer {
 
 	String getStyleName();
 
-	mxCell render(Job<?> to, mxGraph g, Object parentCell);
+	<F> mxCell render(Job<F> to, mxGraph g, Object parentCell);
 }

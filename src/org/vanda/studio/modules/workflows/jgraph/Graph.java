@@ -1,8 +1,6 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
 import org.vanda.studio.model.hyper.CompositeJob;
-import org.vanda.studio.model.hyper.Job;
-import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -43,36 +41,27 @@ class Graph extends mxGraph {
 
 	@Override
 	public String convertValueToString(Object cell) {
-
 		Object value = model.getValue(cell);
-
-		if (model.isVertex(cell)) {
-			if (value instanceof Job<?>)
-				return ((Job<?>) value).getName();
-			else if (value instanceof Token) {
-				Object parentCell = model.getParent(cell);
-				Object wa = model.getValue(parentCell);
-				if (wa instanceof WorkflowAdapter) {
-					return "" /*((WorkflowAdapter) wa).workflow.getChild(
-							(Token) value).getName()*/;
-				}
-			}
-		}
-		return "";
+		if (value instanceof Adapter)
+			return ((Adapter) value).getName();
+		else
+			return "";
 	}
 
 	@Override
 	public Object createVertex(Object parent, String id, Object value,
-			double x, double y, double width, double height, String style) {
+			double x, double y, double width, double height, String style,
+			boolean relative) {
 		mxGeometry geometry = new mxGeometry(x, y, width, height);
+		geometry.setRelative(relative);
 		@SuppressWarnings("serial")
 		mxCell vertex = new mxCell(value, geometry, style) {
 			@Override
 			protected Object cloneValue() {
 				Object value = getValue();
-				if (value instanceof Job<?>) {
+				if (value instanceof JobAdapter<?>) {
 					try {
-						return ((Job<?>) value).clone();
+						return ((JobAdapter<?>) value).clone();
 					} catch (CloneNotSupportedException e) {
 						return super.cloneValue();
 					}
@@ -119,7 +108,10 @@ class Graph extends mxGraph {
 
 	@Override
 	public boolean isValidDropTarget(Object cell, Object[] cells) {
-		return ((mxCell) cell).getValue() instanceof WorkflowAdapter;
+		// return ((mxCell) cell).getValue() instanceof WorkflowAdapter;
+		// return super.isValidDropTarget(cell, cells);
+		return ((mxCell) cell).getValue() instanceof WorkflowAdapter
+				&& super.isValidDropTarget(cell, cells);
 	}
 
 	// Removes the folding icon from simple jobs and disables folding

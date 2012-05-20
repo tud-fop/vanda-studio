@@ -26,23 +26,23 @@ public interface HyperWorkflow<F> {
 
 	public abstract Connection getConnection(Token address);
 
-	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getAddObservable();
+	public abstract Observable<Pair<MutableWorkflow<F>, Job<F>>> getAddObservable();
 
-	public abstract Collection<Token> getChildren();
+	public abstract Collection<Job<F>> getChildren();
 
-	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getConnectObservable();
+	public abstract Observable<Pair<MutableWorkflow<F>, Connection>> getConnectObservable();
 
-	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getDisconnectObservable();
+	public abstract Observable<Pair<MutableWorkflow<F>, Connection>> getDisconnectObservable();
 
-	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getModifyObservable();
+	public abstract Observable<Pair<MutableWorkflow<F>, Job<F>>> getModifyObservable();
 
-	public abstract Observable<Pair<MutableWorkflow<F>, Token>> getRemoveObservable();
+	public abstract Observable<Pair<MutableWorkflow<F>, Job<F>>> getRemoveObservable();
 
 	public abstract void removeChild(Token address);
 
 	public abstract void removeConnection(Token address);
 
-	public abstract List<Token> getConnections();
+	public abstract List<Connection> getConnections();
 
 	public abstract Token getVariable(Token source, int sourcePort);
 

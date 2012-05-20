@@ -24,7 +24,7 @@ import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.modules.workflows.Model.WorkflowSelection;
-import org.vanda.studio.modules.workflows.jgraph.Adapter;
+import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.HasActions;
@@ -39,7 +39,7 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 	protected final Application app;
 	protected final Model<?> model;
 	protected final mxGraphComponent component;
-	protected final Adapter renderer;
+	protected final DrecksAdapter renderer;
 	protected final Palette palette;
 	protected final JSplitPane mainpane;
 	protected final Observer<Object> recheckObserver;
@@ -49,12 +49,12 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 			List<ToolFactory> tools) {
 		app = a;
 		model = new Model(hwf);
-		renderer = new Adapter(model);
+		renderer = new DrecksAdapter(model);
 		palette = new Palette(app);
 		palette.update();
 
 		component = new mxGraphComponent(renderer.getGraph());
-		component.setDragEnabled(false);
+		//component.setDragEnabled(false);
 		component.getGraphControl().addMouseListener(new EditMouseAdapter());
 		component.getGraphControl().addMouseWheelListener(
 				new MouseZoomAdapter(app, component));

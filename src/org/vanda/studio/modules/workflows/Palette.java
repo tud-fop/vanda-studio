@@ -16,23 +16,23 @@ import org.vanda.studio.model.hyper.AtomicJob;
 import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.jgraph.JobRendering;
 import org.vanda.studio.util.Observer;
 
-import com.mxgraph.model.mxGraphModel;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 
 public class Palette {
 	protected final Application app;
-	protected final mxGraph graph;
+	//protected final DrecksAdapter palette;
 	protected final mxGraphComponent component;
 
 	public Palette(Application app) {
 		this.app = app;
-		graph = JobRendering.createGraph();
-		graph.setCellsLocked(true);
-		component = new mxGraphComponent(graph);
+		component = new mxGraphComponent(new mxGraph());
+		//component.setDropTarget(null);
 		app.getUIModeObservable().addObserver(new Observer<Application>() {
 			@Override
 			public void notify(Application a) {
@@ -50,10 +50,13 @@ public class Palette {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void update() {
-		graph.getModel().beginUpdate();
+		DrecksAdapter da = new DrecksAdapter(null);
+		da.getGraph().setCellsLocked(true);
+		da.getGraph().setDropEnabled(false);
+		da.getGraph().getModel().beginUpdate();
 		try {
 			// clear seems to reset the zoom, so we call notify at the end
-			((mxGraphModel) graph.getModel()).clear();
+			//((mxGraphModel) palette.getGraph().getModel()).clear();
 			ArrayList<RepositoryItem> items = new ArrayList<RepositoryItem>(app
 					.getToolMetaRepository().getRepository().getItems());
 			items.addAll(app
@@ -78,14 +81,16 @@ public class Palette {
 							((Linker) item).getInnerFragmentType()));
 				if (hj != null) {
 					hj.setDimensions(d);
-					hj.selectRenderer(JobRendering.getRendererAssortment())
-							.render(hj, graph, null);
-					d[1] += 60;
+					mxICell cell = da.renderChild(null, hj);
+					/*hj.selectRenderer(JobRendering.getRendererAssortment())
+							.render(hj, graph, null);*/
+					d[1] += cell.getGeometry().getHeight() + 10;
 				}
 			}
 		} finally {
-			graph.getModel().endUpdate();
+			da.getGraph().getModel().endUpdate();
 		}
+		component.setGraph(da.getGraph());
 	}
 
 }

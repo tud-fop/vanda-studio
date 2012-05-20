@@ -140,11 +140,6 @@ public class JobRendering {
 		}
 
 		@Override
-		public Renderer selectWorkflowRenderer() {
-			return JobRendering.workflowRenderer;
-		}
-
-		@Override
 		public Renderer selectLiteralRenderer() {
 			return JobRendering.literalRenderer;
 		}
@@ -163,6 +158,11 @@ public class JobRendering {
 		public Renderer selectBoxRenderer() {
 			return JobRendering.boxRenderer;
 		}
+
+		@Override
+		public Renderer selectWorkflowRenderer() {
+			return JobRendering.workflowRenderer;
+		}
 	}
 
 	protected abstract static class DefaultRenderer implements Renderer {
@@ -176,7 +176,7 @@ public class JobRendering {
 		}
 
 		@Override
-		public mxCell render(Job<?> hj, mxGraph g, Object parentCell) {
+		public <F> mxCell render(Job<F> hj, mxGraph g, Object parentCell) {
 			Object parent = parentCell;
 			if (parentCell == null) {
 				parent = g.getDefaultParent();
@@ -187,7 +187,7 @@ public class JobRendering {
 			try {
 				// insert new node into the graph that has the specified hwf as
 				// value and that shared the same dimensions
-				v = (mxCell) g.insertVertex(parent, null, hj, hj.getX(),
+				v = (mxCell) g.insertVertex(parent, null, new JobAdapter<F>(hj), hj.getX(),
 						hj.getY(), hj.getWidth(), hj.getHeight(),
 						this.getStyleName());
 				v.setConnectable(false);
@@ -286,8 +286,14 @@ public class JobRendering {
 
 	protected static class WorkflowRenderer extends DefaultRenderer {
 		@Override
+		public void addStyle(Map<String, Object> style) {
+			super.addStyle(style);
+			style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_SWIMLANE);
+		}
+		
+		@Override
 		public String getStyleName() {
-			return "term";
+			return "workflow";
 		}
 	}
 

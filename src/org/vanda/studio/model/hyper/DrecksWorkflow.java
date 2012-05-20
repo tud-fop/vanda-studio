@@ -15,12 +15,10 @@ import org.vanda.studio.util.TokenSource.Token;
 public class DrecksWorkflow<F> {
 
 	protected static final class DConnInfo {
-		public final Token address; // somewhat redundant, but makes life easier
 		public final Token variable;
-		public final Connection cc; // super-redundant
+		public final Connection cc; // somewhat redundant
 
-		public DConnInfo(Token address, Token variable, Connection cc) {
-			this.address = address;
+		public DConnInfo(Token variable, Connection cc) {
 			this.variable = variable;
 			this.cc = cc;
 		}
@@ -28,7 +26,6 @@ public class DrecksWorkflow<F> {
 
 	protected static final class DJobInfo<F> {
 		public final Job<F> job;
-		public final Token address; // somewhat redundant, but makes life easier
 		public final ArrayList<Token> inputs;
 		public int inputsBlocked;
 		public final ArrayList<Token> outputs;
@@ -37,7 +34,6 @@ public class DrecksWorkflow<F> {
 
 		public DJobInfo(DrecksWorkflow<F> parent, Job<F> j) {
 			job = j;
-			address = parent.childAddressSource.makeToken();
 			inputs = new ArrayList<Token>(j.getInputPorts().size());
 			for (int i = 0; i < j.getInputPorts().size(); i++)
 				inputs.add(null);
@@ -60,7 +56,6 @@ public class DrecksWorkflow<F> {
 			outputs = ji.outputs;
 			outCount = ji.outCount;
 			topSortInputsBlocked = ji.topSortInputsBlocked;
-			address = ji.address;
 		}
 
 	}
@@ -98,11 +93,11 @@ public class DrecksWorkflow<F> {
 		connectionAddressSource = hyperWorkflow.connectionAddressSource.clone();
 	}
 
-	public Collection<Token> getChildren() {
-		ArrayList<Token> result = new ArrayList<Token>();
+	public Collection<Job<F>> getChildren() {
+		ArrayList<Job<F>> result = new ArrayList<Job<F>>();
 		for (DJobInfo<F> ji : children)
 			if (ji != null)
-				result.add(ji.address);
+				result.add(ji.job);
 		return result;
 	}
 
@@ -168,7 +163,7 @@ public class DrecksWorkflow<F> {
 			ArrayList<JobInfo<F>> imch = new ArrayList<JobInfo<F>>(
 					topsort.size());
 			for (DJobInfo<F> ji : topsort) {
-				imch.add(new JobInfo<F>(ji.job.freeze(), ji.address,
+				imch.add(new JobInfo<F>(ji.job.freeze(), ji.job.address,
 						new ArrayList<Token>(ji.inputs), new ArrayList<Token>(
 								ji.outputs), ji.outCount));
 			}

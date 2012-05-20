@@ -11,6 +11,8 @@ import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.TokenSource.Token;
 
 public abstract class Job<F> implements HasActions, Cloneable {
+	
+	protected Token address;
 
 	protected double[] dimensions = new double[4];
 
@@ -67,5 +69,9 @@ public abstract class Job<F> implements HasActions, Cloneable {
 	public abstract String getCategory();
 
 	public abstract String getDescription();
+
+	public Token getAddress() {
+		return address;
+	}
 
 }

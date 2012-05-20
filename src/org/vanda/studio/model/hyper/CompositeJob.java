@@ -18,6 +18,7 @@ public class CompositeJob<IF, F> extends Job<F> {
 	private MutableWorkflow<IF> workflow; // not final because of clone()
 
 	public CompositeJob(Linker<IF, F> linker, MutableWorkflow<IF> workflow) {
+		address = null;
 		this.linker = linker;
 		this.workflow = workflow;
 	}

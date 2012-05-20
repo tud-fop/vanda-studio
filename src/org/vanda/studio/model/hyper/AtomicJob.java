@@ -17,6 +17,7 @@ public class AtomicJob<F> extends Job<F> {
 	private final Element element;
 
 	public AtomicJob(Element element) {
+		address = null;
 		this.element = element;
 	}
 	

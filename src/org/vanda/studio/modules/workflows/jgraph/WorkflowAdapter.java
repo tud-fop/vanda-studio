@@ -9,7 +9,7 @@ import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxICell;
 
-public class WorkflowAdapter {
+public class WorkflowAdapter implements Adapter {
 	public final MutableWorkflow<?> workflow;
 	public final ArrayList<mxICell> children;
 	public final ArrayList<mxICell> connections;
@@ -76,6 +76,11 @@ public class WorkflowAdapter {
 		while (connections.size() <= address.intValue())
 			connections.add(null);
 		connections.set(address.intValue(), cell);
+	}
+
+	@Override
+	public String getName() {
+		return workflow.toString(); // TODO getName
 	}
 
 }

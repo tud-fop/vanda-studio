@@ -113,7 +113,9 @@ public class Unfolder<F> {
 			 * go through all combinations and create the corresponding
 			 * JobWorkflows
 			 */
-			boolean carry = p.remaining == 0;
+			// System.out.println(p.remaining);
+			boolean carry = false;
+			// carry = p.remaining == 0; THIS WAS WRONG (it missed the empty wf)
 			while (!carry) {
 				ArrayList<JobInfo<F>> children = new ArrayList<JobInfo<F>>(
 						p.remaining);
