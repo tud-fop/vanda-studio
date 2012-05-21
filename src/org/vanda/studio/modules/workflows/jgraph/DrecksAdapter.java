@@ -346,9 +346,9 @@ public final class DrecksAdapter {
 					mxGeometry geo = null;
 					mxGeometry geop = parent.getGeometry();
 					if (geop != null) {
-						geo = new mxGeometry(.1, .1, geop.getWidth() - 10,
+						geo = new mxGeometry(5, 5, geop.getWidth() - 10,
 								geop.getHeight() - 10);
-						geo.setRelative(true);
+						geo.setRelative(false);
 					}
 
 					cell = new mxCell(new WorkflowAdapter(hwf), geo, "workflow");
@@ -499,13 +499,21 @@ public final class DrecksAdapter {
 															// resizeToFitLabel(cell)
 					preventTooSmallNested(cell);
 					graph.extendParent(cell); // was: resizeParentOfCell(cell)
+					
 					if (geo.getX() != ja.job.getX()
 							|| geo.getY() != ja.job.getY()
 							|| geo.getWidth() != ja.job.getWidth()
 							|| geo.getHeight() != ja.job.getHeight()) {
+						
 						double[] dim = { geo.getX(), geo.getY(),
 								geo.getWidth(), geo.getHeight() };
 						ja.job.setDimensions(dim);
+						
+						if (ja.job instanceof CompositeJob<?,?>) {
+							mxICell wCell = translation.get(((CompositeJob<?,?>)ja.job).getWorkflow());
+							wCell.setGeometry(new mxGeometry(5, 5, ja.job.getWidth()-10, ja.job.getHeight()-10));
+							graph.refresh();
+						}
 					}
 				}
 			}
