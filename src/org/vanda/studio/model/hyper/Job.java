@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.vanda.studio.model.elements.Element;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.immutable.ImmutableJob;
@@ -87,5 +86,10 @@ public abstract class Job<F> implements HasActions, Cloneable {
 	public Token getAddress() {
 		return address;
 	}
+	
+	/**
+	 *  call this after deserialization
+	 */
+	public abstract void rebind();
 
 }

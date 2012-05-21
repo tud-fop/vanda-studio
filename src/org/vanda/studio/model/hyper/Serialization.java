@@ -43,6 +43,7 @@ public final class Serialization {
 		try {
 			MutableWorkflow<?> result = (MutableWorkflow<?>) getXStream(app)
 					.fromXML(new File(pathToFile));
+			result.rebind();
 			return result;
 		} catch (Exception e) {
 			throw new Exception("An error occurred loading " + pathToFile, e);
@@ -123,16 +124,11 @@ public final class Serialization {
 		@Override
 		public Object unmarshal(HierarchicalStreamReader reader,
 				UnmarshallingContext context) {
-
-			// extract tool id from xml and load it from repository
-			MultiplexObserver tool = new MultiplexObserver();
-			return tool;
+			return new MultiplexObserver();
 		}
 
 		@Override
 		public boolean canConvert(Class clazz) {
-			// activate this converter for all classes that
-			// extends MultiplexObserver
 			return MultiplexObserver.class.isAssignableFrom(clazz);
 		}
 	}

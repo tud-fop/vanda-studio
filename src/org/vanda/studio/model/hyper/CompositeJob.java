@@ -112,4 +112,9 @@ public class CompositeJob<IF, F> extends Job<F> {
 		return null; // TODO change this once linkers become mutable
 	}
 
+	@Override
+	public void rebind() {
+		// do nothing
+	}
+
 }

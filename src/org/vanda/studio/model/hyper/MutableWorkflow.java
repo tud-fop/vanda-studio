@@ -78,21 +78,20 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	 * model.hyper.HyperJob)
 	 */
 	@Override
-	public Token addChild(Job<F> hj) {
-		assert (hj.address == null && (hj.getFragmentType() == null || hj
+	public Token addChild(Job<F> job) {
+		assert (job.address == null && (job.getFragmentType() == null || job
 				.getFragmentType() == getFragmentType()));
-		hj.address = childAddressSource.makeToken();
-		DJobInfo<F> ji = new DJobInfo<F>(this, hj);
-		if (hj.address.intValue() < children.size())
-			children.set(hj.address.intValue(), ji);
+		job.address = childAddressSource.makeToken();
+		DJobInfo<F> ji = new DJobInfo<F>(this, job);
+		if (job.address.intValue() < children.size())
+			children.set(job.address.intValue(), ji);
 		else {
-			assert (hj.address.intValue() == children.size());
+			assert (job.address.intValue() == children.size());
 			children.add(ji);
 		}
-		register(hj.getNameChangeObservable(), nameChangeObserver);
-		register(hj.getPortsChangeObservable(), portsChangeObserver);
-		addObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(this, hj));
-		return hj.address;
+		bind(job);
+		addObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(this, job));
+		return job.address;
 	}
 
 	/*
@@ -221,8 +220,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			for (int i = 0; i < ji.outputs.size(); i++) {
 				variableSource.recycleToken(ji.outputs.get(i));
 			}
-			unregister(ji.job.getNameChangeObservable(), nameChangeObserver);
-			unregister(ji.job.getPortsChangeObservable(), portsChangeObserver);
+			unbind(ji.job);
 			children.set(ji.job.address.intValue(), null);
 			removeObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(this,
 					ji.job));
@@ -311,6 +309,16 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		}
 	}
 	
+	private void bind(Job<F> job) {
+		register(job.getNameChangeObservable(), nameChangeObserver);
+		register(job.getPortsChangeObservable(), portsChangeObserver);
+	}
+	
+	private void unbind(Job<F> job) {
+		unregister(job.getNameChangeObservable(), nameChangeObserver);
+		unregister(job.getPortsChangeObservable(), portsChangeObserver);
+	}
+	
 	private static <F> void register(Observable<Job<F>> obs, Observer<Job<F>> o) {
 		if (obs != null)
 			obs.addObserver(o);
@@ -319,6 +327,17 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	private static <F> void unregister(Observable<Job<F>> obs, Observer<Job<F>> o) {
 		if (obs != null)
 			obs.removeObserver(o);
+	}
+	
+	/**
+	 * Call this after deserialization.
+	 */
+	public void rebind() {
+		for (DJobInfo<F> ji : children)
+			if (ji != null) {
+				ji.job.rebind();
+				bind(ji.job);
+			}
 	}
 
 	/*

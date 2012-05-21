@@ -166,8 +166,9 @@ public class InspectorTool implements ToolFactory {
 				if (ws != this.ws)
 					editor = createEditor(hwf);
 			}
-			if (ws != this.ws && editor != null) {
-				contentPane.add(editor, BorderLayout.EAST);
+			if (ws != this.ws) {
+				if (editor != null)
+					contentPane.add(editor, BorderLayout.EAST);
 				contentPane.validate();
 				this.ws = ws;
 			}

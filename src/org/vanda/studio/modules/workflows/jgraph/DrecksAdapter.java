@@ -253,7 +253,7 @@ public final class DrecksAdapter {
 		// TODO make this principled
 		if (graph.isAutoSizeCell(cell))
 			graph.updateCellSize(cell, true);
-		//graph.refresh();
+		graph.refresh();
 	}
 
 	/**

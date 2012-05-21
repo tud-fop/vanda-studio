@@ -24,33 +24,22 @@ public class AtomicJob<F> extends Job<F> {
 	public AtomicJob(Element element) {
 		address = null;
 		this.element = element;
-		Observable<Element> obs = element.getNameChangeObservable();
-		if (obs != null) {
+		if (element.getNameChangeObservable() != null)
 			nameChangeObservable = new MultiplexObserver<Job<F>>();
-			obs.addObserver(new Observer<Element>() {
-				@Override
-				public void notify(Element event) {
-					nameChangeObservable.notify(AtomicJob.this);
-				}});
-		} else
+		else
 			nameChangeObservable = null;
-		obs = element.getPortsChangeObservable();
-		if (obs != null) {
+		if (element.getPortsChangeObservable() != null)
 			portsChangeObservable = new MultiplexObserver<Job<F>>();
-			obs.addObserver(new Observer<Element>() {
-				@Override
-				public void notify(Element event) {
-					portsChangeObservable.notify(AtomicJob.this);
-				}});
-		} else
+		else
 			portsChangeObservable = null;
+		rebind();
 	}
-	
+
 	@Override
 	public AtomicJob<F> clone() throws CloneNotSupportedException {
 		return new AtomicJob<F>(element.clone());
 	}
-	
+
 	public Element getElement() {
 		return element;
 	}
@@ -130,5 +119,25 @@ public class AtomicJob<F> extends Job<F> {
 	@Override
 	public Observable<Job<F>> getPortsChangeObservable() {
 		return portsChangeObservable;
+	}
+
+	@Override
+	public void rebind() {
+		if (nameChangeObservable != null)
+			element.getNameChangeObservable().addObserver(
+					new Observer<Element>() {
+						@Override
+						public void notify(Element event) {
+							nameChangeObservable.notify(AtomicJob.this);
+						}
+					});
+		if (portsChangeObservable != null)
+			element.getPortsChangeObservable().addObserver(
+					new Observer<Element>() {
+						@Override
+						public void notify(Element event) {
+							portsChangeObservable.notify(AtomicJob.this);
+						}
+					});
 	}
 }
