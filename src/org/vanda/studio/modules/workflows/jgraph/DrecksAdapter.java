@@ -116,7 +116,7 @@ public final class DrecksAdapter {
 					 * ((mxValueChange) c).getCell()) .getValue());
 					 */
 				} else if (c instanceof mxGeometryChange) {
-					Object cell = ((mxGeometryChange) c).getCell();
+					mxICell cell = (mxICell) ((mxGeometryChange) c).getCell();
 					if (gmodel.isVertex(cell) && gmodel.getParent(cell) != null)
 						updateNode(cell);
 				} else if (c instanceof mxSelectionChange && model != null) {
@@ -400,12 +400,15 @@ public final class DrecksAdapter {
 			mxICell target = wa.getChild(cc.target);
 
 			if (source != null && target != null) {
-				assert (source.getValue() == cc.source && target.getValue() == cc.target);
+				assert (source.getValue() instanceof JobAdapter
+						&& ((JobAdapter<?>) source.getValue()).job.getAddress() == cc.source
+						&& target.getValue() instanceof JobAdapter && ((JobAdapter<?>) target
+							.getValue()).job.getAddress() == cc.target);
 
 				graph.getModel().beginUpdate();
 				try {
 					cell = (mxICell) graph.insertEdge(
-							parent,
+							parentCell,
 							null,
 							new ConnectionAdapter(cc),
 							source.getChildAt(cc.sourcePort
@@ -427,7 +430,10 @@ public final class DrecksAdapter {
 		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(parentCell);
 		if (value instanceof ConnectionAdapter) {
 			// a previously loaded connection is updated, don't change anything
-			assert (wa.getConnection(((ConnectionAdapter) value).cc.address) == cell);
+			Token address = ((ConnectionAdapter) value).cc.address;
+			if (wa.getConnection(address) == null)
+				wa.setConnection(address, cell);
+			assert (wa.getConnection(address) == cell);
 		} else {
 			assert ("".equals(value) || value == null);
 			// a new connection has been inserted by the user via GUI
@@ -462,7 +468,7 @@ public final class DrecksAdapter {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected void updateNode(Object cell) {
+	protected void updateNode(mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
 		if (value instanceof WorkflowAdapter) {
@@ -484,6 +490,8 @@ public final class DrecksAdapter {
 				if (wa.workflow != null)
 					wa.workflow.addChild((Job) ja.job);
 			} else {
+				if (wa.getChild(ja.job.getAddress()) == null)
+					wa.setChild(ja.job.getAddress(), cell);
 				// the following condition can be violated when dragging stuff
 				if (wa.getChild(ja.job.getAddress()) == cell) {
 					if (graph.isAutoSizeCell(cell))

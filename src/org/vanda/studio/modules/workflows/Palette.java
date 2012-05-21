@@ -17,7 +17,6 @@ import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
-import org.vanda.studio.modules.workflows.jgraph.JobRendering;
 import org.vanda.studio.util.Observer;
 
 import com.mxgraph.model.mxICell;
@@ -32,7 +31,7 @@ public class Palette {
 	public Palette(Application app) {
 		this.app = app;
 		component = new mxGraphComponent(new mxGraph());
-		//component.setDropTarget(null);
+		component.setDropTarget(null);
 		app.getUIModeObservable().addObserver(new Observer<Application>() {
 			@Override
 			public void notify(Application a) {
