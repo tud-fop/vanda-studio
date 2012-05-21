@@ -40,6 +40,7 @@ public final class Launcher implements Runnable {
 		Application app = new ApplicationImpl();
 		Module[] ms = { new org.vanda.studio.modules.messages.MessageModule(),
 				new org.vanda.studio.modules.algorithms.AlgorithmsModule(),
+				new org.vanda.studio.modules.profile.ProfileModule(),
 				// new org.vanda.studio.modules.dictionaries.DictionaryModule(),
 				// new org.vanda.studio.modules.wrtgs.WrtgModule(),
 				// new org.vanda.studio.modules.terms.TermModule(),

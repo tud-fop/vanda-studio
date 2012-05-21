@@ -22,12 +22,6 @@ public interface Application {
 	String createUniqueId();
 
 	/**
-	 * Returns the repository of compiler repositories. Modules should add or
-	 * remove their own repositories here.
-	 */
-	// MetaRepository<Compiler<?, ?>> getCompilerMetaRepository();
-
-	/**
 	 * Returns the repository of linker repositories. Modules should add or
 	 * remove their own repositories here.
 	 */
@@ -37,7 +31,7 @@ public interface Application {
 	 * Returns the repository of profile repositories. Modules should add or
 	 * remove their own repositories here.
 	 */
-	// MetaRepository<Profile> getProfileMetaRepository();
+	MetaRepository<Profile> getProfileMetaRepository();
 
 	/**
 	 * Returns the repository of tool repositories. Modules should add or remove

@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
+import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.Ports;
@@ -38,7 +39,7 @@ public class AlgorithmsModule implements Module {
 
 		private final Application app;
 
-		private static Type shellType = new CompositeType("shell");
+		private static Type shellType = Profile.shellType;
 
 		private static class Plain2Snt extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
