@@ -27,6 +27,7 @@ public final class ImmutableWorkflow {
 	final String name;
 	private final Map<Object, ImmutableJob> deref;
 	private Type[] types;
+	private Type fragmentType;
 
 	/**
 	 * 
@@ -35,8 +36,8 @@ public final class ImmutableWorkflow {
 	 * @param maxtoken
 	 *            maximum token
 	 */
-	public ImmutableWorkflow(String name, ArrayList<JobInfo> children, TokenSource token,
-			int maxtoken) {
+	public ImmutableWorkflow(String name, ArrayList<JobInfo> children,
+			TokenSource token, int maxtoken) {
 		this.name = name;
 		this.children = children;
 		deref = new HashMap<Object, ImmutableJob>();
@@ -51,6 +52,7 @@ public final class ImmutableWorkflow {
 			deref.put(ji.address, ji.job);
 		}
 		types = null;
+		fragmentType = null;
 	}
 
 	public ImmutableWorkflow dereference(ListIterator<Token> path) {
@@ -68,17 +70,20 @@ public final class ImmutableWorkflow {
 	public ArrayList<JobInfo> getChildren() {
 		return children;
 	}
-	
+
+	public Type getFragmentType() {
+		return fragmentType;
+	}
+
 	public String getName() {
 		return name;
 	}
 
-	public Type getType(Object variable) {
-		if (types == null || !(variable instanceof Token)
-				|| ((Token) variable).intValue() >= types.length)
+	public Type getType(Token variable) {
+		if (types == null || variable.intValue() >= types.length)
 			return null;
 		else
-			return types[((Token) variable).intValue()];
+			return types[variable.intValue()];
 	}
 
 	public boolean isSane() {
@@ -100,10 +105,15 @@ public final class ImmutableWorkflow {
 
 	public void typeCheck() throws Exception {
 		TokenSource t = token.clone();
-		Map<Object, Object> rename = null;
+		Map<Token, Token> rename = null;
 		Set<Equation> s = new HashSet<Equation>();
+		Token fragmentTypeToken = t.makeToken();
 		for (JobInfo ji : children) {
-			rename = new HashMap<Object, Object>();
+			rename = new HashMap<Token, Token>();
+			ji.job.getFragmentType().freshMap(t, rename);
+			s.add(new Equation(new TypeVariable(fragmentTypeToken), ji.job.getFragmentType()
+					.rename(rename)));
+			rename = new HashMap<Token, Token>();
 			if (!ji.job.isInputPort() && !ji.job.isOutputPort()) {
 				List<Port> in = ji.job.getInputPorts();
 				List<Port> ou = ji.job.getOutputPorts();
@@ -131,10 +141,13 @@ public final class ImmutableWorkflow {
 		Types.unify(s);
 		types = new Type[token.getMaxToken()];
 		for (Equation e : s) {
-			Token i = (Token) ((TypeVariable) e.lhs).variable;
+			Token i = ((TypeVariable) e.lhs).variable;
 			if (i.intValue() < types.length)
 				types[i.intValue()] = e.rhs;
+			if (i.intValue() == fragmentTypeToken.intValue())
+				fragmentType = e.rhs;
 		}
+		System.out.println(fragmentType);
 		for (int i = 0; i < types.length; i++)
 			if (types[i] == null)
 				types[i] = new TypeVariable(TokenSource.getToken(i));
@@ -164,11 +177,12 @@ public final class ImmutableWorkflow {
 			}
 		}
 		for (JobInfo ji : inputJI)
-			inputs.set(((InputPort) ((AtomicImmutableJob) ji.job)
-					.getElement()).getNumber(), ji.outputs.get(0));
+			inputs.set(((InputPort) ((AtomicImmutableJob) ji.job).getElement())
+					.getNumber(), ji.outputs.get(0));
 		for (JobInfo ji : outputJI)
-			inputs.set(((OutputPort) ((AtomicImmutableJob) ji.job)
-					.getElement()).getNumber(), ji.inputs.get(0));
+			inputs.set(
+					((OutputPort) ((AtomicImmutableJob) ji.job).getElement())
+							.getNumber(), ji.inputs.get(0));
 		StringBuilder lines = new StringBuilder();
 		ImmutableJob.appendOutput(outputs, lines);
 		lines.append(" = ");

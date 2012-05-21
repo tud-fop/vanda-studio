@@ -2,6 +2,8 @@ package org.vanda.studio.model.types;
 
 import java.util.Set;
 
+import org.vanda.studio.util.TokenSource.Token;
+
 public final class Equation {
 
 	public final Type lhs;
@@ -65,7 +67,7 @@ public final class Equation {
 
 	public void substitute(Set<Equation> source1, Set<Equation> source2,
 			Set<Equation> target1, Set<Equation> target2) {
-		Object var = ((TypeVariable) lhs).variable;
+		Token var = ((TypeVariable) lhs).variable;
 		for (Equation e : source1)
 			target1.add(new Equation(e.lhs.substitute(var, rhs), e.rhs
 					.substitute(var, rhs)));

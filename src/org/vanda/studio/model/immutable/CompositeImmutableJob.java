@@ -7,6 +7,7 @@ import java.util.ListIterator;
 
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.TokenSource.Token;
 
 public class CompositeImmutableJob extends ImmutableJob {
@@ -85,6 +86,11 @@ public class CompositeImmutableJob extends ImmutableJob {
 	public List<Port> getOutputPorts() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Type getFragmentType() {
+		return linker.getFragmentType();
 	}
 
 }

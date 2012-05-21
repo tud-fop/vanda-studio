@@ -3,17 +3,18 @@ package org.vanda.studio.model.types;
 import java.util.Map;
 
 import org.vanda.studio.util.TokenSource;
+import org.vanda.studio.util.TokenSource.Token;
 
 public final class TypeVariable extends Type {
 	
-	public final Object variable;
+	public final Token variable;
 	
-	public TypeVariable(Object variable) {
+	public TypeVariable(Token variable) {
 		this.variable = variable;
 	}
 	
 	@Override
-	public boolean contains(Object v) {
+	public boolean contains(Token v) {
 		// use object identity because variables are assumed to be interned
 		return variable == v;
 	}
@@ -28,14 +29,14 @@ public final class TypeVariable extends Type {
 	}
 
 	@Override
-	public void freshMap(TokenSource t, Map<Object, Object> m) {
+	public void freshMap(TokenSource t, Map<Token, Token> m) {
 		if (!m.containsKey(variable))
 			m.put(variable, t.makeToken());
 	}
 
 	@Override
-	public Type rename(Map<Object, Object> m) {
-		Object nv = m.get(variable);
+	public Type rename(Map<Token, Token> m) {
+		Token nv = m.get(variable);
 		if (nv != null)
 			return new TypeVariable(nv);
 		else
@@ -43,7 +44,7 @@ public final class TypeVariable extends Type {
 	}
 
 	@Override
-	public Type substitute(Object variable, Type nt) {
+	public Type substitute(Token variable, Type nt) {
 		if (variable == this.variable)
 			return nt;
 		else

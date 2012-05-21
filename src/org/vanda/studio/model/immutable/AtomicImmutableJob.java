@@ -9,6 +9,7 @@ import org.vanda.studio.model.elements.Element;
 import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.elements.Port;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.TokenSource.Token;
 
 public class AtomicImmutableJob extends ImmutableJob {
@@ -68,6 +69,11 @@ public class AtomicImmutableJob extends ImmutableJob {
 	@Override
 	public List<Port> getOutputPorts() {
 		return element.getOutputPorts();
+	}
+
+	@Override
+	public Type getFragmentType() {
+		return element.getFragmentType();
 	}
 
 }

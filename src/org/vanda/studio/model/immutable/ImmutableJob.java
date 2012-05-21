@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.vanda.studio.model.elements.Port;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.TokenSource.Token;
 
 public abstract class ImmutableJob {
@@ -12,6 +13,8 @@ public abstract class ImmutableJob {
 	public abstract ImmutableWorkflow dereference(ListIterator<Token> path);
 
 	public abstract List<Port> getInputPorts();
+	
+	public abstract Type getFragmentType();
 
 	public abstract List<Port> getOutputPorts();
 
