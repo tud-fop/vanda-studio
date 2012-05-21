@@ -209,6 +209,16 @@ public final class DrecksAdapter {
 							removeConnection(event.fst, event.snd);
 						}
 					});
+			
+			model.getNameChangeObservable().addObserver(
+					new Observer<MutableWorkflow<?>>() {
+						@Override
+						public void notify(MutableWorkflow<?> event) {
+							// TODO improve
+							if (event != DrecksAdapter.this.model.getRoot())
+								graph.refresh();
+						}
+					});
 		}
 
 		changeListener = new ChangeListener();
@@ -240,6 +250,10 @@ public final class DrecksAdapter {
 			ng.setHeight(job.getHeight());
 			model.setGeometry(cell, ng);
 		}
+		// TODO make this principled
+		if (graph.isAutoSizeCell(cell))
+			graph.updateCellSize(cell, true);
+		//graph.refresh();
 	}
 
 	/**
@@ -499,19 +513,22 @@ public final class DrecksAdapter {
 															// resizeToFitLabel(cell)
 					preventTooSmallNested(cell);
 					graph.extendParent(cell); // was: resizeParentOfCell(cell)
-					
+
 					if (geo.getX() != ja.job.getX()
 							|| geo.getY() != ja.job.getY()
 							|| geo.getWidth() != ja.job.getWidth()
 							|| geo.getHeight() != ja.job.getHeight()) {
-						
+
 						double[] dim = { geo.getX(), geo.getY(),
 								geo.getWidth(), geo.getHeight() };
 						ja.job.setDimensions(dim);
-						
-						if (ja.job instanceof CompositeJob<?,?>) {
-							mxICell wCell = translation.get(((CompositeJob<?,?>)ja.job).getWorkflow());
-							wCell.setGeometry(new mxGeometry(5, 5, ja.job.getWidth()-10, ja.job.getHeight()-10));
+
+						if (ja.job instanceof CompositeJob<?, ?>) {
+							mxICell wCell = translation
+									.get(((CompositeJob<?, ?>) ja.job)
+											.getWorkflow());
+							wCell.setGeometry(new mxGeometry(5, 5, ja.job
+									.getWidth() - 10, ja.job.getHeight() - 10));
 							graph.refresh();
 						}
 					}

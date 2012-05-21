@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows;
+package org.vanda.studio.modules.workflows.inspector;
 
 import java.awt.BorderLayout;
 import java.util.List;
@@ -18,6 +18,9 @@ import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.modules.workflows.Model;
+import org.vanda.studio.modules.workflows.ToolFactory;
+import org.vanda.studio.modules.workflows.WorkflowEditor;
 import org.vanda.studio.modules.workflows.Model.ConnectionSelection;
 import org.vanda.studio.modules.workflows.Model.JobSelection;
 import org.vanda.studio.modules.workflows.Model.WorkflowSelection;
@@ -36,12 +39,14 @@ public class InspectorTool implements ToolFactory {
 		private final JScrollPane therealinspector;
 		private JComponent editor;
 		private final List<ElementEditorFactory> eefs;
+		private WorkflowSelection ws;
 
 		public Inspector(WorkflowEditor wfe, Model<?> m,
 				List<ElementEditorFactory> eefs) {
 			this.wfe = wfe;
 			this.m = m;
 			this.eefs = eefs;
+			ws = null;
 			inspector = new JEditorPane("text/html", "");
 			inspector.setEditable(false);
 			therealinspector = new JScrollPane(inspector);
@@ -50,20 +55,17 @@ public class InspectorTool implements ToolFactory {
 			contentPane.setName("Inspector");
 			editor = null;
 			this.wfe.addToolWindow(contentPane);
-			this.m.getSelectionChangeObservable().addObserver(
-					new Observer<Model<?>>() {
-						@Override
-						public void notify(Model<?> event) {
-							update();
-						}
-					});
-			this.m.getWorkflowCheckObservable().addObserver(
-					new Observer<Model<?>>() {
-						@Override
-						public void notify(Model<?> event) {
-							update();
-						}
-					});
+			Observer<Object> obs = new Observer<Object>() {
+				@Override
+				public void notify(Object event) {
+					update();
+				}
+			};
+			this.m.getSelectionChangeObservable().addObserver(obs);
+			this.m.getWorkflowCheckObservable().addObserver(obs);
+			this.m.getNameChangeObservable().addObserver(obs);
+			this.m.getModifyObservable().addObserver(obs);
+			this.wfe.focusToolWindow(contentPane);
 		}
 
 		JComponent createEditor(Object o) {
@@ -76,7 +78,7 @@ public class InspectorTool implements ToolFactory {
 
 		public void update() {
 			WorkflowSelection ws = m.getSelection();
-			if (editor != null) {
+			if (ws != this.ws && editor != null) {
 				contentPane.remove(editor);
 				editor = null;
 			}
@@ -118,10 +120,12 @@ public class InspectorTool implements ToolFactory {
 				sb.append("</p>");
 				sb.append("</html>");
 				inspector.setText(sb.toString());
-				if (j instanceof AtomicJob<?>)
-					editor = createEditor(((AtomicJob<?>) j).getElement());
-				else if (j instanceof CompositeJob<?, ?>)
-					editor = createEditor(((CompositeJob<?, ?>) j).getLinker());
+				if (ws != this.ws){ 
+					if (j instanceof AtomicJob<?>)
+						editor = createEditor(((AtomicJob<?>) j).getElement());
+					else if (j instanceof CompositeJob<?, ?>)
+						editor = createEditor(((CompositeJob<?, ?>) j).getLinker());
+				}
 			} else if (ws instanceof ConnectionSelection) {
 				StringBuilder sb = new StringBuilder();
 				HyperWorkflow<?> wf = m.getRoot().dereference(
@@ -153,16 +157,20 @@ public class InspectorTool implements ToolFactory {
 				}
 				sb.append("</dd></dl></html>");
 				inspector.setText(sb.toString());
-				editor = createEditor(cc);
+				if (ws != this.ws)
+					editor = createEditor(cc);
 			} else {
 				HyperWorkflow<?> hwf = m.getRoot().dereference(
 						ws.path.listIterator());
 				inspector.setText(hwf.getName());
-				editor = createEditor(hwf);
+				if (ws != this.ws)
+					editor = createEditor(hwf);
 			}
-			if (editor != null)
+			if (ws != this.ws && editor != null) {
 				contentPane.add(editor, BorderLayout.EAST);
-			contentPane.validate();
+				contentPane.validate();
+				this.ws = ws;
+			}
 		}
 	}
 

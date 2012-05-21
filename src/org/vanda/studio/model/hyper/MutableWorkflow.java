@@ -6,6 +6,7 @@ import java.util.ListIterator;
 
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
+import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
@@ -18,6 +19,24 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> removeObservable;
 	private final MultiplexObserver<Pair<MutableWorkflow<F>, Connection>> connectObservable;
 	private final MultiplexObserver<Pair<MutableWorkflow<F>, Connection>> disconnectObservable;
+	private final Observer<Job<F>> nameChangeObserver;
+	private final Observer<Job<F>> portsChangeObserver;
+	private final MultiplexObserver<MutableWorkflow<F>> nameChangeObservable;
+	
+	{
+		nameChangeObserver = new Observer<Job<F>>() {
+			@Override
+			public void notify(Job<F> event) {
+				modifyObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(MutableWorkflow.this, event));
+			}
+		};
+		portsChangeObserver = new Observer<Job<F>>() {
+			@Override
+			public void notify(Job<F> event) {
+				modifyObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(MutableWorkflow.this, event));
+			}
+		};
+	}
 
 	public MutableWorkflow(Class<F> fragmentType) {
 		super(fragmentType);
@@ -26,6 +45,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		removeObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>>();
 		connectObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Connection>>();
 		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Connection>>();
+		nameChangeObservable = new MultiplexObserver<MutableWorkflow<F>>();
 	}
 
 	public MutableWorkflow(MutableWorkflow<F> hyperWorkflow)
@@ -37,6 +57,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		removeObservable = hyperWorkflow.removeObservable.clone();
 		connectObservable = hyperWorkflow.connectObservable.clone();
 		disconnectObservable = hyperWorkflow.disconnectObservable.clone();
+		nameChangeObservable = hyperWorkflow.nameChangeObservable.clone();
 	}
 
 	/*
@@ -68,11 +89,8 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			assert (hj.address.intValue() == children.size());
 			children.add(ji);
 		}
-		/*
-		 * if (!children.containsKey(hj)) { children.put(hj, new
-		 * DJobInfo<F>(this, hj)); hj.parent = this; addObservable.notify(new
-		 * Pair<MutableWorkflow<F>, Job<F>>( this, hj)); }
-		 */
+		register(hj.getNameChangeObservable(), nameChangeObserver);
+		register(hj.getPortsChangeObservable(), portsChangeObserver);
 		addObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(this, hj));
 		return hj.address;
 	}
@@ -150,6 +168,10 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		return modifyObservable;
 	}
 
+	public Observable<MutableWorkflow<F>> getNameChangeObservable() {
+		return nameChangeObservable;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -199,6 +221,8 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			for (int i = 0; i < ji.outputs.size(); i++) {
 				variableSource.recycleToken(ji.outputs.get(i));
 			}
+			unregister(ji.job.getNameChangeObservable(), nameChangeObserver);
+			unregister(ji.job.getPortsChangeObservable(), portsChangeObserver);
 			children.set(ji.job.address.intValue(), null);
 			removeObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(this,
 					ji.job));
@@ -281,7 +305,20 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		if (!name.equals(this.name)) {
+			this.name = name;
+			nameChangeObservable.notify(this);
+		}
+	}
+	
+	private static <F> void register(Observable<Job<F>> obs, Observer<Job<F>> o) {
+		if (obs != null)
+			obs.addObserver(o);
+	}
+	
+	private static <F> void unregister(Observable<Job<F>> obs, Observer<Job<F>> o) {
+		if (obs != null)
+			obs.removeObserver(o);
 	}
 
 	/*

@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows;
+package org.vanda.studio.modules.workflows.inspector;
 
 import javax.swing.JComponent;
 

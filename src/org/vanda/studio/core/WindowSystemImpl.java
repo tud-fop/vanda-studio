@@ -115,7 +115,7 @@ public class WindowSystemImpl implements WindowSystem {
 			}
 		});
 		menuBar.add(optionsMenu);
-		
+
 		windowMenus = new HashMap<JComponent, JMenu>();
 		windowTools = new HashMap<JComponent, List<JComponent>>();
 
@@ -137,8 +137,8 @@ public class WindowSystemImpl implements WindowSystem {
 		inner.setResizeWeight(0.7);
 		inner.setDividerSize(6);
 		inner.setBorder(null);
-		
-		contentPane.addChangeListener(new ChangeListener () {
+
+		contentPane.addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -171,19 +171,19 @@ public class WindowSystemImpl implements WindowSystem {
 					// ignore
 				}
 			}
-			
+
 		});
 
 		// Puts everything together
 		// mainWindow.getContentPane().setLayout(new BorderLayout());
 		mainWindow.getContentPane().add(inner); // BorderLayout.CENTER
-		//mainWindow.getContentPane().add(statusBar, BorderLayout.SOUTH);
+		// mainWindow.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				/*
-				 * for (ToolWindow toolWin : toolWindowManager.getToolWindows()) {
-				 * toolWin.setAvailable(true); toolWin.setActive(true); }
+				 * for (ToolWindow toolWin : toolWindowManager.getToolWindows())
+				 * { toolWin.setAvailable(true); toolWin.setActive(true); }
 				 */
 
 				mainWindow.setVisible(true);
@@ -215,9 +215,14 @@ public class WindowSystemImpl implements WindowSystem {
 	 */
 	@Override
 	public void addContentWindow(Icon i, JComponent c, Action a) {
-		contentPane.add(c);
-		contentPane.setTabComponentAt(contentPane.getTabCount() - 1,
-				new ButtonTabComponent(contentPane, a));
+		int ix = contentPane.indexOfComponent(c);
+		if (ix >= 0) {
+			contentPane.setTitleAt(ix, c.getName());
+		} else {
+			contentPane.add(c);
+			contentPane.setTabComponentAt(contentPane.getTabCount() - 1,
+					new ButtonTabComponent(contentPane, a));
+		}
 	}
 
 	/**
@@ -273,7 +278,7 @@ public class WindowSystemImpl implements WindowSystem {
 			// window is not focused, and we ignore the request
 		}
 	}
-	
+
 	@Override
 	public void focusContentWindow(JComponent c) {
 		contentPane.setSelectedComponent(c);

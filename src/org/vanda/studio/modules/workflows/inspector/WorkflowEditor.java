@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows;
+package org.vanda.studio.modules.workflows.inspector;
 
 import javax.swing.GroupLayout;
 import javax.swing.JComponent;
@@ -10,7 +10,7 @@ import javax.swing.event.DocumentListener;
 
 import org.vanda.studio.model.hyper.MutableWorkflow;
 
-public class WorkflowElementEditor implements ElementEditorFactory {
+public class WorkflowEditor implements ElementEditorFactory {
 
 	@Override
 	public JComponent createEditor(Object o) {

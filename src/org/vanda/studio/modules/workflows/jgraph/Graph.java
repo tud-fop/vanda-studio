@@ -98,7 +98,7 @@ class Graph extends mxGraph {
 	@Override
 	public boolean isCellSelectable(Object cell) {
 		if (getModel().getValue(cell) instanceof PortAdapter
-				|| getModel().getValue(cell) instanceof WorkflowAdapter)
+				/*|| getModel().getValue(cell) instanceof WorkflowAdapter*/)
 			return false;
 
 		return super.isCellSelectable(cell);

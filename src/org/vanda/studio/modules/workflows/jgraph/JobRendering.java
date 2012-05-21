@@ -289,6 +289,9 @@ public class JobRendering {
 		public void addStyle(Map<String, Object> style) {
 			super.addStyle(style);
 			style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_SWIMLANE);
+			style.put(mxConstants.STYLE_MOVABLE, "false");
+			style.put(mxConstants.STYLE_AUTOSIZE, "0");
+			style.put(mxConstants.STYLE_STARTSIZE, "23");
 		}
 		
 		@Override
@@ -325,6 +328,8 @@ public class JobRendering {
 			style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
 			style.put(mxConstants.STYLE_AUTOSIZE, "0");
 			style.put(mxConstants.STYLE_RESIZABLE, "1");
+			style.put(mxConstants.STYLE_NOLABEL, "true");
+			style.put(mxConstants.STYLE_FILLCOLOR, "white");
 		}
 		
 		@Override

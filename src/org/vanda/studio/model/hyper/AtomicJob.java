@@ -11,14 +11,39 @@ import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.MultiplexObserver;
+import org.vanda.studio.util.Observable;
+import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.TokenSource.Token;
 
 public class AtomicJob<F> extends Job<F> {
 	private final Element element;
+	private final MultiplexObserver<Job<F>> nameChangeObservable;
+	private final MultiplexObserver<Job<F>> portsChangeObservable;
 
 	public AtomicJob(Element element) {
 		address = null;
 		this.element = element;
+		Observable<Element> obs = element.getNameChangeObservable();
+		if (obs != null) {
+			nameChangeObservable = new MultiplexObserver<Job<F>>();
+			obs.addObserver(new Observer<Element>() {
+				@Override
+				public void notify(Element event) {
+					nameChangeObservable.notify(AtomicJob.this);
+				}});
+		} else
+			nameChangeObservable = null;
+		obs = element.getPortsChangeObservable();
+		if (obs != null) {
+			portsChangeObservable = new MultiplexObserver<Job<F>>();
+			obs.addObserver(new Observer<Element>() {
+				@Override
+				public void notify(Element event) {
+					portsChangeObservable.notify(AtomicJob.this);
+				}});
+		} else
+			portsChangeObservable = null;
 	}
 	
 	@Override
@@ -95,5 +120,15 @@ public class AtomicJob<F> extends Job<F> {
 	@Override
 	public String getDescription() {
 		return element.getDescription();
+	}
+
+	@Override
+	public Observable<Job<F>> getNameChangeObservable() {
+		return nameChangeObservable;
+	}
+
+	@Override
+	public Observable<Job<F>> getPortsChangeObservable() {
+		return portsChangeObservable;
 	}
 }

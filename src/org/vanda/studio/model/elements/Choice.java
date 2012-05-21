@@ -3,6 +3,8 @@ package org.vanda.studio.model.elements;
 import java.util.List;
 
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.MultiplexObserver;
+import org.vanda.studio.util.Observable;
 
 /**
  * Choice node. A choice node with one input port acts as identity.
@@ -13,6 +15,7 @@ import org.vanda.studio.util.Action;
 public final class Choice implements Element {
 
 	private int inputs;
+	private final MultiplexObserver<Element> portsChangeObservable;
 
 	public Choice() {
 		this(2);
@@ -20,6 +23,7 @@ public final class Choice implements Element {
 
 	public Choice(int inputs) {
 		this.inputs = inputs;
+		portsChangeObservable = new MultiplexObserver<Element>();
 	}
 
 	@Override
@@ -38,8 +42,8 @@ public final class Choice implements Element {
 	}
 
 	public void setInputPorts(int inputs) {
-		// TODO notify
 		this.inputs = inputs;
+		portsChangeObservable.notify(this);
 	}
 
 	@Override
@@ -87,6 +91,16 @@ public final class Choice implements Element {
 	@Override
 	public String getVersion() {
 		return "n/a";
+	}
+
+	@Override
+	public Observable<Element> getNameChangeObservable() {
+		return null;
+	}
+
+	@Override
+	public Observable<Element> getPortsChangeObservable() {
+		return portsChangeObservable;
 	}
 
 }

@@ -169,9 +169,12 @@ public class Palette {
 					Job<?> hj = null;
 					if (item instanceof Element)
 						hj = new AtomicJob((Element) item);
-					else if (item instanceof Linker)
-						hj = new CompositeJob((Linker) item, new MutableWorkflow(
-								((Linker) item).getInnerFragmentType()));
+					else if (item instanceof Linker) {
+						MutableWorkflow mwf = new MutableWorkflow(
+								((Linker) item).getInnerFragmentType());
+						mwf.setName("inner workflow");
+						hj = new CompositeJob((Linker) item, mwf);
+					}
 					if (hj != null) {
 						hj.setDimensions(d);
 						mxICell cell = da.renderChild(null, hj);
@@ -187,6 +190,7 @@ public class Palette {
 			mxGraphComponent graphComp = new mxGraphComponent(da.getGraph());
 			graphComp.getGraph().setCellsLocked(true);
 			graphComp.setConnectable(false);
+			graphComp.setDropTarget(null);
 			categoryPane.add(graphComp);
 			categoryPane.setCollapsed(true);
 			taskPaneContainer.add(categoryPane);

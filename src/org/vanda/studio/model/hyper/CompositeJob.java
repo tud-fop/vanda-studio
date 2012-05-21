@@ -9,6 +9,7 @@ import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.TokenSource.Token;
 
 public class CompositeJob<IF, F> extends Job<F> {
@@ -99,6 +100,16 @@ public class CompositeJob<IF, F> extends Job<F> {
 	
 	public Linker<IF, F> getLinker() {
 		return linker;
+	}
+
+	@Override
+	public Observable<Job<F>> getNameChangeObservable() {
+		return null; // TODO change this once linkers become mutable
+	}
+
+	@Override
+	public Observable<Job<F>> getPortsChangeObservable() {
+		return null; // TODO change this once linkers become mutable
 	}
 
 }

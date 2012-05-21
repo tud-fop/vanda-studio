@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.Observable;
 
 public class OutputPort implements Element {
 	
@@ -75,6 +76,16 @@ public class OutputPort implements Element {
 	@Override
 	public String getVersion() {
 		return "n/a";
+	}
+
+	@Override
+	public Observable<Element> getNameChangeObservable() {
+		return null;
+	}
+
+	@Override
+	public Observable<Element> getPortsChangeObservable() {
+		return null;
 	}
 
 }

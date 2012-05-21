@@ -4,15 +4,21 @@ import java.util.Collections;
 import java.util.List;
 
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.MultiplexObserver;
+import org.vanda.studio.util.Observable;
 
-public class Literal implements Element {
+public final class Literal implements Element {
 	
-	String type;
-	String value;
+	private String type;
+	private String value;
+	private final MultiplexObserver<Element> nameChangeObservable;
+	private final MultiplexObserver<Element> portsChangeObservable;
 
 	public Literal(String type, String value) {
 		this.type = type;
 		this.value = value;
+		nameChangeObservable = new MultiplexObserver<Element>();
+		portsChangeObservable = new MultiplexObserver<Element>();
 	}
 
 	@Override
@@ -73,6 +79,38 @@ public class Literal implements Element {
 	@Override
 	public String getVersion() {
 		return "n/a";
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		if (!type.equals(this.type)) {
+			this.type = type;
+			portsChangeObservable.notify(this);
+		}
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		if (!value.equals(this.value)) {
+			this.value = value;
+			nameChangeObservable.notify(this);
+		}
+	}
+
+	@Override
+	public Observable<Element> getNameChangeObservable() {
+		return nameChangeObservable;
+	}
+
+	@Override
+	public Observable<Element> getPortsChangeObservable() {
+		return portsChangeObservable;
 	}
 
 }

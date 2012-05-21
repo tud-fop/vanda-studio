@@ -4,10 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.vanda.studio.model.elements.Element;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.util.HasActions;
+import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.TokenSource.Token;
 
 public abstract class Job<F> implements HasActions, Cloneable {
@@ -33,8 +35,20 @@ public abstract class Job<F> implements HasActions, Cloneable {
 	public abstract List<Port> getInputPorts();
 
 	public abstract String getName();
+	
+	/**
+	 * may return null if name is immutable
+	 * @return
+	 */
+	public abstract Observable<Job<F>> getNameChangeObservable();
 
 	public abstract List<Port> getOutputPorts();
+	
+	/**
+	 * may return null if ports are immutable
+	 * @return
+	 */
+	public abstract Observable<Job<F>> getPortsChangeObservable();
 
 	public abstract Class<F> getFragmentType();
 

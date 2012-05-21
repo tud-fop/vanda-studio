@@ -102,6 +102,16 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 		model.getRemoveObservable().addObserver(recheckObserver);
 		model.getConnectObservable().addObserver(recheckObserver);
 		model.getDisconnectObservable().addObserver(recheckObserver);
+		
+		model.getNameChangeObservable().addObserver(new Observer<MutableWorkflow<?>>() {
+			@Override
+			public void notify(MutableWorkflow<?> event) {
+				if (event == model.getRoot()) {
+					mainpane.setName(event.getName());
+					app.getWindowSystem().addContentWindow(null, mainpane, null);
+				}
+			}
+		});
 	}
 
 	static {

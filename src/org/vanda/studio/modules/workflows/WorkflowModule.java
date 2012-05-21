@@ -12,6 +12,9 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.hyper.Serialization;
+import org.vanda.studio.modules.workflows.inspector.ElementEditorFactory;
+import org.vanda.studio.modules.workflows.inspector.InspectorTool;
+import org.vanda.studio.modules.workflows.inspector.LiteralEditor;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.ExceptionMessage;
 
@@ -37,7 +40,7 @@ public class WorkflowModule implements Module {
 			app = a;
 
 			eefs = new LinkedList<ElementEditorFactory>();
-			eefs.add(new WorkflowElementEditor());
+			eefs.add(new org.vanda.studio.modules.workflows.inspector.WorkflowEditor());
 			eefs.add(new LiteralEditor());
 			
 			toolFactories = new LinkedList<ToolFactory>();
