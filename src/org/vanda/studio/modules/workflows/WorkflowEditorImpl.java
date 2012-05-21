@@ -37,15 +37,14 @@ import com.mxgraph.swing.util.mxGraphTransferable;
 public class WorkflowEditorImpl implements WorkflowEditor {
 
 	protected final Application app;
-	protected final Model<?> model;
+	protected final Model model;
 	protected final mxGraphComponent component;
 	protected final DrecksAdapter renderer;
 	protected final Palette palette;
 	protected final JSplitPane mainpane;
 	protected final Observer<Object> recheckObserver;
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public WorkflowEditorImpl(Application a, MutableWorkflow<?> hwf,
+	public WorkflowEditorImpl(Application a, MutableWorkflow hwf,
 			List<ToolFactory> tools) {
 		app = a;
 		model = new Model(hwf);
@@ -103,9 +102,9 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 		model.getConnectObservable().addObserver(recheckObserver);
 		model.getDisconnectObservable().addObserver(recheckObserver);
 		
-		model.getNameChangeObservable().addObserver(new Observer<MutableWorkflow<?>>() {
+		model.getNameChangeObservable().addObserver(new Observer<MutableWorkflow>() {
 			@Override
-			public void notify(MutableWorkflow<?> event) {
+			public void notify(MutableWorkflow event) {
 				if (event == model.getRoot()) {
 					mainpane.setName(event.getName());
 					app.getWindowSystem().addContentWindow(null, mainpane, null);
@@ -220,8 +219,8 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 				}
 
 				// create node specific context menu
-				if (value instanceof Job<?>) {
-					menu = new PopupMenu(((Job<?>) value).getName());
+				if (value instanceof Job) {
+					menu = new PopupMenu(((Job) value).getName());
 
 					// only create a remove action if it's not a palette tool
 					/*

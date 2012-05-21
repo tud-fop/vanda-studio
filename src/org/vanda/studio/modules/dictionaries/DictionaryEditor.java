@@ -13,7 +13,7 @@ import org.vanda.studio.modules.common.Editor;
  * @author buechse
  * 
  */
-public class DictionaryEditor implements Editor<Object, VDictionary> {
+public class DictionaryEditor implements Editor<VDictionary> {
 	
 	protected Application app;
 	protected HashMap<String,Dictionary> openDictionaries;

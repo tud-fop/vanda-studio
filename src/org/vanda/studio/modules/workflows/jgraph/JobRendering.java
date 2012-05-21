@@ -176,7 +176,7 @@ public class JobRendering {
 		}
 
 		@Override
-		public <F> mxCell render(Job<F> hj, mxGraph g, Object parentCell) {
+		public mxCell render(Job hj, mxGraph g, Object parentCell) {
 			Object parent = parentCell;
 			if (parentCell == null) {
 				parent = g.getDefaultParent();
@@ -187,7 +187,7 @@ public class JobRendering {
 			try {
 				// insert new node into the graph that has the specified hwf as
 				// value and that shared the same dimensions
-				v = (mxCell) g.insertVertex(parent, null, new JobAdapter<F>(hj), hj.getX(),
+				v = (mxCell) g.insertVertex(parent, null, new JobAdapter(hj), hj.getX(),
 						hj.getY(), hj.getWidth(), hj.getHeight(),
 						this.getStyleName());
 				v.setConnectable(false);

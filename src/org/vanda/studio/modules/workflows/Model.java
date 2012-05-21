@@ -14,7 +14,7 @@ import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
-public final class Model<F> {
+public final class Model {
 
 	public static class WorkflowSelection {
 		public final List<Token> path;
@@ -33,7 +33,7 @@ public final class Model<F> {
 			this.address = address;
 		}
 
-		public abstract void remove(MutableWorkflow<?> root);
+		public abstract void remove(MutableWorkflow root);
 	}
 
 	public static class ConnectionSelection extends SingleObjectSelection {
@@ -43,7 +43,7 @@ public final class Model<F> {
 		}
 
 		@Override
-		public void remove(MutableWorkflow<?> root) {
+		public void remove(MutableWorkflow root) {
 			root.dereference(path.listIterator()).removeConnection(address);
 		}
 	}
@@ -54,63 +54,63 @@ public final class Model<F> {
 		}
 
 		@Override
-		public void remove(MutableWorkflow<?> root) {
+		public void remove(MutableWorkflow root) {
 			root.dereference(path.listIterator()).removeChild(address);
 		}
 	}
 
-	protected final MutableWorkflow<F> hwf;
-	protected ImmutableWorkflow<F> frozen;
-	protected List<ImmutableWorkflow<F>> unfolded;
+	protected final MutableWorkflow hwf;
+	protected ImmutableWorkflow frozen;
+	protected List<ImmutableWorkflow> unfolded;
 	protected WorkflowSelection selection;
 	protected List<SingleObjectSelection> selectedElements;
-	protected final MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>> addObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>> modifyObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>> removeObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow<?>, Connection>> connectObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow<?>, Connection>> disconnectObservable;
-	protected final MultiplexObserver<MutableWorkflow<?>> nameChangeObservable;
-	protected final Observer<Pair<MutableWorkflow<?>, Job<?>>> addObserver;
-	protected final Observer<Pair<MutableWorkflow<?>, Job<?>>> modifyObserver;
-	protected final Observer<Pair<MutableWorkflow<?>, Job<?>>> removeObserver;
-	protected final Observer<Pair<MutableWorkflow<?>, Connection>> connectObserver;
-	protected final Observer<Pair<MutableWorkflow<?>, Connection>> disconnectObserver;
-	protected final Observer<MutableWorkflow<?>> nameChangeObserver;
-	protected final MultiplexObserver<Model<F>> selectionChangeObservable;
-	protected final MultiplexObserver<Model<F>> selectedElementsObservable;
-	protected final MultiplexObserver<Model<F>> workflowCheckObservable;
+	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> addObservable;
+	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> modifyObservable;
+	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> removeObservable;
+	protected final MultiplexObserver<Pair<MutableWorkflow, Connection>> connectObservable;
+	protected final MultiplexObserver<Pair<MutableWorkflow, Connection>> disconnectObservable;
+	protected final MultiplexObserver<MutableWorkflow> nameChangeObservable;
+	protected final Observer<Pair<MutableWorkflow, Job>> addObserver;
+	protected final Observer<Pair<MutableWorkflow, Job>> modifyObserver;
+	protected final Observer<Pair<MutableWorkflow, Job>> removeObserver;
+	protected final Observer<Pair<MutableWorkflow, Connection>> connectObserver;
+	protected final Observer<Pair<MutableWorkflow, Connection>> disconnectObserver;
+	protected final Observer<MutableWorkflow> nameChangeObserver;
+	protected final MultiplexObserver<Model> selectionChangeObservable;
+	protected final MultiplexObserver<Model> selectedElementsObservable;
+	protected final MultiplexObserver<Model> workflowCheckObservable;
 
-	public Model(MutableWorkflow<F> hwf) {
+	public Model(MutableWorkflow hwf) {
 		this.hwf = hwf;
 		this.selectedElements = new ArrayList<SingleObjectSelection>();
-		addObservable = new MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>>();
-		modifyObservable = new MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>>();
-		removeObservable = new MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>>();
-		connectObservable = new MultiplexObserver<Pair<MutableWorkflow<?>, Connection>>();
-		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow<?>, Connection>>();
-		nameChangeObservable = new MultiplexObserver<MutableWorkflow<?>>();
-		selectionChangeObservable = new MultiplexObserver<Model<F>>();
-		selectedElementsObservable = new MultiplexObserver<Model<F>>();
-		workflowCheckObservable = new MultiplexObserver<Model<F>>();
-		addObserver = new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
+		addObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
+		modifyObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
+		removeObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
+		connectObservable = new MultiplexObserver<Pair<MutableWorkflow, Connection>>();
+		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow, Connection>>();
+		nameChangeObservable = new MultiplexObserver<MutableWorkflow>();
+		selectionChangeObservable = new MultiplexObserver<Model>();
+		selectedElementsObservable = new MultiplexObserver<Model>();
+		workflowCheckObservable = new MultiplexObserver<Model>();
+		addObserver = new Observer<Pair<MutableWorkflow, Job>>() {
 			@Override
-			public void notify(Pair<MutableWorkflow<?>, Job<?>> event) {
+			public void notify(Pair<MutableWorkflow, Job> event) {
 				if (event.snd instanceof CompositeJob)
-					bind(((CompositeJob<?, ?>) event.snd).getWorkflow());
+					bind(((CompositeJob) event.snd).getWorkflow());
 				addObservable.notify(event);
 			}
 		};
-		modifyObserver = new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
+		modifyObserver = new Observer<Pair<MutableWorkflow, Job>>() {
 			@Override
-			public void notify(Pair<MutableWorkflow<?>, Job<?>> event) {
+			public void notify(Pair<MutableWorkflow, Job> event) {
 				modifyObservable.notify(event);
 			}
 		};
-		removeObserver = new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
+		removeObserver = new Observer<Pair<MutableWorkflow, Job>>() {
 			@Override
-			public void notify(Pair<MutableWorkflow<?>, Job<?>> event) {
+			public void notify(Pair<MutableWorkflow, Job> event) {
 				if (event.snd instanceof CompositeJob)
-					unbind(((CompositeJob<?, ?>) event.snd).getWorkflow());
+					unbind(((CompositeJob) event.snd).getWorkflow());
 				if (selection != null
 						&& Model.this.hwf.dereference(selection.path
 								.listIterator()) == event.fst)
@@ -118,15 +118,15 @@ public final class Model<F> {
 				removeObservable.notify(event);
 			}
 		};
-		connectObserver = new Observer<Pair<MutableWorkflow<?>, Connection>>() {
+		connectObserver = new Observer<Pair<MutableWorkflow, Connection>>() {
 			@Override
-			public void notify(Pair<MutableWorkflow<?>, Connection> event) {
+			public void notify(Pair<MutableWorkflow, Connection> event) {
 				connectObservable.notify(event);
 			}
 		};
-		disconnectObserver = new Observer<Pair<MutableWorkflow<?>, Connection>>() {
+		disconnectObserver = new Observer<Pair<MutableWorkflow, Connection>>() {
 			@Override
-			public void notify(Pair<MutableWorkflow<?>, Connection> event) {
+			public void notify(Pair<MutableWorkflow, Connection> event) {
 				if (selection != null
 						&& Model.this.hwf.dereference(selection.path
 								.listIterator()) == event.fst)
@@ -134,26 +134,25 @@ public final class Model<F> {
 				disconnectObservable.notify(event);
 			}
 		};
-		nameChangeObserver = new Observer<MutableWorkflow<?>>() {
+		nameChangeObserver = new Observer<MutableWorkflow>() {
 			@Override
-			public void notify(MutableWorkflow<?> event) {
+			public void notify(MutableWorkflow event) {
 				nameChangeObservable.notify(event);
 			}
 		};
 		bind(hwf);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void bind(MutableWorkflow<?> wf) {
-		wf.getAddObservable().addObserver((Observer) addObserver);
-		wf.getModifyObservable().addObserver((Observer) modifyObserver);
-		wf.getRemoveObservable().addObserver((Observer) removeObserver);
-		wf.getConnectObservable().addObserver((Observer) connectObserver);
-		wf.getDisconnectObservable().addObserver((Observer) disconnectObserver);
+	private void bind(MutableWorkflow wf) {
+		wf.getAddObservable().addObserver(addObserver);
+		wf.getModifyObservable().addObserver(modifyObserver);
+		wf.getRemoveObservable().addObserver(removeObserver);
+		wf.getConnectObservable().addObserver(connectObserver);
+		wf.getDisconnectObservable().addObserver(disconnectObserver);
 		wf.getNameChangeObservable().addObserver(nameChangeObserver);
-		for (Job<?> job : wf.getChildren()) {
+		for (Job job : wf.getChildren()) {
 			if (job instanceof CompositeJob)
-				bind(((CompositeJob<?, ?>) job).getWorkflow());
+				bind(((CompositeJob) job).getWorkflow());
 		}
 	}
 
@@ -166,11 +165,11 @@ public final class Model<F> {
 		workflowCheckObservable.notify(this);
 	}
 
-	public ImmutableWorkflow<F> getFrozen() {
+	public ImmutableWorkflow getFrozen() {
 		return frozen;
 	}
 
-	public MutableWorkflow<F> getRoot() {
+	public MutableWorkflow getRoot() {
 		return hwf;
 	}
 
@@ -178,43 +177,43 @@ public final class Model<F> {
 		return selection;
 	}
 
-	public Observable<Pair<MutableWorkflow<?>, Job<?>>> getAddObservable() {
+	public Observable<Pair<MutableWorkflow, Job>> getAddObservable() {
 		return addObservable;
 	}
 
-	public Observable<Pair<MutableWorkflow<?>, Connection>> getConnectObservable() {
+	public Observable<Pair<MutableWorkflow, Connection>> getConnectObservable() {
 		return connectObservable;
 	}
 
-	public Observable<Pair<MutableWorkflow<?>, Connection>> getDisconnectObservable() {
+	public Observable<Pair<MutableWorkflow, Connection>> getDisconnectObservable() {
 		return disconnectObservable;
 	}
 
-	public Observable<Pair<MutableWorkflow<?>, Job<?>>> getModifyObservable() {
+	public Observable<Pair<MutableWorkflow, Job>> getModifyObservable() {
 		return modifyObservable;
 	}
 
-	public Observable<MutableWorkflow<?>> getNameChangeObservable() {
+	public Observable<MutableWorkflow> getNameChangeObservable() {
 		return nameChangeObservable;
 	}
 
-	public Observable<Pair<MutableWorkflow<?>, Job<?>>> getRemoveObservable() {
+	public Observable<Pair<MutableWorkflow, Job>> getRemoveObservable() {
 		return removeObservable;
 	}
 
-	public Observable<Model<F>> getSelectionChangeObservable() {
+	public Observable<Model> getSelectionChangeObservable() {
 		return selectionChangeObservable;
 	}
-	
-	public Observable<Model<F>> getSelectedElementsObservable() {
+
+	public Observable<Model> getSelectedElementsObservable() {
 		return selectedElementsObservable;
 	}
 
-	public Observable<Model<F>> getWorkflowCheckObservable() {
+	public Observable<Model> getWorkflowCheckObservable() {
 		return workflowCheckObservable;
 	}
 
-	public List<ImmutableWorkflow<F>> getUnfolded() {
+	public List<ImmutableWorkflow> getUnfolded() {
 		return unfolded;
 	}
 
@@ -222,24 +221,22 @@ public final class Model<F> {
 		this.selection = selection;
 		selectionChangeObservable.notify(this);
 	}
-	
+
 	public void setSelectedElements(List<SingleObjectSelection> elements) {
 		this.selectedElements = elements;
 		selectedElementsObservable.notify(this);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void unbind(MutableWorkflow<?> wf) {
-		wf.getAddObservable().removeObserver((Observer) addObserver);
-		wf.getModifyObservable().removeObserver((Observer) modifyObserver);
-		wf.getRemoveObservable().removeObserver((Observer) removeObserver);
-		wf.getConnectObservable().removeObserver((Observer) connectObserver);
-		wf.getDisconnectObservable().removeObserver(
-				(Observer) disconnectObserver);
+	public void unbind(MutableWorkflow wf) {
+		wf.getAddObservable().removeObserver(addObserver);
+		wf.getModifyObservable().removeObserver(modifyObserver);
+		wf.getRemoveObservable().removeObserver(removeObserver);
+		wf.getConnectObservable().removeObserver(connectObserver);
+		wf.getDisconnectObservable().removeObserver(disconnectObserver);
 		wf.getNameChangeObservable().removeObserver(nameChangeObserver);
-		for (Job<?> job : wf.getChildren()) {
+		for (Job job : wf.getChildren()) {
 			if (job instanceof CompositeJob)
-				unbind(((CompositeJob<?, ?>) job).getWorkflow());
+				unbind(((CompositeJob) job).getWorkflow());
 		}
 
 	}

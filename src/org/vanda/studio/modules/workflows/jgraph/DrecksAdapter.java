@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Connection;
-import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.workflows.Model;
@@ -74,7 +73,7 @@ public final class DrecksAdapter {
 								model.setSelection(null);
 						}
 						if (value instanceof JobAdapter) {
-							JobAdapter<?> ja = (JobAdapter<?>) value;
+							JobAdapter ja = (JobAdapter) value;
 							WorkflowAdapter wa = (WorkflowAdapter) ((mxICell) cc
 									.getPrevious()).getValue();
 							Token address = ja.job.getAddress();
@@ -126,7 +125,7 @@ public final class DrecksAdapter {
 						Object cl = (mxCell) gmodel.getParent(cell);
 						while (cl != null) {
 							if (gmodel.getValue(cl) instanceof JobAdapter)
-								path.addFirst(((JobAdapter<?>) gmodel
+								path.addFirst(((JobAdapter) gmodel
 										.getValue(cl)).job.getAddress());
 							cl = gmodel.getParent(cl);
 						}
@@ -136,7 +135,7 @@ public final class DrecksAdapter {
 									((ConnectionAdapter) gmodel.getValue(cell)).cc.address));
 						} else if (gmodel.getValue(cell) instanceof JobAdapter) {
 							model.setSelection(new JobSelection(path,
-									((JobAdapter<?>) gmodel.getValue(cell)).job
+									((JobAdapter) gmodel.getValue(cell)).job
 											.getAddress()));
 						} else if (gmodel.getValue(cell) instanceof WorkflowAdapter) {
 							model.setSelection(new WorkflowSelection(path));
@@ -150,70 +149,63 @@ public final class DrecksAdapter {
 		}
 	}
 
-	protected final Model<?> model;
+	protected final Model model;
 	protected final mxGraph graph;
 	protected final ChangeListener changeListener;
-	protected final Map<HyperWorkflow<?>, mxICell> translation;
+	protected final Map<MutableWorkflow, mxICell> translation;
 
-	public <F> DrecksAdapter(Model<F> model) {
+	public DrecksAdapter(Model model) {
 		this.model = model;
-		translation = new HashMap<HyperWorkflow<?>, mxICell>();
+		translation = new HashMap<MutableWorkflow, mxICell>();
 		graph = new Graph();
 
 		if (model != null) {
 			model.getAddObservable().addObserver(
-					new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
+					new Observer<Pair<MutableWorkflow, Job>>() {
 						@Override
-						public void notify(
-								Pair<MutableWorkflow<?>, Job<?>> event) {
-							renderChild((MutableWorkflow) event.fst,
-									(Job) event.snd);
+						public void notify(Pair<MutableWorkflow, Job> event) {
+							renderChild(event.fst, event.snd);
 						}
 					});
 
 			model.getModifyObservable().addObserver(
-					new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
+					new Observer<Pair<MutableWorkflow, Job>>() {
 						@Override
-						public void notify(
-								Pair<MutableWorkflow<?>, Job<?>> event) {
-							modifyChild((MutableWorkflow) event.fst,
-									(Job) event.snd);
+						public void notify(Pair<MutableWorkflow, Job> event) {
+							modifyChild(event.fst, event.snd);
 						}
 					});
 
 			model.getRemoveObservable().addObserver(
-					new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
+					new Observer<Pair<MutableWorkflow, Job>>() {
 						@Override
-						public void notify(
-								Pair<MutableWorkflow<?>, Job<?>> event) {
-							removeChild((MutableWorkflow) event.fst,
-									(Job) event.snd);
+						public void notify(Pair<MutableWorkflow, Job> event) {
+							removeChild(event.fst, event.snd);
 						}
 					});
 
 			model.getConnectObservable().addObserver(
-					new Observer<Pair<MutableWorkflow<?>, Connection>>() {
+					new Observer<Pair<MutableWorkflow, Connection>>() {
 						@Override
 						public void notify(
-								Pair<MutableWorkflow<?>, Connection> event) {
-							renderConnection((MutableWorkflow<?>) event.fst,
-									event.snd);
+								Pair<MutableWorkflow, Connection> event) {
+							renderConnection(event.fst, event.snd);
 						}
 					});
 
 			model.getDisconnectObservable().addObserver(
-					new Observer<Pair<MutableWorkflow<?>, Connection>>() {
+					new Observer<Pair<MutableWorkflow, Connection>>() {
 						@Override
 						public void notify(
-								Pair<MutableWorkflow<?>, Connection> event) {
+								Pair<MutableWorkflow, Connection> event) {
 							removeConnection(event.fst, event.snd);
 						}
 					});
-			
+
 			model.getNameChangeObservable().addObserver(
-					new Observer<MutableWorkflow<?>>() {
+					new Observer<MutableWorkflow>() {
 						@Override
-						public void notify(MutableWorkflow<?> event) {
+						public void notify(MutableWorkflow event) {
 							// TODO improve
 							if (event != DrecksAdapter.this.model.getRoot())
 								graph.refresh();
@@ -235,7 +227,7 @@ public final class DrecksAdapter {
 		return graph;
 	}
 
-	public <F> void modifyChild(MutableWorkflow<F> hwf, Job<F> job) {
+	public void modifyChild(MutableWorkflow hwf, Job job) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
 		mxICell cell = wa.getChild(job.getAddress());
 		mxIGraphModel model = graph.getModel();
@@ -274,7 +266,7 @@ public final class DrecksAdapter {
 			for (int i = 0; i < model.getChildCount(cell); i++) {
 				mxCell child = (mxCell) model.getChildAt(cell, i);
 
-				if (child.getValue() instanceof Job<?>) {
+				if (child.getValue() instanceof Job) {
 					double childRightBorder = child.getGeometry().getX()
 							+ child.getGeometry().getWidth();
 					double childBottomBorder = child.getGeometry().getY()
@@ -312,21 +304,21 @@ public final class DrecksAdapter {
 		}
 	}
 
-	public void removeChild(MutableWorkflow<?> hwf, Job<?> job) {
+	public void removeChild(MutableWorkflow hwf, Job job) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
 		mxICell cell = wa.getChild(job.getAddress());
 		if (cell != null)
 			graph.removeCells(new Object[] { cell });
 	}
 
-	public void removeConnection(MutableWorkflow<?> hwf, Connection cc) {
+	public void removeConnection(MutableWorkflow hwf, Connection cc) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
 		mxICell cell = wa.getConnection(cc.address);
 		if (cell != null)
 			graph.removeCells(new Object[] { cell });
 	}
 
-	private <F> void render(mxICell parent, MutableWorkflow<F> hwf) {
+	private void render(mxICell parent, MutableWorkflow hwf) {
 		// two reasons why we might not know about hwf:
 		// a) it is not in the graph
 		// b) it is in the graph, but because of (complex) drag'n'drop
@@ -347,7 +339,7 @@ public final class DrecksAdapter {
 					for (i = 0; i < cell.getChildCount(); i++) {
 						mxICell cl = cell.getChildAt(i);
 						if (cl.getValue() instanceof JobAdapter)
-							wa.setChild(((JobAdapter<?>) cl.getValue()).job
+							wa.setChild(((JobAdapter) cl.getValue()).job
 									.getAddress(), cl);
 						else if (cl.getValue() instanceof ConnectionAdapter)
 							wa.setConnection(
@@ -377,7 +369,7 @@ public final class DrecksAdapter {
 			}
 			translation.put(hwf, cell);
 			if (hwf != null) {
-				for (Job<F> job : hwf.getChildren())
+				for (Job job : hwf.getChildren())
 					renderChild(hwf, job);
 				for (Connection cc : hwf.getConnections())
 					renderConnection(hwf, cc);
@@ -385,7 +377,7 @@ public final class DrecksAdapter {
 		}
 	}
 
-	public <F> mxICell renderChild(MutableWorkflow<F> parent, Job<F> job) {
+	public <F> mxICell renderChild(MutableWorkflow parent, Job job) {
 		mxICell parentCell = translation.get(parent);
 		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
 		mxICell cell = wa.removeInter(job);
@@ -397,12 +389,12 @@ public final class DrecksAdapter {
 					.render(job, graph, parentCell);
 		}
 		// render recursively / recompute WorkflowAdapters
-		if (job instanceof CompositeJob<?, ?>)
-			render(cell, ((CompositeJob<?, ?>) job).getWorkflow());
+		if (job instanceof CompositeJob)
+			render(cell, ((CompositeJob) job).getWorkflow());
 		return cell;
 	}
 
-	public <F> void renderConnection(MutableWorkflow<F> parent, Connection cc) {
+	public <F> void renderConnection(MutableWorkflow parent, Connection cc) {
 		mxICell parentCell = translation.get(parent);
 		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
 
@@ -415,8 +407,8 @@ public final class DrecksAdapter {
 
 			if (source != null && target != null) {
 				assert (source.getValue() instanceof JobAdapter
-						&& ((JobAdapter<?>) source.getValue()).job.getAddress() == cc.source
-						&& target.getValue() instanceof JobAdapter && ((JobAdapter<?>) target
+						&& ((JobAdapter) source.getValue()).job.getAddress() == cc.source
+						&& target.getValue() instanceof JobAdapter && ((JobAdapter) target
 							.getValue()).job.getAddress() == cc.target);
 
 				graph.getModel().beginUpdate();
@@ -466,9 +458,9 @@ public final class DrecksAdapter {
 						&& sparval instanceof JobAdapter && tparval instanceof JobAdapter);
 
 				Connection cc = new Connection(
-						((JobAdapter<?>) sparval).job.getAddress(),
+						((JobAdapter) sparval).job.getAddress(),
 						((PortAdapter) sval).index,
-						((JobAdapter<?>) tparval).job.getAddress(),
+						((JobAdapter) tparval).job.getAddress(),
 						((PortAdapter) tval).index);
 				wa.putInter(cc, cell);
 				cell.setValue(new ConnectionAdapter(cc));
@@ -481,7 +473,6 @@ public final class DrecksAdapter {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected void updateNode(mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
@@ -491,7 +482,7 @@ public final class DrecksAdapter {
 			assert (value instanceof JobAdapter);
 			WorkflowAdapter wa = (WorkflowAdapter) model.getValue(model
 					.getParent(cell));
-			JobAdapter<?> ja = (JobAdapter<?>) value;
+			JobAdapter ja = (JobAdapter) value;
 
 			mxGeometry geo = model.getGeometry(cell);
 
@@ -523,10 +514,9 @@ public final class DrecksAdapter {
 								geo.getWidth(), geo.getHeight() };
 						ja.job.setDimensions(dim);
 
-						if (ja.job instanceof CompositeJob<?, ?>) {
+						if (ja.job instanceof CompositeJob) {
 							mxICell wCell = translation
-									.get(((CompositeJob<?, ?>) ja.job)
-											.getWorkflow());
+									.get(((CompositeJob) ja.job).getWorkflow());
 							wCell.setGeometry(new mxGeometry(5, 5, ja.job
 									.getWidth() - 10, ja.job.getHeight() - 10));
 							graph.refresh();

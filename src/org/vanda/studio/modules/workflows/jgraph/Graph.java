@@ -71,9 +71,9 @@ class Graph extends mxGraph {
 			@Override
 			protected Object cloneValue() {
 				Object value = getValue();
-				if (value instanceof JobAdapter<?>) {
+				if (value instanceof JobAdapter) {
 					try {
-						return ((JobAdapter<?>) value).clone();
+						return ((JobAdapter) value).clone();
 					} catch (CloneNotSupportedException e) {
 						return super.cloneValue();
 					}
@@ -132,7 +132,7 @@ class Graph extends mxGraph {
 	public boolean isCellFoldable(Object cell, boolean collapse) {
 		// FIXME this won't work
 		mxCell c = (mxCell) cell;
-		return c.getValue() instanceof CompositeJob<?, ?>;
+		return c.getValue() instanceof CompositeJob;
 	}
 
 }

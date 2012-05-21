@@ -10,48 +10,47 @@ import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
-public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
-		HyperWorkflow<F>, Cloneable {
+public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 
-	private String name;
-	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> addObservable;
-	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> modifyObservable;
-	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> removeObservable;
-	private final MultiplexObserver<Pair<MutableWorkflow<F>, Connection>> connectObservable;
-	private final MultiplexObserver<Pair<MutableWorkflow<F>, Connection>> disconnectObservable;
-	private final Observer<Job<F>> nameChangeObserver;
-	private final Observer<Job<F>> portsChangeObserver;
-	private final MultiplexObserver<MutableWorkflow<F>> nameChangeObservable;
-	
+	private final MultiplexObserver<Pair<MutableWorkflow, Job>> addObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow, Job>> modifyObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow, Job>> removeObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow, Connection>> connectObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow, Connection>> disconnectObservable;
+	private final Observer<Job> nameChangeObserver;
+	private final Observer<Job> portsChangeObserver;
+	private final MultiplexObserver<MutableWorkflow> nameChangeObservable;
+
 	{
-		nameChangeObserver = new Observer<Job<F>>() {
+		nameChangeObserver = new Observer<Job>() {
 			@Override
-			public void notify(Job<F> event) {
-				modifyObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(MutableWorkflow.this, event));
+			public void notify(Job event) {
+				modifyObservable.notify(new Pair<MutableWorkflow, Job>(
+						MutableWorkflow.this, event));
 			}
 		};
-		portsChangeObserver = new Observer<Job<F>>() {
+		portsChangeObserver = new Observer<Job>() {
 			@Override
-			public void notify(Job<F> event) {
-				modifyObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(MutableWorkflow.this, event));
+			public void notify(Job event) {
+				modifyObservable.notify(new Pair<MutableWorkflow, Job>(
+						MutableWorkflow.this, event));
 			}
 		};
 	}
 
-	public MutableWorkflow(Class<F> fragmentType) {
-		super(fragmentType);
-		addObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>>();
-		modifyObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>>();
-		removeObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>>();
-		connectObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Connection>>();
-		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow<F>, Connection>>();
-		nameChangeObservable = new MultiplexObserver<MutableWorkflow<F>>();
+	public MutableWorkflow(String name) {
+		super(name);
+		addObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
+		modifyObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
+		removeObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
+		connectObservable = new MultiplexObserver<Pair<MutableWorkflow, Connection>>();
+		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow, Connection>>();
+		nameChangeObservable = new MultiplexObserver<MutableWorkflow>();
 	}
 
-	public MutableWorkflow(MutableWorkflow<F> hyperWorkflow)
+	public MutableWorkflow(MutableWorkflow hyperWorkflow)
 			throws CloneNotSupportedException {
 		super(hyperWorkflow);
-		name = hyperWorkflow.name;
 		addObservable = hyperWorkflow.addObservable.clone();
 		modifyObservable = hyperWorkflow.modifyObservable.clone();
 		removeObservable = hyperWorkflow.removeObservable.clone();
@@ -60,29 +59,16 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		nameChangeObservable = hyperWorkflow.nameChangeObservable.clone();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vanda.studio.model.hyper.HyperWorkflow#clone()
-	 */
 	@Override
-	public MutableWorkflow<F> clone() throws CloneNotSupportedException {
-		return new MutableWorkflow<F>(this);
+	public MutableWorkflow clone() throws CloneNotSupportedException {
+		return new MutableWorkflow(this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.vanda.studio.model.hyper.HyperWorkflow#addChild(org.vanda.studio.
-	 * model.hyper.HyperJob)
-	 */
-	@Override
-	public Token addChild(Job<F> job) {
-		assert (job.address == null && (job.getFragmentType() == null || job
-				.getFragmentType() == getFragmentType()));
+	public Token addChild(Job job) {
+		// TODO do something about ports, and notify!
+		assert (job.address == null);
 		job.address = childAddressSource.makeToken();
-		DJobInfo<F> ji = new DJobInfo<F>(this, job);
+		DJobInfo ji = new DJobInfo(this, job);
 		if (job.address.intValue() < children.size())
 			children.set(job.address.intValue(), ji);
 		else {
@@ -90,22 +76,14 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			children.add(ji);
 		}
 		bind(job);
-		addObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(this, job));
+		addObservable.notify(new Pair<MutableWorkflow, Job>(this, job));
 		return job.address;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.vanda.studio.model.hyper.HyperWorkflow#addConnection(org.vanda.studio
-	 * .model.hyper.Connection)
-	 */
-	@Override
 	public Token addConnection(Connection cc) {
 		assert (cc.address == null);
-		DJobInfo<F> sji = children.get(cc.source.intValue());
-		DJobInfo<F> tji = children.get(cc.target.intValue());
+		DJobInfo sji = children.get(cc.source.intValue());
+		DJobInfo tji = children.get(cc.target.intValue());
 		if (tji.inputs.get(cc.targetPort) != null)
 			throw new RuntimeException("!!!"); // FIXME better exception
 		Token tok = sji.outputs.get(cc.sourcePort);
@@ -122,75 +100,43 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		// connections.get(tok).snd.add(new TokenValue<F>(cc.getTarget(), cc
 		// .getTargetPort()));
 		sji.outCount++;
-		connectObservable.notify(new Pair<MutableWorkflow<F>, Connection>(this,
-				cc));
+		connectObservable
+				.notify(new Pair<MutableWorkflow, Connection>(this, cc));
 		return cc.address;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vanda.studio.model.hyper.HyperWorkflow#getAddObservable()
-	 */
-	@Override
-	public Observable<Pair<MutableWorkflow<F>, Job<F>>> getAddObservable() {
+	public Observable<Pair<MutableWorkflow, Job>> getAddObservable() {
 		return addObservable;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vanda.studio.model.hyper.HyperWorkflow#getConnectObservable()
-	 */
-	@Override
-	public Observable<Pair<MutableWorkflow<F>, Connection>> getConnectObservable() {
+	public Observable<Pair<MutableWorkflow, Connection>> getConnectObservable() {
 		return connectObservable;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vanda.studio.model.hyper.HyperWorkflow#getDisconnectObservable()
-	 */
-	@Override
-	public Observable<Pair<MutableWorkflow<F>, Connection>> getDisconnectObservable() {
+	public Observable<Pair<MutableWorkflow, Connection>> getDisconnectObservable() {
 		return disconnectObservable;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vanda.studio.model.hyper.HyperWorkflow#getModifyObservable()
-	 */
-	@Override
-	public Observable<Pair<MutableWorkflow<F>, Job<F>>> getModifyObservable() {
+	public Observable<Pair<MutableWorkflow, Job>> getModifyObservable() {
 		return modifyObservable;
 	}
 
-	public Observable<MutableWorkflow<F>> getNameChangeObservable() {
+	public Observable<MutableWorkflow> getNameChangeObservable() {
 		return nameChangeObservable;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.vanda.studio.model.hyper.HyperWorkflow#getRemoveObservable()
-	 */
-	@Override
-	public Observable<Pair<MutableWorkflow<F>, Job<F>>> getRemoveObservable() {
+	public Observable<Pair<MutableWorkflow, Job>> getRemoveObservable() {
 		return removeObservable;
 	}
 
-	@Override
 	public Token getVariable(Token source, int sourcePort) {
-		DJobInfo<F> ji = children.get(source.intValue());
+		DJobInfo ji = children.get(source.intValue());
 		if (ji != null && 0 <= sourcePort && sourcePort < ji.outputs.size()) {
 			return ji.outputs.get(sourcePort);
 		} else
 			return null;
 	}
 
-	@Override
 	public Token getVariable(Token address) {
 		DConnInfo ci = connections.get(address.intValue());
 		if (ci != null)
@@ -199,16 +145,8 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.vanda.studio.model.hyper.HyperWorkflow#removeChild(org.vanda.studio
-	 * .model.hyper.HyperJob)
-	 */
-	@Override
 	public void removeChild(Token address) {
-		DJobInfo<F> ji = children.get(address.intValue());
+		DJobInfo ji = children.get(address.intValue());
 		if (ji != null) {
 			for (int i = 0; i < connections.size(); i++) {
 				DConnInfo ci = connections.get(i);
@@ -222,44 +160,34 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			}
 			unbind(ji.job);
 			children.set(ji.job.address.intValue(), null);
-			removeObservable.notify(new Pair<MutableWorkflow<F>, Job<F>>(this,
-					ji.job));
+			removeObservable
+					.notify(new Pair<MutableWorkflow, Job>(this, ji.job));
 			ji.job.address = null;
 			childAddressSource.recycleToken(address);
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.vanda.studio.model.hyper.HyperWorkflow#removeConnection(org.vanda
-	 * .studio.model.hyper.Connection)
-	 */
-	@Override
 	public void removeConnection(Token address) {
 		DConnInfo ci = connections.get(address.intValue());
 		if (ci != null) {
-			DJobInfo<F> sji = children.get(ci.cc.source.intValue());
-			DJobInfo<F> tji = children.get(ci.cc.target.intValue());
+			DJobInfo sji = children.get(ci.cc.source.intValue());
+			DJobInfo tji = children.get(ci.cc.target.intValue());
 			// assert (sji.outputs.get(sourcePort) == tji.inputs.get(ci.port));
 			tji.inputs.set(ci.cc.targetPort, null);
 			tji.inputsBlocked--;
 			sji.outCount--;
 			connections.set(address.intValue(), null);
-			disconnectObservable
-					.notify(new Pair<MutableWorkflow<F>, Connection>(this,
-							ci.cc));
+			disconnectObservable.notify(new Pair<MutableWorkflow, Connection>(
+					this, ci.cc));
 			ci.cc.address = null;
 			connectionAddressSource.recycleToken(address);
 		}
 	}
 
-	@Override
-	public HyperWorkflow<?> dereference(ListIterator<Token> address) {
+	public MutableWorkflow dereference(ListIterator<Token> address) {
 		assert (address != null);
 		if (address.hasNext()) {
-			DJobInfo<?> ji = children.get(address.next().intValue());
+			DJobInfo ji = children.get(address.next().intValue());
 			if (ji != null)
 				return ji.job.dereference(address);
 			else
@@ -268,7 +196,6 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			return this;
 	}
 
-	@Override
 	public List<Connection> getConnections() {
 		// only for putting existing HyperGraphs into the GUI
 		LinkedList<Connection> conn = new LinkedList<Connection>();
@@ -279,16 +206,14 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		return conn;
 	}
 
-	@Override
-	public Job<F> getChild(Token address) {
-		DJobInfo<F> ji = children.get(address.intValue());
+	public Job getChild(Token address) {
+		DJobInfo ji = children.get(address.intValue());
 		if (ji != null)
 			return ji.job;
 		else
 			return null;
 	}
 
-	@Override
 	public Connection getConnection(Token address) {
 		DConnInfo ci = connections.get(address.intValue());
 		if (ci != null)
@@ -297,7 +222,6 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			return null;
 	}
 
-	@Override
 	public String getName() {
 		return name;
 	}
@@ -308,32 +232,32 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			nameChangeObservable.notify(this);
 		}
 	}
-	
-	private void bind(Job<F> job) {
+
+	private void bind(Job job) {
 		register(job.getNameChangeObservable(), nameChangeObserver);
 		register(job.getPortsChangeObservable(), portsChangeObserver);
 	}
-	
-	private void unbind(Job<F> job) {
+
+	private void unbind(Job job) {
 		unregister(job.getNameChangeObservable(), nameChangeObserver);
 		unregister(job.getPortsChangeObservable(), portsChangeObserver);
 	}
-	
-	private static <F> void register(Observable<Job<F>> obs, Observer<Job<F>> o) {
+
+	private static void register(Observable<Job> obs, Observer<Job> o) {
 		if (obs != null)
 			obs.addObserver(o);
 	}
-	
-	private static <F> void unregister(Observable<Job<F>> obs, Observer<Job<F>> o) {
+
+	private static <F> void unregister(Observable<Job> obs, Observer<Job> o) {
 		if (obs != null)
 			obs.removeObserver(o);
 	}
-	
+
 	/**
 	 * Call this after deserialization.
 	 */
 	public void rebind() {
-		for (DJobInfo<F> ji : children)
+		for (DJobInfo ji : children)
 			if (ji != null) {
 				ji.job.rebind();
 				bind(ji.job);

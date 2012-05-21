@@ -38,10 +38,10 @@ public final class Serialization {
 		return xs;
 	}
 
-	public static MutableWorkflow<?> load(Application app, String pathToFile)
+	public static MutableWorkflow load(Application app, String pathToFile)
 			throws Exception {
 		try {
-			MutableWorkflow<?> result = (MutableWorkflow<?>) getXStream(app)
+			MutableWorkflow result = (MutableWorkflow) getXStream(app)
 					.fromXML(new File(pathToFile));
 			result.rebind();
 			return result;
@@ -50,7 +50,7 @@ public final class Serialization {
 		}
 	}
 
-	public static void save(Application app, MutableWorkflow<?> hwf,
+	public static void save(Application app, MutableWorkflow hwf,
 			String filename) throws Exception {
 		try {
 			FileWriter fileWriter = new FileWriter(filename);
@@ -154,7 +154,7 @@ public final class Serialization {
 
 		@Override
 		public String toString(Object obj) {
-			return ((Tool<?>) obj).getId();
+			return ((Tool) obj).getId();
 		}
 	}
 

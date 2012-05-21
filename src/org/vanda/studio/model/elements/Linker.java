@@ -2,6 +2,7 @@ package org.vanda.studio.model.elements;
 
 import java.util.List;
 
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.HasActions;
 
 /*
@@ -26,12 +27,8 @@ import org.vanda.studio.util.HasActions;
  * 
  * @author mbue
  * 
- * @param <IF>
- * @param <F>
  */
-public interface Linker<IF, F> extends HasActions, RepositoryItem {
-	/*<T extends ArtifactConn, A extends Artifact<T>> A link(
-			ArtifactFactory<T, A, ?, F> af, InvokationWorkflow<?, ?, IF> pre);*/
+public interface Linker extends HasActions, RepositoryItem {
 
 	/**
 	 * Check whether the (inferred) outer types and the (inferred) inner types
@@ -41,7 +38,7 @@ public interface Linker<IF, F> extends HasActions, RepositoryItem {
 	 * @param inner
 	 * @return
 	 */
-	boolean checkInputTypes(List<String> outer, List<String> inner);
+	boolean checkInputTypes(List<Type> outer, List<Type> inner);
 
 	/**
 	 * Check whether the (inferred) outer types and the (inferred) inner types
@@ -51,7 +48,7 @@ public interface Linker<IF, F> extends HasActions, RepositoryItem {
 	 * @param inner
 	 * @return
 	 */
-	boolean checkOutputTypes(List<String> outer, List<String> inner);
+	boolean checkOutputTypes(List<Type> outer, List<Type> inner);
 
 	/**
 	 * Convert the (potentially polymorphic) inner input ports of a composite
@@ -72,8 +69,8 @@ public interface Linker<IF, F> extends HasActions, RepositoryItem {
 	 * @return
 	 */
 	List<Port> convertOutputPorts(List<Port> ops);
-	
-	Class<IF> getInnerFragmentType();
 
-	Class<F> getFragmentType();
+	Type getInnerFragmentType();
+	
+	Type getFragmentType();
 }

@@ -14,6 +14,7 @@ import org.vanda.studio.model.elements.Ports;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.CompositeType;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
 
@@ -37,7 +38,9 @@ public class AlgorithmsModule implements Module {
 
 		private final Application app;
 
-		private static class Plain2Snt extends Tool<Object> {
+		private static Type shellType = new CompositeType("shell");
+
+		private static class Plain2Snt extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
@@ -81,8 +84,8 @@ public class AlgorithmsModule implements Module {
 				return outputPorts;
 			}
 
-			public Class<Object> getFragmentType() {
-				return Object.class;
+			public Type getFragmentType() {
+				return shellType;
 			}
 
 			public <R> R selectRenderer(RendererAssortment<R> ra) {
@@ -98,7 +101,7 @@ public class AlgorithmsModule implements Module {
 			}
 		}
 
-		private static class GIZA extends Tool<Object> {
+		private static class GIZA extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
@@ -140,8 +143,8 @@ public class AlgorithmsModule implements Module {
 				return outputPorts;
 			}
 
-			public Class<Object> getFragmentType() {
-				return Object.class;
+			public Type getFragmentType() {
+				return shellType;
 			}
 
 			public <R> R selectRenderer(RendererAssortment<R> ra) {
@@ -157,7 +160,7 @@ public class AlgorithmsModule implements Module {
 			}
 		}
 
-		private static class Berkeley extends Tool<Object> {
+		private static class Berkeley extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
@@ -197,8 +200,8 @@ public class AlgorithmsModule implements Module {
 				return outputPorts;
 			}
 
-			public Class<Object> getFragmentType() {
-				return Object.class;
+			public Type getFragmentType() {
+				return shellType;
 			}
 
 			public <R> R selectRenderer(RendererAssortment<R> ra) {
@@ -214,7 +217,7 @@ public class AlgorithmsModule implements Module {
 			}
 		}
 
-		private static class Tokenizer extends Tool<Object> {
+		private static class Tokenizer extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
@@ -252,8 +255,8 @@ public class AlgorithmsModule implements Module {
 				return outputPorts;
 			}
 
-			public Class<Object> getFragmentType() {
-				return Object.class;
+			public Type getFragmentType() {
+				return shellType;
 			}
 
 			public <R> R selectRenderer(RendererAssortment<R> ra) {
@@ -269,7 +272,7 @@ public class AlgorithmsModule implements Module {
 			}
 		}
 
-		private static class PennToInt extends Tool<Object> {
+		private static class PennToInt extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
@@ -309,8 +312,8 @@ public class AlgorithmsModule implements Module {
 				return outputPorts;
 			}
 
-			public Class<Object> getFragmentType() {
-				return Object.class;
+			public Type getFragmentType() {
+				return shellType;
 			}
 
 			public <R> R selectRenderer(RendererAssortment<R> ra) {
@@ -326,7 +329,7 @@ public class AlgorithmsModule implements Module {
 			}
 		}
 
-		private static class GHKM extends Tool<Object> {
+		private static class GHKM extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
@@ -370,8 +373,8 @@ public class AlgorithmsModule implements Module {
 				return outputPorts;
 			}
 
-			public Class<Object> getFragmentType() {
-				return Object.class;
+			public Type getFragmentType() {
+				return shellType;
 			}
 
 			public <R> R selectRenderer(RendererAssortment<R> ra) {
@@ -386,12 +389,12 @@ public class AlgorithmsModule implements Module {
 				return "2012-05-16";
 			}
 		}
-		
-		private static class TheLinker implements Linker<Object, Object> {
+
+		private static class TheLinker implements Linker {
 
 			@Override
 			public void appendActions(List<Action> as) {
-				
+
 			}
 
 			@Override
@@ -415,14 +418,12 @@ public class AlgorithmsModule implements Module {
 			}
 
 			@Override
-			public boolean checkInputTypes(List<String> outer,
-					List<String> inner) {
+			public boolean checkInputTypes(List<Type> outer, List<Type> inner) {
 				return true;
 			}
 
 			@Override
-			public boolean checkOutputTypes(List<String> outer,
-					List<String> inner) {
+			public boolean checkOutputTypes(List<Type> outer, List<Type> inner) {
 				return true;
 			}
 
@@ -447,22 +448,21 @@ public class AlgorithmsModule implements Module {
 			}
 
 			@Override
-			public Class<Object> getInnerFragmentType() {
-				return Object.class;
+			public Type getInnerFragmentType() {
+				return Ports.typeVariable;
 			}
 
 			@Override
-			public Class<Object> getFragmentType() {
-				return Object.class;
+			public Type getFragmentType() {
+				return Ports.typeVariable;
 			}
-			
+
 		}
 
 		public WorkflowModuleInstance(Application a) {
 			app = a;
 
-			SimpleRepository<Tool<Object>> tr = new SimpleRepository<Tool<Object>>(
-					null);
+			SimpleRepository<Tool> tr = new SimpleRepository<Tool>(null);
 
 			tr.addItem(new Plain2Snt());
 			tr.addItem(new GIZA());
@@ -471,7 +471,7 @@ public class AlgorithmsModule implements Module {
 			tr.addItem(new PennToInt());
 			tr.addItem(new GHKM());
 
-			Tool<Object> sinkTool = new Tool<Object>() {
+			Tool sinkTool = new Tool() {
 				public String getContact() {
 					return "Anja.Fischer@mailbox.tu-dresden.de";
 				}
@@ -503,8 +503,8 @@ public class AlgorithmsModule implements Module {
 					return new ArrayList<Port>();
 				}
 
-				public Class<Object> getFragmentType() {
-					return Object.class;
+				public Type getFragmentType() {
+					return shellType;
 				}
 
 				public <R> R selectRenderer(RendererAssortment<R> ra) {
@@ -522,9 +522,8 @@ public class AlgorithmsModule implements Module {
 
 			tr.addItem(sinkTool);
 			app.getToolMetaRepository().addRepository(tr);
-			
-			SimpleRepository<Linker<?, ?>> lr = new SimpleRepository<Linker<?, ?>>(
-					null);
+
+			SimpleRepository<Linker> lr = new SimpleRepository<Linker>(null);
 			lr.addItem(new TheLinker());
 			app.getLinkerMetaRepository().addRepository(lr);
 

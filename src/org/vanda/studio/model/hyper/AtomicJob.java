@@ -10,34 +10,35 @@ import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.TokenSource.Token;
 
-public class AtomicJob<F> extends Job<F> {
+public class AtomicJob extends Job {
 	private final Element element;
-	private final MultiplexObserver<Job<F>> nameChangeObservable;
-	private final MultiplexObserver<Job<F>> portsChangeObservable;
+	private final MultiplexObserver<Job> nameChangeObservable;
+	private final MultiplexObserver<Job> portsChangeObservable;
 
 	public AtomicJob(Element element) {
 		address = null;
 		this.element = element;
 		if (element.getNameChangeObservable() != null)
-			nameChangeObservable = new MultiplexObserver<Job<F>>();
+			nameChangeObservable = new MultiplexObserver<Job>();
 		else
 			nameChangeObservable = null;
 		if (element.getPortsChangeObservable() != null)
-			portsChangeObservable = new MultiplexObserver<Job<F>>();
+			portsChangeObservable = new MultiplexObserver<Job>();
 		else
 			portsChangeObservable = null;
 		rebind();
 	}
 
 	@Override
-	public AtomicJob<F> clone() throws CloneNotSupportedException {
-		return new AtomicJob<F>(element.clone());
+	public AtomicJob clone() throws CloneNotSupportedException {
+		return new AtomicJob(element.clone());
 	}
 
 	public Element getElement() {
@@ -65,15 +66,13 @@ public class AtomicJob<F> extends Job<F> {
 	}
 
 	@Override
-	public ImmutableJob<F> freeze() {
-		return new AtomicImmutableJob<F>(element);
+	public ImmutableJob freeze() {
+		return new AtomicImmutableJob(element);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Class<F> getFragmentType() {
-		// XXX weakness
-		return (Class<F>) element.getFragmentType();
+	public Type getFragmentType() {
+		return element.getFragmentType();
 	}
 
 	@Override
@@ -92,7 +91,7 @@ public class AtomicJob<F> extends Job<F> {
 	}
 
 	@Override
-	public HyperWorkflow<?> dereference(ListIterator<Token> address) {
+	public MutableWorkflow dereference(ListIterator<Token> address) {
 		return null;
 	}
 
@@ -112,12 +111,12 @@ public class AtomicJob<F> extends Job<F> {
 	}
 
 	@Override
-	public Observable<Job<F>> getNameChangeObservable() {
+	public Observable<Job> getNameChangeObservable() {
 		return nameChangeObservable;
 	}
 
 	@Override
-	public Observable<Job<F>> getPortsChangeObservable() {
+	public Observable<Job> getPortsChangeObservable() {
 		return portsChangeObservable;
 	}
 

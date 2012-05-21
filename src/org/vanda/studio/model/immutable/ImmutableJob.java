@@ -7,9 +7,9 @@ import java.util.ListIterator;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.util.TokenSource.Token;
 
-public abstract class ImmutableJob<F> {
+public abstract class ImmutableJob {
 
-	public abstract ImmutableWorkflow<?> dereference(ListIterator<Token> path);
+	public abstract ImmutableWorkflow dereference(ListIterator<Token> path);
 
 	public abstract List<Port> getInputPorts();
 
@@ -26,7 +26,7 @@ public abstract class ImmutableJob<F> {
 	 * 
 	 * @return
 	 */
-	public abstract List<ImmutableJob<F>> unfold();
+	public abstract List<ImmutableJob> unfold();
 
 	public abstract void appendText(ArrayList<Token> inputs,
 			ArrayList<Token> outputs, StringBuilder lines,

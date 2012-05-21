@@ -12,7 +12,7 @@ import org.vanda.studio.model.immutable.JobInfo;
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
 
-public class DrecksWorkflow<F> {
+public class DrecksWorkflow {
 
 	protected static final class DConnInfo {
 		public final Token variable;
@@ -24,15 +24,15 @@ public class DrecksWorkflow<F> {
 		}
 	}
 
-	protected static final class DJobInfo<F> {
-		public final Job<F> job;
+	protected static final class DJobInfo {
+		public final Job job;
 		public final ArrayList<Token> inputs;
 		public int inputsBlocked;
 		public final ArrayList<Token> outputs;
 		public int outCount;
 		public int topSortInputsBlocked;
 
-		public DJobInfo(DrecksWorkflow<F> parent, Job<F> j) {
+		public DJobInfo(DrecksWorkflow parent, Job j) {
 			job = j;
 			inputs = new ArrayList<Token>(j.getInputPorts().size());
 			for (int i = 0; i < j.getInputPorts().size(); i++)
@@ -47,7 +47,7 @@ public class DrecksWorkflow<F> {
 			topSortInputsBlocked = 0;
 		}
 
-		public DJobInfo(DJobInfo<F> ji) throws CloneNotSupportedException {
+		public DJobInfo(DJobInfo ji) throws CloneNotSupportedException {
 			// only apply this when the whole hyperworkflow is copied
 			// only copy inputs, because they are mutable
 			job = ji.job.clone();
@@ -63,39 +63,39 @@ public class DrecksWorkflow<F> {
 	protected final TokenSource variableSource;
 	protected final TokenSource childAddressSource;
 	protected final TokenSource connectionAddressSource;
-	protected final ArrayList<DJobInfo<F>> children;
+	protected final ArrayList<DJobInfo> children;
 	// protected final Map<Token, Pair<TokenValue<F>, List<TokenValue<F>>>>
 	// connections;
 	protected final ArrayList<DConnInfo> connections;
-	private final Class<F> fragmentType;
+	protected String name;
 
-	public DrecksWorkflow(Class<F> fragmentType) {
+	public DrecksWorkflow(String name) {
 		super();
-		this.fragmentType = fragmentType;
-		children = new ArrayList<DJobInfo<F>>();
+		this.name = name;
+		children = new ArrayList<DJobInfo>();
 		connections = new ArrayList<DConnInfo>();
 		variableSource = new TokenSource();
 		childAddressSource = new TokenSource();
 		connectionAddressSource = new TokenSource();
 	}
 
-	public DrecksWorkflow(DrecksWorkflow<F> hyperWorkflow)
+	public DrecksWorkflow(DrecksWorkflow hyperWorkflow)
 			throws CloneNotSupportedException {
-		fragmentType = hyperWorkflow.fragmentType;
+		name = hyperWorkflow.name;
 		// clone children because they may contain mutable elements
-		children = new ArrayList<DJobInfo<F>>();
-		ListIterator<DJobInfo<F>> it = hyperWorkflow.children.listIterator();
+		children = new ArrayList<DJobInfo>();
+		ListIterator<DJobInfo> it = hyperWorkflow.children.listIterator();
 		while (it.hasNext())
-			children.add(new DJobInfo<F>(it.next()));
+			children.add(new DJobInfo(it.next()));
 		connections = new ArrayList<DConnInfo>(hyperWorkflow.connections);
 		variableSource = hyperWorkflow.variableSource.clone();
 		childAddressSource = hyperWorkflow.childAddressSource.clone();
 		connectionAddressSource = hyperWorkflow.connectionAddressSource.clone();
 	}
 
-	public Collection<Job<F>> getChildren() {
-		ArrayList<Job<F>> result = new ArrayList<Job<F>>();
-		for (DJobInfo<F> ji : children)
+	public Collection<Job> getChildren() {
+		ArrayList<Job> result = new ArrayList<Job>();
+		for (DJobInfo ji : children)
 			if (ji != null)
 				result.add(ji.job);
 		return result;
@@ -108,7 +108,7 @@ public class DrecksWorkflow<F> {
 	 */
 	public List<Port> getInputPorts() {
 		ArrayList<Port> list = new ArrayList<Port>();
-		for (DJobInfo<F> ji : children)
+		for (DJobInfo ji : children)
 			if (ji != null && ji.job.isInputPort())
 				list.add(ji.job.getOutputPorts().get(0));
 		return list;
@@ -121,22 +121,22 @@ public class DrecksWorkflow<F> {
 	 */
 	public List<Port> getOutputPorts() {
 		ArrayList<Port> list = new ArrayList<Port>();
-		for (DJobInfo<F> ji : children)
+		for (DJobInfo ji : children)
 			if (ji != null && ji.job.isOutputPort())
 				list.add(ji.job.getInputPorts().get(0));
 		return list;
 	}
 
-	public Class<F> getFragmentType() {
+	/*public Class<F> getFragmentType() {
 		return fragmentType;
-	}
+	}*/
 
-	public ImmutableWorkflow<F> freeze() throws Exception {
+	public ImmutableWorkflow freeze() throws Exception {
 		// Two steps. Step 1: topological sort
 		// XXX potential optimization: compute forward star
 		int count = 0;
-		LinkedList<DJobInfo<F>> workingset = new LinkedList<DJobInfo<F>>();
-		for (DJobInfo<F> ji : children) {
+		LinkedList<DJobInfo> workingset = new LinkedList<DJobInfo>();
+		for (DJobInfo ji : children) {
 			if (ji != null) {
 				ji.topSortInputsBlocked = ji.inputsBlocked;
 				if (ji.topSortInputsBlocked == 0)
@@ -144,14 +144,14 @@ public class DrecksWorkflow<F> {
 				count++;
 			}
 		}
-		ArrayList<DJobInfo<F>> topsort = new ArrayList<DJobInfo<F>>(count);
+		ArrayList<DJobInfo> topsort = new ArrayList<DJobInfo>(count);
 		while (!workingset.isEmpty()) {
-			DJobInfo<F> ji = workingset.pop();
+			DJobInfo ji = workingset.pop();
 			topsort.add(ji);
 			for (Token tok : ji.outputs)
 				for (DConnInfo ci : connections) {
 					if (ci != null && ci.variable == tok) {
-						DJobInfo<F> ji2 = children.get(ci.cc.target.intValue());
+						DJobInfo ji2 = children.get(ci.cc.target.intValue());
 						ji2.topSortInputsBlocked--;
 						if (ji2.topSortInputsBlocked == 0)
 							workingset.add(ji2);
@@ -160,14 +160,14 @@ public class DrecksWorkflow<F> {
 		}
 		// Step 2: actual freeze
 		if (topsort.size() == count) {
-			ArrayList<JobInfo<F>> imch = new ArrayList<JobInfo<F>>(
+			ArrayList<JobInfo> imch = new ArrayList<JobInfo>(
 					topsort.size());
-			for (DJobInfo<F> ji : topsort) {
-				imch.add(new JobInfo<F>(ji.job.freeze(), ji.job.address,
+			for (DJobInfo ji : topsort) {
+				imch.add(new JobInfo(ji.job.freeze(), ji.job.address,
 						new ArrayList<Token>(ji.inputs), new ArrayList<Token>(
 								ji.outputs), ji.outCount));
 			}
-			return new ImmutableWorkflow<F>(imch, variableSource,
+			return new ImmutableWorkflow(name, imch, variableSource,
 					variableSource.getMaxToken());
 		} else
 			throw new Exception(

@@ -10,7 +10,7 @@ import org.vanda.studio.util.Observer;
  * @author buechse
  * 
  */
-public interface ModuleInstance<V, T extends Tool<V>> {
+public interface ModuleInstance<T extends Tool> {
 	public void openEditor(T t);
 	public Observer<T> getModifyObserver();
 	public String getPath();

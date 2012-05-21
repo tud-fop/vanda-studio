@@ -31,7 +31,7 @@ public interface Application {
 	 * Returns the repository of linker repositories. Modules should add or
 	 * remove their own repositories here.
 	 */
-	MetaRepository<Linker<?, ?>> getLinkerMetaRepository();
+	MetaRepository<Linker> getLinkerMetaRepository();
 
 	/**
 	 * Returns the repository of profile repositories. Modules should add or
@@ -43,7 +43,7 @@ public interface Application {
 	 * Returns the repository of tool repositories. Modules should add or remove
 	 * their own repositories here.
 	 */
-	MetaRepository<Tool<?>> getToolMetaRepository();
+	MetaRepository<Tool> getToolMetaRepository();
 	
 	/**
 	 * Returns an immutable combined view of the workflow repositories.

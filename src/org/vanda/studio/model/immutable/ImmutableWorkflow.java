@@ -19,12 +19,13 @@ import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
 
-public final class ImmutableWorkflow<F> {
+public final class ImmutableWorkflow {
 
-	final ArrayList<JobInfo<F>> children;
+	final ArrayList<JobInfo> children;
 	final TokenSource token;
 	final int[] tokenSource;
-	private final Map<Object, ImmutableJob<F>> deref;
+	final String name;
+	private final Map<Object, ImmutableJob> deref;
 	private Type[] types;
 
 	/**
@@ -34,14 +35,15 @@ public final class ImmutableWorkflow<F> {
 	 * @param maxtoken
 	 *            maximum token
 	 */
-	public ImmutableWorkflow(ArrayList<JobInfo<F>> children, TokenSource token,
+	public ImmutableWorkflow(String name, ArrayList<JobInfo> children, TokenSource token,
 			int maxtoken) {
+		this.name = name;
 		this.children = children;
-		deref = new HashMap<Object, ImmutableJob<F>>();
+		deref = new HashMap<Object, ImmutableJob>();
 		this.token = token;
 		tokenSource = new int[maxtoken];
 		for (int i = 0; i < children.size(); i++) {
-			JobInfo<F> ji = children.get(i);
+			JobInfo ji = children.get(i);
 			if (maxtoken > 0) {
 				for (Object tok : ji.outputs)
 					tokenSource[((TokenSource.Token) tok).intValue()] = i;
@@ -51,10 +53,10 @@ public final class ImmutableWorkflow<F> {
 		types = null;
 	}
 
-	public ImmutableWorkflow<?> dereference(ListIterator<Token> path) {
+	public ImmutableWorkflow dereference(ListIterator<Token> path) {
 		assert (path != null);
 		if (path.hasNext()) {
-			ImmutableJob<?> job = deref.get(path.next());
+			ImmutableJob job = deref.get(path.next());
 			if (job != null)
 				return job.dereference(path);
 			else
@@ -63,8 +65,12 @@ public final class ImmutableWorkflow<F> {
 			return this;
 	}
 
-	public ArrayList<JobInfo<F>> getChildren() {
+	public ArrayList<JobInfo> getChildren() {
 		return children;
+	}
+	
+	public String getName() {
+		return name;
 	}
 
 	public Type getType(Object variable) {
@@ -77,7 +83,7 @@ public final class ImmutableWorkflow<F> {
 
 	public boolean isSane() {
 		boolean result = true;
-		for (JobInfo<F> ji : children) {
+		for (JobInfo ji : children) {
 			if (ji.job.isChoice()) {
 				// for CHOOSE nodes, at least one input has to be connected
 				boolean r = false;
@@ -96,7 +102,7 @@ public final class ImmutableWorkflow<F> {
 		TokenSource t = token.clone();
 		Map<Object, Object> rename = null;
 		Set<Equation> s = new HashSet<Equation>();
-		for (JobInfo<F> ji : children) {
+		for (JobInfo ji : children) {
 			rename = new HashMap<Object, Object>();
 			if (!ji.job.isInputPort() && !ji.job.isOutputPort()) {
 				List<Port> in = ji.job.getInputPorts();
@@ -135,19 +141,19 @@ public final class ImmutableWorkflow<F> {
 		// System.out.println(s);
 	}
 
-	public List<ImmutableWorkflow<F>> unfold() {
+	public List<ImmutableWorkflow> unfold() {
 		if (tokenSource.length == 0)
 			return Collections.singletonList(this);
 		else
-			return new Unfolder<F>(this).unfold();
+			return new Unfolder(this).unfold();
 	}
 
 	public void appendText(StringBuilder sections) {
 		ArrayList<Token> outputs = new ArrayList<Token>();
 		ArrayList<Token> inputs = new ArrayList<Token>();
-		ArrayList<JobInfo<F>> inputJI = new ArrayList<JobInfo<F>>();
-		ArrayList<JobInfo<F>> outputJI = new ArrayList<JobInfo<F>>();
-		for (JobInfo<F> ji : children) {
+		ArrayList<JobInfo> inputJI = new ArrayList<JobInfo>();
+		ArrayList<JobInfo> outputJI = new ArrayList<JobInfo>();
+		for (JobInfo ji : children) {
 			if (ji.job.isInputPort()) {
 				inputJI.add(ji);
 				inputs.add(null);
@@ -157,19 +163,19 @@ public final class ImmutableWorkflow<F> {
 				outputs.add(null);
 			}
 		}
-		for (JobInfo<F> ji : inputJI)
-			inputs.set(((InputPort) ((AtomicImmutableJob<F>) ji.job)
+		for (JobInfo ji : inputJI)
+			inputs.set(((InputPort) ((AtomicImmutableJob) ji.job)
 					.getElement()).getNumber(), ji.outputs.get(0));
-		for (JobInfo<F> ji : outputJI)
-			inputs.set(((OutputPort) ((AtomicImmutableJob<F>) ji.job)
+		for (JobInfo ji : outputJI)
+			inputs.set(((OutputPort) ((AtomicImmutableJob) ji.job)
 					.getElement()).getNumber(), ji.inputs.get(0));
 		StringBuilder lines = new StringBuilder();
 		ImmutableJob.appendOutput(outputs, lines);
 		lines.append(" = ");
-		lines.append(toString());
+		lines.append(getName());
 		ImmutableJob.appendInput(inputs, lines);
 		lines.append('\n');
-		for (JobInfo<F> ji : children) {
+		for (JobInfo ji : children) {
 			lines.append("  ");
 			ji.job.appendText(ji.inputs, ji.outputs, lines, sections);
 		}

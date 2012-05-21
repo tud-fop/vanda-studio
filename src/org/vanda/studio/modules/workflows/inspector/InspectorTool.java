@@ -14,8 +14,8 @@ import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.hyper.AtomicJob;
 import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Connection;
-import org.vanda.studio.model.hyper.HyperWorkflow;
 import org.vanda.studio.model.hyper.Job;
+import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.modules.workflows.Model;
@@ -33,7 +33,7 @@ public class InspectorTool implements ToolFactory {
 
 	public static final class Inspector {
 		private final WorkflowEditor wfe;
-		private final Model<?> m;
+		private final Model m;
 		private final JPanel contentPane;
 		private final JEditorPane inspector;
 		private final JScrollPane therealinspector;
@@ -41,7 +41,7 @@ public class InspectorTool implements ToolFactory {
 		private final List<ElementEditorFactory> eefs;
 		private WorkflowSelection ws;
 
-		public Inspector(WorkflowEditor wfe, Model<?> m,
+		public Inspector(WorkflowEditor wfe, Model m,
 				List<ElementEditorFactory> eefs) {
 			this.wfe = wfe;
 			this.m = m;
@@ -85,7 +85,7 @@ public class InspectorTool implements ToolFactory {
 			if (ws == null) {
 				inspector.setText("");
 			} else if (ws instanceof JobSelection) {
-				Job<?> j = m.getRoot().dereference(ws.path.listIterator())
+				Job j = m.getRoot().dereference(ws.path.listIterator())
 						.getChild(((JobSelection) ws).address);
 				StringBuilder sb = new StringBuilder();
 				sb.append("<html><h1>");
@@ -120,21 +120,21 @@ public class InspectorTool implements ToolFactory {
 				sb.append("</p>");
 				sb.append("</html>");
 				inspector.setText(sb.toString());
-				if (ws != this.ws){ 
-					if (j instanceof AtomicJob<?>)
-						editor = createEditor(((AtomicJob<?>) j).getElement());
-					else if (j instanceof CompositeJob<?, ?>)
-						editor = createEditor(((CompositeJob<?, ?>) j).getLinker());
+				if (ws != this.ws) {
+					if (j instanceof AtomicJob)
+						editor = createEditor(((AtomicJob) j).getElement());
+					else if (j instanceof CompositeJob)
+						editor = createEditor(((CompositeJob) j).getLinker());
 				}
 			} else if (ws instanceof ConnectionSelection) {
 				StringBuilder sb = new StringBuilder();
-				HyperWorkflow<?> wf = m.getRoot().dereference(
+				MutableWorkflow wf = m.getRoot().dereference(
 						ws.path.listIterator());
 				Connection cc = wf
 						.getConnection(((ConnectionSelection) ws).address);
 				Token variable = wf
 						.getVariable(((ConnectionSelection) ws).address);
-				ImmutableWorkflow<?> iwf = null;
+				ImmutableWorkflow iwf = null;
 				Type type = null;
 				if (m.getFrozen() != null)
 					iwf = m.getFrozen().dereference(ws.path.listIterator());
@@ -160,7 +160,7 @@ public class InspectorTool implements ToolFactory {
 				if (ws != this.ws)
 					editor = createEditor(cc);
 			} else {
-				HyperWorkflow<?> hwf = m.getRoot().dereference(
+				MutableWorkflow hwf = m.getRoot().dereference(
 						ws.path.listIterator());
 				inspector.setText(hwf.getName());
 				if (ws != this.ws)
@@ -180,7 +180,7 @@ public class InspectorTool implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model<?> m) {
+	public Object instantiate(WorkflowEditor wfe, Model m) {
 		return new Inspector(wfe, m, eefs);
 	}
 

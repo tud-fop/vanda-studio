@@ -28,9 +28,9 @@ public final class ApplicationImpl implements Application {
 	protected final MultiplexObserver<Message> messageObservable;
 	protected final MultiplexObserver<Application> modeObservable;
 	// protected final CompositeRepository<Compiler<?, ?>> compilerRepository;
-	protected final CompositeRepository<Linker<?, ?>> linkerRepository;
+	protected final CompositeRepository<Linker> linkerRepository;
 	// protected final CompositeRepository<Profile> profileRepository;
-	protected final CompositeRepository<Tool<?>> toolRepository;
+	protected final CompositeRepository<Tool> toolRepository;
 	protected final MultiplexObserver<Application> shutdownObservable;
 	protected final WindowSystemImpl windowSystem;
 
@@ -41,9 +41,9 @@ public final class ApplicationImpl implements Application {
 		mode = modes.get(0);
 		modeObservable = new MultiplexObserver<Application>();
 		// compilerRepository = new CompositeRepository<Compiler<?,?>>();
-		linkerRepository = new CompositeRepository<Linker<?,?>>();
+		linkerRepository = new CompositeRepository<Linker>();
 		// profileRepository = new CompositeRepository<Profile>();
-		toolRepository = new CompositeRepository<Tool<?>>();
+		toolRepository = new CompositeRepository<Tool>();
 		shutdownObservable = new MultiplexObserver<Application>();
 		windowSystem = new WindowSystemImpl(this);
 		
@@ -137,7 +137,7 @@ public final class ApplicationImpl implements Application {
 	}*/
 
 	@Override
-	public MetaRepository<Linker<?, ?>> getLinkerMetaRepository() {
+	public MetaRepository<Linker> getLinkerMetaRepository() {
 		return linkerRepository;
 	}
 
@@ -148,7 +148,7 @@ public final class ApplicationImpl implements Application {
 	}*/
 
 	@Override
-	public MetaRepository<Tool<?>> getToolMetaRepository() {
+	public MetaRepository<Tool> getToolMetaRepository() {
 		return toolRepository;
 	}
 

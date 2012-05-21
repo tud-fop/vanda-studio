@@ -6,23 +6,23 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.util.Observer;
 
-public class SimpleModuleInstance<V, T extends Tool<V>>
-		implements ModuleInstance<V, T> {
+public class SimpleModuleInstance<T extends Tool>
+		implements ModuleInstance<T> {
 
 	protected Application app;
-	protected Editor<V, T> editor;
-	protected ToolFactory<V, T> factory;
-	protected SimpleLoader<V, T> loader;
-	protected SimpleModule<V, T> module;
+	protected Editor<T> editor;
+	protected ToolFactory<T> factory;
+	protected SimpleLoader<T> loader;
+	protected SimpleModule<T> module;
 	protected SimpleRepository<T> repository;
 
-	public SimpleModuleInstance(Application a, SimpleModule<V, T> m) {
+	public SimpleModuleInstance(Application a, SimpleModule<T> m) {
 		app = a;
 		module = m;
 
 		factory = module.createFactory();
 		if (factory != null) {
-			loader = new SimpleLoader<V, T>(this,
+			loader = new SimpleLoader<T>(this,
 					SimpleLoader.createExtensionFilter(module.getExtension()),
 					factory);
 		}

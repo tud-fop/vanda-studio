@@ -12,8 +12,8 @@ import java.util.LinkedList;
  * @author mbue
  * 
  */
-public final class PartiallyUnfolded<F> {
-	private final ImmutableWorkflow<F> parent;
+public final class PartiallyUnfolded {
+	private final ImmutableWorkflow parent;
 	public int remaining;
 	public final BitSet deleted;
 	public final BitSet touched;
@@ -22,7 +22,7 @@ public final class PartiallyUnfolded<F> {
 	public final HashMap<Integer, Integer> choiceMap;
 	private final int[] outCount;
 
-	public PartiallyUnfolded(ImmutableWorkflow<F> parent) {
+	public PartiallyUnfolded(ImmutableWorkflow parent) {
 		this.parent = parent;
 		deleted = new BitSet();
 		touched = new BitSet();
@@ -36,7 +36,7 @@ public final class PartiallyUnfolded<F> {
 			outCount[i] = parent.children.get(i).outCount;
 	}
 
-	private PartiallyUnfolded(PartiallyUnfolded<F> parent) {
+	private PartiallyUnfolded(PartiallyUnfolded parent) {
 		this.parent = parent.parent;
 		remaining = parent.remaining;
 		deleted = (BitSet) parent.deleted.clone();
@@ -61,12 +61,12 @@ public final class PartiallyUnfolded<F> {
 	 * @param pipeline
 	 *            Where to put the new combinations
 	 */
-	public void expand(LinkedList<PartiallyUnfolded<F>> pipeline) {
+	public void expand(LinkedList<PartiallyUnfolded> pipeline) {
 		if (position >= 0) {
-			JobInfo<F> ji = parent.children.get(position);
+			JobInfo ji = parent.children.get(position);
 			for (int i = 0; i < ji.inputs.size(); i++) {
 				if (ji.inputs.get(i) != null) {
-					PartiallyUnfolded<F> newone = new PartiallyUnfolded<F>(this);
+					PartiallyUnfolded newone = new PartiallyUnfolded(this);
 					newone.cropOr(i);
 					pipeline.add(newone);
 				}
@@ -83,7 +83,7 @@ public final class PartiallyUnfolded<F> {
 	 */
 	private void cropOr(int i) {
 		// First, reflect the removal of the other connections in the outcounts
-		JobInfo<F> ji = parent.children.get(position);
+		JobInfo ji = parent.children.get(position);
 		for (int j = 0; j < ji.inputs.size(); j++) {
 			Object tok2 = ji.inputs.get(j);
 			if (j != i && tok2 != null) {

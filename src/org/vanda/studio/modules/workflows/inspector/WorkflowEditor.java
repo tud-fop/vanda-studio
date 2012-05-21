@@ -14,8 +14,8 @@ public class WorkflowEditor implements ElementEditorFactory {
 
 	@Override
 	public JComponent createEditor(Object o) {
-		if (o instanceof MutableWorkflow<?>) {
-			final MutableWorkflow<?> mwf = (MutableWorkflow<?>) o;
+		if (o instanceof MutableWorkflow) {
+			final MutableWorkflow mwf = (MutableWorkflow) o;
 			final JLabel label = new JLabel("Name:");
 			final JTextField text = new JTextField(mwf.getName(), 20);
 			text.getDocument().addDocumentListener(new DocumentListener() {

@@ -14,20 +14,20 @@ import org.vanda.studio.modules.common.ToolFactory;
  * @author buechse
  * 
  */
-public class DictionaryModule implements SimpleModule<Object, VDictionary> {
+public class DictionaryModule implements SimpleModule<VDictionary> {
 	
 	@Override
-	public Editor<Object, VDictionary> createEditor(Application app) {
+	public Editor<VDictionary> createEditor(Application app) {
 		return new DictionaryEditor(app);
 	}
 	
 	@Override
-	public ModuleInstance<Object, VDictionary> createInstance(Application app) {
-		return new SimpleModuleInstance<Object, VDictionary>(app, this);
+	public ModuleInstance<VDictionary> createInstance(Application app) {
+		return new SimpleModuleInstance<VDictionary>(app, this);
 	}
 	
 	@Override
-	public ToolFactory<Object, VDictionary> createFactory()
+	public ToolFactory<VDictionary> createFactory()
 	{
 		return new VDictionaryFactory();
 	}

@@ -2,6 +2,6 @@ package org.vanda.studio.modules.common;
 
 import org.vanda.studio.model.elements.Tool;
 
-public interface Editor<V, T extends Tool<V>> {
+public interface Editor<T extends Tool> {
 	void open(T o);
 }

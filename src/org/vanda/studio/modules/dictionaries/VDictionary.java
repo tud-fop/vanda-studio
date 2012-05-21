@@ -13,6 +13,6 @@ import org.vanda.studio.model.elements.Tool;
  */
 
 
-public abstract class VDictionary extends Tool<Object> {	
+public abstract class VDictionary extends Tool {	
 	public abstract Dictionary load() throws IOException;
 }

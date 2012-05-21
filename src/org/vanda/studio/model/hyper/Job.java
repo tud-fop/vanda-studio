@@ -7,25 +7,25 @@ import java.util.ListIterator;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.immutable.ImmutableJob;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.TokenSource.Token;
 
-public abstract class Job<F> implements HasActions, Cloneable {
+public abstract class Job implements HasActions, Cloneable {
 	
 	protected Token address;
 
 	protected double[] dimensions = new double[4];
 
 	@Override
-	public Job<F> clone() throws CloneNotSupportedException {
-		@SuppressWarnings("unchecked")
-		Job<F> cl = (Job<F>) super.clone();
+	public Job clone() throws CloneNotSupportedException {
+		Job cl = (Job) super.clone();
 		cl.dimensions = Arrays.copyOf(dimensions, 4);
 		return cl;
 	}
 
-	public abstract HyperWorkflow<?> dereference(ListIterator<Token> address);
+	public abstract MutableWorkflow dereference(ListIterator<Token> address);
 
 	public double getHeight() {
 		return dimensions[3];
@@ -39,7 +39,7 @@ public abstract class Job<F> implements HasActions, Cloneable {
 	 * may return null if name is immutable
 	 * @return
 	 */
-	public abstract Observable<Job<F>> getNameChangeObservable();
+	public abstract Observable<Job> getNameChangeObservable();
 
 	public abstract List<Port> getOutputPorts();
 	
@@ -47,9 +47,9 @@ public abstract class Job<F> implements HasActions, Cloneable {
 	 * may return null if ports are immutable
 	 * @return
 	 */
-	public abstract Observable<Job<F>> getPortsChangeObservable();
+	public abstract Observable<Job> getPortsChangeObservable();
 
-	public abstract Class<F> getFragmentType();
+	public abstract Type getFragmentType();
 
 	public double getWidth() {
 		return dimensions[2];
@@ -67,7 +67,7 @@ public abstract class Job<F> implements HasActions, Cloneable {
 
 	public abstract boolean isOutputPort();
 
-	public abstract ImmutableJob<F> freeze() throws Exception;
+	public abstract ImmutableJob freeze() throws Exception;
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);
 

@@ -42,13 +42,13 @@ public class WorkflowModule implements Module {
 			eefs = new LinkedList<ElementEditorFactory>();
 			eefs.add(new org.vanda.studio.modules.workflows.inspector.WorkflowEditor());
 			eefs.add(new LiteralEditor());
-			
+
 			toolFactories = new LinkedList<ToolFactory>();
 			toolFactories.add(new DebuggerTool());
 			toolFactories.add(new InspectorTool(eefs));
 			toolFactories.add(new ToolFactory() {
 				@Override
-				public Object instantiate(WorkflowEditor wfe, Model<?> m) {
+				public Object instantiate(WorkflowEditor wfe, Model m) {
 					Action a = new SaveWorkflowAction(m);
 					wfe.addAction(a);
 					return a;
@@ -67,9 +67,7 @@ public class WorkflowModule implements Module {
 
 			@Override
 			public void invoke() {
-				MutableWorkflow<Object> mwf = new MutableWorkflow<Object>(
-						Object.class);
-				mwf.setName("Workflow");
+				MutableWorkflow mwf = new MutableWorkflow("Workflow");
 				new WorkflowEditorImpl(app, mwf, toolFactories);
 			}
 		}
@@ -95,7 +93,7 @@ public class WorkflowModule implements Module {
 				if (result == JFileChooser.APPROVE_OPTION) {
 					File chosenFile = chooser.getSelectedFile();
 					String filePath = chosenFile.getPath();
-					MutableWorkflow<?> hwf;
+					MutableWorkflow hwf;
 					try {
 						hwf = Serialization.load(app, filePath);
 						new WorkflowEditorImpl(app, hwf, toolFactories);
@@ -108,9 +106,9 @@ public class WorkflowModule implements Module {
 
 		protected class SaveWorkflowAction implements Action {
 
-			private final Model<?> model;
+			private final Model model;
 
-			public SaveWorkflowAction(Model<?> model) {
+			public SaveWorkflowAction(Model model) {
 				this.model = model;
 			}
 

@@ -2,6 +2,7 @@ package org.vanda.studio.model.elements;
 
 import java.util.List;
 
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.Observable;
 
@@ -9,7 +10,7 @@ public interface Element extends RepositoryItem, HasActions, Cloneable {
 	
 	public Element clone() throws CloneNotSupportedException;
 	
-	public Class<?> getFragmentType();
+	public Type getFragmentType();
 
 	public List<Port> getInputPorts();
 	

@@ -113,7 +113,6 @@ public class Palette {
 		return paletteComponent;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void update() {
 		JXTaskPane searchPane = new JXTaskPane("Search");
 		JTextField searchField = new JTextField();
@@ -166,13 +165,11 @@ public class Palette {
 				// top left corner of first palette tool, width, height
 				double[] d = { 20, 10, 100, 80 };
 				for (RepositoryItem item : catMap.get(category)) {
-					Job<?> hj = null;
+					Job hj = null;
 					if (item instanceof Element)
 						hj = new AtomicJob((Element) item);
 					else if (item instanceof Linker) {
-						MutableWorkflow mwf = new MutableWorkflow(
-								((Linker) item).getInnerFragmentType());
-						mwf.setName("inner workflow");
+						MutableWorkflow mwf = new MutableWorkflow("inner workflow");
 						hj = new CompositeJob((Linker) item, mwf);
 					}
 					if (hj != null) {
@@ -246,13 +243,11 @@ public class Palette {
 			// top left corner of first palette tool, width, height
 			double[] d = { 20, 10, 100, 80 };
 			for (RepositoryItem item : searchResults) {
-				Job<?> hj = null;
+				Job hj = null;
 				if (item instanceof Element)
 					hj = new AtomicJob((Element) item);
 				else if (item instanceof Linker) {
-					MutableWorkflow mwf = new MutableWorkflow(
-							((Linker) item).getInnerFragmentType());
-					mwf.setName("inner workflow");
+					MutableWorkflow mwf = new MutableWorkflow("inner workflow");
 					hj = new CompositeJob((Linker) item, mwf);
 				}
 				if (hj != null) {

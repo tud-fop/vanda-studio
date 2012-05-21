@@ -4,13 +4,13 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.model.elements.Tool;
 
-public interface SimpleModule<V, T extends Tool<V>> extends Module {
+public interface SimpleModule<T extends Tool> extends Module {
 	
-	Editor<V, T> createEditor(Application app);
+	Editor<T> createEditor(Application app);
 	
-	ToolFactory<V, T> createFactory();
+	ToolFactory<T> createFactory();
 	
-	ModuleInstance<V, T> createInstance(Application app);
+	ModuleInstance<T> createInstance(Application app);
 	
 	String getExtension();
 	

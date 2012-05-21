@@ -8,11 +8,11 @@ import java.util.ListIterator;
 
 import org.vanda.studio.util.TokenSource.Token;
 
-public class Unfolder<F> {
+public class Unfolder {
 
-	private final ImmutableWorkflow<F> parent;
+	private final ImmutableWorkflow parent;
 
-	public Unfolder(ImmutableWorkflow<F> workflow) {
+	public Unfolder(ImmutableWorkflow workflow) {
 		parent = workflow;
 	}
 
@@ -26,13 +26,13 @@ public class Unfolder<F> {
 	 * 
 	 * @param <V>
 	 */
-	private static class NAryDigit<F> {
-		private final List<ImmutableJob<F>> jobs;
-		private ListIterator<ImmutableJob<F>> iterator;
-		private ImmutableJob<F> current;
+	private static class NAryDigit {
+		private final List<ImmutableJob> jobs;
+		private ListIterator<ImmutableJob> iterator;
+		private ImmutableJob current;
 		private boolean reset;
 
-		public NAryDigit(List<ImmutableJob<F>> jobs) {
+		public NAryDigit(List<ImmutableJob> jobs) {
 			assert (!jobs.isEmpty());
 			this.jobs = jobs;
 			iterator = jobs.listIterator();
@@ -56,7 +56,7 @@ public class Unfolder<F> {
 			return carry;
 		}
 
-		public ImmutableJob<F> getCurrent() {
+		public ImmutableJob getCurrent() {
 			return current;
 		}
 
@@ -65,23 +65,23 @@ public class Unfolder<F> {
 		}
 	}
 
-	public List<ImmutableWorkflow<F>> unfold() {
-		LinkedList<ImmutableWorkflow<F>> result = new LinkedList<ImmutableWorkflow<F>>();
+	public List<ImmutableWorkflow> unfold() {
+		LinkedList<ImmutableWorkflow> result = new LinkedList<ImmutableWorkflow>();
 		/*
 		 * step 1: unfold children separately, putting everything into a map
 		 */
-		ArrayList<NAryDigit<F>> counters = new ArrayList<NAryDigit<F>>(
+		ArrayList<NAryDigit> counters = new ArrayList<NAryDigit>(
 				parent.children.size());
 		for (int i = 0; i < parent.children.size(); i++) {
-			List<ImmutableJob<F>> js = parent.children.get(i).job.unfold();
+			List<ImmutableJob> js = parent.children.get(i).job.unfold();
 			if (js != null) {
 				if (js.size() == 0) {
-					List<ImmutableWorkflow<F>> el = Collections.emptyList();
+					List<ImmutableWorkflow> el = Collections.emptyList();
 					// ######################
 					return el;
 					// ######################
 				}
-				counters.add(new NAryDigit<F>(js));
+				counters.add(new NAryDigit(js));
 			} else
 				counters.add(null);
 		}
@@ -89,11 +89,11 @@ public class Unfolder<F> {
 		 * step 2: resolve Choice nodes, pruning everything that is no longer
 		 * connected
 		 */
-		LinkedList<PartiallyUnfolded<F>> workinglist = new LinkedList<PartiallyUnfolded<F>>();
-		LinkedList<PartiallyUnfolded<F>> fynal = new LinkedList<PartiallyUnfolded<F>>();
-		workinglist.add(new PartiallyUnfolded<F>(parent));
+		LinkedList<PartiallyUnfolded> workinglist = new LinkedList<PartiallyUnfolded>();
+		LinkedList<PartiallyUnfolded> fynal = new LinkedList<PartiallyUnfolded>();
+		workinglist.add(new PartiallyUnfolded(parent));
 		while (!workinglist.isEmpty()) {
-			PartiallyUnfolded<F> p = workinglist.pop();
+			PartiallyUnfolded p = workinglist.pop();
 			if (p.isFinal())
 				fynal.add(p);
 			else
@@ -103,7 +103,7 @@ public class Unfolder<F> {
 		 * step 3: substitute all combinations from step 1 into the results of
 		 * step 2
 		 */
-		for (PartiallyUnfolded<F> p : fynal) {
+		for (PartiallyUnfolded p : fynal) {
 			// since carry is true at the bottom of the loop, counters should be
 			// reset
 			for (int i = 0; i < counters.size(); i++) {
@@ -117,15 +117,15 @@ public class Unfolder<F> {
 			boolean carry = false;
 			// carry = p.remaining == 0; THIS WAS WRONG (it missed the empty wf)
 			while (!carry) {
-				ArrayList<JobInfo<F>> children = new ArrayList<JobInfo<F>>(
+				ArrayList<JobInfo> children = new ArrayList<JobInfo>(
 						p.remaining);
 				// in the following loop, assemble the current combination
 				// and advance the counter(s) at the same time
 				carry = true;
 				for (int i = 0; i < parent.children.size(); i++) {
 					if (!p.deleted.get(i)) {
-						JobInfo<F> ji = parent.children.get(i);
-						JobInfo<F> jinew = null;
+						JobInfo ji = parent.children.get(i);
+						JobInfo jinew = null;
 						if (ji.job.isChoice()) {
 							// substitute choice with identity
 							/*
@@ -141,12 +141,12 @@ public class Unfolder<F> {
 									inputs.add(ji.inputs.get(j));
 								else
 									inputs.add(null);
-							jinew = new JobInfo<F>(ji.job, ji.address, inputs,
+							jinew = new JobInfo(ji.job, ji.address, inputs,
 									ji.outputs, ji.outCount);
 						} else if (counters.get(i) != null) {
-							jinew = new JobInfo<F>(
-									counters.get(i).getCurrent(), ji.address,
-									ji.inputs, ji.outputs, ji.outCount);
+							jinew = new JobInfo(counters.get(i).getCurrent(),
+									ji.address, ji.inputs, ji.outputs,
+									ji.outCount);
 						} else {
 							jinew = ji;
 						}
@@ -155,8 +155,8 @@ public class Unfolder<F> {
 							carry = counters.get(i).advance();
 					}
 				}
-				ImmutableWorkflow<F> wf = new ImmutableWorkflow<F>(children,
-						parent.token, 0);
+				ImmutableWorkflow wf = new ImmutableWorkflow(parent.name,
+						children, parent.token, 0);
 				result.add(wf);
 			}
 		}

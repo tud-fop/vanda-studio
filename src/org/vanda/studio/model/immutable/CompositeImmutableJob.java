@@ -9,20 +9,20 @@ import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.util.TokenSource.Token;
 
-public class CompositeImmutableJob<IF, F> extends ImmutableJob<F> {
+public class CompositeImmutableJob extends ImmutableJob {
 
-	private final Linker<IF, F> linker;
+	private final Linker linker;
 
-	private final ImmutableWorkflow<IF> workflow;
+	private final ImmutableWorkflow workflow;
 
-	public CompositeImmutableJob(Linker<IF, F> linker,
-			ImmutableWorkflow<IF> workflow) {
+	public CompositeImmutableJob(Linker linker,
+			ImmutableWorkflow workflow) {
 		this.linker = linker;
 		this.workflow = workflow;
 	}
 
 	@Override
-	public ImmutableWorkflow<?> dereference(ListIterator<Token> path) {
+	public ImmutableWorkflow dereference(ListIterator<Token> path) {
 		if (path.hasNext())
 			return workflow.dereference(path);
 		else
@@ -30,19 +30,19 @@ public class CompositeImmutableJob<IF, F> extends ImmutableJob<F> {
 	}
 
 	@Override
-	public List<ImmutableJob<F>> unfold() {
-		List<ImmutableWorkflow<IF>> workflows = workflow.unfold();
-		List<ImmutableJob<F>> jobs = new LinkedList<ImmutableJob<F>>();
-		for (ImmutableWorkflow<IF> w : workflows)
-			jobs.add(new CompositeImmutableJob<IF, F>(linker, w));
+	public List<ImmutableJob> unfold() {
+		List<ImmutableWorkflow> workflows = workflow.unfold();
+		List<ImmutableJob> jobs = new LinkedList<ImmutableJob>();
+		for (ImmutableWorkflow w : workflows)
+			jobs.add(new CompositeImmutableJob(linker, w));
 		return jobs;
 	}
 
-	public Linker<IF, F> getLinker() {
+	public Linker getLinker() {
 		return linker;
 	}
 
-	public ImmutableWorkflow<IF> getWorkflow() {
+	public ImmutableWorkflow getWorkflow() {
 		return workflow;
 	}
 
@@ -57,7 +57,10 @@ public class CompositeImmutableJob<IF, F> extends ImmutableJob<F> {
 		workflow.appendText(sections);
 		appendOutput(outputs, lines);
 		lines.append(" = ");
-		lines.append(workflow.toString());
+		lines.append(linker.getName());
+		lines.append('[');
+		lines.append(workflow.getName());
+		lines.append(']');
 		appendInput(inputs, lines);
 		lines.append('\n');
 	}

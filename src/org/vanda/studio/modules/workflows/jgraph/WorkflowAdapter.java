@@ -10,12 +10,12 @@ import org.vanda.studio.util.TokenSource.Token;
 import com.mxgraph.model.mxICell;
 
 public class WorkflowAdapter implements Adapter {
-	public final MutableWorkflow<?> workflow;
+	public final MutableWorkflow workflow;
 	public final ArrayList<mxICell> children;
 	public final ArrayList<mxICell> connections;
 	public final Map<Object, mxICell> inter;
 	
-	public WorkflowAdapter(MutableWorkflow<?> workflow) {
+	public WorkflowAdapter(MutableWorkflow workflow) {
 		this.workflow = workflow;
 		children = new ArrayList<mxICell>();
 		connections = new ArrayList<mxICell>();

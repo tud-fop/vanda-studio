@@ -15,15 +15,15 @@ import org.vanda.studio.util.Observer;
  * @author buechse
  * 
  */
-public class SimpleLoader<V, T extends Tool<V>>
+public class SimpleLoader<T extends Tool>
 		implements Loader<T> {
 
-	protected final ModuleInstance<V, T> mod;
+	protected final ModuleInstance<T> mod;
 	protected final FilenameFilter filter;
-	protected final ToolFactory<V, T> factory;
+	protected final ToolFactory<T> factory;
 
-	public SimpleLoader(ModuleInstance<V, T> mod, FilenameFilter filter,
-			ToolFactory<V, T> factory) {
+	public SimpleLoader(ModuleInstance<T> mod, FilenameFilter filter,
+			ToolFactory<T> factory) {
 		this.mod = mod;
 		this.filter = filter;
 		this.factory = factory;

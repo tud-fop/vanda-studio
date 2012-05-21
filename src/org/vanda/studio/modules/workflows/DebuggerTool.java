@@ -12,18 +12,18 @@ public class DebuggerTool implements ToolFactory {
 
 	public static final class Tool {
 		private final WorkflowEditor wfe;
-		private final Model<?> m;
+		private final Model m;
 		private final JTextArea debugger;
 		private final JScrollPane therealdebugger;
 
-		public Tool(WorkflowEditor wfe, Model<?> m) {
+		public Tool(WorkflowEditor wfe, Model m) {
 			this.wfe = wfe;
 			this.m = m;
 			debugger = new JTextArea();
 			this.m.getWorkflowCheckObservable().addObserver(
-					new Observer<Model<?>>() {
+					new Observer<Model>() {
 						@Override
-						public void notify(Model<?> event) {
+						public void notify(Model event) {
 							update(event);
 						}
 					});
@@ -32,7 +32,7 @@ public class DebuggerTool implements ToolFactory {
 			this.wfe.addToolWindow(therealdebugger);
 		}
 
-		public <F> void update(Model<F> model) {
+		public void update(Model model) {
 			StringBuilder sb = new StringBuilder();
 			model.getFrozen().appendText(sb);
 			if (!model.getFrozen().isSane()) {
@@ -41,8 +41,8 @@ public class DebuggerTool implements ToolFactory {
 						+ "is not connected.\n\n");
 			}
 			sb.append("Instances\n");
-			List<ImmutableWorkflow<F>> iwfs = model.getUnfolded();
-			for (ImmutableWorkflow<F> i : iwfs) {
+			List<ImmutableWorkflow> iwfs = model.getUnfolded();
+			for (ImmutableWorkflow i : iwfs) {
 				sb.append("-------\n\n");
 				i.appendText(sb);
 				sb.append("\n");
@@ -53,7 +53,7 @@ public class DebuggerTool implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model<?> m) {
+	public Object instantiate(WorkflowEditor wfe, Model m) {
 		return new Tool(wfe, m);
 	}
 

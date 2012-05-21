@@ -11,7 +11,7 @@ import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.util.TokenSource.Token;
 
-public class AtomicImmutableJob<F> extends ImmutableJob<F> {
+public class AtomicImmutableJob extends ImmutableJob {
 
 	private final Element element;
 
@@ -20,12 +20,12 @@ public class AtomicImmutableJob<F> extends ImmutableJob<F> {
 	}
 
 	@Override
-	public ImmutableWorkflow<?> dereference(ListIterator<Token> path) {
+	public ImmutableWorkflow dereference(ListIterator<Token> path) {
 		return null;
 	}
 
 	@Override
-	public List<ImmutableJob<F>> unfold() {
+	public List<ImmutableJob> unfold() {
 		return null;
 	}
 

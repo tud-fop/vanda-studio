@@ -8,40 +8,41 @@ import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.TokenSource.Token;
 
-public class CompositeJob<IF, F> extends Job<F> {
+public class CompositeJob extends Job {
 
-	private final Linker<IF, F> linker;
+	private final Linker linker;
 
-	private MutableWorkflow<IF> workflow; // not final because of clone()
+	private MutableWorkflow workflow; // not final because of clone()
 
-	public CompositeJob(Linker<IF, F> linker, MutableWorkflow<IF> workflow) {
+	public CompositeJob(Linker linker, MutableWorkflow workflow) {
 		address = null;
 		this.linker = linker;
 		this.workflow = workflow;
 	}
 
 	@Override
-	public CompositeJob<IF, F> clone() throws CloneNotSupportedException {
-		return new CompositeJob<IF, F>(linker, workflow.clone());
+	public CompositeJob clone() throws CloneNotSupportedException {
+		return new CompositeJob(linker, workflow.clone());
 	}
 
 	@Override
 	public List<Port> getInputPorts() {
-		return workflow.getInputPorts();
+		return linker.convertInputPorts(workflow.getInputPorts());
 	}
 
 	@Override
 	public List<Port> getOutputPorts() {
-		return workflow.getOutputPorts();
+		return linker.convertOutputPorts(workflow.getOutputPorts());
 	}
 
 	@Override
-	public ImmutableJob<F> freeze() throws Exception {
-		return new CompositeImmutableJob<IF, F>(linker, workflow.freeze());
+	public ImmutableJob freeze() throws Exception {
+		return new CompositeImmutableJob(linker, workflow.freeze());
 	}
 
 	@Override
@@ -55,7 +56,7 @@ public class CompositeJob<IF, F> extends Job<F> {
 	}
 
 	@Override
-	public Class<F> getFragmentType() {
+	public Type getFragmentType() {
 		return linker.getFragmentType();
 	}
 
@@ -69,7 +70,7 @@ public class CompositeJob<IF, F> extends Job<F> {
 		return linker.getName();
 	}
 
-	public MutableWorkflow<IF> getWorkflow() {
+	public MutableWorkflow getWorkflow() {
 		return workflow;
 	}
 
@@ -79,7 +80,7 @@ public class CompositeJob<IF, F> extends Job<F> {
 	}
 
 	@Override
-	public HyperWorkflow<?> dereference(ListIterator<Token> address) {
+	public MutableWorkflow dereference(ListIterator<Token> address) {
 		return workflow.dereference(address);
 	}
 
@@ -98,17 +99,17 @@ public class CompositeJob<IF, F> extends Job<F> {
 		return linker.getDescription();
 	}
 	
-	public Linker<IF, F> getLinker() {
+	public Linker getLinker() {
 		return linker;
 	}
 
 	@Override
-	public Observable<Job<F>> getNameChangeObservable() {
+	public Observable<Job> getNameChangeObservable() {
 		return null; // TODO change this once linkers become mutable
 	}
 
 	@Override
-	public Observable<Job<F>> getPortsChangeObservable() {
+	public Observable<Job> getPortsChangeObservable() {
 		return null; // TODO change this once linkers become mutable
 	}
 

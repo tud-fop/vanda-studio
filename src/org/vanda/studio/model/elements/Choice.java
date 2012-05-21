@@ -2,6 +2,7 @@ package org.vanda.studio.model.elements;
 
 import java.util.List;
 
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
@@ -62,8 +63,8 @@ public final class Choice implements Element {
 	}
 
 	@Override
-	public Class<?> getFragmentType() {
-		return null;
+	public Type getFragmentType() {
+		return Ports.typeVariable;
 	}
 
 	@Override
