@@ -1,5 +1,6 @@
 package org.vanda.studio.modules.workflows;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.vanda.studio.model.hyper.CompositeJob;
@@ -62,6 +63,7 @@ public final class Model<F> {
 	protected ImmutableWorkflow<F> frozen;
 	protected List<ImmutableWorkflow<F>> unfolded;
 	protected WorkflowSelection selection;
+	protected List<SingleObjectSelection> selectedElements;
 	protected final MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>> addObservable;
 	protected final MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>> modifyObservable;
 	protected final MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>> removeObservable;
@@ -73,16 +75,19 @@ public final class Model<F> {
 	protected final Observer<Pair<MutableWorkflow<?>, Connection>> connectObserver;
 	protected final Observer<Pair<MutableWorkflow<?>, Connection>> disconnectObserver;
 	protected final MultiplexObserver<Model<F>> selectionChangeObservable;
+	protected final MultiplexObserver<Model<F>> selectedElementsObservable;
 	protected final MultiplexObserver<Model<F>> workflowCheckObservable;
 
 	public Model(MutableWorkflow<F> hwf) {
 		this.hwf = hwf;
+		this.selectedElements = new ArrayList<SingleObjectSelection>();
 		addObservable = new MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>>();
 		modifyObservable = new MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>>();
 		removeObservable = new MultiplexObserver<Pair<MutableWorkflow<?>, Job<?>>>();
 		connectObservable = new MultiplexObserver<Pair<MutableWorkflow<?>, Connection>>();
 		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow<?>, Connection>>();
 		selectionChangeObservable = new MultiplexObserver<Model<F>>();
+		selectedElementsObservable = new MultiplexObserver<Model<F>>();
 		workflowCheckObservable = new MultiplexObserver<Model<F>>();
 		addObserver = new Observer<Pair<MutableWorkflow<?>, Job<?>>>() {
 			@Override
@@ -186,6 +191,10 @@ public final class Model<F> {
 	public Observable<Model<F>> getSelectionChangeObservable() {
 		return selectionChangeObservable;
 	}
+	
+	public Observable<Model<F>> getSelectedElementsObservable() {
+		return selectedElementsObservable;
+	}
 
 	public Observable<Model<F>> getWorkflowCheckObservable() {
 		return workflowCheckObservable;
@@ -198,6 +207,11 @@ public final class Model<F> {
 	public void setSelection(WorkflowSelection selection) {
 		this.selection = selection;
 		selectionChangeObservable.notify(this);
+	}
+	
+	public void setSelectedElements(List<SingleObjectSelection> elements) {
+		this.selectedElements = elements;
+		selectedElementsObservable.notify(this);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
