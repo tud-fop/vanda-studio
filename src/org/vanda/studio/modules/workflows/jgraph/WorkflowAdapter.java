@@ -80,7 +80,7 @@ public class WorkflowAdapter implements Adapter {
 
 	@Override
 	public String getName() {
-		return workflow.toString(); // TODO getName
+		return workflow.getName();
 	}
 
 }

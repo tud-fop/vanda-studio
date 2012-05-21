@@ -65,7 +65,7 @@ public class CompositeJob<IF, F> extends Job<F> {
 
 	@Override
 	public String getName() {
-		return "";
+		return linker.getName();
 	}
 
 	public MutableWorkflow<IF> getWorkflow() {
@@ -95,6 +95,10 @@ public class CompositeJob<IF, F> extends Job<F> {
 	@Override
 	public String getDescription() {
 		return linker.getDescription();
+	}
+	
+	public Linker<IF, F> getLinker() {
+		return linker;
 	}
 
 }

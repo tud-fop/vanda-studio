@@ -35,6 +35,8 @@ public interface HyperWorkflow<F> {
 	public abstract Observable<Pair<MutableWorkflow<F>, Connection>> getDisconnectObservable();
 
 	public abstract Observable<Pair<MutableWorkflow<F>, Job<F>>> getModifyObservable();
+	
+	public abstract String getName();
 
 	public abstract Observable<Pair<MutableWorkflow<F>, Job<F>>> getRemoveObservable();
 

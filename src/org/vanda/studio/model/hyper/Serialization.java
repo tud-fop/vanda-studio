@@ -87,7 +87,7 @@ public final class Serialization {
 
 	}
 
-	private static class LinkerConverter implements Converter {
+	private static class LinkerConverter implements SingleValueConverter {
 
 		Application app;
 
@@ -96,33 +96,20 @@ public final class Serialization {
 		}
 
 		@Override
-		public void marshal(Object value, HierarchicalStreamWriter writer,
-				MarshallingContext context) {
-
-			// simply save compiler id
-			writer.startNode("linkerId");
-			writer.setValue("TODO"); // TODO
-			writer.endNode();
-		}
-
-		@Override
-		public Object unmarshal(HierarchicalStreamReader reader,
-				UnmarshallingContext context) {
-			// extract compiler id from xml and load it from repository
-			reader.moveDown();
-			String linkerId = reader.getValue();
-			Linker<?, ?> linker = app.getLinkerMetaRepository().getRepository()
-					.getItem(linkerId);
-			reader.moveUp();
-
-			return linker;
-		}
-
-		@Override
 		public boolean canConvert(Class clazz) {
 			// activate this converter for all classes that
 			// implement the Linker interface
 			return Linker.class.isAssignableFrom(clazz);
+		}
+
+		@Override
+		public Object fromString(String str) {
+			return app.getLinkerMetaRepository().getRepository().getItem(str);
+		}
+
+		@Override
+		public String toString(Object obj) {
+			return ((Linker) obj).getId();
 		}
 
 	}

@@ -12,6 +12,7 @@ import org.vanda.studio.util.TokenSource.Token;
 public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 		HyperWorkflow<F>, Cloneable {
 
+	private String name;
 	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> addObservable;
 	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> modifyObservable;
 	private final MultiplexObserver<Pair<MutableWorkflow<F>, Job<F>>> removeObservable;
@@ -30,6 +31,7 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 	public MutableWorkflow(MutableWorkflow<F> hyperWorkflow)
 			throws CloneNotSupportedException {
 		super(hyperWorkflow);
+		name = hyperWorkflow.name;
 		addObservable = hyperWorkflow.addObservable.clone();
 		modifyObservable = hyperWorkflow.modifyObservable.clone();
 		removeObservable = hyperWorkflow.removeObservable.clone();
@@ -271,6 +273,15 @@ public final class MutableWorkflow<F> extends DrecksWorkflow<F> implements
 			return ci.cc;
 		else
 			return null;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/*

@@ -65,7 +65,7 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 		mainpane.setResizeWeight(1);
 		mainpane.setDividerSize(6);
 		mainpane.setBorder(null);
-		mainpane.setName("Workflow");
+		mainpane.setName(model.getRoot().getName());
 
 		app.getUIModeObservable().addObserver(new Observer<Application>() {
 			@Override

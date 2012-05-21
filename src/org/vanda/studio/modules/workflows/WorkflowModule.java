@@ -31,14 +31,18 @@ public class WorkflowModule implements Module {
 
 		private final Application app;
 		private final List<ToolFactory> toolFactories;
-
+		private final List<ElementEditorFactory> eefs;
 
 		public WorkflowModuleInstance(Application a) {
 			app = a;
 
+			eefs = new LinkedList<ElementEditorFactory>();
+			eefs.add(new WorkflowElementEditor());
+			eefs.add(new LiteralEditor());
+			
 			toolFactories = new LinkedList<ToolFactory>();
 			toolFactories.add(new DebuggerTool());
-			toolFactories.add(new InspectorTool());
+			toolFactories.add(new InspectorTool(eefs));
 			toolFactories.add(new ToolFactory() {
 				@Override
 				public Object instantiate(WorkflowEditor wfe, Model<?> m) {
@@ -60,8 +64,10 @@ public class WorkflowModule implements Module {
 
 			@Override
 			public void invoke() {
-				new WorkflowEditorImpl(app, new MutableWorkflow<Object>(
-						Object.class), toolFactories);
+				MutableWorkflow<Object> mwf = new MutableWorkflow<Object>(
+						Object.class);
+				mwf.setName("Workflow");
+				new WorkflowEditorImpl(app, mwf, toolFactories);
 			}
 		}
 
