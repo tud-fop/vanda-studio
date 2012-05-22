@@ -46,6 +46,7 @@ public class WorkflowModule implements Module {
 			toolFactories = new LinkedList<ToolFactory>();
 			toolFactories.add(new DebuggerTool());
 			toolFactories.add(new InspectorTool(eefs));
+			toolFactories.add(new InstanceTool());
 			toolFactories.add(new ToolFactory() {
 				@Override
 				public Object instantiate(WorkflowEditor wfe, Model m) {

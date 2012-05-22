@@ -101,8 +101,11 @@ public final class PartiallyUnfolded {
 				ji = parent.children.get(position);
 				for (int j = 0; j < ji.inputs.size(); j++) {
 					Object tok2 = ji.inputs.get(j);
-					if (tok2 != null)
-						outCount[parent.variableOrigins[ji.inputs.get(j).intValue()]]--;
+					if (tok2 != null) {
+						int src = parent.variableOrigins[ji.inputs.get(j).intValue()];
+						outCount[src]--;
+						touched.set(src);
+					}
 				}
 				deleted.set(position);
 				remaining--;
