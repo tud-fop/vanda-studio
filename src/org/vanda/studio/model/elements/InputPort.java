@@ -89,4 +89,9 @@ public final class InputPort implements Element {
 		return null;
 	}
 
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		v.visitInputPort(this);
+	}
+
 }

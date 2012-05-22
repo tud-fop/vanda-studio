@@ -17,6 +17,6 @@ public class JobAdapter implements Adapter, Cloneable {
 
 	@Override
 	public String getName() {
-		return job.getName();
+		return job.getItem().getName();
 	}
 }

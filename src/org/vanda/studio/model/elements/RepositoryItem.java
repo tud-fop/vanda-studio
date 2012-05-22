@@ -17,4 +17,7 @@ public interface RepositoryItem {
 	String getName();
 
 	String getVersion();
+	
+	void visit(RepositoryItemVisitor v);
+	
 }

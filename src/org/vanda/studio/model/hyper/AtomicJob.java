@@ -8,6 +8,7 @@ import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
+import org.vanda.studio.model.elements.RepositoryItem;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.model.types.Type;
@@ -81,11 +82,6 @@ public class AtomicJob extends Job {
 	}
 
 	@Override
-	public String getName() {
-		return element.getName();
-	}
-
-	@Override
 	public void appendActions(List<Action> as) {
 		element.appendActions(as);
 	}
@@ -93,21 +89,6 @@ public class AtomicJob extends Job {
 	@Override
 	public MutableWorkflow dereference(ListIterator<Token> address) {
 		return null;
-	}
-
-	@Override
-	public String getContact() {
-		return element.getContact();
-	}
-
-	@Override
-	public String getCategory() {
-		return element.getCategory();
-	}
-
-	@Override
-	public String getDescription() {
-		return element.getDescription();
 	}
 
 	@Override
@@ -138,5 +119,10 @@ public class AtomicJob extends Job {
 							portsChangeObservable.notify(AtomicJob.this);
 						}
 					});
+	}
+
+	@Override
+	public RepositoryItem getItem() {
+		return element;
 	}
 }

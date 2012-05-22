@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.vanda.studio.app.Generator;
 import org.vanda.studio.app.Profile;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.modules.profile.concrete.RootLinker;
 import org.vanda.studio.modules.profile.model.FragmentIO;
@@ -76,6 +77,11 @@ public class ProfileImpl implements Profile {
 	@Override
 	public Type getRootType() {
 		return Profile.shellType;
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		
 	}
 
 }

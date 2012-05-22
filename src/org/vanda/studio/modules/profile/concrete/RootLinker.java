@@ -3,6 +3,7 @@ package org.vanda.studio.modules.profile.concrete;
 import java.io.File;
 import java.util.List;
 
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.modules.profile.model.FragmentIO;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
@@ -56,6 +57,10 @@ public class RootLinker implements FragmentLinker {
 		File f = io.createFile(filename);
 		f.notify();
 		return result;
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
 	}
 
 }

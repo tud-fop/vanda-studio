@@ -220,7 +220,7 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 
 				// create node specific context menu
 				if (value instanceof Job) {
-					menu = new PopupMenu(((Job) value).getName());
+					menu = new PopupMenu(((Job) value).getItem().getName());
 
 					// only create a remove action if it's not a palette tool
 					/*

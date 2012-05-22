@@ -104,4 +104,9 @@ public final class Choice implements Element {
 		return portsChangeObservable;
 	}
 
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		v.visitChoice(this);
+	}
+
 }

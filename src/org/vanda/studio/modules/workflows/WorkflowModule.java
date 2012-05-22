@@ -12,7 +12,7 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.hyper.Serialization;
-import org.vanda.studio.modules.workflows.inspector.ElementEditorFactory;
+import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.inspector.InspectorTool;
 import org.vanda.studio.modules.workflows.inspector.LiteralEditor;
 import org.vanda.studio.util.Action;
@@ -34,14 +34,14 @@ public class WorkflowModule implements Module {
 
 		private final Application app;
 		private final List<ToolFactory> toolFactories;
-		private final List<ElementEditorFactory> eefs;
+		private final ElementEditorFactories eefs;
 
 		public WorkflowModuleInstance(Application a) {
 			app = a;
 
-			eefs = new LinkedList<ElementEditorFactory>();
-			eefs.add(new org.vanda.studio.modules.workflows.inspector.WorkflowEditor());
-			eefs.add(new LiteralEditor());
+			eefs = new ElementEditorFactories();
+			eefs.workflowFactories.add(new org.vanda.studio.modules.workflows.inspector.WorkflowEditor());
+			eefs.literalFactories.add(new LiteralEditor());
 
 			toolFactories = new LinkedList<ToolFactory>();
 			toolFactories.add(new DebuggerTool());

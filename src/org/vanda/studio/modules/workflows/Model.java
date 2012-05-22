@@ -15,12 +15,22 @@ import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
 public final class Model {
+	
+	public static interface SelectionVisitor {
+		void visitWorkflow(List<Token> path, MutableWorkflow wf);
+		void visitConnection(List<Token> path, Token address, MutableWorkflow wf, Connection cc);
+		void visitJob(List<Token> path, Token address, MutableWorkflow wf, Job j);
+	}
 
 	public static class WorkflowSelection {
 		public final List<Token> path;
 
 		public WorkflowSelection(List<Token> path) {
 			this.path = path;
+		}
+		
+		public void visit(MutableWorkflow root, SelectionVisitor v) {
+			v.visitWorkflow(path, root.dereference(path.listIterator()));
 		}
 	}
 
@@ -32,6 +42,9 @@ public final class Model {
 			super(path);
 			this.address = address;
 		}
+		
+		@Override
+		public abstract void visit(MutableWorkflow root, SelectionVisitor v);
 
 		public abstract void remove(MutableWorkflow root);
 	}
@@ -46,6 +59,12 @@ public final class Model {
 		public void remove(MutableWorkflow root) {
 			root.dereference(path.listIterator()).removeConnection(address);
 		}
+
+		@Override
+		public void visit(MutableWorkflow root, SelectionVisitor v) {
+			root = root.dereference(path.listIterator());
+			v.visitConnection(path, address, root, root.getConnection(address));
+		}
 	}
 
 	public static class JobSelection extends SingleObjectSelection {
@@ -56,6 +75,12 @@ public final class Model {
 		@Override
 		public void remove(MutableWorkflow root) {
 			root.dereference(path.listIterator()).removeChild(address);
+		}
+
+		@Override
+		public void visit(MutableWorkflow root, SelectionVisitor v) {
+			root = root.dereference(path.listIterator());
+			v.visitJob(path, address, root, root.getChild(address));
 		}
 	}
 

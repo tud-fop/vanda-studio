@@ -17,5 +17,10 @@ public abstract class Tool implements Element {
 	public Observable<Element> getPortsChangeObservable() {
 		return null;
 	}
+	
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		v.visitTool(this);
+	}
 
 }

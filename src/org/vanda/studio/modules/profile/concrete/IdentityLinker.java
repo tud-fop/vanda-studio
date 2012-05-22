@@ -2,6 +2,7 @@ package org.vanda.studio.modules.profile.concrete;
 
 import java.util.List;
 
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.modules.profile.model.FragmentIO;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
@@ -51,6 +52,10 @@ public class IdentityLinker implements FragmentLinker {
 	@Override
 	public Fragment link(Fragment inner, FragmentIO io) {
 		return inner;
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
 	}
 
 }
