@@ -153,6 +153,7 @@ public class WindowSystemImpl implements WindowSystem {
 					}
 				}
 				menuBar.revalidate();
+				menuBar.repaint();
 				int idx = toolPane.getSelectedIndex();
 				toolPane.removeAll();
 				List<JComponent> tcs = windowTools.get(null);

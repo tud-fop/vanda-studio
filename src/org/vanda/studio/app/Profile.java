@@ -6,7 +6,10 @@ import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.model.types.Type;
 
 public interface Profile extends RepositoryItem {
+	
 	Generator createGenerator();
+	
+	Type getRootType();
 	
 	public static Type genericType = Ports.typeVariable;
 	public static Type haskellType = new CompositeType("haskell");

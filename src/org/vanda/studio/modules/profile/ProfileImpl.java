@@ -1,11 +1,11 @@
 package org.vanda.studio.modules.profile;
 
 import java.io.File;
-import java.util.List;
 
 import org.vanda.studio.app.Generator;
 import org.vanda.studio.app.Profile;
-import org.vanda.studio.modules.profile.model.Fragment;
+import org.vanda.studio.model.types.Type;
+import org.vanda.studio.modules.profile.concrete.RootLinker;
 import org.vanda.studio.modules.profile.model.FragmentIO;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
 import org.vanda.studio.modules.profile.model.Profiles;
@@ -22,64 +22,6 @@ public class ProfileImpl implements Profile {
 
 		@Override
 		public File createFile(String name) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-	}
-
-	public class RootLinker implements FragmentLinker {
-
-		@Override
-		public String getCategory() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getContact() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getDescription() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getId() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getName() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getVersion() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public List<String> convertInputs(List<String> outer) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public List<String> convertOutputs(List<String> inner) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Fragment link(Fragment inner, FragmentIO io) {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -129,6 +71,11 @@ public class ProfileImpl implements Profile {
 	@Override
 	public Generator createGenerator() {
 		return new GeneratorImpl(prof, io, rootLinker);
+	}
+
+	@Override
+	public Type getRootType() {
+		return Profile.shellType;
 	}
 
 }

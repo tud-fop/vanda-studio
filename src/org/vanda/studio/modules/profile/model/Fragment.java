@@ -61,7 +61,8 @@ public class Fragment {
 		public void doIt(Fragment fragment) {
 			im.addAll(fragment.imports);
 			for (Fragment f : fragment.further)
-				doIt(f);
+				if (f != null)
+					doIt(f);
 			sb.append(fragment.auxiliary);
 			sb.append('\n');
 		}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.WeakHashMap;
 
 import org.vanda.studio.app.Generator;
+import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
@@ -56,11 +57,18 @@ public final class GeneratorImpl implements Generator {
 			assert (fc != null);
 			ArrayList<JobInfo> jobs = w.getChildren();
 			ArrayList<Fragment> fragments = new ArrayList<Fragment>(jobs.size());
-			for (int i = 0; i < jobs.size(); i++)
-				fragments.add(generateFragment(jobs.get(i).job));
+			for (int i = 0; i < jobs.size(); i++) {
+				JobInfo ji = jobs.get(i);
+				if (ji.job instanceof AtomicImmutableJob
+						&& ((AtomicImmutableJob) ji.job).getElement() instanceof Tool
+						|| ji.job instanceof CompositeImmutableJob) {
+					fragments.add(generateFragment(jobs.get(i).job));
+				} else
+					fragments.add(null);
+			}
 			result = fc.compile(w.getName(), jobs, fragments);
 			assert (result != null);
-			map.put(w, result);			
+			map.put(w, result);
 		}
 		return result;
 	}
