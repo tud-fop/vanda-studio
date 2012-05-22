@@ -240,9 +240,13 @@ public final class DrecksAdapter {
 	
 	private void highlightCells(List<mxICell> cells) {
 		for (mxICell cell : cells) {
-			graph.getModel().setStyle(cell, graph.getModel().getStyle(cell)
-					+ ";" + mxConstants.STYLE_STROKECOLOR + "=#FF0000;" 
-					+ mxConstants.STYLE_STROKEWIDTH + "=3");
+			String highlightedStyle = cell.getStyle();
+			if (highlightedStyle.length() > 0) 
+				highlightedStyle = highlightedStyle + ";";
+			highlightedStyle = highlightedStyle 
+				+ mxConstants.STYLE_STROKECOLOR + "=#FF0000;" 
+				+ mxConstants.STYLE_STROKEWIDTH + "=3";
+			cell.setStyle(highlightedStyle);
 		}
 		graph.refresh();
 	}
@@ -480,15 +484,16 @@ public final class DrecksAdapter {
 	
 	private void unhighlightCells(List<mxICell> cells) {
 		for (mxICell cell : cells) {
-			String[] highlightedStyle = graph.getModel().getStyle(cell).split(";");
+			String[] highlightedStyle = cell.getStyle().split(";");
 			String unhighlightedStyle = "";
 			for (String s : highlightedStyle) {
 				if (!s.contains(mxConstants.STYLE_STROKEWIDTH) 
 						&& !s.contains(mxConstants.STYLE_STROKECOLOR))
 					unhighlightedStyle = unhighlightedStyle + s + ";"; 
 			}
-			unhighlightedStyle = unhighlightedStyle.substring(0, unhighlightedStyle.length()-1);
-			graph.getModel().setStyle(cell, unhighlightedStyle);
+			if (unhighlightedStyle.length() > 0) 
+				unhighlightedStyle = unhighlightedStyle.substring(0, unhighlightedStyle.length()-1);
+			cell.setStyle(unhighlightedStyle);
 		}
 		graph.refresh();
 	}
@@ -530,6 +535,7 @@ public final class DrecksAdapter {
 				cell.setValue(new ConnectionAdapter(cc));
 				if (wa.workflow != null)
 					wa.workflow.addConnection(cc);
+				
 				// propagate value change to selection listeners
 				if (graph.getSelectionCell() == cell)
 					graph.setSelectionCell(cell);
@@ -578,20 +584,20 @@ public final class DrecksAdapter {
 								geo.getWidth(), geo.getHeight() };
 						ja.job.setDimensions(dim);
 						
-						//XXX testCode for highlighting cells
-						// currently a single node is highlighted when it's updated
-						List<SingleObjectSelection> elementList = new ArrayList<SingleObjectSelection>();
-						Token address = ((Job) ja.job).getAddress();
-						List<Token> path = new ArrayList<Token>();
-						mxICell pCell = cell;
-						while (model.getValue(pCell.getParent().getParent()) != null) {
-							JobAdapter jobAd = (JobAdapter) model.getValue(pCell.getParent().getParent());
-							path.add(0, jobAd.job.getAddress());
-							pCell = pCell.getParent().getParent();
-						}
-						elementList.add(new JobSelection(path, address));
-						this.model.setMarkedElements(elementList);
-						//XX end testCode
+//						//XXX testCode for highlighting cells
+//						// currently a single node is highlighted when it's updated
+//						List<SingleObjectSelection> elementList = new ArrayList<SingleObjectSelection>();
+//						Token address = ((Job) ja.job).getAddress();
+//						List<Token> path = new ArrayList<Token>();
+//						mxICell pCell = cell;
+//						while (model.getValue(pCell.getParent().getParent()) != null) {
+//							JobAdapter jobAd = (JobAdapter) model.getValue(pCell.getParent().getParent());
+//							path.add(0, jobAd.job.getAddress());
+//							pCell = pCell.getParent().getParent();
+//						}
+//						elementList.add(new JobSelection(path, address));
+//						this.model.setMarkedElements(elementList);
+//						//XX end testCode
 						
 						if (ja.job instanceof CompositeJob) {
 							mxICell wCell = translation

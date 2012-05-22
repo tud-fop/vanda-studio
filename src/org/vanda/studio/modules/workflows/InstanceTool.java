@@ -1,0 +1,116 @@
+package org.vanda.studio.modules.workflows;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import org.vanda.studio.model.hyper.CompositeJob;
+import org.vanda.studio.model.hyper.Connection;
+import org.vanda.studio.model.hyper.Job;
+import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.model.immutable.CompositeImmutableJob;
+import org.vanda.studio.model.immutable.ImmutableWorkflow;
+import org.vanda.studio.model.immutable.JobInfo;
+import org.vanda.studio.modules.workflows.Model.ConnectionSelection;
+import org.vanda.studio.modules.workflows.Model.JobSelection;
+import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
+import org.vanda.studio.util.Observer;
+import org.vanda.studio.util.TokenSource.Token;
+
+public class InstanceTool implements ToolFactory {
+	
+	private static final class Tool {
+		private final WorkflowEditor wfe;
+		private final Model m;
+		private JList instanceList;
+		private final JScrollPane scrollPane;
+		private DefaultListModel listmodel;
+		
+		public Tool(WorkflowEditor wfe, Model m) {
+			this.wfe = wfe;
+			this.instanceList = new JList();
+			this.m = m;
+			this.m.getWorkflowCheckObservable().addObserver(
+					new Observer<Model>() {
+						@Override
+						public void notify(Model event) {
+							update(event);
+						}
+					});
+			instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			instanceList.addListSelectionListener(new ListSelectionListener() {
+				@Override
+				public void valueChanged(ListSelectionEvent e) {
+					highlightSelectedInstance();
+				}
+			});
+			listmodel = new DefaultListModel();
+			scrollPane = new JScrollPane(instanceList);
+			scrollPane.setName("Workflow Instances");
+			this.wfe.addToolWindow(scrollPane);
+		}
+
+		
+		public List<SingleObjectSelection> retrieveWorkflowElements(ImmutableWorkflow iwf, List<Token> path) {
+			List<SingleObjectSelection> elements = new ArrayList<SingleObjectSelection>();
+			for (JobInfo ji : iwf.getChildren()) {
+				elements.add(new JobSelection(path, ji.job.getAddress()));
+				
+				if (ji.job instanceof CompositeImmutableJob) {
+					List<Token> newPath = new ArrayList<Token>(path);
+					newPath.add(ji.job.getAddress());
+					//elements.addAll(retrieveWorkflowElements(((CompositeImmutableJob)ji.job).getWorkflow(), newPath));
+				}
+			}
+			
+			MutableWorkflow workflow = m.getRoot();
+			for (Token token : path) {
+				if (workflow.getChild(token) instanceof CompositeJob) {
+					workflow = ((CompositeJob)workflow.getChild(token)).getWorkflow();
+				}
+			}
+			
+			for (Connection conn : workflow.getConnections()) {
+				boolean sourceFound = false;
+				boolean targetFound = false;
+				for (JobInfo info : iwf.getChildren()) {
+					if (info.job.getAddress().equals(conn.source))
+						sourceFound = true;
+					if (info.job.getAddress().equals(conn.target)) 
+						targetFound = true;
+				}
+				if (sourceFound && targetFound) 
+					elements.add(new ConnectionSelection(path, conn.address));
+			}
+			
+			return elements;
+		}
+		
+		public void highlightSelectedInstance() {
+			if (instanceList.getSelectedIndex() >= 0) {
+				ImmutableWorkflow iwf = m.getUnfolded().get(instanceList.getSelectedIndex());
+				m.setMarkedElements(retrieveWorkflowElements(iwf, new ArrayList<Token>()));
+			}
+		}
+		
+		public void update(Model model) {
+			listmodel.clear();
+			instanceList.setModel(listmodel);
+			for (ImmutableWorkflow iwf : model.getUnfolded()) {
+				listmodel.add(listmodel.getSize(), iwf.toString());
+			}			
+		}
+	}
+	
+	@Override
+	public Object instantiate(WorkflowEditor wfe, Model m) {
+		return new Tool(wfe, m);
+	}
+
+}
