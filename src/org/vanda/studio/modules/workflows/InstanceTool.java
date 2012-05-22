@@ -23,17 +23,17 @@ import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.TokenSource.Token;
 
 public class InstanceTool implements ToolFactory {
-	
+
 	private static final class Tool {
 		private final WorkflowEditor wfe;
 		private final Model m;
-		private JList instanceList;
+		private JList<String> instanceList;
 		private final JScrollPane scrollPane;
-		private DefaultListModel listmodel;
-		
+		private DefaultListModel<String> listmodel;
+
 		public Tool(WorkflowEditor wfe, Model m) {
 			this.wfe = wfe;
-			this.instanceList = new JList();
+			this.instanceList = new JList<String>();
 			this.m = m;
 			this.m.getWorkflowCheckObservable().addObserver(
 					new Observer<Model>() {
@@ -49,64 +49,69 @@ public class InstanceTool implements ToolFactory {
 					highlightSelectedInstance();
 				}
 			});
-			listmodel = new DefaultListModel();
+			listmodel = new DefaultListModel<String>();
 			scrollPane = new JScrollPane(instanceList);
 			scrollPane.setName("Workflow Instances");
 			this.wfe.addToolWindow(scrollPane);
 		}
 
-		
-		public List<SingleObjectSelection> retrieveWorkflowElements(ImmutableWorkflow iwf, List<Token> path) {
+		public List<SingleObjectSelection> retrieveWorkflowElements(
+				MutableWorkflow mwf, ImmutableWorkflow iwf, List<Token> path) {
+			
 			List<SingleObjectSelection> elements = new ArrayList<SingleObjectSelection>();
+
+			// add all child nodes recursively to the SingleObjectSelection list
 			for (JobInfo ji : iwf.getChildren()) {
 				elements.add(new JobSelection(path, ji.job.getAddress()));
-				
+
 				if (ji.job instanceof CompositeImmutableJob) {
 					List<Token> newPath = new ArrayList<Token>(path);
-					newPath.add(ji.job.getAddress());
-					//elements.addAll(retrieveWorkflowElements(((CompositeImmutableJob)ji.job).getWorkflow(), newPath));
+					Token currentAddress = ji.job.getAddress();
+					newPath.add(currentAddress);
+					assert (mwf.getChild(currentAddress) instanceof CompositeJob);
+					MutableWorkflow newMwf = ((CompositeJob) mwf
+							.getChild(currentAddress)).getWorkflow();
+					elements.addAll(retrieveWorkflowElements(newMwf,
+							((CompositeImmutableJob) ji.job).getWorkflow(),
+							newPath));
 				}
 			}
-			
-			MutableWorkflow workflow = m.getRoot();
-			for (Token token : path) {
-				if (workflow.getChild(token) instanceof CompositeJob) {
-					workflow = ((CompositeJob)workflow.getChild(token)).getWorkflow();
-				}
-			}
-			
-			for (Connection conn : workflow.getConnections()) {
+
+			// add all connections to SingleObjectSelection list
+			for (Connection conn : mwf.getConnections()) {
 				boolean sourceFound = false;
 				boolean targetFound = false;
 				for (JobInfo info : iwf.getChildren()) {
 					if (info.job.getAddress().equals(conn.source))
 						sourceFound = true;
-					if (info.job.getAddress().equals(conn.target)) 
+					if (info.job.getAddress().equals(conn.target))
 						targetFound = true;
 				}
-				if (sourceFound && targetFound) 
+				if (sourceFound && targetFound)
 					elements.add(new ConnectionSelection(path, conn.address));
 			}
-			
+
 			return elements;
 		}
-		
+
 		public void highlightSelectedInstance() {
 			if (instanceList.getSelectedIndex() >= 0) {
-				ImmutableWorkflow iwf = m.getUnfolded().get(instanceList.getSelectedIndex());
-				m.setMarkedElements(retrieveWorkflowElements(iwf, new ArrayList<Token>()));
+				ImmutableWorkflow iwf = m.getUnfolded().get(
+						instanceList.getSelectedIndex());
+				m.setMarkedElements(retrieveWorkflowElements(m.getRoot(), iwf,
+						new ArrayList<Token>()));
 			}
 		}
-		
+
 		public void update(Model model) {
 			listmodel.clear();
 			instanceList.setModel(listmodel);
 			for (ImmutableWorkflow iwf : model.getUnfolded()) {
 				listmodel.add(listmodel.getSize(), iwf.toString());
-			}			
+			}
 		}
 	}
-	
+
 	@Override
 	public Object instantiate(WorkflowEditor wfe, Model m) {
 		return new Tool(wfe, m);
