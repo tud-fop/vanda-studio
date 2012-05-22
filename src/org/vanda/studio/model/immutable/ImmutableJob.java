@@ -9,8 +9,20 @@ import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.TokenSource.Token;
 
 public abstract class ImmutableJob {
+	
+	protected final Token address;
+	
+	public ImmutableJob(Token address) {
+		this.address = address;
+	}
+	
+	public abstract void addFragmentTypeEquation(TypeChecker tc);
 
 	public abstract ImmutableWorkflow dereference(ListIterator<Token> path);
+	
+	public final Token getAddress() {
+		return address;
+	}
 
 	public abstract List<Port> getInputPorts();
 	
@@ -23,7 +35,9 @@ public abstract class ImmutableJob {
 	public abstract boolean isInputPort();
 
 	public abstract boolean isOutputPort();
-
+	
+	public abstract void typeCheck() throws Exception;
+	
 	/**
 	 * Return null if unfold is identity (true for all AtomicImmutableJobs).
 	 * 

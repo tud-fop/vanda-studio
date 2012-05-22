@@ -12,11 +12,12 @@ import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.TokenSource.Token;
 
-public class AtomicImmutableJob extends ImmutableJob {
+public final class AtomicImmutableJob extends ImmutableJob {
 
 	private final Element element;
 
-	public AtomicImmutableJob(Element element) {
+	public AtomicImmutableJob(Token address, Element element) {
+		super(address);
 		this.element = element;
 	}
 
@@ -74,6 +75,16 @@ public class AtomicImmutableJob extends ImmutableJob {
 	@Override
 	public Type getFragmentType() {
 		return element.getFragmentType();
+	}
+
+	@Override
+	public void addFragmentTypeEquation(TypeChecker tc) {
+		tc.addFragmentTypeEquation(element.getFragmentType());
+	}
+
+	@Override
+	public void typeCheck() throws Exception {
+		// do nothing
 	}
 
 }
