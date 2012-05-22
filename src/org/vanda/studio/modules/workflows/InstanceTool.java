@@ -57,7 +57,7 @@ public class InstanceTool implements ToolFactory {
 
 		public List<SingleObjectSelection> retrieveWorkflowElements(
 				MutableWorkflow mwf, ImmutableWorkflow iwf, List<Token> path) {
-			
+
 			List<SingleObjectSelection> elements = new ArrayList<SingleObjectSelection>();
 
 			// add all child nodes recursively to the SingleObjectSelection list
@@ -84,7 +84,8 @@ public class InstanceTool implements ToolFactory {
 				for (JobInfo info : iwf.getChildren()) {
 					if (info.job.getAddress().equals(conn.source))
 						sourceFound = true;
-					if (info.job.getAddress().equals(conn.target))
+					if (info.job.getAddress().equals(conn.target)
+							&& info.inputs.get(conn.targetPort) != null)
 						targetFound = true;
 				}
 				if (sourceFound && targetFound)
