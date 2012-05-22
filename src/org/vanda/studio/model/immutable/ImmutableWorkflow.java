@@ -3,27 +3,21 @@ package org.vanda.studio.model.immutable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.OutputPort;
-import org.vanda.studio.model.elements.Port;
-import org.vanda.studio.model.types.Equation;
 import org.vanda.studio.model.types.Type;
-import org.vanda.studio.model.types.TypeVariable;
-import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
 
 public final class ImmutableWorkflow {
 
 	final ArrayList<JobInfo> children;
-	final TokenSource token;
-	final int[] tokenSource;
+	final TokenSource variableSource;
+	final int[] variableOrigins;
 	final String name;
 	private final Map<Object, ImmutableJob> deref;
 	private Type[] types;
@@ -41,13 +35,13 @@ public final class ImmutableWorkflow {
 		this.name = name;
 		this.children = children;
 		deref = new HashMap<Object, ImmutableJob>();
-		this.token = token;
-		tokenSource = new int[maxtoken];
+		this.variableSource = token;
+		variableOrigins = new int[maxtoken];
 		for (int i = 0; i < children.size(); i++) {
 			JobInfo ji = children.get(i);
 			if (maxtoken > 0) {
 				for (Object tok : ji.outputs)
-					tokenSource[((TokenSource.Token) tok).intValue()] = i;
+					variableOrigins[((TokenSource.Token) tok).intValue()] = i;
 			}
 			deref.put(ji.address, ji.job);
 		}
@@ -104,58 +98,24 @@ public final class ImmutableWorkflow {
 	}
 
 	public void typeCheck() throws Exception {
-		TokenSource t = token.clone();
-		Map<Token, Token> rename = null;
-		Set<Equation> s = new HashSet<Equation>();
-		Token fragmentTypeToken = t.makeToken();
+		// only type check once, as this is an immutable workflow...
+		if (fragmentType != null)
+			return;
+		TypeChecker tc = new TypeChecker(variableSource);
 		for (JobInfo ji : children) {
-			rename = new HashMap<Token, Token>();
-			ji.job.getFragmentType().freshMap(t, rename);
-			s.add(new Equation(new TypeVariable(fragmentTypeToken), ji.job.getFragmentType()
-					.rename(rename)));
-			rename = new HashMap<Token, Token>();
-			if (!ji.job.isInputPort() && !ji.job.isOutputPort()) {
-				List<Port> in = ji.job.getInputPorts();
-				List<Port> ou = ji.job.getOutputPorts();
-				if (in != null && ou != null) {
-					assert (in.size() == ji.inputs.size() && ou.size() == ji.outputs
-							.size());
-					for (Port p : in)
-						p.getType().freshMap(t, rename);
-					for (Port p : ou)
-						p.getType().freshMap(t, rename);
-					for (int i = 0; i < in.size(); i++) {
-						if (ji.inputs.get(i) != null)
-							s.add(new Equation(new TypeVariable(ji.inputs
-									.get(i)), in.get(i).getType()
-									.rename(rename)));
-					}
-					for (int i = 0; i < ou.size(); i++) {
-						s.add(new Equation(new TypeVariable(ji.outputs.get(i)),
-								ou.get(i).getType().rename(rename)));
-					}
-				}
-			}
+			ji.job.typeCheck();
+			ji.job.addFragmentTypeEquation(tc);
+			if (!ji.job.isInputPort() && !ji.job.isOutputPort())
+				tc.addDataFlowEquations(ji);
 		}
-		// System.out.println(s);
-		Types.unify(s);
-		types = new Type[token.getMaxToken()];
-		for (Equation e : s) {
-			Token i = ((TypeVariable) e.lhs).variable;
-			if (i.intValue() < types.length)
-				types[i.intValue()] = e.rhs;
-			if (i.intValue() == fragmentTypeToken.intValue())
-				fragmentType = e.rhs;
-		}
-		System.out.println(fragmentType);
-		for (int i = 0; i < types.length; i++)
-			if (types[i] == null)
-				types[i] = new TypeVariable(TokenSource.getToken(i));
-		// System.out.println(s);
+		tc.check();
+		types = tc.getTypes();
+		fragmentType = tc.getFragmentType();
+		// System.out.println(fragmentType);
 	}
 
 	public List<ImmutableWorkflow> unfold() {
-		if (tokenSource.length == 0)
+		if (variableOrigins.length == 0)
 			return Collections.singletonList(this);
 		else
 			return new Unfolder(this).unfold();

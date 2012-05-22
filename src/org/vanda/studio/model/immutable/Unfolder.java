@@ -156,7 +156,7 @@ public class Unfolder {
 					}
 				}
 				ImmutableWorkflow wf = new ImmutableWorkflow(parent.name,
-						children, parent.token, 0);
+						children, parent.variableSource, 0);
 				result.add(wf);
 			}
 		}

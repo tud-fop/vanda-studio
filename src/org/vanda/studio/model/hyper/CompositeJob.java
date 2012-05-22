@@ -42,7 +42,7 @@ public class CompositeJob extends Job {
 
 	@Override
 	public ImmutableJob freeze() throws Exception {
-		return new CompositeImmutableJob(linker, workflow.freeze());
+		return new CompositeImmutableJob(address, linker, workflow.freeze());
 	}
 
 	@Override

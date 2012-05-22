@@ -67,7 +67,7 @@ public class AtomicJob extends Job {
 
 	@Override
 	public ImmutableJob freeze() {
-		return new AtomicImmutableJob(element);
+		return new AtomicImmutableJob(address, element);
 	}
 
 	@Override

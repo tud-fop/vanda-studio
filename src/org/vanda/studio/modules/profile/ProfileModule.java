@@ -1,23 +1,11 @@
 package org.vanda.studio.modules.profile;
 
-import java.awt.BorderLayout;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListModel;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
+import java.util.Collection;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.app.Profile;
-import org.vanda.studio.app.Repository;
-import org.vanda.studio.model.elements.RepositoryItem;
+import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.Observer;
@@ -37,113 +25,51 @@ public class ProfileModule implements Module {
 	private static final class ProfileModuleInstance {
 		private final Application app;
 		private final SimpleRepository<Profile> repository;
-		private JPanel manager;
+		private final Profiles profiles;
+		private ProfileManager manager;
 
+		@SuppressWarnings("unused")
 		public ProfileModuleInstance(Application app) {
 			this.app = app;
+			profiles = new ProfilesImpl();
+			SimpleRepository<FragmentLinker> linkers = new SimpleRepository<FragmentLinker>(null);
+			profiles.getFragmentLinkerMetaRepository().addRepository(linkers);
+			if (false) {
+				Collection<Linker> ls = app.getLinkerMetaRepository().getRepository().getItems();
+				for (Linker l : ls) {
+					FragmentLinker fl = profiles.getFragmentLinkerMetaRepository().getRepository().getItem(l.getId());
+					if (fl == null /*|| !fl.check(l)*/)
+						throw new RuntimeException();
+				}
+			}
 			repository = new SimpleRepository<Profile>(null);
 			repository.addItem(new FragmentProfile());
 			manager = null;
 			app.getProfileMetaRepository().addRepository(repository);
-			app.getWindowSystem().addAction(null, new Action() {
-				@Override
-				public String getName() {
-					return "Manage Fragment Profiles...";
-				}
-
-				@Override
-				public void invoke() {
-					openManager();
-				}
-			});
+			app.getWindowSystem().addAction(null, new OpenManagerAction());
 		}
 
-		public void openManager() {
-			if (manager == null) {
-				JList list = new JList(new RepositoryListModel<Profile>(
-						repository));
-				JScrollPane listScroll = new JScrollPane(list);
-				manager = new JPanel(new BorderLayout());
-				manager.add(listScroll, BorderLayout.WEST);
-				manager.setName("Fragment Profiles");
-				app.getWindowSystem().addContentWindow(null, manager,
-						new Action() {
-							@Override
-							public String getName() {
-								return "Close";
-							}
-
-							@Override
-							public void invoke() {
-								app.getWindowSystem().removeContentWindow(
-										manager);
-								manager = null;
-							}
-						});
-				app.getWindowSystem().addAction(manager, new Action() {
-
-					@Override
-					public String getName() {
-						return "Test";
-					}
-
-					@Override
-					public void invoke() {
-
-					}
-
-				});
+		public final class OpenManagerAction implements Action {
+			@Override
+			public String getName() {
+				return "Manage Fragment Profiles...";
 			}
-			app.getWindowSystem().focusContentWindow(manager);
+
+			@Override
+			public void invoke() {
+				if (manager == null) {
+					manager = new ProfileManager(app, repository);
+					manager.getCloseObservable().addObserver(new CloseObserver());
+				}
+				manager.focus();				
+			}
 		}
-	}
-
-	private static class RepositoryListModel<T extends RepositoryItem>
-			implements ListModel, Observer<T> {
-
-		private final Repository<T> repository;
-		private List<T> items;
-		private final Set<ListDataListener> listeners;
-
-		public RepositoryListModel(Repository<T> repository) {
-			this.repository = repository;
-			listeners = new HashSet<ListDataListener>();
-			items = new ArrayList<T>(repository.getItems());
-			repository.getAddObservable().addObserver(this);
-			repository.getRemoveObservable().addObserver(this);
-			repository.getModifyObservable().addObserver(this);
-		}
-
-		@Override
-		public int getSize() {
-			return repository.getItems().size();
-		}
-
-		@Override
-		public Object getElementAt(int index) {
-			return items.get(index).getName();
-		}
-
-		@Override
-		public void addListDataListener(ListDataListener l) {
-			listeners.add(l);
-		}
-
-		@Override
-		public void removeListDataListener(ListDataListener l) {
-			listeners.remove(l);
-		}
-
-		@Override
-		public void notify(T event) {
-			for (ListDataListener l : listeners)
-				l.contentsChanged(new ListDataEvent(this,
-						ListDataEvent.INTERVAL_REMOVED, 0, items.size()));
-			items.clear();
-			items.addAll(repository.getItems());
-			for (ListDataListener l : listeners)
-				l.contentsChanged(new ListDataEvent(this,
-						ListDataEvent.INTERVAL_ADDED, 0, items.size()));
+		
+		public final class CloseObserver implements Observer<ProfileManager> {
+			@Override
+			public void notify(ProfileManager event) {
+				manager = null;
+			}
 		}
 
 	}

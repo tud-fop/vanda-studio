@@ -10,7 +10,7 @@ import org.vanda.studio.util.Observer;
 
 public class DebuggerTool implements ToolFactory {
 
-	public static final class Tool {
+	private static final class Tool {
 		private final WorkflowEditor wfe;
 		private final Model m;
 		private final JTextArea debugger;

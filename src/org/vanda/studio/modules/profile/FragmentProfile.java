@@ -17,7 +17,7 @@ public class FragmentProfile implements Profile {
 
 	@Override
 	public String getDescription() {
-		return "Generates code using extremely simple compositional fragments";
+		return "Generates code using simple compositional fragments";
 	}
 
 	@Override

@@ -10,14 +10,14 @@ import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.TokenSource.Token;
 
-public class CompositeImmutableJob extends ImmutableJob {
+public final class CompositeImmutableJob extends ImmutableJob {
 
 	private final Linker linker;
-
 	private final ImmutableWorkflow workflow;
 
-	public CompositeImmutableJob(Linker linker,
+	public CompositeImmutableJob(Token address, Linker linker,
 			ImmutableWorkflow workflow) {
+		super(address);
 		this.linker = linker;
 		this.workflow = workflow;
 	}
@@ -35,7 +35,7 @@ public class CompositeImmutableJob extends ImmutableJob {
 		List<ImmutableWorkflow> workflows = workflow.unfold();
 		List<ImmutableJob> jobs = new LinkedList<ImmutableJob>();
 		for (ImmutableWorkflow w : workflows)
-			jobs.add(new CompositeImmutableJob(linker, w));
+			jobs.add(new CompositeImmutableJob(address, linker, w));
 		return jobs;
 	}
 
@@ -91,6 +91,18 @@ public class CompositeImmutableJob extends ImmutableJob {
 	@Override
 	public Type getFragmentType() {
 		return linker.getFragmentType();
+	}
+
+	@Override
+	public void addFragmentTypeEquation(TypeChecker tc) {
+		tc.addLinkerEquation(linker.getFragmentType(),
+				linker.getInnerFragmentType(), workflow.getFragmentType());
+	}
+
+	@Override
+	public void typeCheck() throws Exception {
+		workflow.typeCheck();
+		assert (workflow.getFragmentType() != null);
 	}
 
 }
