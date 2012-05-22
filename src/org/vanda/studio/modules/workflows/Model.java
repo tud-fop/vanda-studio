@@ -64,7 +64,6 @@ public final class Model {
 	protected List<ImmutableWorkflow> unfolded;
 	protected WorkflowSelection selection;
 	protected List<SingleObjectSelection> markedElements;
-	protected List<SingleObjectSelection> previouslyMarkedElements;
 	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> addObservable;
 	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> modifyObservable;
 	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> removeObservable;
@@ -84,7 +83,6 @@ public final class Model {
 	public Model(MutableWorkflow hwf) {
 		this.hwf = hwf;
 		this.markedElements = new ArrayList<SingleObjectSelection>();
-		this.previouslyMarkedElements = new ArrayList<SingleObjectSelection>();
 		addObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
 		modifyObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
 		removeObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
@@ -175,10 +173,6 @@ public final class Model {
 		return markedElements;
 	}
 	
-	public List<SingleObjectSelection> getPreviouslyMarkedElements() {
-		return previouslyMarkedElements;
-	}
-	
 	public MutableWorkflow getRoot() {
 		return hwf;
 	}
@@ -233,7 +227,6 @@ public final class Model {
 	}
 
 	public void setMarkedElements(List<SingleObjectSelection> elements) {
-		this.previouslyMarkedElements = this.markedElements;
 		this.markedElements = elements;
 		markedElementsObservable.notify(this);
 	}

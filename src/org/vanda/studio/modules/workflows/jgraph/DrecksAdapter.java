@@ -27,7 +27,6 @@ import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
 import com.mxgraph.model.mxGraphModel.mxValueChange;
-import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUndoableEdit;
@@ -157,6 +156,11 @@ public final class DrecksAdapter {
 	protected final ChangeListener changeListener;
 	protected final Map<MutableWorkflow, mxICell> translation;
 
+	protected final String[] vertexHighlightStyle = { "strokeColor=#0099FF;",
+			"strokeWidth=3;" };
+	protected final String[] edgeHighlightStyle = { "strokeColor=#0099FF;",
+			"strokeWidth=3;" };
+
 	public DrecksAdapter(Model model) {
 		this.model = model;
 		translation = new HashMap<MutableWorkflow, mxICell>();
@@ -218,10 +222,14 @@ public final class DrecksAdapter {
 					new Observer<Model>() {
 						@Override
 						public void notify(Model model) {
-							unhighlightCells(transformElementsToCells(model
-									.getPreviouslyMarkedElements()));
-							highlightCells(transformElementsToCells(model
-									.getMarkedElements()));
+							List<mxICell> markedCells = transformElementsToCells(model
+									.getMarkedElements());
+
+							List<mxICell> inverseOfMarkedCells = calculateInverseCellList(
+									graph.getDefaultParent(), markedCells);
+
+							unhighlightCells(inverseOfMarkedCells);
+							highlightCells(markedCells);
 						}
 					});
 		}
@@ -236,6 +244,35 @@ public final class DrecksAdapter {
 			render(null, null);
 	}
 
+	private List<mxICell> calculateInverseCellList(Object cell,
+			List<mxICell> cells) {
+
+		List<mxICell> inverseList = new ArrayList<mxICell>();
+
+		Object[] objects = graph.getChildCells(cell, true, true);
+		for (Object o : objects) {
+			mxICell oc = (mxICell) o;
+
+			// add current cell to inverseList if it is not in given cell list
+			if (!cells.contains(o)) {
+				inverseList.add(oc);
+			}
+
+			// check children of current cell for membership within given
+			// cell list, add them to inverse list otherwise
+			if (oc.getValue() instanceof JobAdapter) {
+				for (int i = 0; i < oc.getChildCount(); i++) {
+					if (oc.getChildAt(i).getValue() instanceof WorkflowAdapter) {
+						inverseList.addAll(calculateInverseCellList(
+								oc.getChildAt(i), cells));
+					}
+				}
+			}
+		}
+
+		return inverseList;
+	}
+
 	public mxGraph getGraph() {
 		return graph;
 	}
@@ -243,12 +280,37 @@ public final class DrecksAdapter {
 	private void highlightCells(List<mxICell> cells) {
 		for (mxICell cell : cells) {
 			String highlightedStyle = cell.getStyle();
+
+			// make sure the style is at least an empty string
 			if (highlightedStyle == null)
 				highlightedStyle = "";
+
+			// if we extend some existing nonempty style, add semicolon to
+			// prepare style for adding more components
 			if (highlightedStyle.length() > 0)
 				highlightedStyle = highlightedStyle + ";";
-			highlightedStyle = highlightedStyle + mxConstants.STYLE_STROKECOLOR
-					+ "=#FF0000;" + mxConstants.STYLE_STROKEWIDTH + "=3";
+
+			// construct vertex highlighting style
+			if (cell.isVertex()) {
+				for (String s : vertexHighlightStyle) {
+					highlightedStyle = highlightedStyle + s;
+				}
+			}
+
+			// construct edge highlighting style
+			if (cell.isEdge()) {
+				for (String s : edgeHighlightStyle) {
+					highlightedStyle = highlightedStyle + s;
+				}
+			}
+
+			// remove last semicolon from style
+			if (highlightedStyle.length() > 0
+					&& highlightedStyle.lastIndexOf(";") == highlightedStyle
+							.length() - 1)
+				highlightedStyle = highlightedStyle.substring(0,
+						highlightedStyle.length() - 1);
+
 			cell.setStyle(highlightedStyle);
 		}
 		graph.refresh();
@@ -421,38 +483,6 @@ public final class DrecksAdapter {
 		return cell;
 	}
 
-	private List<mxICell> transformElementsToCells(
-			List<SingleObjectSelection> elements) {
-		List<mxICell> cellList = new ArrayList<mxICell>();
-
-		for (SingleObjectSelection element : elements) {
-			WorkflowAdapter adapter = (WorkflowAdapter) translation.get(
-					model.getRoot()).getValue();
-			for (Token pathToken : element.path) {
-				mxICell cell = adapter.getChild(pathToken);
-				if (cell.getValue() instanceof JobAdapter) {
-					for (int i = 0; i < cell.getChildCount(); i++) {
-						if (cell.getChildAt(i).getValue() instanceof WorkflowAdapter) {
-							adapter = (WorkflowAdapter) cell.getChildAt(i)
-									.getValue();
-						}
-					}
-				}
-			}
-
-			mxICell cell = null;
-			if (element instanceof JobSelection) {
-				cell = adapter.getChild(element.address);
-			} else {
-				cell = adapter.getConnection(element.address);
-			}
-
-			cellList.add(cell);
-		}
-
-		return cellList;
-	}
-
 	public <F> void renderConnection(MutableWorkflow parent, Connection cc) {
 		mxICell parentCell = translation.get(parent);
 		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
@@ -488,20 +518,73 @@ public final class DrecksAdapter {
 		}
 	}
 
+	private List<mxICell> transformElementsToCells(
+			List<SingleObjectSelection> elements) {
+		List<mxICell> cellList = new ArrayList<mxICell>();
+
+		for (SingleObjectSelection element : elements) {
+			WorkflowAdapter adapter = (WorkflowAdapter) translation.get(
+					model.getRoot()).getValue();
+			for (Token pathToken : element.path) {
+				mxICell cell = adapter.getChild(pathToken);
+				if (cell.getValue() instanceof JobAdapter) {
+					for (int i = 0; i < cell.getChildCount(); i++) {
+						if (cell.getChildAt(i).getValue() instanceof WorkflowAdapter) {
+							adapter = (WorkflowAdapter) cell.getChildAt(i)
+									.getValue();
+						}
+					}
+				}
+			}
+
+			mxICell cell = null;
+			if (element instanceof JobSelection) {
+				cell = adapter.getChild(element.address);
+			} else {
+				cell = adapter.getConnection(element.address);
+			}
+
+			cellList.add(cell);
+		}
+
+		return cellList;
+	}
+
 	private void unhighlightCells(List<mxICell> cells) {
 		for (mxICell cell : cells) {
-			if (cell.getStyle() == null)
-				cell.setStyle("");
-			String[] highlightedStyle = cell.getStyle().split(";");
-			String unhighlightedStyle = "";
-			for (String s : highlightedStyle) {
-				if (!s.contains(mxConstants.STYLE_STROKEWIDTH)
-						&& !s.contains(mxConstants.STYLE_STROKECOLOR))
-					unhighlightedStyle = unhighlightedStyle + s + ";";
-			}
+			String unhighlightedStyle = cell.getStyle();
+
+			// make sure the style is at least an empty string
+			if (unhighlightedStyle == null)
+				unhighlightedStyle = "";
+
+			// if we extend some existing nonempty style, add semicolon to
+			// prepare style for adding more components
 			if (unhighlightedStyle.length() > 0)
+				unhighlightedStyle = unhighlightedStyle + ";";
+
+			// construct vertex unhighlighting style
+			if (cell.isVertex()) {
+				for (String s : vertexHighlightStyle) {
+					unhighlightedStyle = unhighlightedStyle.replaceAll(s, "");
+				}
+			}
+
+			// construct edge unhighlighting style
+			if (cell.isEdge()) {
+				for (String s : edgeHighlightStyle) {
+					unhighlightedStyle = unhighlightedStyle.replaceAll(s, "");
+				}
+			}
+
+			// remove final semicolon of style string
+			if (unhighlightedStyle.length() > 0
+					&& unhighlightedStyle.lastIndexOf(";") == unhighlightedStyle
+							.length() - 1) {
 				unhighlightedStyle = unhighlightedStyle.substring(0,
 						unhighlightedStyle.length() - 1);
+			}
+
 			cell.setStyle(unhighlightedStyle);
 		}
 		graph.refresh();
