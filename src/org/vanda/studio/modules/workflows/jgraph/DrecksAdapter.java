@@ -1,5 +1,6 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,6 +14,7 @@ import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.workflows.Model;
 import org.vanda.studio.modules.workflows.Model.ConnectionSelection;
 import org.vanda.studio.modules.workflows.Model.JobSelection;
+import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.modules.workflows.Model.WorkflowSelection;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Pair;
@@ -20,15 +22,16 @@ import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxICell;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
 import com.mxgraph.model.mxGraphModel.mxValueChange;
-import com.mxgraph.model.mxICell;
-import com.mxgraph.model.mxIGraphModel;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
-import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit;
+import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphSelectionModel.mxSelectionChange;
@@ -211,6 +214,14 @@ public final class DrecksAdapter {
 								graph.refresh();
 						}
 					});
+			model.getMarkedElementsObservable().addObserver(
+					new Observer<Model>() {
+						@Override
+						public void notify(Model model) {
+							unhighlightCells(transformElementsToCells(model.getPreviouslyMarkedElements()));
+							highlightCells(transformElementsToCells(model.getMarkedElements()));
+						}
+					});
 		}
 
 		changeListener = new ChangeListener();
@@ -226,7 +237,16 @@ public final class DrecksAdapter {
 	public mxGraph getGraph() {
 		return graph;
 	}
-
+	
+	private void highlightCells(List<mxICell> cells) {
+		for (mxICell cell : cells) {
+			graph.getModel().setStyle(cell, graph.getModel().getStyle(cell)
+					+ ";" + mxConstants.STYLE_STROKECOLOR + "=#FF0000;" 
+					+ mxConstants.STYLE_STROKEWIDTH + "=3");
+		}
+		graph.refresh();
+	}
+	
 	public void modifyChild(MutableWorkflow hwf, Job job) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
 		mxICell cell = wa.getChild(job.getAddress());
@@ -394,6 +414,35 @@ public final class DrecksAdapter {
 		return cell;
 	}
 
+	private List<mxICell> transformElementsToCells(List<SingleObjectSelection> elements) {
+		List<mxICell> cellList = new ArrayList<mxICell>();
+		
+		for (SingleObjectSelection element : elements) {
+			WorkflowAdapter adapter = (WorkflowAdapter) translation.get(model.getRoot()).getValue();
+			for (Token pathToken : element.path) {
+				mxICell cell = adapter.getChild(pathToken);
+				if (cell.getValue() instanceof JobAdapter) {
+					for (int i = 0; i < cell.getChildCount(); i++) {
+						if (cell.getChildAt(i).getValue() instanceof WorkflowAdapter) {
+							adapter = (WorkflowAdapter) cell.getChildAt(i).getValue();
+						}
+					}
+				}
+			}
+			
+			mxICell cell = null;
+			if (element instanceof JobSelection) {
+				cell = adapter.getChild(element.address);
+			} else {
+				cell = adapter.getConnection(element.address);
+			}
+			
+			cellList.add(cell);
+		}
+		
+		return cellList;
+	}
+	
 	public <F> void renderConnection(MutableWorkflow parent, Connection cc) {
 		mxICell parentCell = translation.get(parent);
 		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
@@ -428,7 +477,22 @@ public final class DrecksAdapter {
 				assert (false);
 		}
 	}
-
+	
+	private void unhighlightCells(List<mxICell> cells) {
+		for (mxICell cell : cells) {
+			String[] highlightedStyle = graph.getModel().getStyle(cell).split(";");
+			String unhighlightedStyle = "";
+			for (String s : highlightedStyle) {
+				if (!s.contains(mxConstants.STYLE_STROKEWIDTH) 
+						&& !s.contains(mxConstants.STYLE_STROKECOLOR))
+					unhighlightedStyle = unhighlightedStyle + s + ";"; 
+			}
+			unhighlightedStyle = unhighlightedStyle.substring(0, unhighlightedStyle.length()-1);
+			graph.getModel().setStyle(cell, unhighlightedStyle);
+		}
+		graph.refresh();
+	}
+	
 	protected void updateEdge(mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
@@ -473,7 +537,7 @@ public final class DrecksAdapter {
 		}
 	}
 
-	protected void updateNode(mxICell cell) {
+	protected void updateNode(mxICell cell) {		
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
 		if (value instanceof WorkflowAdapter) {
@@ -513,7 +577,20 @@ public final class DrecksAdapter {
 						double[] dim = { geo.getX(), geo.getY(),
 								geo.getWidth(), geo.getHeight() };
 						ja.job.setDimensions(dim);
-
+						
+						//XXX testCode for highlighting cells
+						// currently a single node is highlighted when it's updated
+						List<SingleObjectSelection> elementList = new ArrayList<SingleObjectSelection>();
+						Token address = ((Job) ja.job).getAddress();
+						List<Token> path = new ArrayList<Token>();
+						if (model.getValue(cell.getParent().getParent()) != null) {
+							JobAdapter jobAd = (JobAdapter) model.getValue(cell.getParent().getParent());
+							path.add(jobAd.job.getAddress());
+						}
+						elementList.add(new JobSelection(path, address));
+						this.model.setMarkedElements(elementList);
+						//XX end testCode
+						
 						if (ja.job instanceof CompositeJob) {
 							mxICell wCell = translation
 									.get(((CompositeJob) ja.job).getWorkflow());

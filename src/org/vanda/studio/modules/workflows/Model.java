@@ -63,7 +63,8 @@ public final class Model {
 	protected ImmutableWorkflow frozen;
 	protected List<ImmutableWorkflow> unfolded;
 	protected WorkflowSelection selection;
-	protected List<SingleObjectSelection> selectedElements;
+	protected List<SingleObjectSelection> markedElements;
+	protected List<SingleObjectSelection> previouslyMarkedElements;
 	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> addObservable;
 	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> modifyObservable;
 	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> removeObservable;
@@ -77,12 +78,13 @@ public final class Model {
 	protected final Observer<Pair<MutableWorkflow, Connection>> disconnectObserver;
 	protected final Observer<MutableWorkflow> nameChangeObserver;
 	protected final MultiplexObserver<Model> selectionChangeObservable;
-	protected final MultiplexObserver<Model> selectedElementsObservable;
+	protected final MultiplexObserver<Model> markedElementsObservable;
 	protected final MultiplexObserver<Model> workflowCheckObservable;
 
 	public Model(MutableWorkflow hwf) {
 		this.hwf = hwf;
-		this.selectedElements = new ArrayList<SingleObjectSelection>();
+		this.markedElements = new ArrayList<SingleObjectSelection>();
+		this.previouslyMarkedElements = new ArrayList<SingleObjectSelection>();
 		addObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
 		modifyObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
 		removeObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
@@ -90,7 +92,7 @@ public final class Model {
 		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow, Connection>>();
 		nameChangeObservable = new MultiplexObserver<MutableWorkflow>();
 		selectionChangeObservable = new MultiplexObserver<Model>();
-		selectedElementsObservable = new MultiplexObserver<Model>();
+		markedElementsObservable = new MultiplexObserver<Model>();
 		workflowCheckObservable = new MultiplexObserver<Model>();
 		addObserver = new Observer<Pair<MutableWorkflow, Job>>() {
 			@Override
@@ -169,6 +171,14 @@ public final class Model {
 		return frozen;
 	}
 
+	public List<SingleObjectSelection> getMarkedElements() {
+		return markedElements;
+	}
+	
+	public List<SingleObjectSelection> getPreviouslyMarkedElements() {
+		return previouslyMarkedElements;
+	}
+	
 	public MutableWorkflow getRoot() {
 		return hwf;
 	}
@@ -205,8 +215,8 @@ public final class Model {
 		return selectionChangeObservable;
 	}
 
-	public Observable<Model> getSelectedElementsObservable() {
-		return selectedElementsObservable;
+	public Observable<Model> getMarkedElementsObservable() {
+		return markedElementsObservable;
 	}
 
 	public Observable<Model> getWorkflowCheckObservable() {
@@ -222,9 +232,10 @@ public final class Model {
 		selectionChangeObservable.notify(this);
 	}
 
-	public void setSelectedElements(List<SingleObjectSelection> elements) {
-		this.selectedElements = elements;
-		selectedElementsObservable.notify(this);
+	public void setMarkedElements(List<SingleObjectSelection> elements) {
+		this.previouslyMarkedElements = this.markedElements;
+		this.markedElements = elements;
+		markedElementsObservable.notify(this);
 	}
 
 	public void unbind(MutableWorkflow wf) {
