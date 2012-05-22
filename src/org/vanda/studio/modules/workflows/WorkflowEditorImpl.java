@@ -147,21 +147,6 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 				WorkflowSelection ws = model.getSelection();
 				if (ws instanceof SingleObjectSelection)
 					((SingleObjectSelection) ws).remove(model.getRoot());
-				/*
-				 * // get selected cells
-				 * 
-				 * Object[] cells = g.getSelectionCells(); // delete connections
-				 * first, followed by nodes for (Object o : cells) { if
-				 * (mod.isEdge(o)) { WorkflowAdapter wa = (WorkflowAdapter)
-				 * mod.getValue(mod .getParent(o));
-				 * wa.workflow.removeConnection((Token) mod.getValue(o)); } }
-				 * for (Object o : cells) { if (mod.isVertex(o) &&
-				 * mod.getValue(o) instanceof Token) { WorkflowAdapter wa =
-				 * (WorkflowAdapter) mod.getValue(mod .getParent(o));
-				 * wa.workflow.removeChild((Token) mod.getValue(o));
-				 * //MutableWorkflow.removeChildGeneric((Job<?>) mod //
-				 * .getValue(o)); } }
-				 */
 
 			}
 

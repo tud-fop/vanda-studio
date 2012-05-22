@@ -34,50 +34,48 @@ public class CompositeJobAdapter extends JobAdapter {
 		// Object value = model.getValue(cell);
 		mxGeometry geo = model.getGeometry(cell);
 
-		if (/* hj instanceof CompositeJob<?, ?> */true) {
-			double minWidth = 0;
-			double minHeight = 0;
+		double minWidth = 0;
+		double minHeight = 0;
 
-			// determine minimum bounds of cell that contains children
-			for (int i = 0; i < model.getChildCount(cell); i++) {
-				mxCell child = (mxCell) model.getChildAt(cell, i);
+		// determine minimum bounds of cell that contains children
+		for (int i = 0; i < model.getChildCount(cell); i++) {
+			mxCell child = (mxCell) model.getChildAt(cell, i);
 
-				if (child.getValue() instanceof Job) {
-					double childRightBorder = child.getGeometry().getX()
-							+ child.getGeometry().getWidth();
-					double childBottomBorder = child.getGeometry().getY()
-							+ child.getGeometry().getHeight();
-					if (childRightBorder > minWidth) {
-						minWidth = childRightBorder;
-					}
-					if (childBottomBorder > minHeight) {
-						minHeight = childBottomBorder;
-					}
+			if (child.getValue() instanceof JobAdapter) {
+				double childRightBorder = child.getGeometry().getX()
+						+ child.getGeometry().getWidth();
+				double childBottomBorder = child.getGeometry().getY()
+						+ child.getGeometry().getHeight();
+				if (childRightBorder > minWidth) {
+					minWidth = childRightBorder;
+				}
+				if (childBottomBorder > minHeight) {
+					minHeight = childBottomBorder;
 				}
 			}
-
-			// adjust x coordinate of cell according to appropriate size
-			if (geo.getWidth() < minWidth && !model.isCollapsed(cell)) {
-				geo.setWidth(minWidth);
-				/*
-				 * if (geo.getX() > hj.getX()) { geo.setX(hj.getX() +
-				 * hj.getWidth() - minWidth); }
-				 */
-			}
-
-			// adjust y coordinate of cell according to appropriate size
-			if (geo.getHeight() < minHeight && !model.isCollapsed(cell)) {
-				geo.setHeight(minHeight);
-				/*
-				 * if (geo.getY() > hj.getY()) { geo.setY(hj.getY() +
-				 * hj.getHeight() - minHeight); }
-				 */
-			}
-
-			// set the new geometry and refresh graph to make changes visible
-			model.setGeometry(cell, geo);
-			graph.refresh();
 		}
+
+		// adjust x coordinate of cell according to appropriate size
+		if (geo.getWidth() < minWidth && !model.isCollapsed(cell)) {
+			geo.setWidth(minWidth);
+			/*
+			 * if (geo.getX() > hj.getX()) { geo.setX(hj.getX() +
+			 * hj.getWidth() - minWidth); }
+			 */
+		}
+
+		// adjust y coordinate of cell according to appropriate size
+		if (geo.getHeight() < minHeight && !model.isCollapsed(cell)) {
+			geo.setHeight(minHeight);
+			/*
+			 * if (geo.getY() > hj.getY()) { geo.setY(hj.getY() +
+			 * hj.getHeight() - minHeight); }
+			 */
+		}
+
+		// set the new geometry and refresh graph to make changes visible
+		model.setGeometry(cell, geo);
+		graph.refresh();
 	}
 
 	protected mxICell findWorkflow(mxICell cell) {
