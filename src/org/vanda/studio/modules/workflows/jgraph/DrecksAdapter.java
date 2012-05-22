@@ -128,8 +128,8 @@ public final class DrecksAdapter {
 						Object cl = (mxCell) gmodel.getParent(cell);
 						while (cl != null) {
 							if (gmodel.getValue(cl) instanceof JobAdapter)
-								path.addFirst(((JobAdapter) gmodel
-										.getValue(cl)).job.getAddress());
+								path.addFirst(((JobAdapter) gmodel.getValue(cl)).job
+										.getAddress());
 							cl = gmodel.getParent(cl);
 						}
 						if (gmodel.getValue(cell) instanceof ConnectionAdapter) {
@@ -218,8 +218,10 @@ public final class DrecksAdapter {
 					new Observer<Model>() {
 						@Override
 						public void notify(Model model) {
-							unhighlightCells(transformElementsToCells(model.getPreviouslyMarkedElements()));
-							highlightCells(transformElementsToCells(model.getMarkedElements()));
+							unhighlightCells(transformElementsToCells(model
+									.getPreviouslyMarkedElements()));
+							highlightCells(transformElementsToCells(model
+									.getMarkedElements()));
 						}
 					});
 		}
@@ -237,20 +239,21 @@ public final class DrecksAdapter {
 	public mxGraph getGraph() {
 		return graph;
 	}
-	
+
 	private void highlightCells(List<mxICell> cells) {
 		for (mxICell cell : cells) {
 			String highlightedStyle = cell.getStyle();
-			if (highlightedStyle.length() > 0) 
+			if (highlightedStyle == null)
+				highlightedStyle = "";
+			if (highlightedStyle.length() > 0)
 				highlightedStyle = highlightedStyle + ";";
-			highlightedStyle = highlightedStyle 
-				+ mxConstants.STYLE_STROKECOLOR + "=#FF0000;" 
-				+ mxConstants.STYLE_STROKEWIDTH + "=3";
+			highlightedStyle = highlightedStyle + mxConstants.STYLE_STROKECOLOR
+					+ "=#FF0000;" + mxConstants.STYLE_STROKEWIDTH + "=3";
 			cell.setStyle(highlightedStyle);
 		}
 		graph.refresh();
 	}
-	
+
 	public void modifyChild(MutableWorkflow hwf, Job job) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
 		mxICell cell = wa.getChild(job.getAddress());
@@ -418,35 +421,38 @@ public final class DrecksAdapter {
 		return cell;
 	}
 
-	private List<mxICell> transformElementsToCells(List<SingleObjectSelection> elements) {
+	private List<mxICell> transformElementsToCells(
+			List<SingleObjectSelection> elements) {
 		List<mxICell> cellList = new ArrayList<mxICell>();
-		
+
 		for (SingleObjectSelection element : elements) {
-			WorkflowAdapter adapter = (WorkflowAdapter) translation.get(model.getRoot()).getValue();
+			WorkflowAdapter adapter = (WorkflowAdapter) translation.get(
+					model.getRoot()).getValue();
 			for (Token pathToken : element.path) {
 				mxICell cell = adapter.getChild(pathToken);
 				if (cell.getValue() instanceof JobAdapter) {
 					for (int i = 0; i < cell.getChildCount(); i++) {
 						if (cell.getChildAt(i).getValue() instanceof WorkflowAdapter) {
-							adapter = (WorkflowAdapter) cell.getChildAt(i).getValue();
+							adapter = (WorkflowAdapter) cell.getChildAt(i)
+									.getValue();
 						}
 					}
 				}
 			}
-			
+
 			mxICell cell = null;
 			if (element instanceof JobSelection) {
 				cell = adapter.getChild(element.address);
 			} else {
 				cell = adapter.getConnection(element.address);
 			}
-			
+
 			cellList.add(cell);
 		}
-		
+
 		return cellList;
 	}
-	
+
 	public <F> void renderConnection(MutableWorkflow parent, Connection cc) {
 		mxICell parentCell = translation.get(parent);
 		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
@@ -481,23 +487,26 @@ public final class DrecksAdapter {
 				assert (false);
 		}
 	}
-	
+
 	private void unhighlightCells(List<mxICell> cells) {
 		for (mxICell cell : cells) {
+			if (cell.getStyle() == null)
+				cell.setStyle("");
 			String[] highlightedStyle = cell.getStyle().split(";");
 			String unhighlightedStyle = "";
 			for (String s : highlightedStyle) {
-				if (!s.contains(mxConstants.STYLE_STROKEWIDTH) 
+				if (!s.contains(mxConstants.STYLE_STROKEWIDTH)
 						&& !s.contains(mxConstants.STYLE_STROKECOLOR))
-					unhighlightedStyle = unhighlightedStyle + s + ";"; 
+					unhighlightedStyle = unhighlightedStyle + s + ";";
 			}
-			if (unhighlightedStyle.length() > 0) 
-				unhighlightedStyle = unhighlightedStyle.substring(0, unhighlightedStyle.length()-1);
+			if (unhighlightedStyle.length() > 0)
+				unhighlightedStyle = unhighlightedStyle.substring(0,
+						unhighlightedStyle.length() - 1);
 			cell.setStyle(unhighlightedStyle);
 		}
 		graph.refresh();
 	}
-	
+
 	protected void updateEdge(mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
@@ -535,7 +544,7 @@ public final class DrecksAdapter {
 				cell.setValue(new ConnectionAdapter(cc));
 				if (wa.workflow != null)
 					wa.workflow.addConnection(cc);
-				
+
 				// propagate value change to selection listeners
 				if (graph.getSelectionCell() == cell)
 					graph.setSelectionCell(cell);
@@ -543,7 +552,7 @@ public final class DrecksAdapter {
 		}
 	}
 
-	protected void updateNode(mxICell cell) {		
+	protected void updateNode(mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		Object value = model.getValue(cell);
 		if (value instanceof WorkflowAdapter) {
@@ -583,22 +592,26 @@ public final class DrecksAdapter {
 						double[] dim = { geo.getX(), geo.getY(),
 								geo.getWidth(), geo.getHeight() };
 						ja.job.setDimensions(dim);
-						
-//						//XXX testCode for highlighting cells
-//						// currently a single node is highlighted when it's updated
-//						List<SingleObjectSelection> elementList = new ArrayList<SingleObjectSelection>();
-//						Token address = ((Job) ja.job).getAddress();
-//						List<Token> path = new ArrayList<Token>();
-//						mxICell pCell = cell;
-//						while (model.getValue(pCell.getParent().getParent()) != null) {
-//							JobAdapter jobAd = (JobAdapter) model.getValue(pCell.getParent().getParent());
-//							path.add(0, jobAd.job.getAddress());
-//							pCell = pCell.getParent().getParent();
-//						}
-//						elementList.add(new JobSelection(path, address));
-//						this.model.setMarkedElements(elementList);
-//						//XX end testCode
-						
+
+						// //XXX testCode for highlighting cells
+						// // currently a single node is highlighted when it's
+						// updated
+						// List<SingleObjectSelection> elementList = new
+						// ArrayList<SingleObjectSelection>();
+						// Token address = ((Job) ja.job).getAddress();
+						// List<Token> path = new ArrayList<Token>();
+						// mxICell pCell = cell;
+						// while (model.getValue(pCell.getParent().getParent())
+						// != null) {
+						// JobAdapter jobAd = (JobAdapter)
+						// model.getValue(pCell.getParent().getParent());
+						// path.add(0, jobAd.job.getAddress());
+						// pCell = pCell.getParent().getParent();
+						// }
+						// elementList.add(new JobSelection(path, address));
+						// this.model.setMarkedElements(elementList);
+						// //XX end testCode
+
 						if (ja.job instanceof CompositeJob) {
 							mxICell wCell = translation
 									.get(((CompositeJob) ja.job).getWorkflow());
