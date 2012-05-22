@@ -85,8 +85,13 @@ public class DrecksWorkflow {
 		// clone children because they may contain mutable elements
 		children = new ArrayList<DJobInfo>();
 		ListIterator<DJobInfo> it = hyperWorkflow.children.listIterator();
-		while (it.hasNext())
-			children.add(new DJobInfo(it.next()));
+		while (it.hasNext()) {
+			DJobInfo ji = it.next();
+			if (ji == null)
+				children.add(null);
+			else
+				children.add(new DJobInfo(ji));
+		}
 		connections = new ArrayList<DConnInfo>(hyperWorkflow.connections);
 		variableSource = hyperWorkflow.variableSource.clone();
 		childAddressSource = hyperWorkflow.childAddressSource.clone();
@@ -127,9 +132,9 @@ public class DrecksWorkflow {
 		return list;
 	}
 
-	/*public Class<F> getFragmentType() {
-		return fragmentType;
-	}*/
+	/*
+	 * public Class<F> getFragmentType() { return fragmentType; }
+	 */
 
 	public ImmutableWorkflow freeze() throws Exception {
 		// Two steps. Step 1: topological sort
@@ -160,8 +165,7 @@ public class DrecksWorkflow {
 		}
 		// Step 2: actual freeze
 		if (topsort.size() == count) {
-			ArrayList<JobInfo> imch = new ArrayList<JobInfo>(
-					topsort.size());
+			ArrayList<JobInfo> imch = new ArrayList<JobInfo>(topsort.size());
 			for (DJobInfo ji : topsort) {
 				imch.add(new JobInfo(ji.job.freeze(), ji.job.address,
 						new ArrayList<Token>(ji.inputs), new ArrayList<Token>(
