@@ -27,13 +27,13 @@ public class InstanceTool implements ToolFactory {
 	private static final class Tool {
 		private final WorkflowEditor wfe;
 		private final Model m;
-		private JList<String> instanceList;
+		private JList instanceList;
 		private final JScrollPane scrollPane;
-		private DefaultListModel<String> listmodel;
+		private DefaultListModel listmodel;
 
 		public Tool(WorkflowEditor wfe, Model m) {
 			this.wfe = wfe;
-			this.instanceList = new JList<String>();
+			this.instanceList = new JList();
 			this.m = m;
 			this.m.getWorkflowCheckObservable().addObserver(
 					new Observer<Model>() {
@@ -49,7 +49,7 @@ public class InstanceTool implements ToolFactory {
 					highlightSelectedInstance();
 				}
 			});
-			listmodel = new DefaultListModel<String>();
+			listmodel = new DefaultListModel();
 			scrollPane = new JScrollPane(instanceList);
 			scrollPane.setName("Workflow Instances");
 			this.wfe.addToolWindow(scrollPane);

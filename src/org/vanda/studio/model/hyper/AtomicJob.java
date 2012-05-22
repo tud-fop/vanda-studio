@@ -125,4 +125,9 @@ public class AtomicJob extends Job {
 	public RepositoryItem getItem() {
 		return element;
 	}
+
+	@Override
+	public void visit(JobVisitor v) {
+		v.visitAtomicJob(this);
+	}
 }

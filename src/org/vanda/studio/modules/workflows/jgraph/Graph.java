@@ -27,28 +27,33 @@ class Graph extends mxGraph {
 		setMultigraph(false); // no effect!
 		setAllowLoops(false);
 		setAllowDanglingEdges(false);
-		setMultiplicities(new mxMultiplicity[] { new mxMultiplicity(false,
-				null, null, null, 0, "1", null, ".", "", false) {
-			@Override
-			public String check(mxGraph graph, Object edge, Object source,
-					Object target, int sourceOut, int targetIn) {
-				if (targetIn == 0)
-					return null;
-				else
-					return countError;
-			}
-		}, new mxMultiplicity(false,
-				null, null, null, 0, "1", null, ".", "", false) {
-			@Override
-			public String check(mxGraph graph, Object edge, Object source,
-					Object target, int sourceOut, int targetIn) {
-				mxIGraphModel model = graph.getModel();
-				if (model.getParent(model.getParent(source)) == model.getParent(model.getParent(target)))
-					return null;
-				else
-					return countError;
-			}
-		} });
+		setMultiplicities(new mxMultiplicity[] {
+				new mxMultiplicity(false, null, null, null, 0, "1", null, ".",
+						"", false) {
+					@Override
+					public String check(mxGraph graph, Object edge,
+							Object source, Object target, int sourceOut,
+							int targetIn) {
+						if (targetIn == 0)
+							return null;
+						else
+							return countError;
+					}
+				},
+				new mxMultiplicity(false, null, null, null, 0, "1", null, ".",
+						"", false) {
+					@Override
+					public String check(mxGraph graph, Object edge,
+							Object source, Object target, int sourceOut,
+							int targetIn) {
+						mxIGraphModel model = graph.getModel();
+						if (model.getParent(model.getParent(source)) == model
+								.getParent(model.getParent(target)))
+							return null;
+						else
+							return countError;
+					}
+				} });
 	}
 
 	@Override
@@ -90,6 +95,14 @@ class Graph extends mxGraph {
 	}
 
 	@Override
+	public Object createEdge(Object parent, String id, Object value,
+			Object source, Object target, String style) {
+		if (value == null || "".equals(value))
+			value = new ConnectionAdapter(null);
+		return super.createEdge(parent, id, value, source, target, style);
+	}
+
+	@Override
 	public void finalize() throws Throwable {
 		JobRendering.refStylesheet(-1);
 		super.finalize();
@@ -98,7 +111,7 @@ class Graph extends mxGraph {
 	@Override
 	public boolean isCellSelectable(Object cell) {
 		if (getModel().getValue(cell) instanceof PortAdapter
-				/*|| getModel().getValue(cell) instanceof WorkflowAdapter*/)
+		/* || getModel().getValue(cell) instanceof WorkflowAdapter */)
 			return false;
 
 		return super.isCellSelectable(cell);

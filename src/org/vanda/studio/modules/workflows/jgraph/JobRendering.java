@@ -55,6 +55,12 @@ public class JobRendering {
 			r.addStyle(style);
 			stylesheet.putCellStyle(r.getStyleName(), style);
 		}
+	
+		style = new HashMap<String, Object>();
+		style.put(mxConstants.STYLE_STROKECOLOR, "#FF0000");
+		style.put(mxConstants.STYLE_STROKEWIDTH, "3");
+		stylesheet.putCellStyle("highlighted", style);
+
 		/*
 		 * style = new HashMap<String,
 		 * Object>(stylesheet.getDefaultVertexStyle());
@@ -187,7 +193,7 @@ public class JobRendering {
 			try {
 				// insert new node into the graph that has the specified hwf as
 				// value and that shared the same dimensions
-				v = (mxCell) g.insertVertex(parent, null, new JobAdapter(hj), hj.getX(),
+				v = (mxCell) g.insertVertex(parent, null, createAdapter(hj), hj.getX(),
 						hj.getY(), hj.getWidth(), hj.getHeight(),
 						this.getStyleName());
 				v.setConnectable(false);
@@ -230,6 +236,10 @@ public class JobRendering {
 				g.getModel().endUpdate();
 			}
 			return v;
+		}
+		
+		protected Adapter createAdapter(Job job) {
+			return new JobAdapter(job);
 		}
 
 	}
@@ -335,6 +345,11 @@ public class JobRendering {
 		@Override
 		public String getStyleName() {
 			return "box";
+		}
+		
+		@Override
+		protected Adapter createAdapter(Job job) {
+			return new CompositeJobAdapter(job);
 		}
 	}
 

@@ -104,4 +104,9 @@ public class CompositeJob extends Job {
 		return linker;
 	}
 
+	@Override
+	public void visit(JobVisitor v) {
+		v.visitCompositeJob(this);
+	}
+
 }

@@ -263,6 +263,12 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 				bind(ji.job);
 			}
 	}
+	
+	public void visitAll(JobVisitor v) {
+		for (DJobInfo ji : children)
+			if (ji != null)
+				ji.job.visit(v);
+	}
 
 	/*
 	 * public void setDimensions(HyperJob<V> hj, double[] d) { assert

@@ -86,5 +86,7 @@ public abstract class Job implements HasActions, Cloneable {
 	 *  call this after deserialization
 	 */
 	public abstract void rebind();
+	
+	public abstract void visit(JobVisitor v);
 
 }
