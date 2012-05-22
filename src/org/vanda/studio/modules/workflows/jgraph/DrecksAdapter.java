@@ -583,9 +583,11 @@ public final class DrecksAdapter {
 						List<SingleObjectSelection> elementList = new ArrayList<SingleObjectSelection>();
 						Token address = ((Job) ja.job).getAddress();
 						List<Token> path = new ArrayList<Token>();
-						if (model.getValue(cell.getParent().getParent()) != null) {
-							JobAdapter jobAd = (JobAdapter) model.getValue(cell.getParent().getParent());
-							path.add(jobAd.job.getAddress());
+						mxICell pCell = cell;
+						while (model.getValue(pCell.getParent().getParent()) != null) {
+							JobAdapter jobAd = (JobAdapter) model.getValue(pCell.getParent().getParent());
+							path.add(0, jobAd.job.getAddress());
+							pCell = pCell.getParent().getParent();
 						}
 						elementList.add(new JobSelection(path, address));
 						this.model.setMarkedElements(elementList);
