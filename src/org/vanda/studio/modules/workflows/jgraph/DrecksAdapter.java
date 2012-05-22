@@ -584,20 +584,20 @@ public final class DrecksAdapter {
 								geo.getWidth(), geo.getHeight() };
 						ja.job.setDimensions(dim);
 						
-						//XXX testCode for highlighting cells
-						// currently a single node is highlighted when it's updated
-						List<SingleObjectSelection> elementList = new ArrayList<SingleObjectSelection>();
-						Token address = ((Job) ja.job).getAddress();
-						List<Token> path = new ArrayList<Token>();
-						mxICell pCell = cell;
-						while (model.getValue(pCell.getParent().getParent()) != null) {
-							JobAdapter jobAd = (JobAdapter) model.getValue(pCell.getParent().getParent());
-							path.add(0, jobAd.job.getAddress());
-							pCell = pCell.getParent().getParent();
-						}
-						elementList.add(new JobSelection(path, address));
-						this.model.setMarkedElements(elementList);
-						//XX end testCode
+//						//XXX testCode for highlighting cells
+//						// currently a single node is highlighted when it's updated
+//						List<SingleObjectSelection> elementList = new ArrayList<SingleObjectSelection>();
+//						Token address = ((Job) ja.job).getAddress();
+//						List<Token> path = new ArrayList<Token>();
+//						mxICell pCell = cell;
+//						while (model.getValue(pCell.getParent().getParent()) != null) {
+//							JobAdapter jobAd = (JobAdapter) model.getValue(pCell.getParent().getParent());
+//							path.add(0, jobAd.job.getAddress());
+//							pCell = pCell.getParent().getParent();
+//						}
+//						elementList.add(new JobSelection(path, address));
+//						this.model.setMarkedElements(elementList);
+//						//XX end testCode
 						
 						if (ja.job instanceof CompositeJob) {
 							mxICell wCell = translation
