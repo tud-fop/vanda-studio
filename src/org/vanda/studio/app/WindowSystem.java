@@ -15,6 +15,7 @@ import org.vanda.studio.util.Action;
  */
 public interface WindowSystem {
 	/**
+	 * Call this *before* adding c as a contentWindow.
 	 */
 	void addAction(JComponent c, Action a);
 

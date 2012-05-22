@@ -39,8 +39,6 @@ public final class ProfileManager {
 		contentPane = new JPanel(new BorderLayout());
 		contentPane.add(listScroll, BorderLayout.WEST);
 		contentPane.setName("Fragment Profiles");
-		app.getWindowSystem().addContentWindow(null, contentPane,
-				new CloseAction());
 		app.getWindowSystem().addAction(contentPane, new Action() {
 			@Override
 			public String getName() {
@@ -52,6 +50,8 @@ public final class ProfileManager {
 
 			}
 		});
+		app.getWindowSystem().addContentWindow(null, contentPane,
+				new CloseAction());
 
 	}
 	

@@ -152,7 +152,7 @@ public class WindowSystemImpl implements WindowSystem {
 						menuBar.add(menu, 1);
 					}
 				}
-				mainWindow.setJMenuBar(menuBar); // XXX why is this necessary?
+				menuBar.revalidate();
 				int idx = toolPane.getSelectedIndex();
 				toolPane.removeAll();
 				List<JComponent> tcs = windowTools.get(null);

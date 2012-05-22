@@ -1,10 +1,41 @@
 package org.vanda.studio.model.types;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.vanda.studio.util.TokenSource;
+import org.vanda.studio.util.TokenSource.Token;
+
 public final class Types {
+	
+	/**
+	 * Checks whether two types can be unified. Uses fresh copies to avoid
+	 * name clashes.
+	 * 
+	 * @param t1
+	 * @param t2
+	 * @return
+	 */
+	public static boolean canUnify(Type t1, Type t2) {
+		TokenSource freshSource = new TokenSource();
+		HashMap<Token, Token> rename1 = new HashMap<Token, Token>();
+		HashMap<Token, Token> rename2 = new HashMap<Token, Token>();
+		t1.freshMap(freshSource, rename1);
+		t2.freshMap(freshSource, rename2);
+		Set<Equation> eqs = Collections.singleton(new Equation(t1
+				.rename(rename1), t2.rename(rename2)));
+		try {
+			unify(new HashSet<Equation>(eqs));
+			return true;
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+
 	/**
 	 * Unification algorithm. Modifies s in-place.
 	 * 

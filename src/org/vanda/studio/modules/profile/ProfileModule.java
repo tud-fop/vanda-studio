@@ -7,6 +7,8 @@ import org.vanda.studio.app.Module;
 import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.modules.common.SimpleRepository;
+import org.vanda.studio.modules.profile.model.FragmentLinker;
+import org.vanda.studio.modules.profile.model.Profiles;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.Observer;
 
@@ -37,13 +39,13 @@ public class ProfileModule implements Module {
 			if (false) {
 				Collection<Linker> ls = app.getLinkerMetaRepository().getRepository().getItems();
 				for (Linker l : ls) {
-					FragmentLinker fl = profiles.getFragmentLinkerMetaRepository().getRepository().getItem(l.getId());
+					FragmentLinker fl = profiles.getLinker(l.getId());
 					if (fl == null /*|| !fl.check(l)*/)
 						throw new RuntimeException();
 				}
 			}
 			repository = new SimpleRepository<Profile>(null);
-			repository.addItem(new FragmentProfile());
+			repository.addItem(new ProfileImpl(profiles));
 			manager = null;
 			app.getProfileMetaRepository().addRepository(repository);
 			app.getWindowSystem().addAction(null, new OpenManagerAction());
