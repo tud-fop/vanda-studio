@@ -10,8 +10,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.immutable.JobInfo;
+import org.vanda.studio.modules.workflows.Model.ConnectionSelection;
 import org.vanda.studio.modules.workflows.Model.JobSelection;
 import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.util.Observer;
@@ -51,7 +53,6 @@ public class InstanceTool implements ToolFactory {
 		}
 
 		public void highlightSelectedInstance() {
-			System.out.println(instanceList.getSelectedIndex());
 			if (instanceList.getSelectedIndex() >= 0) {
 				ImmutableWorkflow iwf = m.getUnfolded().get(instanceList.getSelectedIndex());
 				List<SingleObjectSelection> elements = new ArrayList<SingleObjectSelection>();
@@ -59,6 +60,18 @@ public class InstanceTool implements ToolFactory {
 				List<Token> path = new ArrayList<Token>();
 				for (JobInfo ji : iwf.getChildren()) {
 					elements.add(new JobSelection(path, ji.job.getAddress()));
+				}
+				for (Connection conn : m.getRoot().getConnections()) {
+					boolean sourceFound = false;
+					boolean targetFound = false;
+					for (JobInfo info : iwf.getChildren()) {
+						if (info.job.getAddress().equals(conn.source))
+							sourceFound = true;
+						if (info.job.getAddress().equals(conn.target)) 
+							targetFound = true;
+					}
+					if (sourceFound && targetFound) 
+						elements.add(new ConnectionSelection(path, conn.address));
 				}
 				//TODO nesting... path calculation
 				
