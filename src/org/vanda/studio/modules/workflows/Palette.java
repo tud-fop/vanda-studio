@@ -180,7 +180,7 @@ public class Palette {
 		}
 		return da;
 	}
-
+	
 	/**
 	 * Listens for text inputs in the search TextField and updates search
 	 * results accordingly

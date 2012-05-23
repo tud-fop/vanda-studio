@@ -11,6 +11,7 @@ import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.workflows.Model;
+import org.vanda.studio.modules.workflows.Model.ConnectionSelection;
 import org.vanda.studio.modules.workflows.Model.JobSelection;
 import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.util.Observer;
@@ -117,9 +118,12 @@ public final class DrecksAdapter {
 	public DrecksAdapter(Model model) {
 		this.model = model;
 		translation = new HashMap<MutableWorkflow, mxICell>();
-		graph = new Graph();
 
+		// adapter is responsible for graph component that holds
+		// the current workflow
 		if (model != null) {
+			graph = new Graph();
+
 			model.getAddObservable().addObserver(
 					new Observer<Pair<MutableWorkflow, Job>>() {
 						@Override
@@ -185,6 +189,19 @@ public final class DrecksAdapter {
 							highlightCells(markedCells);
 						}
 					});
+		} else {
+			// adapter is responsible for palette graph component,
+			// prevent selection of inner workflows
+			graph = new Graph() {
+
+				@Override
+				public boolean isCellSelectable(Object cell) {
+					if (getModel().getValue(cell) instanceof WorkflowAdapter)
+						return false;
+					return super.isCellSelectable(cell);
+				}
+
+			};
 		}
 
 		changeListener = new ChangeListener();
@@ -205,7 +222,6 @@ public final class DrecksAdapter {
 		Object[] objects = graph.getChildCells(cell, true, true);
 		for (Object o : objects) {
 			mxICell oc = (mxICell) o;
-
 			// add current cell to inverseList if it is not in given cell list
 			if (!cells.contains(o)) {
 				inverseList.add(oc);
@@ -215,9 +231,16 @@ public final class DrecksAdapter {
 			// cell list, add them to inverse list otherwise
 			if (oc.getValue() instanceof JobAdapter) {
 				for (int i = 0; i < oc.getChildCount(); i++) {
+
+					// check nested children recursively
 					if (oc.getChildAt(i).getValue() instanceof WorkflowAdapter) {
 						inverseList.addAll(calculateInverseCellList(oc
 								.getChildAt(i), cells));
+					}
+
+					// unhighlight ports of deselected cell
+					if (oc.getChildAt(i).getValue() instanceof PortAdapter) {
+						inverseList.add(oc.getChildAt(i));
 					}
 				}
 			}
@@ -322,6 +345,8 @@ public final class DrecksAdapter {
 		List<mxICell> cellList = new ArrayList<mxICell>();
 		mxICell rootCell = translation.get(model.getRoot());
 
+		List<mxICell> activeInputPorts = new ArrayList<mxICell>();
+
 		for (SingleObjectSelection element : elements) {
 			mxICell wfcell = ((Adapter) rootCell.getValue()).dereference(
 					element.path.listIterator(), rootCell);
@@ -330,11 +355,42 @@ public final class DrecksAdapter {
 				mxICell cell = null;
 				if (element instanceof JobSelection) {
 					cell = adapter.getChild(element.address);
+
+					// retrieve port cells of highlighted cells
+					for (int i = 0; i < cell.getChildCount(); i++) {
+						if (cell.getChildAt(i).getValue() instanceof PortAdapter) {
+
+							// save input ports temporarily to check later
+							// if they are used in the current workflow instance
+							if (((PortAdapter) cell.getChildAt(i).getValue()).input) {
+								activeInputPorts.add(cell.getChildAt(i));
+							} else {
+								// add output ports of marked jobs immediately
+								// to list of cells that will be highlighted
+								cellList.add(cell.getChildAt(i));
+							}
+						}
+					}
 				} else {
 					cell = adapter.getConnection(element.address);
 				}
 				cellList.add(cell);
 			}
+		}
+
+		// check all suspected active input ports by looking for an edge cell
+		// that ends in the current input port cell suspect
+		for (mxICell suspectPort : activeInputPorts) {
+			for (int i = 0; i < cellList.size(); i++) {
+				mxICell highlightedCell = cellList.get(i);
+				if (highlightedCell.isEdge() && highlightedCell
+						.getTerminal(false).equals(suspectPort)) {
+					
+					cellList.add(suspectPort);
+					break;
+				}
+			}
+
 		}
 
 		return cellList;
@@ -376,9 +432,9 @@ public final class DrecksAdapter {
 						"highlighted"));
 			}
 			if (cell.isEdge()) {
-				//TODO fix style resetting to usual style
+				// TODO fix style resetting to usual style
 				String st = mxStyleUtils.removeStylename(cell.getStyle(),
-				"highlightededge");
+						"highlightededge");
 				System.out.println(st);
 				cell.setStyle(null);
 			}
