@@ -1,7 +1,10 @@
 package org.vanda.studio.modules.workflows;
 
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.List;
+
+import javax.swing.KeyStroke;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Profile;
@@ -25,7 +28,7 @@ public class RunTool implements ToolFactory {
 			prof = app.getProfileMetaRepository().getRepository()
 					.getItem("fragment-profile");
 			if (prof != null)
-				wfe.addAction(new GenerateAction());
+				wfe.addAction(new GenerateAction(), KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
 		}
 
 		private final class GenerateAction implements Action {
