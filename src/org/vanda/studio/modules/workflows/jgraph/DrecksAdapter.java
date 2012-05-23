@@ -117,9 +117,12 @@ public final class DrecksAdapter {
 	public DrecksAdapter(Model model) {
 		this.model = model;
 		translation = new HashMap<MutableWorkflow, mxICell>();
-		graph = new Graph();
-
+		
+		// adapter is responsible for graph component that holds 
+		// the current workflow
 		if (model != null) {
+			graph = new Graph();
+			
 			model.getAddObservable().addObserver(
 					new Observer<Pair<MutableWorkflow, Job>>() {
 						@Override
@@ -185,6 +188,19 @@ public final class DrecksAdapter {
 							highlightCells(markedCells);
 						}
 					});
+		} else {
+			// adapter is responsible for palette graph component,
+			// prevent selection of inner workflows
+			graph = new Graph() {
+			
+				@Override
+				public boolean isCellSelectable(Object cell) {
+					if (getModel().getValue(cell) instanceof WorkflowAdapter)
+						return false;
+					return super.isCellSelectable(cell);
+				}
+			
+			};
 		}
 
 		changeListener = new ChangeListener();

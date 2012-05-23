@@ -128,7 +128,7 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 		// remove tab
 		app.getWindowSystem().removeContentWindow(mainpane);
 	}
-
+	
 	/**
 	 * Handles KeyEvents such as removing cells when focused and pressing DEL
 	 * 

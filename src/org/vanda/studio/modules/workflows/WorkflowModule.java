@@ -76,7 +76,7 @@ public class WorkflowModule implements Module {
 		protected class OpenWorkflowAction implements Action {
 			@Override
 			public String getName() {
-				return "Open Workflow";
+				return "Open Workflow...";
 			}
 
 			@Override
@@ -115,7 +115,7 @@ public class WorkflowModule implements Module {
 
 			@Override
 			public String getName() {
-				return "Save Workflow";
+				return "Save Workflow...";
 			}
 
 			@Override
