@@ -1,7 +1,5 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import org.vanda.studio.model.hyper.CompositeJob;
-
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxIGraphModel;
@@ -145,7 +143,7 @@ class Graph extends mxGraph {
 	public boolean isCellFoldable(Object cell, boolean collapse) {
 		// FIXME this won't work
 		mxCell c = (mxCell) cell;
-		return c.getValue() instanceof CompositeJob;
+		return c.getValue() instanceof CompositeJobAdapter;
 	}
 
 }

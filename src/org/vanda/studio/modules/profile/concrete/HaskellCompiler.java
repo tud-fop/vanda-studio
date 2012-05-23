@@ -1,6 +1,8 @@
 package org.vanda.studio.modules.profile.concrete;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.vanda.studio.app.Profile;
@@ -19,7 +21,7 @@ public class HaskellCompiler implements FragmentCompiler {
 
 	@Override
 	public Fragment compile(String name, ArrayList<JobInfo> jobs,
-			ArrayList<Fragment> fragments) {
+			ArrayList<String> fragments) {
 
 		ArrayList<Token> outputs = new ArrayList<Token>();
 		ArrayList<Token> inputs = new ArrayList<Token>();
@@ -44,7 +46,7 @@ public class HaskellCompiler implements FragmentCompiler {
 							.getNumber(), ji.inputs.get(0));
 
 		StringBuilder sb = new StringBuilder();
-		Set<String> im = null;
+		HashSet<String> dependencies = new HashSet<String>();
 		sb.append(name);
 		for (int i = 0; i < inputs.size(); i++) {
 			sb.append(' ');
@@ -81,20 +83,22 @@ public class HaskellCompiler implements FragmentCompiler {
 				} else
 					sb.append(lit.getValue());
 			} else {
-				Fragment frag = fragments.get(i);
+				String frag = fragments.get(i);
 				assert (frag != null);
 				ImmutableJob.appendOutput(ji.outputs, sb);
 				sb.append(" = ");
-				sb.append(frag.name);
+				sb.append(frag);
 				for (int j = 0; j < ji.inputs.size(); j++) {
 					sb.append(" ");
 					ImmutableJob.appendVariable(ji.inputs.get(j), sb);
 				}
+				dependencies.add(frag);
 			}
 			sb.append('\n');
 		}
 		sb.append('\n');
-		return new Fragment(name, sb.toString(), fragments, im);
+		Set<String> im = Collections.emptySet();
+		return new Fragment(name, sb.toString(), dependencies, im);
 	}
 
 	@Override

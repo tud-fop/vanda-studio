@@ -1,10 +1,11 @@
 package org.vanda.studio.modules.profile.concrete;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.modules.profile.model.Fragment;
+import org.vanda.studio.modules.profile.model.FragmentBase;
 import org.vanda.studio.modules.profile.model.FragmentIO;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
 
@@ -51,12 +52,10 @@ public class RootLinker implements FragmentLinker {
 	}
 
 	@Override
-	public Fragment link(Fragment inner, FragmentIO io) {
-		Fragment result = inner.compose();
-		String filename = io.makeUnique(inner.name);
-		File f = io.createFile(filename);
-		f.notify();
-		return result;
+	public Fragment link(String name, FragmentBase fb, FragmentIO io) throws IOException {
+		// TODO create a shell script with all imports and fragments
+		// along with the main parts
+		return null;
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import java.util.List;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.app.Profile;
+import org.vanda.studio.model.elements.IdentityLinker;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.Ports;
@@ -532,6 +533,7 @@ public class AlgorithmsModule implements Module {
 
 			SimpleRepository<Linker> lr = new SimpleRepository<Linker>(null);
 			lr.addItem(new TheLinker());
+			lr.addItem(IdentityLinker.getInstance());
 			app.getLinkerMetaRepository().addRepository(lr);
 
 		}

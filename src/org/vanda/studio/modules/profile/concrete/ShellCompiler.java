@@ -1,6 +1,8 @@
 package org.vanda.studio.modules.profile.concrete;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.vanda.studio.app.Profile;
@@ -24,9 +26,9 @@ public class ShellCompiler implements FragmentCompiler {
 
 	@Override
 	public Fragment compile(String name, ArrayList<JobInfo> jobs,
-			ArrayList<Fragment> fragments) {
+			ArrayList<String> fragments) {
 		StringBuilder sb = new StringBuilder();
-		Set<String> im = null;
+		HashSet<String> dependencies = new HashSet<String>();
 		sb.append("function ");
 		sb.append(name);
 		sb.append(" {\n  local");
@@ -75,9 +77,9 @@ public class ShellCompiler implements FragmentCompiler {
 				sb.append(lit.getValue());
 				sb.append('"');
 			} else {
-				Fragment frag = fragments.get(i);
+				String frag = fragments.get(i);
 				assert (frag != null);
-				sb.append(frag.name);
+				sb.append(frag);
 				for (int j = 0; j < ji.inputs.size(); j++) {
 					sb.append(" \"$");
 					appendVariable(name, ji.inputs.get(j), sb);
@@ -87,11 +89,13 @@ public class ShellCompiler implements FragmentCompiler {
 					sb.append(' ');
 					appendVariable(name, ji.outputs.get(j), sb);
 				}
+				dependencies.add(frag);
 			}
 			sb.append('\n');
 		}
 		sb.append("}\n\n");
-		return new Fragment(name, sb.toString(), fragments, im);
+		Set<String> im = Collections.emptySet();
+		return new Fragment(name, sb.toString(), dependencies, im);
 	}
 
 	@Override

@@ -8,7 +8,7 @@ import org.vanda.studio.model.types.Type;
 public interface FragmentCompiler {
 
 	Fragment compile(String name, ArrayList<JobInfo> jobs,
-			ArrayList<Fragment> fragments);
+			ArrayList<String> fragments);
 
 	Type getFragmentType();
 
