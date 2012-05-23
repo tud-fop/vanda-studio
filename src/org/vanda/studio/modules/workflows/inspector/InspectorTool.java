@@ -17,6 +17,7 @@ import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.elements.Tool;
+import org.vanda.studio.model.hyper.AtomicJob;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
@@ -39,8 +40,9 @@ public class InspectorTool implements ToolFactory {
 
 		public Model m;
 		public JComponent newEditor = null;
-		public String newInspection = "";
-
+//		public String newInspection = "";
+		public StringBuilder sb = new StringBuilder();
+		
 		public TheSelectionVisitor(Model m, WorkflowSelection oldSelection,
 				WorkflowSelection newSelection, JComponent oldEditor) {
 			this.m = m;
@@ -50,7 +52,8 @@ public class InspectorTool implements ToolFactory {
 
 		@Override
 		public void visitWorkflow(List<Token> path, MutableWorkflow wf) {
-			newInspection = wf.getName();
+			sb.append(wf.getName());
+//			newInspection = wf.getName();
 			if (newEditor == null)
 				newEditor = eefs.workflowFactories.createEditor(wf);
 		}
@@ -58,7 +61,7 @@ public class InspectorTool implements ToolFactory {
 		@Override
 		public void visitConnection(List<Token> path, Token address,
 				MutableWorkflow wf, Connection cc) {
-			StringBuilder sb = new StringBuilder();
+			sb = new StringBuilder();
 			Token variable = wf.getVariable(address);
 			ImmutableWorkflow iwf = null;
 			Type type = null;
@@ -82,7 +85,7 @@ public class InspectorTool implements ToolFactory {
 				sb.append(type.toString());
 			}
 			sb.append("</dd></dl></html>");
-			newInspection = sb.toString();
+//			newInspection = sb.toString();
 			if (newEditor == null)
 				newEditor = eefs.connectionFactories.createEditor(cc);
 
@@ -91,7 +94,7 @@ public class InspectorTool implements ToolFactory {
 		@Override
 		public void visitJob(List<Token> path, Token address,
 				MutableWorkflow wf, Job j) {
-			StringBuilder sb = new StringBuilder();
+			sb = new StringBuilder();
 			sb.append("<html><h1>");
 			sb.append(j.getItem().getName());
 			sb.append("</h1><dl><dt>Contact</dt><dd>");
@@ -99,7 +102,8 @@ public class InspectorTool implements ToolFactory {
 			sb.append("</dd><dt>Category</dt><dd>");
 			sb.append(j.getItem().getCategory());
 			sb.append("</dd></dl>");
-			sb.append("<h2>Ports</h2><table width=\"400px\"><tr><th>Input Ports</th>");
+			sb.append("<h2>Ports</h2><table width=\"400px\"><tr>" +
+					"<th>Input Ports</th>");
 			sb.append("<th>Output Ports</th></tr>");
 			sb.append("<tr><td><ul>");
 			for (Port p : j.getInputPorts()) {
@@ -122,40 +126,58 @@ public class InspectorTool implements ToolFactory {
 			sb.append("<p>");
 			sb.append(j.getItem().getDescription());
 			sb.append("</p>");
+//			newInspection = sb.toString();
+			j.getItem().visit(this);
 			sb.append("</html>");
-			newInspection = sb.toString();
-			if (newEditor == null)
-				j.getItem().visit(this);
 		}
 
 		@Override
 		public void visitChoice(Choice c) {
-			newEditor = eefs.choiceFactories.createEditor(c);
+			if (newEditor == null) {
+				newEditor = eefs.choiceFactories.createEditor(c);
+			}
 		}
-
+		
 		@Override
 		public void visitInputPort(InputPort i) {
-			newEditor = eefs.inputPortFactories.createEditor(i);
+			if (newEditor == null) {
+				newEditor = eefs.inputPortFactories.createEditor(i);
+			}
 		}
 
 		@Override
 		public void visitLinker(Linker l) {
-			newEditor = eefs.linkerFactories.createEditor(l);
+			if (newEditor == null) {
+				sb.append("<h2>LinkerInfo</h2><dl>");
+				sb.append("<dt>Fragment Type</dt><dd>");
+				sb.append(":: " + l.getFragmentType());
+				sb.append("</dd><dt>Inner Fragment Type</dt><dd>");
+				sb.append(":: " + l.getInnerFragmentType());
+				sb.append("</dd></dl>");
+				newEditor = eefs.linkerFactories.createEditor(l);
+//				newInspection = sb.toString();
+			}
 		}
-
+		
 		@Override
 		public void visitLiteral(Literal l) {
-			newEditor = eefs.literalFactories.createEditor(l);
+			if (newEditor == null) {
+				newEditor = eefs.literalFactories.createEditor(l);
+			}
 		}
 
 		@Override
 		public void visitOutputPort(OutputPort o) {
-			newEditor = eefs.outputPortFactories.createEditor(o);
+			if (newEditor == null) {
+				newEditor = eefs.outputPortFactories.createEditor(o);
+			}
 		}
 
 		@Override
 		public void visitTool(Tool t) {
-			newEditor = eefs.toolFactories.createEditor(t);
+			if (newEditor == null) {
+				newEditor = eefs.toolFactories.createEditor(t);
+			}
 		}
 
 	}
@@ -200,7 +222,8 @@ public class InspectorTool implements ToolFactory {
 					ws, editor);
 			if (ws != null)
 				ws.visit(m.getRoot(), visitor);
-			inspector.setText(visitor.newInspection);
+			//inspector.setText(visitor.newInspection);
+			inspector.setText(visitor.sb.toString());
 			if (visitor.newEditor != editor) {
 				if (editor != null) {
 					contentPane.remove(editor);
