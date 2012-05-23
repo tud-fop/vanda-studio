@@ -114,4 +114,9 @@ public final class Literal implements Element {
 		return portsChangeObservable;
 	}
 
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		v.visitLiteral(this);
+	}
+
 }

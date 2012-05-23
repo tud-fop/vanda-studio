@@ -80,7 +80,7 @@ public abstract class ImmutableJob {
 			lines.append("?");
 		else {
 			lines.append("x");
-			lines.append(tok);
+			lines.append(Integer.toString(tok.intValue()+1));
 		}
 	}
 }

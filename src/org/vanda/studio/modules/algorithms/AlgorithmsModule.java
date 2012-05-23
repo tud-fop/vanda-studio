@@ -13,6 +13,7 @@ import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.Ports;
 import org.vanda.studio.model.elements.RendererAssortment;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.model.types.Type;
@@ -456,6 +457,11 @@ public class AlgorithmsModule implements Module {
 			@Override
 			public Type getFragmentType() {
 				return Ports.typeVariable;
+			}
+
+			@Override
+			public void visit(RepositoryItemVisitor v) {
+				v.visitLinker(this);
 			}
 
 		}

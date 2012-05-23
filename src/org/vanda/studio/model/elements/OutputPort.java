@@ -89,4 +89,9 @@ public class OutputPort implements Element {
 		return null;
 	}
 
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		v.visitOutputPort(this);
+	}
+
 }

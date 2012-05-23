@@ -13,6 +13,8 @@ import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.immutable.JobInfo;
+import org.vanda.studio.modules.profile.model.FragmentLinker;
+import org.vanda.studio.modules.profile.model.Profiles;
 import org.vanda.studio.util.TokenSource.Token;
 
 // XXX I've had it with all of this instanceof/typecast bullshit
@@ -82,8 +84,7 @@ public class DataflowAnalysis {
 				}
 			} else if (ji.job instanceof CompositeImmutableJob) {
 				CompositeImmutableJob cj = (CompositeImmutableJob) ji.job;
-				FragmentLinker fl = p.getFragmentLinkerMetaRepository()
-						.getRepository().getItem(cj.getLinker().getId());
+				FragmentLinker fl = p.getLinker(cj.getLinker().getId());
 				assert (fl != null);
 				List<String> inp2 = new ArrayList<String>(ji.inputs.size());
 				for (int i = 0; i < ji.inputs.size(); i++)

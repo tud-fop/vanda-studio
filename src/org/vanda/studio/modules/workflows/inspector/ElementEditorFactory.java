@@ -2,6 +2,6 @@ package org.vanda.studio.modules.workflows.inspector;
 
 import javax.swing.JComponent;
 
-public interface ElementEditorFactory {
-	JComponent createEditor(Object o);
+public interface ElementEditorFactory<T> {
+	JComponent createEditor(T o);
 }

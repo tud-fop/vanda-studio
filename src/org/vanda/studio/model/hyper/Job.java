@@ -6,6 +6,7 @@ import java.util.ListIterator;
 
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
+import org.vanda.studio.model.elements.RepositoryItem;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.HasActions;
@@ -32,8 +33,6 @@ public abstract class Job implements HasActions, Cloneable {
 	}
 
 	public abstract List<Port> getInputPorts();
-
-	public abstract String getName();
 	
 	/**
 	 * may return null if name is immutable
@@ -77,19 +76,17 @@ public abstract class Job implements HasActions, Cloneable {
 		System.arraycopy(d, 0, dimensions, 0, 4);
 	}
 
-	public abstract String getContact();
-
-	public abstract String getCategory();
-
-	public abstract String getDescription();
-
 	public Token getAddress() {
 		return address;
 	}
+	
+	public abstract RepositoryItem getItem();
 	
 	/**
 	 *  call this after deserialization
 	 */
 	public abstract void rebind();
+	
+	public abstract void visit(JobVisitor v);
 
 }

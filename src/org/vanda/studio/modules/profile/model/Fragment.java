@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.profile;
+package org.vanda.studio.modules.profile.model;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -20,6 +20,13 @@ public class Fragment {
 	public final String auxiliary;
 	public final List<Fragment> further;
 	public final Set<String> imports;
+	
+	public Fragment(String name) {
+		this.name = name;
+		this.auxiliary = "";
+		this.further = Collections.emptyList();
+		this.imports = Collections.emptySet();
+	}
 	
 	public Fragment(String name, String auxiliary, List<Fragment> further, Set<String> imports) {
 		this.name = name;
@@ -54,7 +61,8 @@ public class Fragment {
 		public void doIt(Fragment fragment) {
 			im.addAll(fragment.imports);
 			for (Fragment f : fragment.further)
-				doIt(f);
+				if (f != null)
+					doIt(f);
 			sb.append(fragment.auxiliary);
 			sb.append('\n');
 		}

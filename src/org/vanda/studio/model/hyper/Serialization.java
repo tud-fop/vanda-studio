@@ -32,6 +32,8 @@ public final class Serialization {
 			xs.registerConverter(new MultiplexObserverConverter());
 			xs.registerConverter(new ToolConverter(app));
 			xs.addImmutableType(TokenSource.Token.class);
+			xs.addImmutableType(Linker.class);
+			xs.addImmutableType(Tool.class);
 			xs.aliasPackage("ovsu", "org.vanda.studio.util");
 			xs.aliasPackage("ovsm", "org.vanda.studio.model");
 		}

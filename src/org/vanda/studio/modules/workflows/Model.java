@@ -3,9 +3,11 @@ package org.vanda.studio.modules.workflows;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.vanda.studio.model.hyper.AtomicJob;
 import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
+import org.vanda.studio.model.hyper.JobVisitor;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.util.MultiplexObserver;
@@ -15,12 +17,22 @@ import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
 public final class Model {
+	
+	public static interface SelectionVisitor {
+		void visitWorkflow(List<Token> path, MutableWorkflow wf);
+		void visitConnection(List<Token> path, Token address, MutableWorkflow wf, Connection cc);
+		void visitJob(List<Token> path, Token address, MutableWorkflow wf, Job j);
+	}
 
 	public static class WorkflowSelection {
 		public final List<Token> path;
 
 		public WorkflowSelection(List<Token> path) {
 			this.path = path;
+		}
+		
+		public void visit(MutableWorkflow root, SelectionVisitor v) {
+			v.visitWorkflow(path, root.dereference(path.listIterator()));
 		}
 	}
 
@@ -32,6 +44,9 @@ public final class Model {
 			super(path);
 			this.address = address;
 		}
+		
+		@Override
+		public abstract void visit(MutableWorkflow root, SelectionVisitor v);
 
 		public abstract void remove(MutableWorkflow root);
 	}
@@ -46,6 +61,12 @@ public final class Model {
 		public void remove(MutableWorkflow root) {
 			root.dereference(path.listIterator()).removeConnection(address);
 		}
+
+		@Override
+		public void visit(MutableWorkflow root, SelectionVisitor v) {
+			root = root.dereference(path.listIterator());
+			v.visitConnection(path, address, root, root.getConnection(address));
+		}
 	}
 
 	public static class JobSelection extends SingleObjectSelection {
@@ -56,6 +77,12 @@ public final class Model {
 		@Override
 		public void remove(MutableWorkflow root) {
 			root.dereference(path.listIterator()).removeChild(address);
+		}
+
+		@Override
+		public void visit(MutableWorkflow root, SelectionVisitor v) {
+			root = root.dereference(path.listIterator());
+			v.visitJob(path, address, root, root.getChild(address));
 		}
 	}
 
@@ -79,6 +106,8 @@ public final class Model {
 	protected final MultiplexObserver<Model> selectionChangeObservable;
 	protected final MultiplexObserver<Model> markedElementsObservable;
 	protected final MultiplexObserver<Model> workflowCheckObservable;
+	protected final JobVisitor bindVisitor;
+	protected final JobVisitor unbindVisitor;
 
 	public Model(MutableWorkflow hwf) {
 		this.hwf = hwf;
@@ -92,11 +121,32 @@ public final class Model {
 		selectionChangeObservable = new MultiplexObserver<Model>();
 		markedElementsObservable = new MultiplexObserver<Model>();
 		workflowCheckObservable = new MultiplexObserver<Model>();
+		bindVisitor = new JobVisitor() {
+			@Override
+			public void visitAtomicJob(AtomicJob aj) {
+			}
+
+			@Override
+			public void visitCompositeJob(CompositeJob cj) {
+				bind(cj.getWorkflow());
+			}
+			
+		};
+		unbindVisitor = new JobVisitor() {
+			@Override
+			public void visitAtomicJob(AtomicJob aj) {
+			}
+
+			@Override
+			public void visitCompositeJob(CompositeJob cj) {
+				unbind(cj.getWorkflow());
+			}
+			
+		};
 		addObserver = new Observer<Pair<MutableWorkflow, Job>>() {
 			@Override
 			public void notify(Pair<MutableWorkflow, Job> event) {
-				if (event.snd instanceof CompositeJob)
-					bind(((CompositeJob) event.snd).getWorkflow());
+				event.snd.visit(bindVisitor);
 				addObservable.notify(event);
 			}
 		};
@@ -109,8 +159,7 @@ public final class Model {
 		removeObserver = new Observer<Pair<MutableWorkflow, Job>>() {
 			@Override
 			public void notify(Pair<MutableWorkflow, Job> event) {
-				if (event.snd instanceof CompositeJob)
-					unbind(((CompositeJob) event.snd).getWorkflow());
+				event.snd.visit(unbindVisitor);
 				if (selection != null
 						&& Model.this.hwf.dereference(selection.path
 								.listIterator()) == event.fst)
@@ -150,18 +199,13 @@ public final class Model {
 		wf.getConnectObservable().addObserver(connectObserver);
 		wf.getDisconnectObservable().addObserver(disconnectObserver);
 		wf.getNameChangeObservable().addObserver(nameChangeObserver);
-		for (Job job : wf.getChildren()) {
-			if (job instanceof CompositeJob)
-				bind(((CompositeJob) job).getWorkflow());
-		}
+		wf.visitAll(bindVisitor);
 	}
 
 	public void checkWorkflow() throws Exception {
 		frozen = hwf.freeze();
-		// if (frozen.isSane()) {
 		frozen.typeCheck();
 		unfolded = frozen.unfold();
-		// }
 		workflowCheckObservable.notify(this);
 	}
 
@@ -227,7 +271,7 @@ public final class Model {
 	}
 
 	public void setMarkedElements(List<SingleObjectSelection> elements) {
-		this.markedElements = elements;
+		markedElements = elements;
 		markedElementsObservable.notify(this);
 	}
 
@@ -238,11 +282,7 @@ public final class Model {
 		wf.getConnectObservable().removeObserver(connectObserver);
 		wf.getDisconnectObservable().removeObserver(disconnectObserver);
 		wf.getNameChangeObservable().removeObserver(nameChangeObserver);
-		for (Job job : wf.getChildren()) {
-			if (job instanceof CompositeJob)
-				unbind(((CompositeJob) job).getWorkflow());
-		}
-
+		wf.visitAll(unbindVisitor);
 	}
 
 }

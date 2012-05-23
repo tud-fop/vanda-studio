@@ -6,6 +6,7 @@ import java.util.ListIterator;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
+import org.vanda.studio.model.elements.RepositoryItem;
 import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.model.types.Type;
@@ -65,11 +66,6 @@ public class CompositeJob extends Job {
 		return ra.selectBoxRenderer();
 	}
 
-	@Override
-	public String getName() {
-		return linker.getName();
-	}
-
 	public MutableWorkflow getWorkflow() {
 		return workflow;
 	}
@@ -82,21 +78,6 @@ public class CompositeJob extends Job {
 	@Override
 	public MutableWorkflow dereference(ListIterator<Token> address) {
 		return workflow.dereference(address);
-	}
-
-	@Override
-	public String getContact() {
-		return linker.getContact();
-	}
-
-	@Override
-	public String getCategory() {
-		return linker.getCategory();
-	}
-
-	@Override
-	public String getDescription() {
-		return linker.getDescription();
 	}
 	
 	public Linker getLinker() {
@@ -116,6 +97,16 @@ public class CompositeJob extends Job {
 	@Override
 	public void rebind() {
 		// do nothing
+	}
+
+	@Override
+	public RepositoryItem getItem() {
+		return linker;
+	}
+
+	@Override
+	public void visit(JobVisitor v) {
+		v.visitCompositeJob(this);
 	}
 
 }
