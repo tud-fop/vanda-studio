@@ -89,7 +89,7 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 		Token tok = sji.outputs.get(cc.sourcePort);
 		DConnInfo ci = new DConnInfo(tok, cc);
 		cc.address = connectionAddressSource.makeToken();
-		tji.inputs.set(cc.targetPort, tok);
+		tji.inputs.put(cc.targetPort, tok);
 		tji.inputsBlocked++;
 		if (cc.address.intValue() < connections.size())
 			connections.set(cc.address.intValue(), ci);
@@ -173,7 +173,7 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 			DJobInfo sji = children.get(ci.cc.source.intValue());
 			DJobInfo tji = children.get(ci.cc.target.intValue());
 			// assert (sji.outputs.get(sourcePort) == tji.inputs.get(ci.port));
-			tji.inputs.set(ci.cc.targetPort, null);
+			tji.inputs.put(ci.cc.targetPort, null);
 			tji.inputsBlocked--;
 			sji.outCount--;
 			connections.set(address.intValue(), null);
