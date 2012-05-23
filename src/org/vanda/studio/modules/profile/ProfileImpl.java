@@ -7,6 +7,7 @@ import org.vanda.studio.app.Generator;
 import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.profile.concrete.RootLinker;
 import org.vanda.studio.modules.profile.model.FragmentIO;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
@@ -62,7 +63,7 @@ public class ProfileImpl implements Profile, FragmentIO {
 
 	@Override
 	public Type getRootType() {
-		return Profile.shellType;
+		return Types.shellType;
 	}
 
 	@Override

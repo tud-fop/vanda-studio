@@ -5,9 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.Literal;
-import org.vanda.studio.model.elements.OutputPort;
+import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.CompositeImmutableJob;
@@ -21,11 +20,17 @@ import org.vanda.studio.util.TokenSource.Token;
 // find a principled solution (e.g., visitor)
 public class DataflowAnalysis {
 	private final Map<Token, DataflowAnalysis> deref;
+	private final Map<Port, Integer> inportIndex;
+	private final Map<Port, Integer> outportIndex;
 	private final String[] values;
 	private final ImmutableWorkflow workflow;
 
 	public DataflowAnalysis(ImmutableWorkflow iwf) {
 		workflow = iwf;
+		inportIndex = new HashMap<Port, Integer>();
+		makeIndex(iwf.getInputPorts(), inportIndex);
+		outportIndex = new HashMap<Port, Integer>();
+		makeIndex(iwf.getOutputPorts(), outportIndex);
 		deref = new HashMap<Token, DataflowAnalysis>();
 		int varcount = 0;
 		for (JobInfo ji : iwf.getChildren()) {
@@ -43,15 +48,15 @@ public class DataflowAnalysis {
 	}
 
 	public List<String> doIt(List<String> inputs, Profiles p) {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<String>(outportIndex.size());
 		for (JobInfo ji : workflow.getChildren()) {
 			if (ji.job instanceof AtomicImmutableJob) {
 				AtomicImmutableJob aj = (AtomicImmutableJob) ji.job;
 				if (aj.isInputPort()) {
 					values[ji.outputs.get(0).intValue()] = inputs
-							.get(((InputPort) aj.getElement()).getNumber());
+							.get(inportIndex.get(aj.getOutputPorts().get(0)));
 				} else if (aj.isOutputPort()) {
-					int n = ((OutputPort) aj.getElement()).getNumber();
+					int n = outportIndex.get(aj.getInputPorts().get(0));
 					while (n >= result.size())
 						result.add(null);
 					result.set(n, values[ji.inputs.get(0).intValue()]);
@@ -100,5 +105,10 @@ public class DataflowAnalysis {
 		}
 
 		return result;
+	}
+
+	private static final void makeIndex(List<Port> l, Map<Port, Integer> m) {
+		for (int i = 0; i < l.size(); i++)
+			m.put(l.get(i), i);
 	}
 }

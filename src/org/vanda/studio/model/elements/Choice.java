@@ -3,6 +3,7 @@ package org.vanda.studio.model.elements;
 import java.util.List;
 
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
@@ -39,7 +40,7 @@ public final class Choice implements Element {
 
 	@Override
 	public List<Port> getOutputPorts() {
-		return Ports.identityOutputs;
+		return Ports.choiceOutputs;
 	}
 
 	public void setInputPorts(int inputs) {
@@ -64,7 +65,7 @@ public final class Choice implements Element {
 
 	@Override
 	public Type getFragmentType() {
-		return Ports.typeVariable;
+		return Types.genericType;
 	}
 
 	@Override

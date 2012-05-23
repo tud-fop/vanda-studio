@@ -4,30 +4,37 @@ import java.util.Collections;
 import java.util.List;
 
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.Observable;
 
-public class OutputPort implements Element {
-	
-	int number;
+public final class OutputPort implements Element {
 
-	public OutputPort(int number) {
-		this.number = number;
+	private final Port port;
+	private final List<Port> ports;
+
+	public OutputPort() {
+		this("output port");
+	}
+	
+	public OutputPort(String name) {
+		port = new Port(name, Types.genericType);
+		ports = Collections.singletonList(port);
 	}
 
 	@Override
 	public void appendActions(List<Action> as) {
-		
+
 	}
 
 	@Override
 	public Element clone() {
-		return new OutputPort(number);
+		return new OutputPort();
 	}
 
 	@Override
 	public Type getFragmentType() {
-		return Ports.typeVariable;
+		return Types.genericType;
 	}
 
 	@Override
@@ -37,16 +44,12 @@ public class OutputPort implements Element {
 
 	@Override
 	public List<Port> getInputPorts() {
-		return Ports.outputPortInputs;
+		return ports;
 	}
 
 	@Override
 	public String getName() {
-		return "outport["+Integer.toString(number)+"]";
-	}
-	
-	public int getNumber() {
-		return number;
+		return "outport[" + port.getIdentifier() + "]";
 	}
 
 	@Override

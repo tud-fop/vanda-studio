@@ -14,9 +14,10 @@ public interface Adapter {
 	String getName();
 	mxICell dereference(ListIterator<Token> path, mxICell current);
 	boolean inModel();
+	void onInsert(mxGraph graph, mxICell parent, mxICell cell);
+	void onRemove(mxICell parent);
+	void onResize(mxGraph graph, mxICell parent, mxICell cell);
 	void prependPath(LinkedList<Token> path);
-	void update(mxGraph graph, mxICell parent, mxICell cell);
 	void register(mxICell parent, mxICell cell);
-	void remove(mxICell parent);
 	void setSelection(Model m, List<Token> path);
 }

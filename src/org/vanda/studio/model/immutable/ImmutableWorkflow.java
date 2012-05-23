@@ -8,8 +8,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.vanda.studio.model.elements.IdentityLinker;
-import org.vanda.studio.model.elements.InputPort;
-import org.vanda.studio.model.elements.OutputPort;
+import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
@@ -23,6 +22,8 @@ public final class ImmutableWorkflow {
 	private final Map<Token, ImmutableJob> deref;
 	private Type[] types;
 	private Type fragmentType;
+	private final List<Port> inputPorts;
+	private final List<Port> outputPorts;
 
 	/**
 	 * 
@@ -31,9 +32,12 @@ public final class ImmutableWorkflow {
 	 * @param maxtoken
 	 *            maximum token
 	 */
-	public ImmutableWorkflow(String name, Type fragmentType,
+	public ImmutableWorkflow(String name, List<Port> inputPorts,
+			List<Port> outputPorts, Type fragmentType,
 			ArrayList<JobInfo> children, TokenSource token, int maxtoken) {
 		this.name = name;
+		this.inputPorts = inputPorts;
+		this.outputPorts = outputPorts;
 		this.children = children;
 		deref = new HashMap<Token, ImmutableJob>();
 		this.variableSource = token;
@@ -60,6 +64,8 @@ public final class ImmutableWorkflow {
 		deref = Collections.emptyMap();
 		types = null;
 		fragmentType = null;
+		inputPorts = Collections.emptyList();
+		outputPorts = inputPorts;
 		for (int i = 0; i < unfolded.size(); i++) {
 			ImmutableWorkflow iwf = unfolded.get(i);
 			Token address = TokenSource.getToken(i);
@@ -89,6 +95,14 @@ public final class ImmutableWorkflow {
 
 	public Type getFragmentType() {
 		return fragmentType;
+	}
+
+	public List<Port> getInputPorts() {
+		return inputPorts;
+	}
+
+	public List<Port> getOutputPorts() {
+		return outputPorts;
 	}
 
 	public String getName() {
@@ -145,39 +159,25 @@ public final class ImmutableWorkflow {
 	}
 
 	public void appendText(StringBuilder sections) {
-		ArrayList<Token> outputs = new ArrayList<Token>();
-		ArrayList<Token> inputs = new ArrayList<Token>();
-		ArrayList<JobInfo> inputJI = new ArrayList<JobInfo>();
-		ArrayList<JobInfo> outputJI = new ArrayList<JobInfo>();
-		for (JobInfo ji : children) {
-			if (ji.job.isInputPort()) {
-				inputJI.add(ji);
-				inputs.add(null);
-			}
-			if (ji.job.isOutputPort()) {
-				outputJI.add(ji);
-				outputs.add(null);
-			}
-		}
-		for (JobInfo ji : inputJI)
-			inputs.set(((InputPort) ((AtomicImmutableJob) ji.job).getElement())
-					.getNumber(), ji.outputs.get(0));
-		for (JobInfo ji : outputJI)
-			inputs.set(
-					((OutputPort) ((AtomicImmutableJob) ji.job).getElement())
-							.getNumber(), ji.inputs.get(0));
-		StringBuilder lines = new StringBuilder();
-		ImmutableJob.appendOutput(outputs, lines);
-		lines.append(" = ");
-		lines.append(getName());
-		ImmutableJob.appendInput(inputs, lines);
-		lines.append('\n');
-		for (JobInfo ji : children) {
-			lines.append("  ");
-			ji.job.appendText(ji.inputs, ji.outputs, lines, sections);
-		}
-		sections.append(lines);
-		sections.append('\n');
+		/*
+		 * ArrayList<Token> outputs = new ArrayList<Token>(); ArrayList<Token>
+		 * inputs = new ArrayList<Token>(); ArrayList<JobInfo> inputJI = new
+		 * ArrayList<JobInfo>(); ArrayList<JobInfo> outputJI = new
+		 * ArrayList<JobInfo>(); for (JobInfo ji : children) { if
+		 * (ji.job.isInputPort()) { inputJI.add(ji); inputs.add(null); } if
+		 * (ji.job.isOutputPort()) { outputJI.add(ji); outputs.add(null); } }
+		 * for (JobInfo ji : inputJI) inputs.set(((InputPort)
+		 * ((AtomicImmutableJob) ji.job).getElement()) .getNumber(),
+		 * ji.outputs.get(0)); for (JobInfo ji : outputJI) inputs.set(
+		 * ((OutputPort) ((AtomicImmutableJob) ji.job).getElement())
+		 * .getNumber(), ji.inputs.get(0)); StringBuilder lines = new
+		 * StringBuilder(); ImmutableJob.appendOutput(outputs, lines);
+		 * lines.append(" = "); lines.append(getName());
+		 * ImmutableJob.appendInput(inputs, lines); lines.append('\n'); for
+		 * (JobInfo ji : children) { lines.append("  ");
+		 * ji.job.appendText(ji.inputs, ji.outputs, lines, sections); }
+		 * sections.append(lines); sections.append('\n');
+		 */
 	}
 
 }

@@ -83,4 +83,8 @@ public final class Types {
 			it = t.iterator();
 		}
 	}
+
+	public static final Type genericType = new TypeVariable(TokenSource.getToken(0));
+	public static final Type haskellType = new CompositeType("haskell");
+	public static final Type shellType = new CompositeType("shell");
 }

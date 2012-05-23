@@ -26,12 +26,12 @@ class PortAdapter implements Adapter, Cloneable {
 	}
 
 	@Override
-	public void update(mxGraph graph, mxICell parent, mxICell cell) {
+	public void onInsert(mxGraph graph, mxICell parent, mxICell cell) {
 		
 	}
 
 	@Override
-	public void remove(mxICell parent) {
+	public void onRemove(mxICell parent) {
 		
 	}
 
@@ -58,5 +58,10 @@ class PortAdapter implements Adapter, Cloneable {
 	@Override
 	public boolean inModel() {
 		return false;
+	}
+
+	@Override
+	public void onResize(mxGraph graph, mxICell parent, mxICell cell) {
+		// ignore
 	}
 }

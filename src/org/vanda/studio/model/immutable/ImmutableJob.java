@@ -3,6 +3,7 @@ package org.vanda.studio.model.immutable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.types.Type;
@@ -59,6 +60,20 @@ public abstract class ImmutableJob {
 			appendVariable(inputs.get(i), lines);
 		}
 		lines.append(')');
+	}
+
+	public static void appendOutput(List<Port> ports, Map<Port, Token> outvars, StringBuilder lines) {
+		if (ports.size() != 1)
+			lines.append('(');
+		if (ports.size() != 0) {
+			appendVariable(outvars.get(ports.get(0)), lines);
+		}
+		for (int i = 1; i < ports.size(); i++) {
+			lines.append(", ");
+			appendVariable(outvars.get(ports.get(i)), lines);
+		}
+		if (ports.size() != 1)
+			lines.append(')');		
 	}
 
 	public static void appendOutput(ArrayList<Token> outputs, StringBuilder lines) {

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
@@ -34,7 +35,7 @@ public final class Literal implements Element {
 
 	@Override
 	public Type getFragmentType() {
-		return Ports.typeVariable;
+		return Types.genericType;
 	}
 
 	@Override

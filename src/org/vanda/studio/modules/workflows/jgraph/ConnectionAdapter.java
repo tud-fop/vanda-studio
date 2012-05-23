@@ -26,7 +26,7 @@ public class ConnectionAdapter implements Adapter {
 	}
 
 	@Override
-	public void remove(mxICell parent) {
+	public void onRemove(mxICell parent) {
 		if (cc != null) {
 			WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
 			Token address = cc.address;
@@ -36,7 +36,7 @@ public class ConnectionAdapter implements Adapter {
 	}
 
 	@Override
-	public void update(mxGraph graph, mxICell parent, mxICell cell) {
+	public void onInsert(mxGraph graph, mxICell parent, mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(parent);
 		if (cc != null) {
@@ -105,6 +105,11 @@ public class ConnectionAdapter implements Adapter {
 	@Override
 	public boolean inModel() {
 		return cc != null && cc.address != null;
+	}
+
+	@Override
+	public void onResize(mxGraph graph, mxICell parent, mxICell cell) {
+		// ignore
 	}
 
 }

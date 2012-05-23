@@ -2,18 +2,19 @@ package org.vanda.studio.modules.profile.concrete;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import org.vanda.studio.app.Profile;
-import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.Literal;
-import org.vanda.studio.model.elements.OutputPort;
+import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.model.immutable.JobInfo;
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.modules.profile.model.FragmentCompiler;
 import org.vanda.studio.util.TokenSource.Token;
@@ -26,8 +27,21 @@ public class ShellCompiler implements FragmentCompiler {
 	}
 
 	@Override
-	public Fragment compile(String name, ArrayList<JobInfo> jobs,
+	public Fragment compile(String name, List<Port> inputPorts,
+			List<Port> outputPorts, ArrayList<JobInfo> jobs,
 			ArrayList<String> fragments) {
+
+		HashMap<Port, Token> invars = new HashMap<Port, Token>();
+		HashMap<Port, Token> outvars = new HashMap<Port, Token>();
+		for (JobInfo ji : jobs) {
+			if (ji.job.isInputPort()) {
+				invars.put(ji.job.getOutputPorts().get(0), ji.outputs.get(0));
+			}
+			if (ji.job.isOutputPort()) {
+				outvars.put(ji.job.getInputPorts().get(0), ji.inputs.get(0));
+			}
+		}
+
 		StringBuilder sb = new StringBuilder();
 		HashSet<String> dependencies = new HashSet<String>();
 		sb.append("function ");
@@ -50,17 +64,16 @@ public class ShellCompiler implements FragmentCompiler {
 			JobInfo ji = jobs.get(i);
 			sb.append("  ");
 			if (ji.job.isInputPort()) {
-				InputPort ip = (InputPort) ((AtomicImmutableJob) ji.job)
-						.getElement();
 				appendVariable(name, ji.outputs.get(0), sb);
 				sb.append("=\"$");
-				sb.append(Integer.toString(ip.getNumber() + 1));
+				sb.append(Integer.toString(invars.get(
+						ji.job.getOutputPorts().get(0)).intValue() + 1));
 				sb.append('"');
 			} else if (ji.job.isOutputPort()) {
-				OutputPort op = (OutputPort) ((AtomicImmutableJob) ji.job)
-						.getElement();
 				sb.append("eval $");
-				sb.append(Integer.toString(op.getNumber() + 1));
+				// sb.append(Integer.toString(op.getNumber() + 1));
+				sb.append(Integer.toString(outvars.get(
+						ji.job.getInputPorts().get(0)).intValue() + 1));
 				sb.append("=\\\"$");
 				appendVariable(name, ji.inputs.get(0), sb);
 				sb.append("\\\"");
@@ -107,7 +120,7 @@ public class ShellCompiler implements FragmentCompiler {
 
 	@Override
 	public Type getFragmentType() {
-		return Profile.shellType;
+		return Types.shellType;
 	}
 
 	@Override
@@ -142,7 +155,7 @@ public class ShellCompiler implements FragmentCompiler {
 
 	@Override
 	public void visit(RepositoryItemVisitor v) {
-		
+
 	}
 
 }

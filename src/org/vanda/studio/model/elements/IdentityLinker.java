@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 
 public final class IdentityLinker implements Linker {
@@ -82,12 +83,12 @@ public final class IdentityLinker implements Linker {
 
 	@Override
 	public Type getInnerFragmentType() {
-		return Profile.genericType;
+		return Types.genericType;
 	}
 
 	@Override
 	public Type getFragmentType() {
-		return Profile.genericType;
+		return Types.genericType;
 	}
 
 }

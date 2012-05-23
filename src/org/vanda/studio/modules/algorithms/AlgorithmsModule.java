@@ -8,16 +8,15 @@ import java.util.List;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.elements.IdentityLinker;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
-import org.vanda.studio.model.elements.Ports;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
 
@@ -41,7 +40,7 @@ public class AlgorithmsModule implements Module {
 
 		private final Application app;
 
-		private static Type shellType = Profile.shellType;
+		private static Type shellType = Types.shellType;
 
 		private static class Plain2Snt extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
@@ -393,6 +392,7 @@ public class AlgorithmsModule implements Module {
 			}
 		}
 
+		@SuppressWarnings("unused")
 		private static class TheLinker implements Linker {
 
 			@Override
@@ -452,12 +452,12 @@ public class AlgorithmsModule implements Module {
 
 			@Override
 			public Type getInnerFragmentType() {
-				return Ports.typeVariable;
+				return Types.genericType;
 			}
 
 			@Override
 			public Type getFragmentType() {
-				return Ports.typeVariable;
+				return Types.genericType;
 			}
 
 			@Override
@@ -497,7 +497,7 @@ public class AlgorithmsModule implements Module {
 				}
 
 				public List<Port> getInputPorts() {
-					Port p = new Port("inputPort", Ports.typeVariable);
+					Port p = new Port("inputPort", Types.genericType);
 					List<Port> list = new ArrayList<Port>();
 					list.add(p);
 					return list;

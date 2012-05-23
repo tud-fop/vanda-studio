@@ -51,9 +51,8 @@ public final class DrecksAdapter {
 	protected class ChangeListener implements mxIEventListener {
 		// edges: childChange, terminalChange, terminalChange, geometryChange,
 		// terminalChange
-		// the we are only interested in the last terminalChange!
+		// the we are only interested in the final childChange!
 		// the first one is ignored using an additional conjunct (see below)
-		// the geometry change is ignored using inModel test (see below)
 		@Override
 		public void invoke(Object sender, mxEventObject evt) {
 			mxIGraphModel gmodel = graph.getModel();
@@ -76,12 +75,12 @@ public final class DrecksAdapter {
 							if (model != null)
 								model.setSelection(null);
 						}
-						value.remove((mxICell) cc.getPrevious());
+						value.onRemove((mxICell) cc.getPrevious());
 					}
 					// the second conjunct is necessary for edges
 					if (cc.getParent() != null
 							&& cell.getParent() == cc.getParent())
-						value.update(graph, cell.getParent(), cell);
+						value.onInsert(graph, cell.getParent(), cell);
 					if (migrateSelection)
 						graph.setSelectionCell(cell);
 				} else if (c instanceof mxValueChange) {
@@ -89,10 +88,8 @@ public final class DrecksAdapter {
 				} else if (c instanceof mxGeometryChange) {
 					mxICell cell = (mxICell) ((mxGeometryChange) c).getCell();
 					Adapter value = (Adapter) gmodel.getValue(cell);
-					// TODO make a dedicated update method
-					// the inModel test is necessary for edges
-					//if (cell.getParent() != null && value.inModel())
-					//	value.update(graph, cell.getParent(), cell);
+					if (cell.getParent() != null && value.inModel())
+						value.onResize(graph, cell.getParent(), cell);
 				} else if (c instanceof mxSelectionChange && model != null) {
 					Object cell = graph.getSelectionCell();
 					if (cell != null) {
@@ -196,6 +193,35 @@ public final class DrecksAdapter {
 			// adapter is responsible for palette graph component,
 			// prevent selection of inner workflows
 			graph = new Graph() {
+
+				@Override
+				public Object createVertex(Object parent, String id, Object value,
+						double x, double y, double width, double height, String style,
+						boolean relative) {
+					mxGeometry geometry = new mxGeometry(x, y, width, height);
+					geometry.setRelative(relative);
+					@SuppressWarnings("serial")
+					mxCell vertex = new mxCell(value, geometry, style) {
+						@Override
+						protected Object cloneValue() {
+							Object value = getValue();
+							if (value instanceof JobAdapter) {
+								try {
+									return ((JobAdapter) value).clone();
+								} catch (CloneNotSupportedException e) {
+									return super.cloneValue();
+								}
+							} else
+								return super.cloneValue();
+						}
+					};
+
+					vertex.setId(id);
+					vertex.setVertex(true);
+					vertex.setConnectable(true);
+
+					return vertex;
+				}
 
 				@Override
 				public boolean isCellSelectable(Object cell) {

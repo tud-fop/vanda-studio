@@ -90,12 +90,12 @@ public class WorkflowAdapter implements Adapter {
 	}
 
 	@Override
-	public void remove(mxICell parent) {
+	public void onRemove(mxICell parent) {
 		System.out.println("Curious thing just happened!");
 	}
 
 	@Override
-	public void update(mxGraph graph, mxICell parent, mxICell cell) {
+	public void onInsert(mxGraph graph, mxICell parent, mxICell cell) {
 		// do nothing
 	}
 
@@ -133,6 +133,11 @@ public class WorkflowAdapter implements Adapter {
 	public boolean inModel() {
 		// XXX not sure what to return here
 		return false;
+	}
+
+	@Override
+	public void onResize(mxGraph graph, mxICell parent, mxICell cell) {
+		// ignore XXX could check whether parent needs to be resized...
 	}
 
 }

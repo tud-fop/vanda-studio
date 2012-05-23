@@ -179,7 +179,8 @@ public class DrecksWorkflow {
 				imch.add(new JobInfo(ji.job.freeze(), ji.job.address, intoken,
 						outtoken, ji.outCount));
 			}
-			return new ImmutableWorkflow(name, null, imch, variableSource,
+			return new ImmutableWorkflow(name, getInputPorts(),
+					getOutputPorts(), null, imch, variableSource,
 					variableSource.getMaxToken());
 		} else
 			throw new Exception(

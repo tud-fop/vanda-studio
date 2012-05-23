@@ -95,7 +95,8 @@ public final class GeneratorImpl implements Generator {
 				} else
 					fragments.add(null);
 			}
-			result = fc.compile(name, jobs, fragments);
+			result = fc.compile(name, w.getInputPorts(), w.getOutputPorts(),
+					jobs, fragments);
 			assert (result != null);
 			map.put(w, result);
 			this.fragments.put(result.name, result);

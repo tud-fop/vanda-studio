@@ -37,7 +37,7 @@ public class JobAdapter implements Adapter, Cloneable {
 	}
 
 	@Override
-	public void remove(mxICell parent) {
+	public void onRemove(mxICell parent) {
 		WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
 		Token address = job.getAddress();
 		if (address != null && wa.removeChild(address) != null)
@@ -45,7 +45,7 @@ public class JobAdapter implements Adapter, Cloneable {
 	}
 
 	@Override
-	public void update(mxGraph graph, mxICell parent, mxICell cell) {
+	public void onInsert(mxGraph graph, mxICell parent, mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(model
 				.getParent(cell));
@@ -66,25 +66,32 @@ public class JobAdapter implements Adapter, Cloneable {
 				if (graph.getSelectionCell() == cell)
 					graph.setSelectionCell(cell);
 			}
-			// the following condition can be violated when dragging stuff
-			if (wa.getChild(job.getAddress()) == cell) {
-				if (graph.isAutoSizeCell(cell))
-					graph.updateCellSize(cell, true); // was:
-														// resizeToFitLabel(cell)
-				preventTooSmallNested(graph, cell);
-				graph.extendParent(cell); // was: resizeParentOfCell(cell)
-
-				if (geo.getX() != job.getX() || geo.getY() != job.getY()
-						|| geo.getWidth() != job.getWidth()
-						|| geo.getHeight() != job.getHeight()) {
-
-					double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
-							geo.getHeight() };
-					job.setDimensions(dim);
-					sizeChanged(geo, graph, cell);
-				}
-			}
 		}
+	}
+	
+	@Override
+	public void onResize(mxGraph graph, mxICell parent, mxICell cell) {
+		mxIGraphModel model = graph.getModel();
+		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(model
+				.getParent(cell));
+		mxGeometry geo = model.getGeometry(cell);
+		if (wa.getChild(job.getAddress()) == cell) {
+			if (graph.isAutoSizeCell(cell))
+				graph.updateCellSize(cell, true); // was:
+													// resizeToFitLabel(cell)
+			preventTooSmallNested(graph, cell);
+			graph.extendParent(cell); // was: resizeParentOfCell(cell)
+
+			if (geo.getX() != job.getX() || geo.getY() != job.getY()
+					|| geo.getWidth() != job.getWidth()
+					|| geo.getHeight() != job.getHeight()) {
+
+				double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
+						geo.getHeight() };
+				job.setDimensions(dim);
+				sizeChanged(geo, graph, cell);
+			}
+		}		
 	}
 
 	protected void preventTooSmallNested(mxGraph graph, Object cell) {

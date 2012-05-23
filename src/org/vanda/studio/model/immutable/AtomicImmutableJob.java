@@ -44,7 +44,7 @@ public final class AtomicImmutableJob extends ImmutableJob {
 	public void appendText(ArrayList<Token> inputs, ArrayList<Token> outputs,
 			StringBuilder lines, StringBuilder sections) {
 		if (!(element instanceof OutputPort || element instanceof InputPort)) {
-			appendOutput(outputs, lines);
+			// FIXME appendOutput(outputs, lines);
 			lines.append(" = ");
 			lines.append(element.getName());
 			appendInput(inputs, lines);

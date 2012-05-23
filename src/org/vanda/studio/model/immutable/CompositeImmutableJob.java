@@ -56,7 +56,7 @@ public final class CompositeImmutableJob extends ImmutableJob {
 	public void appendText(ArrayList<Token> inputs, ArrayList<Token> outputs,
 			StringBuilder lines, StringBuilder sections) {
 		workflow.appendText(sections);
-		appendOutput(outputs, lines);
+		// FIXME appendOutput(outputs, lines);
 		lines.append(" = ");
 		lines.append(linker.getName());
 		lines.append('[');
