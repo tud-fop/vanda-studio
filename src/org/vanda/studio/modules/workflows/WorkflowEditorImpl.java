@@ -341,4 +341,9 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 	public void addAction(Action a) {
 		app.getWindowSystem().addAction(mainpane, a);
 	}
+
+	@Override
+	public Application getApplication() {
+		return app;
+	}
 }

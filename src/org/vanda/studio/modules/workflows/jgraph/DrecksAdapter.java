@@ -11,7 +11,6 @@ import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.workflows.Model;
-import org.vanda.studio.modules.workflows.Model.ConnectionSelection;
 import org.vanda.studio.modules.workflows.Model.JobSelection;
 import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.util.Observer;
@@ -50,6 +49,10 @@ import com.mxgraph.view.mxGraphSelectionModel.mxSelectionChange;
 public final class DrecksAdapter {
 
 	protected class ChangeListener implements mxIEventListener {
+		// edges: childChange, terminalChange, terminalChange, geometryChange, terminalChange
+		// the we are only interested in the last terminalChange!
+		// the first one is ignored using an additional conjunct (see below)
+		// the geometry change is ignored using inModel test (see below)
 		@Override
 		public void invoke(Object sender, mxEventObject evt) {
 			mxIGraphModel gmodel = graph.getModel();
@@ -74,9 +77,10 @@ public final class DrecksAdapter {
 						}
 						value.remove((mxICell) cc.getPrevious());
 					}
-					if (cc.getParent() != null && cell.getParent() != null)
+					// the second conjunct is necessary for edges
+					if (cc.getParent() != null
+							&& cell.getParent() == cc.getParent())
 						value.update(graph, cell.getParent(), cell);
-					// value.update(graph, (mxICell) cc.getParent(), cell);
 					if (migrateSelection)
 						graph.setSelectionCell(cell);
 				} else if (c instanceof mxValueChange) {
@@ -84,12 +88,9 @@ public final class DrecksAdapter {
 				} else if (c instanceof mxGeometryChange) {
 					mxICell cell = (mxICell) ((mxGeometryChange) c).getCell();
 					Adapter value = (Adapter) gmodel.getValue(cell);
-					if (cell.getParent() != null)
-						value.update(graph, cell.getParent(), cell); // XXX
-					// risky?
-					// if (gmodel.isVertex(cell) && gmodel.getParent(cell) !=
-					// null)
-					// updateNode(cell);
+					// the inModel test is necessary for edges
+					if (cell.getParent() != null && value.inModel())
+						value.update(graph, cell.getParent(), cell);
 				} else if (c instanceof mxSelectionChange && model != null) {
 					Object cell = graph.getSelectionCell();
 					if (cell != null) {
@@ -234,8 +235,8 @@ public final class DrecksAdapter {
 
 					// check nested children recursively
 					if (oc.getChildAt(i).getValue() instanceof WorkflowAdapter) {
-						inverseList.addAll(calculateInverseCellList(oc
-								.getChildAt(i), cells));
+						inverseList.addAll(calculateInverseCellList(
+								oc.getChildAt(i), cells));
 					}
 
 					// unhighlight ports of deselected cell
@@ -383,9 +384,10 @@ public final class DrecksAdapter {
 		for (mxICell suspectPort : activeInputPorts) {
 			for (int i = 0; i < cellList.size(); i++) {
 				mxICell highlightedCell = cellList.get(i);
-				if (highlightedCell.isEdge() && highlightedCell
-						.getTerminal(false).equals(suspectPort)) {
-					
+				if (highlightedCell.isEdge()
+						&& highlightedCell.getTerminal(false).equals(
+								suspectPort)) {
+
 					cellList.add(suspectPort);
 					break;
 				}
@@ -410,11 +412,13 @@ public final class DrecksAdapter {
 			if (source != null && target != null) {
 				graph.getModel().beginUpdate();
 				try {
-					cell = (mxICell) graph.insertEdge(parentCell, null,
-							new ConnectionAdapter(cc), source
-									.getChildAt(cc.sourcePort
-											+ parent.getChild(cc.source)
-													.getInputPorts().size()),
+					cell = (mxICell) graph.insertEdge(
+							parentCell,
+							null,
+							new ConnectionAdapter(cc),
+							source.getChildAt(cc.sourcePort
+									+ parent.getChild(cc.source)
+											.getInputPorts().size()),
 							target.getChildAt(cc.targetPort));
 				} finally {
 					graph.getModel().endUpdate();

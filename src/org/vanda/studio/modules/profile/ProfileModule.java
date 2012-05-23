@@ -7,6 +7,10 @@ import org.vanda.studio.app.Module;
 import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.modules.common.SimpleRepository;
+import org.vanda.studio.modules.profile.concrete.HaskellCompiler;
+import org.vanda.studio.modules.profile.concrete.IdentityLinker;
+import org.vanda.studio.modules.profile.concrete.ShellCompiler;
+import org.vanda.studio.modules.profile.model.FragmentCompiler;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
 import org.vanda.studio.modules.profile.model.Profiles;
 import org.vanda.studio.util.Action;
@@ -34,7 +38,12 @@ public class ProfileModule implements Module {
 		public ProfileModuleInstance(Application app) {
 			this.app = app;
 			profiles = new ProfilesImpl();
+			SimpleRepository<FragmentCompiler> compilers = new SimpleRepository<FragmentCompiler>(null);
+			compilers.addItem(new HaskellCompiler());
+			compilers.addItem(new ShellCompiler());
+			profiles.getFragmentCompilerMetaRepository().addRepository(compilers);
 			SimpleRepository<FragmentLinker> linkers = new SimpleRepository<FragmentLinker>(null);
+			linkers.addItem(new IdentityLinker());
 			profiles.getFragmentLinkerMetaRepository().addRepository(linkers);
 			if (false) {
 				Collection<Linker> ls = app.getLinkerMetaRepository().getRepository().getItems();

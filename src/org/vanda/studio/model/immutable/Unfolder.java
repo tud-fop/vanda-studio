@@ -156,7 +156,8 @@ public class Unfolder {
 					}
 				}
 				ImmutableWorkflow wf = new ImmutableWorkflow(parent.name,
-						children, parent.variableSource, 0);
+						parent.getFragmentType(), children,
+						parent.variableSource, 0); // XXX 0 bad hack?
 				result.add(wf);
 			}
 		}

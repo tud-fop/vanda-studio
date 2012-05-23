@@ -31,8 +31,8 @@ public final class ImmutableWorkflow {
 	 * @param maxtoken
 	 *            maximum token
 	 */
-	public ImmutableWorkflow(String name, ArrayList<JobInfo> children,
-			TokenSource token, int maxtoken) {
+	public ImmutableWorkflow(String name, Type fragmentType,
+			ArrayList<JobInfo> children, TokenSource token, int maxtoken) {
 		this.name = name;
 		this.children = children;
 		deref = new HashMap<Token, ImmutableJob>();
@@ -47,7 +47,7 @@ public final class ImmutableWorkflow {
 			deref.put(ji.address, ji.job);
 		}
 		types = null;
-		fragmentType = null;
+		this.fragmentType = fragmentType;
 	}
 
 	public ImmutableWorkflow(String name, List<ImmutableWorkflow> unfolded) {

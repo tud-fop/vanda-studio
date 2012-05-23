@@ -9,6 +9,7 @@ import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.Literal;
 import org.vanda.studio.model.elements.OutputPort;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.model.immutable.JobInfo;
@@ -47,7 +48,7 @@ public class HaskellCompiler implements FragmentCompiler {
 
 		StringBuilder sb = new StringBuilder();
 		HashSet<String> dependencies = new HashSet<String>();
-		sb.append(name);
+		sb.append(Fragment.normalize(name));
 		for (int i = 0; i < inputs.size(); i++) {
 			sb.append(' ');
 			ImmutableJob.appendVariable(inputs.get(i), sb);
@@ -87,7 +88,7 @@ public class HaskellCompiler implements FragmentCompiler {
 				assert (frag != null);
 				ImmutableJob.appendOutput(ji.outputs, sb);
 				sb.append(" = ");
-				sb.append(frag);
+				sb.append(Fragment.normalize(name));
 				for (int j = 0; j < ji.inputs.size(); j++) {
 					sb.append(" ");
 					ImmutableJob.appendVariable(ji.inputs.get(j), sb);
@@ -104,6 +105,41 @@ public class HaskellCompiler implements FragmentCompiler {
 	@Override
 	public Type getFragmentType() {
 		return Profile.haskellType;
+	}
+
+	@Override
+	public String getCategory() {
+		return "Fragment Compilers";
+	}
+
+	@Override
+	public String getContact() {
+		return "Matthias.Buechse@tu-dresden.de";
+	}
+
+	@Override
+	public String getDescription() {
+		return "";
+	}
+
+	@Override
+	public String getId() {
+		return "haskell-compiler";
+	}
+
+	@Override
+	public String getName() {
+		return "Haskell Fragment Compiler";
+	}
+
+	@Override
+	public String getVersion() {
+		return "0.1";
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		
 	}
 
 }

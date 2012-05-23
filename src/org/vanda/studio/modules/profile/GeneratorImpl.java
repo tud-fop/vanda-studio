@@ -46,19 +46,6 @@ public final class GeneratorImpl implements Generator {
 		};
 	}
 
-	public String makeUnique(String prefix, Object key) {
-		String result = uniqueStrings.get(key);
-		if (result == null) {
-			Integer n = uniqueMap.get(prefix);
-			if (n == null)
-				n = new Integer(0);
-			uniqueMap.put(prefix, new Integer(n.intValue() + 1));
-			result = prefix + "$" + n.toString();
-			uniqueStrings.put(key, result);
-		}
-		return result;
-	}
-
 	public String generateAtomicFragment(AtomicImmutableJob j)
 			throws IOException {
 		assert (j.getElement() instanceof Tool);
@@ -88,6 +75,7 @@ public final class GeneratorImpl implements Generator {
 	public String generateFragment(ImmutableWorkflow w) throws IOException {
 		Fragment result = map.get(w);
 		if (result == null) {
+			String name = makeUnique(w.getName(), w);
 			assert (w.getFragmentType() != null);
 			FragmentCompiler fc = prof.getCompiler(w.getFragmentType());
 			assert (fc != null);
@@ -107,9 +95,10 @@ public final class GeneratorImpl implements Generator {
 				} else
 					fragments.add(null);
 			}
-			result = fc.compile(w.getName(), jobs, fragments);
+			result = fc.compile(name, jobs, fragments);
 			assert (result != null);
 			map.put(w, result);
+			this.fragments.put(result.name, result);
 		}
 		return result.name;
 	}
@@ -118,6 +107,19 @@ public final class GeneratorImpl implements Generator {
 	public void generate(ImmutableWorkflow iwf) throws IOException {
 		String root = generateFragment(iwf);
 		rootLinker.link(root, fb, io);
+	}
+
+	public String makeUnique(String prefix, Object key) {
+		String result = uniqueStrings.get(key);
+		if (result == null) {
+			Integer n = uniqueMap.get(prefix);
+			if (n == null)
+				n = new Integer(0);
+			uniqueMap.put(prefix, new Integer(n.intValue() + 1));
+			result = prefix + "$" + n.toString();
+			uniqueStrings.put(key, result);
+		}
+		return result;
 	}
 
 }

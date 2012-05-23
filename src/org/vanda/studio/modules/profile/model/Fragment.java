@@ -28,4 +28,9 @@ public class Fragment {
 		this.dependencies = dependencies;
 		this.imports = imports;
 	}
+	
+	public static String normalize(String name) {
+		return name.replace('$', '_').replace(' ', '_');
+	}
+
 }

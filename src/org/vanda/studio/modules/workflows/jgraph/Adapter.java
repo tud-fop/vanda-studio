@@ -13,6 +13,7 @@ import com.mxgraph.view.mxGraph;
 public interface Adapter {
 	String getName();
 	mxICell dereference(ListIterator<Token> path, mxICell current);
+	boolean inModel();
 	void prependPath(LinkedList<Token> path);
 	void update(mxGraph graph, mxICell parent, mxICell cell);
 	void register(mxICell parent, mxICell cell);

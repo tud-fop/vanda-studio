@@ -129,4 +129,10 @@ public class WorkflowAdapter implements Adapter {
 		}
 	}
 
+	@Override
+	public boolean inModel() {
+		// XXX not sure what to return here
+		return false;
+	}
+
 }
