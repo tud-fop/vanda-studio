@@ -1,11 +1,13 @@
 package org.vanda.studio.modules.workflows;
 
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
@@ -51,13 +53,13 @@ public class WorkflowModule implements Module {
 				@Override
 				public Object instantiate(WorkflowEditor wfe, Model m) {
 					Action a = new SaveWorkflowAction(m);
-					wfe.addAction(a);
+					wfe.addAction(a, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
 					return a;
 				}
 			});
 
-			app.getWindowSystem().addAction(null, new OpenWorkflowAction());
-			app.getWindowSystem().addAction(null, new NewWorkflowAction());
+			app.getWindowSystem().addAction(null, new OpenWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
+			app.getWindowSystem().addAction(null, new NewWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
 		}
 
 		protected class NewWorkflowAction implements Action {

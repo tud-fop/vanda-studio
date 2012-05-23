@@ -5,6 +5,7 @@ package org.vanda.studio.app;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 
 import org.vanda.studio.util.Action;
 
@@ -17,7 +18,7 @@ public interface WindowSystem {
 	/**
 	 * Call this *before* adding c as a contentWindow.
 	 */
-	void addAction(JComponent c, Action a);
+	void addAction(JComponent c, Action a, KeyStroke keyStroke);
 
 	/**
 	 * Creates a new tab in the main pane.

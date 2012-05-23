@@ -23,6 +23,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -191,9 +192,9 @@ public class WindowSystemImpl implements WindowSystem {
 			}
 		});
 	}
-
+	
 	@Override
-	public void addAction(JComponent c, final Action a) {
+	public void addAction(JComponent c, final Action a, KeyStroke keyStroke) {
 		JMenuItem item = new JMenuItem(a.getName());
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -201,6 +202,9 @@ public class WindowSystemImpl implements WindowSystem {
 				a.invoke();
 			}
 		});
+		if (keyStroke != null) {
+			item.setAccelerator(keyStroke);
+		}
 		if (c != null) {
 			JMenu menu = windowMenus.get(c);
 			if (menu == null) {

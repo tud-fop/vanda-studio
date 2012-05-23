@@ -24,7 +24,9 @@ import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.modules.workflows.Model.WorkflowSelection;
+import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
+import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.HasActions;
@@ -75,14 +77,14 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 					component.zoomActual();
 			}
 		});
-		app.getWindowSystem().addAction(mainpane, new CheckWorkflowAction());
+		app.getWindowSystem().addAction(mainpane, new CheckWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
 		app.getWindowSystem().addContentWindow(null, mainpane, null);
 		app.getWindowSystem().focusContentWindow(mainpane);
 		mainpane.requestFocusInWindow();
 		
 		for (ToolFactory tf : tools)
 			tf.instantiate(this, model);
-		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction());
+		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
 
 		recheckObserver = new Observer<Object>() {
 			@Override
@@ -144,15 +146,18 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 			// e.getSource().equals(component) &&
 			// only handle DELETE-key
 			if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-				WorkflowSelection ws = model.getSelection();
-				if (ws instanceof SingleObjectSelection)
-					((SingleObjectSelection) ws).remove(model.getRoot());
-
+				removeSelectedCell();
 			}
 
 		}
 	}
 
+	private void removeSelectedCell() {
+		WorkflowSelection ws = model.getSelection();
+		if (ws instanceof SingleObjectSelection)
+			((SingleObjectSelection) ws).remove(model.getRoot());
+	}
+	
 	/**
 	 * Handles mouse actions: opens cell-specific views/editors on double-click,
 	 * opens context menu on mouse right-click
@@ -180,49 +185,41 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 						.getValue(cell);
 
 				PopupMenu menu = null;
-
+				
 				// create connection specific context menu
-				if (value instanceof Connection) {
+				if (value instanceof ConnectionAdapter) {
 					// menu = new PopupMenu(((Connection<?>) value).toString());
 					menu = new PopupMenu(cell.toString());
-
+					
 					@SuppressWarnings("serial")
 					JMenuItem item = new JMenuItem("Remove Connection") {
 						@Override
 						public void fireActionPerformed(ActionEvent e) {
-							/*
-							 * MutableWorkflow
-							 * .removeConnectionGeneric((Connection) value);
-							 */
+							removeSelectedCell();
 						}
 					};
 
 					item.setAccelerator(KeyStroke.getKeyStroke(
 							KeyEvent.VK_DELETE, 0));
 					menu.add(item);
-					// Connection c = (Connection) value;
 				}
 
-				// create node specific context menu
-				if (value instanceof Job) {
-					menu = new PopupMenu(((Job) value).getItem().getName());
-
-					// only create a remove action if it's not a palette tool
-					/*
-					 * if (((Job<?>) value).getParent() != null) {
-					 * 
-					 * @SuppressWarnings("serial") JMenuItem item = new
-					 * JMenuItem("Remove Vertex") {
-					 * 
-					 * @Override public void fireActionPerformed(ActionEvent e)
-					 * { MutableWorkflow .removeChildGeneric((Job<?>) value); }
-					 * };
-					 * 
-					 * item.setAccelerator(KeyStroke.getKeyStroke(
-					 * KeyEvent.VK_DELETE, 0)); menu.add(item); }
-					 */
-
-				}
+				//TODO enable context menu for jobs
+//				// create node specific context menu
+//				if (value instanceof JobAdapter) {
+//					menu = new PopupMenu(((JobAdapter)value).getName());
+//
+//					@SuppressWarnings("serial")
+//					JMenuItem item = new JMenuItem("Remove Job") {
+//						@Override
+//						public void fireActionPerformed(ActionEvent e) {
+//							removeSelectedCell();
+//						}
+//					};
+//					item.setAccelerator(KeyStroke.getKeyStroke(
+//							KeyEvent.VK_DELETE, 0));
+//					menu.add(item);
+//				}
 
 				if (menu != null) {
 					if (value instanceof HasActions) {
@@ -338,7 +335,7 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 	}
 
 	@Override
-	public void addAction(Action a) {
-		app.getWindowSystem().addAction(mainpane, a);
+	public void addAction(Action a, KeyStroke keyStroke) {
+		app.getWindowSystem().addAction(mainpane, a, keyStroke);
 	}
 }

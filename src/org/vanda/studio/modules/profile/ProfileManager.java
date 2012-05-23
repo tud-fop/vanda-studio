@@ -49,7 +49,7 @@ public final class ProfileManager {
 			public void invoke() {
 
 			}
-		});
+		}, null);
 		app.getWindowSystem().addContentWindow(null, contentPane,
 				new CloseAction());
 
