@@ -53,4 +53,9 @@ class PortAdapter implements Adapter, Cloneable {
 	public mxICell dereference(ListIterator<Token> path, mxICell current) {
 		return null;
 	}
+
+	@Override
+	public boolean inModel() {
+		return false;
+	}
 }

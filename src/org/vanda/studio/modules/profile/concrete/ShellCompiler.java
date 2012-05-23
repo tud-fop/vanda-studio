@@ -1,12 +1,15 @@
 package org.vanda.studio.modules.profile.concrete;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.Literal;
 import org.vanda.studio.model.elements.OutputPort;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.model.immutable.JobInfo;
@@ -18,25 +21,31 @@ import org.vanda.studio.util.TokenSource.Token;
 public class ShellCompiler implements FragmentCompiler {
 
 	private static void appendVariable(String name, Token t, StringBuilder sb) {
-		sb.append(name);
+		sb.append(Fragment.normalize(name));
 		ImmutableJob.appendVariable(t, sb);
 	}
 
 	@Override
 	public Fragment compile(String name, ArrayList<JobInfo> jobs,
-			ArrayList<Fragment> fragments) {
+			ArrayList<String> fragments) {
 		StringBuilder sb = new StringBuilder();
-		Set<String> im = null;
+		HashSet<String> dependencies = new HashSet<String>();
 		sb.append("function ");
-		sb.append(name);
-		sb.append(" {\n  local");
+		sb.append(Fragment.normalize(name));
+		sb.append(" {\n");
+		StringBuilder sb2 = new StringBuilder();
+		sb2.append("  local");
+		boolean flag = false;
 		for (int i = 0; i < jobs.size(); i++) {
 			for (Token t : jobs.get(i).outputs) {
-				sb.append(' ');
-				appendVariable(name, t, sb);
+				sb2.append(' ');
+				appendVariable(name, t, sb2);
+				flag = true;
 			}
 		}
-		sb.append('\n');
+		sb2.append('\n');
+		if (flag)
+			sb.append(sb2.toString());
 		for (int i = 0; i < jobs.size(); i++) {
 			JobInfo ji = jobs.get(i);
 			sb.append("  ");
@@ -75,9 +84,9 @@ public class ShellCompiler implements FragmentCompiler {
 				sb.append(lit.getValue());
 				sb.append('"');
 			} else {
-				Fragment frag = fragments.get(i);
+				String frag = fragments.get(i);
 				assert (frag != null);
-				sb.append(frag.name);
+				sb.append(Fragment.normalize(frag));
 				for (int j = 0; j < ji.inputs.size(); j++) {
 					sb.append(" \"$");
 					appendVariable(name, ji.inputs.get(j), sb);
@@ -87,16 +96,53 @@ public class ShellCompiler implements FragmentCompiler {
 					sb.append(' ');
 					appendVariable(name, ji.outputs.get(j), sb);
 				}
+				dependencies.add(frag);
 			}
 			sb.append('\n');
 		}
 		sb.append("}\n\n");
-		return new Fragment(name, sb.toString(), fragments, im);
+		Set<String> im = Collections.emptySet();
+		return new Fragment(name, sb.toString(), dependencies, im);
 	}
 
 	@Override
 	public Type getFragmentType() {
 		return Profile.shellType;
+	}
+
+	@Override
+	public String getCategory() {
+		return "Fragment Compilers";
+	}
+
+	@Override
+	public String getContact() {
+		return "Matthias.Buechse@tu-dresden.de";
+	}
+
+	@Override
+	public String getDescription() {
+		return "";
+	}
+
+	@Override
+	public String getId() {
+		return "shell-compiler";
+	}
+
+	@Override
+	public String getName() {
+		return "Shell Fragment Compiler";
+	}
+
+	@Override
+	public String getVersion() {
+		return "0.1";
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		
 	}
 
 }

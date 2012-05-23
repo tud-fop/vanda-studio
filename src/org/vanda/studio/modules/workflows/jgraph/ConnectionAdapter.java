@@ -27,10 +27,12 @@ public class ConnectionAdapter implements Adapter {
 
 	@Override
 	public void remove(mxICell parent) {
-		WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
-		Token address = cc.address;
-		if (address != null && wa.removeConnection(address) != null)
-			wa.workflow.removeConnection(address);
+		if (cc != null) {
+			WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
+			Token address = cc.address;
+			if (address != null && wa.removeConnection(address) != null)
+				wa.workflow.removeConnection(address);
+		}
 	}
 
 	@Override
@@ -40,8 +42,12 @@ public class ConnectionAdapter implements Adapter {
 		if (cc != null) {
 			// a previously loaded connection is updated, don't change anything
 			Token address = cc.address;
-			if (wa.getConnection(address) == null)
+			if (wa.getConnection(address) == null) {
 				wa.setConnection(address, cell);
+				// propagate value change to selection listeners
+				if (graph.getSelectionCell() == cell)
+					graph.setSelectionCell(cell);
+			}
 			assert (wa.getConnection(address) == cell);
 		} else {
 			// a new connection has been inserted by the user via GUI
@@ -68,10 +74,6 @@ public class ConnectionAdapter implements Adapter {
 				cell.setValue(new ConnectionAdapter(cc));
 				if (wa.workflow != null)
 					wa.workflow.addConnection(cc);
-
-				// propagate value change to selection listeners
-				if (graph.getSelectionCell() == cell)
-					graph.setSelectionCell(cell);
 			}
 		}
 	}
@@ -98,6 +100,11 @@ public class ConnectionAdapter implements Adapter {
 	@Override
 	public mxICell dereference(ListIterator<Token> path, mxICell current) {
 		return null;
+	}
+
+	@Override
+	public boolean inModel() {
+		return cc != null && cc.address != null;
 	}
 
 }

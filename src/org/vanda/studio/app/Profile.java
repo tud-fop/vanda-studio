@@ -11,6 +11,7 @@ public interface Profile extends RepositoryItem {
 	
 	Type getRootType();
 	
+	public static String identityLinker = "identity-linker";
 	public static Type genericType = Ports.typeVariable;
 	public static Type haskellType = new CompositeType("haskell");
 	public static Type shellType = new CompositeType("shell");

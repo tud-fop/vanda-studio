@@ -1,12 +1,15 @@
 package org.vanda.studio.modules.profile.concrete;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.Literal;
 import org.vanda.studio.model.elements.OutputPort;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.model.immutable.JobInfo;
@@ -19,7 +22,7 @@ public class HaskellCompiler implements FragmentCompiler {
 
 	@Override
 	public Fragment compile(String name, ArrayList<JobInfo> jobs,
-			ArrayList<Fragment> fragments) {
+			ArrayList<String> fragments) {
 
 		ArrayList<Token> outputs = new ArrayList<Token>();
 		ArrayList<Token> inputs = new ArrayList<Token>();
@@ -44,8 +47,8 @@ public class HaskellCompiler implements FragmentCompiler {
 							.getNumber(), ji.inputs.get(0));
 
 		StringBuilder sb = new StringBuilder();
-		Set<String> im = null;
-		sb.append(name);
+		HashSet<String> dependencies = new HashSet<String>();
+		sb.append(Fragment.normalize(name));
 		for (int i = 0; i < inputs.size(); i++) {
 			sb.append(' ');
 			ImmutableJob.appendVariable(inputs.get(i), sb);
@@ -81,25 +84,62 @@ public class HaskellCompiler implements FragmentCompiler {
 				} else
 					sb.append(lit.getValue());
 			} else {
-				Fragment frag = fragments.get(i);
+				String frag = fragments.get(i);
 				assert (frag != null);
 				ImmutableJob.appendOutput(ji.outputs, sb);
 				sb.append(" = ");
-				sb.append(frag.name);
+				sb.append(Fragment.normalize(name));
 				for (int j = 0; j < ji.inputs.size(); j++) {
 					sb.append(" ");
 					ImmutableJob.appendVariable(ji.inputs.get(j), sb);
 				}
+				dependencies.add(frag);
 			}
 			sb.append('\n');
 		}
 		sb.append('\n');
-		return new Fragment(name, sb.toString(), fragments, im);
+		Set<String> im = Collections.emptySet();
+		return new Fragment(name, sb.toString(), dependencies, im);
 	}
 
 	@Override
 	public Type getFragmentType() {
 		return Profile.haskellType;
+	}
+
+	@Override
+	public String getCategory() {
+		return "Fragment Compilers";
+	}
+
+	@Override
+	public String getContact() {
+		return "Matthias.Buechse@tu-dresden.de";
+	}
+
+	@Override
+	public String getDescription() {
+		return "";
+	}
+
+	@Override
+	public String getId() {
+		return "haskell-compiler";
+	}
+
+	@Override
+	public String getName() {
+		return "Haskell Fragment Compiler";
+	}
+
+	@Override
+	public String getVersion() {
+		return "0.1";
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		
 	}
 
 }

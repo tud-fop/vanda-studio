@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.profile;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.vanda.studio.app.Generator;
 import org.vanda.studio.app.Profile;
@@ -11,32 +12,27 @@ import org.vanda.studio.modules.profile.model.FragmentIO;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
 import org.vanda.studio.modules.profile.model.Profiles;
 
-public class ProfileImpl implements Profile {
-	
-	public class FragmentIOImpl implements FragmentIO {
+public class ProfileImpl implements Profile, FragmentIO {
 
-		@Override
-		public String makeUnique(String prefix) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public File createFile(String name) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-	}
-
+	private static final String basePath = "/tmp/";
 	private Profiles prof;
-	private FragmentIO io;
 	private FragmentLinker rootLinker;
 	
 	public ProfileImpl(Profiles prof) {
 		this.prof = prof;
-		io = new FragmentIOImpl();
 		rootLinker = new RootLinker();
+	}
+
+	@Override
+	public File createFile(String name) throws IOException {
+		File result = new File(basePath + name);
+		result.createNewFile();
+		return result;
+	}
+
+	@Override
+	public Generator createGenerator() {
+		return new GeneratorImpl(prof, this, rootLinker);
 	}
 
 	@Override
@@ -65,18 +61,13 @@ public class ProfileImpl implements Profile {
 	}
 
 	@Override
-	public String getVersion() {
-		return "0.1";
-	}
-
-	@Override
-	public Generator createGenerator() {
-		return new GeneratorImpl(prof, io, rootLinker);
-	}
-
-	@Override
 	public Type getRootType() {
 		return Profile.shellType;
+	}
+
+	@Override
+	public String getVersion() {
+		return "0.1";
 	}
 
 	@Override

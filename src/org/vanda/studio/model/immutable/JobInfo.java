@@ -6,7 +6,7 @@ import org.vanda.studio.util.TokenSource.Token;
 
 public final class JobInfo {
 	public final ImmutableJob job;
-	public final Object address;
+	public final Token address;
 	public final ArrayList<Token> inputs;
 	public final ArrayList<Token> outputs;
 	public final int outCount;
@@ -19,7 +19,7 @@ public final class JobInfo {
 	 * @param outputs
 	 * @param outCount
 	 */
-	public JobInfo(ImmutableJob job, Object address,
+	public JobInfo(ImmutableJob job, Token address,
 			ArrayList<Token> inputs, ArrayList<Token> outputs, int outCount) {
 		this.job = job;
 		this.address = address;

@@ -56,8 +56,12 @@ public class JobAdapter implements Adapter, Cloneable {
 			if (wa.workflow != null)
 				wa.workflow.addChild(job);
 		} else {
-			if (wa.getChild(job.getAddress()) == null)
+			if (wa.getChild(job.getAddress()) == null) {
 				wa.setChild(job.getAddress(), cell);
+				// propagate value change to selection listeners
+				if (graph.getSelectionCell() == cell)
+					graph.setSelectionCell(cell);
+			}
 			// the following condition can be violated when dragging stuff
 			if (wa.getChild(job.getAddress()) == cell) {
 				if (graph.isAutoSizeCell(cell))
@@ -95,7 +99,8 @@ public class JobAdapter implements Adapter, Cloneable {
 
 	@Override
 	public void setSelection(Model m, List<Token> path) {
-		m.setSelection(new JobSelection(path, job.getAddress()));
+		if (job.getAddress() != null)
+			m.setSelection(new JobSelection(path, job.getAddress()));
 	}
 
 	@Override
@@ -107,5 +112,10 @@ public class JobAdapter implements Adapter, Cloneable {
 	@Override
 	public mxICell dereference(ListIterator<Token> path, mxICell current) {
 		return null;
+	}
+
+	@Override
+	public boolean inModel() {
+		return job.getAddress() != null;
 	}
 }

@@ -338,4 +338,9 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 	public void addAction(Action a, KeyStroke keyStroke) {
 		app.getWindowSystem().addAction(mainpane, a, keyStroke);
 	}
+
+	@Override
+	public Application getApplication() {
+		return app;
+	}
 }

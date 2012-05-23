@@ -171,7 +171,7 @@ public class DrecksWorkflow {
 						new ArrayList<Token>(ji.inputs), new ArrayList<Token>(
 								ji.outputs), ji.outCount));
 			}
-			return new ImmutableWorkflow(name, imch, variableSource,
+			return new ImmutableWorkflow(name, null, imch, variableSource,
 					variableSource.getMaxToken());
 		} else
 			throw new Exception(

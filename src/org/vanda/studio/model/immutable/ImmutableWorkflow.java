@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.vanda.studio.model.elements.IdentityLinker;
 import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.types.Type;
@@ -19,7 +20,7 @@ public final class ImmutableWorkflow {
 	final TokenSource variableSource;
 	final int[] variableOrigins;
 	final String name;
-	private final Map<Object, ImmutableJob> deref;
+	private final Map<Token, ImmutableJob> deref;
 	private Type[] types;
 	private Type fragmentType;
 
@@ -30,11 +31,11 @@ public final class ImmutableWorkflow {
 	 * @param maxtoken
 	 *            maximum token
 	 */
-	public ImmutableWorkflow(String name, ArrayList<JobInfo> children,
-			TokenSource token, int maxtoken) {
+	public ImmutableWorkflow(String name, Type fragmentType,
+			ArrayList<JobInfo> children, TokenSource token, int maxtoken) {
 		this.name = name;
 		this.children = children;
-		deref = new HashMap<Object, ImmutableJob>();
+		deref = new HashMap<Token, ImmutableJob>();
 		this.variableSource = token;
 		variableOrigins = new int[maxtoken];
 		for (int i = 0; i < children.size(); i++) {
@@ -46,7 +47,28 @@ public final class ImmutableWorkflow {
 			deref.put(ji.address, ji.job);
 		}
 		types = null;
+		this.fragmentType = fragmentType;
+	}
+
+	public ImmutableWorkflow(String name, List<ImmutableWorkflow> unfolded) {
+		ArrayList<Token> empty = new ArrayList<Token>();
+
+		this.name = name;
+		variableSource = new TokenSource();
+		variableOrigins = new int[0];
+		children = new ArrayList<JobInfo>(unfolded.size());
+		deref = Collections.emptyMap();
+		types = null;
 		fragmentType = null;
+		for (int i = 0; i < unfolded.size(); i++) {
+			ImmutableWorkflow iwf = unfolded.get(i);
+			Token address = TokenSource.getToken(i);
+			if (fragmentType == null)
+				fragmentType = iwf.fragmentType;
+			children.add(new JobInfo(new CompositeImmutableJob(address,
+					IdentityLinker.getInstance(), iwf), address, empty, empty,
+					0));
+		}
 	}
 
 	public ImmutableWorkflow dereference(ListIterator<Token> path) {
@@ -115,10 +137,11 @@ public final class ImmutableWorkflow {
 	}
 
 	public List<ImmutableWorkflow> unfold() {
-		if (variableOrigins.length == 0)
-			return Collections.singletonList(this);
-		else
-			return new Unfolder(this).unfold();
+		// XXX this hack did not work, find another one
+		// if (variableOrigins.length == 0)
+		// return Collections.singletonList(this);
+		// else
+		return new Unfolder(this).unfold();
 	}
 
 	public void appendText(StringBuilder sections) {

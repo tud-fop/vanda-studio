@@ -20,6 +20,10 @@ public final class Types {
 	 * @return
 	 */
 	public static boolean canUnify(Type t1, Type t2) {
+		if (t1 == t2) // also for null?
+			return true;
+		if (t1 == null || t2 == null)
+			return false;
 		TokenSource freshSource = new TokenSource();
 		HashMap<Token, Token> rename1 = new HashMap<Token, Token>();
 		HashMap<Token, Token> rename2 = new HashMap<Token, Token>();
