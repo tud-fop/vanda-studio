@@ -19,8 +19,8 @@ public class CompositeJobAdapter extends JobAdapter {
 	}
 
 	@Override
-	public CompositeJobAdapter clone() {
-		return new CompositeJobAdapter(job);
+	public CompositeJobAdapter clone() throws CloneNotSupportedException {
+		return new CompositeJobAdapter(job.clone());
 	}
 
 	/**

@@ -89,9 +89,10 @@ public final class DrecksAdapter {
 				} else if (c instanceof mxGeometryChange) {
 					mxICell cell = (mxICell) ((mxGeometryChange) c).getCell();
 					Adapter value = (Adapter) gmodel.getValue(cell);
+					// TODO make a dedicated update method
 					// the inModel test is necessary for edges
-					if (cell.getParent() != null && value.inModel())
-						value.update(graph, cell.getParent(), cell);
+					//if (cell.getParent() != null && value.inModel())
+					//	value.update(graph, cell.getParent(), cell);
 				} else if (c instanceof mxSelectionChange && model != null) {
 					Object cell = graph.getSelectionCell();
 					if (cell != null) {

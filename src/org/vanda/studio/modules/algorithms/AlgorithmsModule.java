@@ -532,7 +532,7 @@ public class AlgorithmsModule implements Module {
 			app.getToolMetaRepository().addRepository(tr);
 
 			SimpleRepository<Linker> lr = new SimpleRepository<Linker>(null);
-			lr.addItem(new TheLinker());
+			//lr.addItem(new TheLinker());
 			lr.addItem(IdentityLinker.getInstance());
 			app.getLinkerMetaRepository().addRepository(lr);
 

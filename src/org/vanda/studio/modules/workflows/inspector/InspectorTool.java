@@ -73,11 +73,11 @@ public class InspectorTool implements ToolFactory {
 			sb.append("<dt>Source</dt><dd>");
 			sb.append(wf.getChild(cc.source).getItem().getName());
 			sb.append("</dd><dt>Source Port</dt><dd>");
-			sb.append(cc.sourcePort);
+			sb.append(cc.sourcePort.getIdentifier());
 			sb.append("</dd><dt>Target</dt><dd>");
 			sb.append(wf.getChild(cc.target).getItem().getName());
 			sb.append("</dd><dt>Target Port</dt><dd>");
-			sb.append(cc.targetPort);
+			sb.append(cc.targetPort.getIdentifier());
 			sb.append("</dd><dt>Variable</dt><dd>x");
 			sb.append(variable.toString());
 			if (type != null) {
