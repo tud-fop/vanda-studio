@@ -324,16 +324,40 @@ public class JobRendering {
 
 	protected static class InputPortRenderer extends DefaultRenderer {
 		@Override
+		public void addStyle(Map<String, Object> style) {
+			super.addStyle(style);
+			//style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
+			style.put(mxConstants.STYLE_NOLABEL, "true");
+		}
+		
+		@Override
 		public String getStyleName() {
 			return "inputPort";
 		}
+		
+		@Override
+		protected Adapter createAdapter(Job job) {
+			return new InputPortAdapter(job);
+		}		
 	}
 
 	protected static class OutputPortRenderer extends DefaultRenderer {
 		@Override
+		public void addStyle(Map<String, Object> style) {
+			super.addStyle(style);
+			//style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
+			style.put(mxConstants.STYLE_NOLABEL, "true");
+		}
+		
+		@Override
 		public String getStyleName() {
 			return "outputPort";
 		}
+		
+		@Override
+		protected Adapter createAdapter(Job job) {
+			return new OutputPortAdapter(job);
+		}		
 	}
 
 	protected static class BoxRenderer extends DefaultRenderer {

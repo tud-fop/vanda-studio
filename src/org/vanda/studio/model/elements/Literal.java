@@ -115,14 +115,22 @@ public final class Literal implements Element {
 	}
 
 	@Override
-	public Observable<Pair<Element, Integer>> getAddPortObservable() {
-		// TODO Auto-generated method stub
+	public Observable<Pair<Element, Integer>> getAddInputPortObservable() {
 		return null;
 	}
 
 	@Override
-	public Observable<Pair<Element, Integer>> getRemovePortObservable() {
-		// TODO Auto-generated method stub
+	public Observable<Pair<Element, Integer>> getAddOutputPortObservable() {
+		return null;
+	}
+
+	@Override
+	public Observable<Pair<Element, Integer>> getRemoveInputPortObservable() {
+		return null;
+	}
+
+	@Override
+	public Observable<Pair<Element, Integer>> getRemoveOutputPortObservable() {
 		return null;
 	}
 

@@ -72,6 +72,35 @@ class Graph extends mxGraph {
 	}
 
 	@Override
+	public Object createVertex(Object parent, String id, Object value,
+			double x, double y, double width, double height, String style,
+			boolean relative) {
+		mxGeometry geometry = new mxGeometry(x, y, width, height);
+		geometry.setRelative(relative);
+		@SuppressWarnings("serial")
+		mxCell vertex = new mxCell(value, geometry, style) {
+			@Override
+			protected Object cloneValue() {
+				Object value = getValue();
+				if (value instanceof JobAdapter) {
+					try {
+						return ((JobAdapter) value).clone();
+					} catch (CloneNotSupportedException e) {
+						return super.cloneValue();
+					}
+				} else
+					return super.cloneValue();
+			}
+		};
+
+		vertex.setId(id);
+		vertex.setVertex(true);
+		vertex.setConnectable(true);
+
+		return vertex;
+	}
+
+	@Override
 	public void finalize() throws Throwable {
 		JobRendering.refStylesheet(-1);
 		super.finalize();

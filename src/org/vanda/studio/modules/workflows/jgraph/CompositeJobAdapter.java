@@ -92,8 +92,8 @@ public class CompositeJobAdapter extends JobAdapter {
 	public void sizeChanged(mxGeometry geo, mxGraph graph, mxICell cell) {
 		mxICell child = findWorkflow(cell);
 		if (child != null) {
-			child.setGeometry(new mxGeometry(5, 5, job.getWidth() - 10, job
-					.getHeight() - 10));
+			child.setGeometry(new mxGeometry(2, 2, job.getWidth() - 4, job
+					.getHeight() - 4));
 			graph.refresh();
 		}
 	}
@@ -126,8 +126,8 @@ public class CompositeJobAdapter extends JobAdapter {
 			mxGeometry geo = null;
 			mxGeometry geop = cell.getGeometry();
 			if (geop != null) {
-				geo = new mxGeometry(5, 5, geop.getWidth() - 10,
-						geop.getHeight() - 10);
+				geo = new mxGeometry(2, 2, geop.getWidth() - 4,
+						geop.getHeight() - 4);
 				geo.setRelative(false);
 			}
 

@@ -47,13 +47,25 @@ public abstract class Job implements HasActions, Cloneable {
 	 * may return null if ports are immutable
 	 * @return
 	 */
-	public abstract Observable<Pair<Job, Integer>> getAddPortObservable();
+	public abstract Observable<Pair<Job, Integer>> getAddInputPortObservable();
 
 	/**
 	 * may return null if ports are immutable
 	 * @return
 	 */
-	public abstract Observable<Pair<Job, Integer>> getRemovePortObservable();
+	public abstract Observable<Pair<Job, Integer>> getAddOutputPortObservable();
+
+	/**
+	 * may return null if ports are immutable
+	 * @return
+	 */
+	public abstract Observable<Pair<Job, Integer>> getRemoveInputPortObservable();
+
+	/**
+	 * may return null if ports are immutable
+	 * @return
+	 */
+	public abstract Observable<Pair<Job, Integer>> getRemoveOutputPortObservable();
 
 	public abstract Type getFragmentType();
 

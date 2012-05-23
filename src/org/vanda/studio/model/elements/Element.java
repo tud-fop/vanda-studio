@@ -27,9 +27,13 @@ public interface Element extends RepositoryItem, HasActions, Cloneable {
 	 * may return null if ports are immutable
 	 * @return
 	 */
-	public Observable<Pair<Element, Integer>> getAddPortObservable();
+	public Observable<Pair<Element, Integer>> getAddInputPortObservable();
+
+	public Observable<Pair<Element, Integer>> getAddOutputPortObservable();
 	
-	public Observable<Pair<Element, Integer>> getRemovePortObservable();
+	public Observable<Pair<Element, Integer>> getRemoveInputPortObservable();
+	
+	public Observable<Pair<Element, Integer>> getRemoveOutputPortObservable();
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);
 }

@@ -22,8 +22,10 @@ import org.vanda.studio.util.TokenSource.Token;
 public class AtomicJob extends Job {
 	private final Element element;
 	private final MultiplexObserver<Job> nameChangeObservable;
-	private final MultiplexObserver<Pair<Job, Integer>> addPortObservable;
-	private final MultiplexObserver<Pair<Job, Integer>> removePortObservable;
+	private final MultiplexObserver<Pair<Job, Integer>> addInputPortObservable;
+	private final MultiplexObserver<Pair<Job, Integer>> addOutputPortObservable;
+	private final MultiplexObserver<Pair<Job, Integer>> removeInputPortObservable;
+	private final MultiplexObserver<Pair<Job, Integer>> removeOutputPortObservable;
 
 	public AtomicJob(Element element) {
 		address = null;
@@ -32,14 +34,22 @@ public class AtomicJob extends Job {
 			nameChangeObservable = new MultiplexObserver<Job>();
 		else
 			nameChangeObservable = null;
-		if (element.getAddPortObservable() != null)
-			addPortObservable = new MultiplexObserver<Pair<Job, Integer>>();
+		if (element.getAddInputPortObservable() != null)
+			addInputPortObservable = new MultiplexObserver<Pair<Job, Integer>>();
 		else
-			addPortObservable = null;
-		if (element.getRemovePortObservable() != null)
-			removePortObservable = new MultiplexObserver<Pair<Job, Integer>>();
+			addInputPortObservable = null;
+		if (element.getRemoveInputPortObservable() != null)
+			removeInputPortObservable = new MultiplexObserver<Pair<Job, Integer>>();
 		else
-			removePortObservable = null;
+			removeInputPortObservable = null;
+		if (element.getAddOutputPortObservable() != null)
+			addOutputPortObservable = new MultiplexObserver<Pair<Job, Integer>>();
+		else
+			addOutputPortObservable = null;
+		if (element.getRemoveOutputPortObservable() != null)
+			removeOutputPortObservable = new MultiplexObserver<Pair<Job, Integer>>();
+		else
+			removeOutputPortObservable = null;
 		rebind();
 	}
 
@@ -103,13 +113,23 @@ public class AtomicJob extends Job {
 	}
 
 	@Override
-	public Observable<Pair<Job, Integer>> getAddPortObservable() {
-		return addPortObservable;
+	public Observable<Pair<Job, Integer>> getAddInputPortObservable() {
+		return addInputPortObservable;
 	}
 
 	@Override
-	public Observable<Pair<Job, Integer>> getRemovePortObservable() {
-		return removePortObservable;
+	public Observable<Pair<Job, Integer>> getRemoveInputPortObservable() {
+		return removeInputPortObservable;
+	}
+
+	@Override
+	public Observable<Pair<Job, Integer>> getAddOutputPortObservable() {
+		return addOutputPortObservable;
+	}
+
+	@Override
+	public Observable<Pair<Job, Integer>> getRemoveOutputPortObservable() {
+		return removeOutputPortObservable;
 	}
 
 	@Override
@@ -122,21 +142,39 @@ public class AtomicJob extends Job {
 							nameChangeObservable.notify(AtomicJob.this);
 						}
 					});
-		if (addPortObservable != null)
-			element.getAddPortObservable().addObserver(
+		if (addInputPortObservable != null)
+			element.getAddInputPortObservable().addObserver(
 					new Observer<Pair<Element, Integer>>() {
 						@Override
 						public void notify(Pair<Element, Integer> event) {
-							addPortObservable.notify(new Pair<Job, Integer>(
+							addInputPortObservable.notify(new Pair<Job, Integer>(
 									AtomicJob.this, event.snd));
 						}
 					});
-		if (removePortObservable != null)
-			element.getRemovePortObservable().addObserver(
+		if (removeInputPortObservable != null)
+			element.getRemoveInputPortObservable().addObserver(
 					new Observer<Pair<Element, Integer>>() {
 						@Override
 						public void notify(Pair<Element, Integer> event) {
-							removePortObservable.notify(new Pair<Job, Integer>(
+							removeInputPortObservable.notify(new Pair<Job, Integer>(
+									AtomicJob.this, event.snd));
+						}
+					});
+		if (addOutputPortObservable != null)
+			element.getAddOutputPortObservable().addObserver(
+					new Observer<Pair<Element, Integer>>() {
+						@Override
+						public void notify(Pair<Element, Integer> event) {
+							addOutputPortObservable.notify(new Pair<Job, Integer>(
+									AtomicJob.this, event.snd));
+						}
+					});
+		if (removeOutputPortObservable != null)
+			element.getRemoveOutputPortObservable().addObserver(
+					new Observer<Pair<Element, Integer>>() {
+						@Override
+						public void notify(Pair<Element, Integer> event) {
+							removeOutputPortObservable.notify(new Pair<Job, Integer>(
 									AtomicJob.this, event.snd));
 						}
 					});

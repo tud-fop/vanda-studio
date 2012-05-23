@@ -66,6 +66,7 @@ public class JobAdapter implements Adapter, Cloneable {
 				if (graph.getSelectionCell() == cell)
 					graph.setSelectionCell(cell);
 			}
+			onResize(graph, parent, cell);
 		}
 	}
 	

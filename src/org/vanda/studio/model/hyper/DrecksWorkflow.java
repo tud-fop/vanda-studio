@@ -35,11 +35,11 @@ public class DrecksWorkflow {
 		public DJobInfo(DrecksWorkflow parent, Job j) {
 			job = j;
 			inputs = new ArrayList<Token>(j.getInputPorts().size());
-			for (Port p : j.getInputPorts())
+			for (int i = 0; i < j.getInputPorts().size(); i++)
 				inputs.add(null);
 			inputsBlocked = 0;
 			outputs = new ArrayList<Token>(j.getOutputPorts().size());
-			for (Port p : j.getOutputPorts()) {
+			for (int i = 0; i < j.getOutputPorts().size(); i++) {
 				Token t = parent.variableSource.makeToken();
 				outputs.add(t);
 			}

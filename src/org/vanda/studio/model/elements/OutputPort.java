@@ -94,12 +94,22 @@ public final class OutputPort implements Element {
 	}
 
 	@Override
-	public Observable<Pair<Element, Integer>> getAddPortObservable() {
+	public Observable<Pair<Element, Integer>> getAddInputPortObservable() {
 		return null;
 	}
 
 	@Override
-	public Observable<Pair<Element, Integer>> getRemovePortObservable() {
+	public Observable<Pair<Element, Integer>> getAddOutputPortObservable() {
+		return null;
+	}
+
+	@Override
+	public Observable<Pair<Element, Integer>> getRemoveInputPortObservable() {
+		return null;
+	}
+
+	@Override
+	public Observable<Pair<Element, Integer>> getRemoveOutputPortObservable() {
 		return null;
 	}
 

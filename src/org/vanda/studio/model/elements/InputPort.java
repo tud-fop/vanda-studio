@@ -94,12 +94,26 @@ public final class InputPort implements Element {
 	}
 
 	@Override
-	public Observable<Pair<Element, Integer>> getAddPortObservable() {
+	public Observable<Pair<Element, Integer>> getAddInputPortObservable() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Observable<Pair<Element, Integer>> getRemovePortObservable() {
+	public Observable<Pair<Element, Integer>> getAddOutputPortObservable() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Observable<Pair<Element, Integer>> getRemoveInputPortObservable() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Observable<Pair<Element, Integer>> getRemoveOutputPortObservable() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

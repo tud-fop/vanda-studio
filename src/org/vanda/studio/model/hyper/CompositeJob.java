@@ -23,16 +23,23 @@ public class CompositeJob extends Job {
 
 	private MutableWorkflow workflow; // not final because of clone()
 
-	private final MultiplexObserver<Pair<Job, Integer>> addPortObservable;
+	private final MultiplexObserver<Pair<Job, Integer>> addInputPortObservable;
 
-	private final MultiplexObserver<Pair<Job, Integer>> removePortObservable;
+	private final MultiplexObserver<Pair<Job, Integer>> addOutputPortObservable;
+
+	private final MultiplexObserver<Pair<Job, Integer>> removeInputPortObservable;
+
+	private final MultiplexObserver<Pair<Job, Integer>> removeOutputPortObservable;
 
 	public CompositeJob(Linker linker, MutableWorkflow workflow) {
 		address = null;
 		this.linker = linker;
 		this.workflow = workflow;
-		addPortObservable = new MultiplexObserver<Pair<Job, Integer>>();
-		removePortObservable = new MultiplexObserver<Pair<Job, Integer>>();
+		addInputPortObservable = new MultiplexObserver<Pair<Job, Integer>>();
+		removeInputPortObservable = new MultiplexObserver<Pair<Job, Integer>>();
+		addOutputPortObservable = new MultiplexObserver<Pair<Job, Integer>>();
+		removeOutputPortObservable = new MultiplexObserver<Pair<Job, Integer>>();
+		rebind();
 	}
 
 	@Override
@@ -100,19 +107,35 @@ public class CompositeJob extends Job {
 
 	@Override
 	public void rebind() {
-		workflow.getAddPortObservable().addObserver(
+		workflow.getAddInputPortObservable().addObserver(
 				new Observer<Pair<MutableWorkflow, Integer>>() {
 					@Override
 					public void notify(Pair<MutableWorkflow, Integer> event) {
-						addPortObservable.notify(new Pair<Job, Integer>(
+						addInputPortObservable.notify(new Pair<Job, Integer>(
 								CompositeJob.this, event.snd));
 					}
 				});
-		workflow.getRemovePortObservable().addObserver(
+		workflow.getRemoveInputPortObservable().addObserver(
 				new Observer<Pair<MutableWorkflow, Integer>>() {
 					@Override
 					public void notify(Pair<MutableWorkflow, Integer> event) {
-						removePortObservable.notify(new Pair<Job, Integer>(
+						removeInputPortObservable.notify(new Pair<Job, Integer>(
+								CompositeJob.this, event.snd));
+					}
+				});
+		workflow.getAddOutputPortObservable().addObserver(
+				new Observer<Pair<MutableWorkflow, Integer>>() {
+					@Override
+					public void notify(Pair<MutableWorkflow, Integer> event) {
+						addOutputPortObservable.notify(new Pair<Job, Integer>(
+								CompositeJob.this, event.snd));
+					}
+				});
+		workflow.getRemoveOutputPortObservable().addObserver(
+				new Observer<Pair<MutableWorkflow, Integer>>() {
+					@Override
+					public void notify(Pair<MutableWorkflow, Integer> event) {
+						removeOutputPortObservable.notify(new Pair<Job, Integer>(
 								CompositeJob.this, event.snd));
 					}
 				});
@@ -129,13 +152,23 @@ public class CompositeJob extends Job {
 	}
 
 	@Override
-	public Observable<Pair<Job, Integer>> getAddPortObservable() {
-		return addPortObservable;
+	public Observable<Pair<Job, Integer>> getAddInputPortObservable() {
+		return addInputPortObservable;
 	}
 
 	@Override
-	public Observable<Pair<Job, Integer>> getRemovePortObservable() {
-		return removePortObservable;
+	public Observable<Pair<Job, Integer>> getRemoveInputPortObservable() {
+		return removeInputPortObservable;
+	}
+
+	@Override
+	public Observable<Pair<Job, Integer>> getAddOutputPortObservable() {
+		return addOutputPortObservable;
+	}
+
+	@Override
+	public Observable<Pair<Job, Integer>> getRemoveOutputPortObservable() {
+		return removeOutputPortObservable;
 	}
 
 }

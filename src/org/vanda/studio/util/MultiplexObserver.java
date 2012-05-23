@@ -3,22 +3,23 @@
  */
 package org.vanda.studio.util;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 
 /**
  * Common base class for event sources (Observable).
  * <p>
  * Implements the Vanda Composer event distribution infrastructure.
  * 
- * @author rmueller
+ * @author buechse
  * 
  */
 public class MultiplexObserver<T> implements Observable<T>, Observer<T>, Cloneable {
 
-	protected HashSet<Observer<? super T>> observers;
+	// XXX replaced HashSet by ArrayList because order is indeed important
+	protected ArrayList<Observer<? super T>> observers;
 
 	public MultiplexObserver() {
-		observers = new HashSet<Observer<? super T>>();
+		observers = new ArrayList<Observer<? super T>>();
 	}
 
 	/**
@@ -36,7 +37,7 @@ public class MultiplexObserver<T> implements Observable<T>, Observer<T>, Cloneab
 	public MultiplexObserver<T> clone() throws CloneNotSupportedException {
 		@SuppressWarnings("unchecked")
 		MultiplexObserver<T> cl = (MultiplexObserver<T>) super.clone();
-		cl.observers = new HashSet<Observer<? super T>>(observers);
+		cl.observers = new ArrayList<Observer<? super T>>(observers);
 		return cl;
 	}
 	
