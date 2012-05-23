@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.modules.workflows.Model;
 import org.vanda.studio.util.TokenSource.Token;
 
@@ -13,9 +12,9 @@ import com.mxgraph.view.mxGraph;
 
 class PortAdapter implements Adapter, Cloneable {
 	public boolean input;
-	public Port port;
+	public int port;
 
-	public PortAdapter(boolean input, Port port) {
+	public PortAdapter(boolean input, int port) {
 		this.input = input;
 		this.port = port;
 	}

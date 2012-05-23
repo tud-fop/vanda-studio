@@ -7,6 +7,7 @@ import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
+import org.vanda.studio.util.Pair;
 
 /**
  * Choice node. A choice node with one input port acts as identity.
@@ -17,7 +18,8 @@ import org.vanda.studio.util.Observable;
 public final class Choice implements Element {
 
 	private int inputs;
-	private final MultiplexObserver<Element> portsChangeObservable;
+	private final MultiplexObserver<Pair<Element, Integer>> addPortObservable;
+	private final MultiplexObserver<Pair<Element, Integer>> removePortObservable;
 
 	public Choice() {
 		this(2);
@@ -25,7 +27,8 @@ public final class Choice implements Element {
 
 	public Choice(int inputs) {
 		this.inputs = inputs;
-		portsChangeObservable = new MultiplexObserver<Element>();
+		addPortObservable = new MultiplexObserver<Pair<Element, Integer>>();
+		removePortObservable = new MultiplexObserver<Pair<Element, Integer>>();
 	}
 
 	@Override
@@ -44,8 +47,16 @@ public final class Choice implements Element {
 	}
 
 	public void setInputPorts(int inputs) {
+		int oldinputs = this.inputs;
 		this.inputs = inputs;
-		portsChangeObservable.notify(this);
+		while (oldinputs < inputs) {
+			addPortObservable.notify(new Pair<Element, Integer>(this, oldinputs));
+			oldinputs++;
+		}
+		while (oldinputs > inputs) {
+			oldinputs--;
+			removePortObservable.notify(new Pair<Element, Integer>(this, oldinputs));
+		}
 	}
 
 	@Override
@@ -101,13 +112,18 @@ public final class Choice implements Element {
 	}
 
 	@Override
-	public Observable<Element> getPortsChangeObservable() {
-		return portsChangeObservable;
+	public void visit(RepositoryItemVisitor v) {
+		v.visitChoice(this);
 	}
 
 	@Override
-	public void visit(RepositoryItemVisitor v) {
-		v.visitChoice(this);
+	public Observable<Pair<Element, Integer>> getAddPortObservable() {
+		return addPortObservable;
+	}
+
+	@Override
+	public Observable<Pair<Element, Integer>> getRemovePortObservable() {
+		return removePortObservable;
 	}
 
 }

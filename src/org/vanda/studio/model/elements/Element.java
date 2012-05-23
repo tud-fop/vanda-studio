@@ -5,6 +5,7 @@ import java.util.List;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.Observable;
+import org.vanda.studio.util.Pair;
 
 public interface Element extends RepositoryItem, HasActions, Cloneable {
 	
@@ -26,7 +27,9 @@ public interface Element extends RepositoryItem, HasActions, Cloneable {
 	 * may return null if ports are immutable
 	 * @return
 	 */
-	public Observable<Element> getPortsChangeObservable();
+	public Observable<Pair<Element, Integer>> getAddPortObservable();
+	
+	public Observable<Pair<Element, Integer>> getRemovePortObservable();
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);
 }

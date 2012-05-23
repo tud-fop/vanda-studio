@@ -27,7 +27,7 @@ public final class PartiallyUnfolded {
 		deleted = new BitSet();
 		touched = new BitSet();
 		remaining = parent.children.size();
-		position = parent.children.size()-1;
+		position = parent.children.size() - 1;
 		while (position >= 0 && !parent.children.get(position).job.isChoice())
 			position--;
 		choiceMap = new HashMap<Integer, Integer>();
@@ -93,22 +93,25 @@ public final class PartiallyUnfolded {
 			}
 		}
 		// Second, put the chosen /*token*/ port on record
-		choiceMap.put(position, /*ji.inputs.get(i)*/i);
+		choiceMap.put(position, /* ji.inputs.get(i) */i);
 		// Third, find next or node, propagating removal of unnecessary elements
 		position--;
 		while (position >= 0) {
 			if (touched.get(position) && outCount[position] == 0) {
 				ji = parent.children.get(position);
-				for (int j = 0; j < ji.inputs.size(); j++) {
-					Object tok2 = ji.inputs.get(j);
-					if (tok2 != null) {
-						int src = parent.variableOrigins[ji.inputs.get(j).intValue()];
-						outCount[src]--;
-						touched.set(src);
+				if (!ji.job.isInputPort()) {
+					for (int j = 0; j < ji.inputs.size(); j++) {
+						Object tok2 = ji.inputs.get(j);
+						if (tok2 != null) {
+							int src = parent.variableOrigins[ji.inputs.get(j)
+									.intValue()];
+							outCount[src]--;
+							touched.set(src);
+						}
 					}
+					deleted.set(position);
+					remaining--;
 				}
-				deleted.set(position);
-				remaining--;
 			} else if (parent.children.get(position).job.isChoice()) {
 				// ######################################
 				break;

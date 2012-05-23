@@ -159,25 +159,33 @@ public final class ImmutableWorkflow {
 	}
 
 	public void appendText(StringBuilder sections) {
-		/*
-		 * ArrayList<Token> outputs = new ArrayList<Token>(); ArrayList<Token>
-		 * inputs = new ArrayList<Token>(); ArrayList<JobInfo> inputJI = new
-		 * ArrayList<JobInfo>(); ArrayList<JobInfo> outputJI = new
-		 * ArrayList<JobInfo>(); for (JobInfo ji : children) { if
-		 * (ji.job.isInputPort()) { inputJI.add(ji); inputs.add(null); } if
-		 * (ji.job.isOutputPort()) { outputJI.add(ji); outputs.add(null); } }
-		 * for (JobInfo ji : inputJI) inputs.set(((InputPort)
-		 * ((AtomicImmutableJob) ji.job).getElement()) .getNumber(),
-		 * ji.outputs.get(0)); for (JobInfo ji : outputJI) inputs.set(
-		 * ((OutputPort) ((AtomicImmutableJob) ji.job).getElement())
-		 * .getNumber(), ji.inputs.get(0)); StringBuilder lines = new
-		 * StringBuilder(); ImmutableJob.appendOutput(outputs, lines);
-		 * lines.append(" = "); lines.append(getName());
-		 * ImmutableJob.appendInput(inputs, lines); lines.append('\n'); for
-		 * (JobInfo ji : children) { lines.append("  ");
-		 * ji.job.appendText(ji.inputs, ji.outputs, lines, sections); }
-		 * sections.append(lines); sections.append('\n');
-		 */
+
+
+		HashMap<Port, Token> invars = new HashMap<Port, Token>();
+		HashMap<Port, Token> outvars = new HashMap<Port, Token>();
+		for (JobInfo ji : children) {
+			if (ji.job.isInputPort()) {
+				invars.put(ji.job.getOutputPorts().get(0), ji.outputs.get(0));
+			}
+			if (ji.job.isOutputPort()) {
+				outvars.put(ji.job.getInputPorts().get(0), ji.inputs.get(0));
+			}
+		}
+		StringBuilder lines = new StringBuilder();
+		
+		lines.append(getName());
+		ImmutableJob.appendInput(inputPorts, invars, lines);
+		lines.append(" = ");
+		ImmutableJob.appendOutput(outputPorts, outvars, lines);
+		if (children.size() > 0)
+			lines.append(" where");
+		lines.append('\n');
+		for (JobInfo ji : children) {
+			ji.job.appendText(ji.inputs, ji.outputs, lines, sections);
+		}
+		sections.append(lines);
+		sections.append('\n');
+
 	}
 
 }

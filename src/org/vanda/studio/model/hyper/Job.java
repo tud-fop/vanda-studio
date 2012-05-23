@@ -11,6 +11,7 @@ import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.Observable;
+import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
 public abstract class Job implements HasActions, Cloneable {
@@ -46,7 +47,13 @@ public abstract class Job implements HasActions, Cloneable {
 	 * may return null if ports are immutable
 	 * @return
 	 */
-	public abstract Observable<Job> getPortsChangeObservable();
+	public abstract Observable<Pair<Job, Integer>> getAddPortObservable();
+
+	/**
+	 * may return null if ports are immutable
+	 * @return
+	 */
+	public abstract Observable<Pair<Job, Integer>> getRemovePortObservable();
 
 	public abstract Type getFragmentType();
 

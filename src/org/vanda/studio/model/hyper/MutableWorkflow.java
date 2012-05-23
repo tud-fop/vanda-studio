@@ -17,8 +17,11 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 	private final MultiplexObserver<Pair<MutableWorkflow, Job>> removeObservable;
 	private final MultiplexObserver<Pair<MutableWorkflow, Connection>> connectObservable;
 	private final MultiplexObserver<Pair<MutableWorkflow, Connection>> disconnectObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow, Integer>> addPortObservable;
+	private final MultiplexObserver<Pair<MutableWorkflow, Integer>> removePortObservable;
 	private final Observer<Job> nameChangeObserver;
-	private final Observer<Job> portsChangeObserver;
+	private final Observer<Pair<Job, Integer>> addPortObserver;
+	private final Observer<Pair<Job, Integer>> removePortObserver;
 	private final MultiplexObserver<MutableWorkflow> nameChangeObservable;
 
 	{
@@ -29,11 +32,18 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 						MutableWorkflow.this, event));
 			}
 		};
-		portsChangeObserver = new Observer<Job>() {
+		addPortObserver = new Observer<Pair<Job, Integer>>() {
 			@Override
-			public void notify(Job event) {
+			public void notify(Pair<Job, Integer> event) {
 				modifyObservable.notify(new Pair<MutableWorkflow, Job>(
-						MutableWorkflow.this, event));
+						MutableWorkflow.this, event.fst));
+			}
+		};
+		removePortObserver = new Observer<Pair<Job, Integer>>() {
+			@Override
+			public void notify(Pair<Job, Integer> event) {
+				modifyObservable.notify(new Pair<MutableWorkflow, Job>(
+						MutableWorkflow.this, event.fst));
 			}
 		};
 	}
@@ -46,6 +56,8 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 		connectObservable = new MultiplexObserver<Pair<MutableWorkflow, Connection>>();
 		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow, Connection>>();
 		nameChangeObservable = new MultiplexObserver<MutableWorkflow>();
+		addPortObservable = new MultiplexObserver<Pair<MutableWorkflow, Integer>>();
+		removePortObservable = new MultiplexObserver<Pair<MutableWorkflow, Integer>>();
 	}
 
 	public MutableWorkflow(MutableWorkflow hyperWorkflow)
@@ -57,6 +69,8 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 		connectObservable = hyperWorkflow.connectObservable.clone();
 		disconnectObservable = hyperWorkflow.disconnectObservable.clone();
 		nameChangeObservable = hyperWorkflow.nameChangeObservable.clone();
+		addPortObservable = new MultiplexObserver<Pair<MutableWorkflow, Integer>>();
+		removePortObservable = new MultiplexObserver<Pair<MutableWorkflow, Integer>>();
 	}
 
 	@Override
@@ -77,6 +91,9 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 		}
 		bind(job);
 		addObservable.notify(new Pair<MutableWorkflow, Job>(this, job));
+		// TODO make this more efficient
+		addPortObservable.notify(new Pair<MutableWorkflow, Integer>(this,
+				getInputPorts().indexOf(job.getOutputPorts().get(0))));
 		return job.address;
 	}
 
@@ -84,12 +101,14 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 		assert (cc.address == null);
 		DJobInfo sji = children.get(cc.source.intValue());
 		DJobInfo tji = children.get(cc.target.intValue());
+		assert (sji.job.getOutputPorts().get(cc.sourcePort) != null);
+		assert (tji.job.getInputPorts().get(cc.targetPort) != null);
 		if (tji.inputs.get(cc.targetPort) != null)
 			throw new RuntimeException("!!!"); // FIXME better exception
 		Token tok = sji.outputs.get(cc.sourcePort);
 		DConnInfo ci = new DConnInfo(tok, cc);
 		cc.address = connectionAddressSource.makeToken();
-		tji.inputs.put(cc.targetPort, tok);
+		tji.inputs.set(cc.targetPort, tok);
 		tji.inputsBlocked++;
 		if (cc.address.intValue() < connections.size())
 			connections.set(cc.address.intValue(), ci);
@@ -97,8 +116,6 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 			assert (cc.address.intValue() == connections.size());
 			connections.add(ci);
 		}
-		// connections.get(tok).snd.add(new TokenValue<F>(cc.getTarget(), cc
-		// .getTargetPort()));
 		sji.outCount++;
 		connectObservable
 				.notify(new Pair<MutableWorkflow, Connection>(this, cc));
@@ -107,6 +124,10 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 
 	public Observable<Pair<MutableWorkflow, Job>> getAddObservable() {
 		return addObservable;
+	}
+	
+	public Observable<Pair<MutableWorkflow, Integer>> getAddPortObservable() {
+		return addPortObservable;
 	}
 
 	public Observable<Pair<MutableWorkflow, Connection>> getConnectObservable() {
@@ -128,6 +149,10 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 	public Observable<Pair<MutableWorkflow, Job>> getRemoveObservable() {
 		return removeObservable;
 	}
+	
+	public Observable<Pair<MutableWorkflow, Integer>> getRemovePortObservable() {
+		return removePortObservable;
+	}
 
 	public Token getVariable(Token source, int sourcePort) {
 		DJobInfo ji = children.get(source.intValue());
@@ -148,6 +173,9 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 	public void removeChild(Token address) {
 		DJobInfo ji = children.get(address.intValue());
 		if (ji != null) {
+			// TODO make this more efficient
+			removePortObservable.notify(new Pair<MutableWorkflow, Integer>(this,
+					getOutputPorts().indexOf(ji.job.getInputPorts().get(0))));
 			for (int i = 0; i < connections.size(); i++) {
 				DConnInfo ci = connections.get(i);
 				if (ci != null) {
@@ -173,7 +201,7 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 			DJobInfo sji = children.get(ci.cc.source.intValue());
 			DJobInfo tji = children.get(ci.cc.target.intValue());
 			// assert (sji.outputs.get(sourcePort) == tji.inputs.get(ci.port));
-			tji.inputs.put(ci.cc.targetPort, null);
+			tji.inputs.set(ci.cc.targetPort, null);
 			tji.inputsBlocked--;
 			sji.outCount--;
 			connections.set(address.intValue(), null);
@@ -235,20 +263,22 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 
 	private void bind(Job job) {
 		register(job.getNameChangeObservable(), nameChangeObserver);
-		register(job.getPortsChangeObservable(), portsChangeObserver);
+		register(job.getAddPortObservable(), addPortObserver);
+		register(job.getRemovePortObservable(), removePortObserver);
 	}
 
 	private void unbind(Job job) {
 		unregister(job.getNameChangeObservable(), nameChangeObserver);
-		unregister(job.getPortsChangeObservable(), portsChangeObserver);
+		unregister(job.getAddPortObservable(), addPortObserver);
+		unregister(job.getRemovePortObservable(), removePortObserver);
 	}
 
-	private static void register(Observable<Job> obs, Observer<Job> o) {
+	private static <T> void register(Observable<T> obs, Observer<T> o) {
 		if (obs != null)
 			obs.addObserver(o);
 	}
 
-	private static <F> void unregister(Observable<Job> obs, Observer<Job> o) {
+	private static <T> void unregister(Observable<T> obs, Observer<T> o) {
 		if (obs != null)
 			obs.removeObserver(o);
 	}
@@ -263,7 +293,7 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable {
 				bind(ji.job);
 			}
 	}
-	
+
 	public void visitAll(JobVisitor v) {
 		for (DJobInfo ji : children)
 			if (ji != null)

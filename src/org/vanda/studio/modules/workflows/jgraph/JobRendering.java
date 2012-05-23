@@ -215,7 +215,7 @@ public class JobRendering {
 					geo.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
 					geo.setRelative(true);
 
-					mxCell port = new mxCell(new PortAdapter(true, in.get(i)), geo,
+					mxCell port = new mxCell(new PortAdapter(true, i), geo,
 							"inport");
 					port.setVertex(true);
 
@@ -230,7 +230,7 @@ public class JobRendering {
 					geo.setOffset(new mxPoint(0, -PORT_RADIUS));
 					geo.setRelative(true);
 
-					mxCell port = new mxCell(new PortAdapter(false, out.get(i)), geo,
+					mxCell port = new mxCell(new PortAdapter(false, i), geo,
 							"outport");
 					port.setVertex(true);
 

@@ -50,6 +50,18 @@ public abstract class ImmutableJob {
 			ArrayList<Token> outputs, StringBuilder lines,
 			StringBuilder sections);
 	
+	public static void appendInput(List<Port> ports, Map<Port, Token> invars, StringBuilder lines) {
+		lines.append('(');
+		if (ports.size() != 0) {
+			appendVariable(invars.get(ports.get(0)), lines);
+		}
+		for (int i = 1; i < ports.size(); i++) {
+			lines.append(", ");
+			appendVariable(invars.get(ports.get(i)), lines);
+		}
+		lines.append(')');
+	}
+	
 	public static void appendInput(ArrayList<Token> inputs, StringBuilder lines) {
 		lines.append('(');
 		if (inputs.size() != 0) {

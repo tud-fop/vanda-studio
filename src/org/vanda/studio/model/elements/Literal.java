@@ -8,19 +8,18 @@ import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
+import org.vanda.studio.util.Pair;
 
 public final class Literal implements Element {
 	
 	private String type;
 	private String value;
 	private final MultiplexObserver<Element> nameChangeObservable;
-	private final MultiplexObserver<Element> portsChangeObservable;
 
 	public Literal(String type, String value) {
 		this.type = type;
 		this.value = value;
 		nameChangeObservable = new MultiplexObserver<Element>();
-		portsChangeObservable = new MultiplexObserver<Element>();
 	}
 
 	@Override
@@ -90,7 +89,7 @@ public final class Literal implements Element {
 	public void setType(String type) {
 		if (!type.equals(this.type)) {
 			this.type = type;
-			portsChangeObservable.notify(this);
+			nameChangeObservable.notify(this);
 		}
 	}
 
@@ -111,13 +110,20 @@ public final class Literal implements Element {
 	}
 
 	@Override
-	public Observable<Element> getPortsChangeObservable() {
-		return portsChangeObservable;
+	public void visit(RepositoryItemVisitor v) {
+		v.visitLiteral(this);
 	}
 
 	@Override
-	public void visit(RepositoryItemVisitor v) {
-		v.visitLiteral(this);
+	public Observable<Pair<Element, Integer>> getAddPortObservable() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Observable<Pair<Element, Integer>> getRemovePortObservable() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
