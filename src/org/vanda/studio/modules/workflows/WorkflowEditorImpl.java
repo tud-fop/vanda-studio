@@ -19,14 +19,11 @@ import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.model.hyper.Connection;
-import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.modules.workflows.Model.WorkflowSelection;
 import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
-import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.HasActions;

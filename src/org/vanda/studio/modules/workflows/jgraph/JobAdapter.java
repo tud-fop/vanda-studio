@@ -3,7 +3,9 @@ package org.vanda.studio.modules.workflows.jgraph;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
+import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.modules.workflows.Model;
 import org.vanda.studio.modules.workflows.Model.JobSelection;
@@ -16,9 +18,11 @@ import com.mxgraph.view.mxGraph;
 
 public class JobAdapter implements Adapter, Cloneable {
 	public final Job job;
+	public final Map<Port, mxICell> portMap;
 
 	public JobAdapter(Job job) {
 		this.job = job;
+		portMap = null;
 	}
 
 	@Override

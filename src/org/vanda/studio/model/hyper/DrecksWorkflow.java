@@ -2,9 +2,11 @@ package org.vanda.studio.model.hyper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map.Entry;
 
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
@@ -26,22 +28,20 @@ public class DrecksWorkflow {
 
 	protected static final class DJobInfo {
 		public final Job job;
-		public final ArrayList<Token> inputs;
+		public final HashMap<Port, Token> inputs;
 		public int inputsBlocked;
-		public final ArrayList<Token> outputs;
+		public final HashMap<Port, Token> outputs;
 		public int outCount;
 		public int topSortInputsBlocked;
 
 		public DJobInfo(DrecksWorkflow parent, Job j) {
 			job = j;
-			inputs = new ArrayList<Token>(j.getInputPorts().size());
-			for (int i = 0; i < j.getInputPorts().size(); i++)
-				inputs.add(null);
+			inputs = new HashMap<Port, Token>();
 			inputsBlocked = 0;
-			outputs = new ArrayList<Token>(j.getOutputPorts().size());
-			for (int i = 0; i < j.getOutputPorts().size(); i++) {
+			outputs = new HashMap<Port, Token>();
+			for (Port p : j.getOutputPorts()) {
 				Token t = parent.variableSource.makeToken();
-				outputs.add(t);
+				outputs.put(p, t);
 			}
 			outCount = 0;
 			topSortInputsBlocked = 0;
@@ -51,7 +51,7 @@ public class DrecksWorkflow {
 			// only apply this when the whole hyperworkflow is copied
 			// only copy inputs, because they are mutable
 			job = ji.job.clone();
-			inputs = new ArrayList<Token>(ji.inputs);
+			inputs = new HashMap<Port, Token>(ji.inputs);
 			inputsBlocked = ji.inputsBlocked;
 			outputs = ji.outputs;
 			outCount = ji.outCount;
@@ -153,9 +153,9 @@ public class DrecksWorkflow {
 		while (!workingset.isEmpty()) {
 			DJobInfo ji = workingset.pop();
 			topsort.add(ji);
-			for (Token tok : ji.outputs)
+			for (Entry<Port, Token> e : ji.outputs.entrySet())
 				for (DConnInfo ci : connections) {
-					if (ci != null && ci.variable == tok) {
+					if (ci != null && ci.variable == e.getValue()) {
 						DJobInfo ji2 = children.get(ci.cc.target.intValue());
 						ji2.topSortInputsBlocked--;
 						if (ji2.topSortInputsBlocked == 0)
@@ -167,9 +167,17 @@ public class DrecksWorkflow {
 		if (topsort.size() == count) {
 			ArrayList<JobInfo> imch = new ArrayList<JobInfo>(topsort.size());
 			for (DJobInfo ji : topsort) {
-				imch.add(new JobInfo(ji.job.freeze(), ji.job.address,
-						new ArrayList<Token>(ji.inputs), new ArrayList<Token>(
-								ji.outputs), ji.outCount));
+				List<Port> ports = null;
+				ports = ji.job.getInputPorts();
+				ArrayList<Token> intoken = new ArrayList<Token>(ports.size());
+				for (Port p : ports)
+					intoken.add(ji.inputs.get(p));
+				ports = ji.job.getOutputPorts();
+				ArrayList<Token> outtoken = new ArrayList<Token>(ports.size());
+				for (Port p : ports)
+					outtoken.add(ji.outputs.get(p));
+				imch.add(new JobInfo(ji.job.freeze(), ji.job.address, intoken,
+						outtoken, ji.outCount));
 			}
 			return new ImmutableWorkflow(name, null, imch, variableSource,
 					variableSource.getMaxToken());

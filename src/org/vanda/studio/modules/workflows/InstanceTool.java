@@ -84,9 +84,12 @@ public class InstanceTool implements ToolFactory {
 				for (JobInfo info : iwf.getChildren()) {
 					if (info.job.getAddress().equals(conn.source))
 						sourceFound = true;
-					if (info.job.getAddress().equals(conn.target)
-							&& info.inputs.get(conn.targetPort) != null)
-						targetFound = true;
+					if (info.job.getAddress().equals(conn.target)) {
+						// && info.inputs.get(conn.targetPort) != null
+						int i = info.job.getInputPorts().indexOf(conn.targetPort);
+						if (i != -1 && info.inputs.get(i) != null)
+							targetFound = true;
+					}
 				}
 				if (sourceFound && targetFound)
 					elements.add(new ConnectionSelection(path, conn.address));

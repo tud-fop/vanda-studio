@@ -49,7 +49,8 @@ import com.mxgraph.view.mxGraphSelectionModel.mxSelectionChange;
 public final class DrecksAdapter {
 
 	protected class ChangeListener implements mxIEventListener {
-		// edges: childChange, terminalChange, terminalChange, geometryChange, terminalChange
+		// edges: childChange, terminalChange, terminalChange, geometryChange,
+		// terminalChange
 		// the we are only interested in the last terminalChange!
 		// the first one is ignored using an additional conjunct (see below)
 		// the geometry change is ignored using inModel test (see below)
@@ -412,14 +413,25 @@ public final class DrecksAdapter {
 			if (source != null && target != null) {
 				graph.getModel().beginUpdate();
 				try {
-					cell = (mxICell) graph.insertEdge(
-							parentCell,
-							null,
-							new ConnectionAdapter(cc),
-							source.getChildAt(cc.sourcePort
-									+ parent.getChild(cc.source)
-											.getInputPorts().size()),
-							target.getChildAt(cc.targetPort));
+					mxICell scell = null;
+					mxICell tcell = null;
+					for (int i = 0; i < source.getChildCount(); i++) {
+						mxICell cl = source.getChildAt(i);
+						Object value = cl.getValue();
+						if (value instanceof PortAdapter
+								&& ((PortAdapter) value).port == cc.sourcePort)
+							scell = cl;
+					}
+					for (int i = 0; i < target.getChildCount(); i++) {
+						mxICell cl = target.getChildAt(i);
+						Object value = cl.getValue();
+						if (value instanceof PortAdapter
+								&& ((PortAdapter) value).port == cc.sourcePort)
+							tcell = cl;
+					}
+					assert (scell != null && tcell != null);
+					cell = (mxICell) graph.insertEdge(parentCell, null,
+							new ConnectionAdapter(cc), scell, tcell);
 				} finally {
 					graph.getModel().endUpdate();
 				}
