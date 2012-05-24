@@ -138,6 +138,16 @@ public class WorkflowAdapter implements Adapter {
 	@Override
 	public void onResize(mxGraph graph, mxICell parent, mxICell cell) {
 		// ignore XXX could check whether parent needs to be resized...
+		
+		// resize port children as well
+		for (int i = 0; i < cell.getChildCount(); i++) {
+			if (cell.getChildAt(i).getValue() instanceof OutputPortAdapter) {
+				((OutputPortAdapter)cell.getChildAt(i).getValue()).onResize(graph, cell, cell.getChildAt(i));
+			}
+			if (cell.getChildAt(i).getValue() instanceof InputPortAdapter) {
+				((InputPortAdapter)cell.getChildAt(i).getValue()).onResize(graph, cell, cell.getChildAt(i));
+			}
+		}
 	}
 
 }

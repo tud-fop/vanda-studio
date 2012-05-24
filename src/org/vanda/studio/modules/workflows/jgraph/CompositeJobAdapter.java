@@ -89,6 +89,22 @@ public class CompositeJobAdapter extends JobAdapter {
 	}
 
 	@Override
+	public void onResize(mxGraph graph, mxICell parent, mxICell cell) {
+		super.onResize(graph, parent, cell);
+		
+		// resize child workflow as well
+		for (int i = 0; i < cell.getChildCount(); i++) {
+			if (cell.getChildAt(i).getValue() instanceof WorkflowAdapter) {
+				((WorkflowAdapter)cell.getChildAt(i).getValue()).onResize(graph, cell, cell.getChildAt(i));
+				break;
+			}
+		}
+		
+		// set selection to currently modified cell
+		graph.setSelectionCell(cell);
+	}
+	
+	@Override
 	public void sizeChanged(mxGeometry geo, mxGraph graph, mxICell cell) {
 		mxICell child = findWorkflow(cell);
 		if (child != null) {
