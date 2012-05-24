@@ -62,7 +62,7 @@ public abstract class ImmutableJob {
 		lines.append(')');
 	}
 	
-	public static void appendInput(ArrayList<Token> inputs, StringBuilder lines) {
+	public static void appendInput(List<Token> inputs, StringBuilder lines) {
 		lines.append('(');
 		if (inputs.size() != 0) {
 			appendVariable(inputs.get(0), lines);
@@ -88,7 +88,7 @@ public abstract class ImmutableJob {
 			lines.append(')');		
 	}
 
-	public static void appendOutput(ArrayList<Token> outputs, StringBuilder lines) {
+	public static void appendOutput(List<Token> outputs, StringBuilder lines) {
 		if (outputs.size() != 1)
 			lines.append('(');
 		if (outputs.size() != 0) {

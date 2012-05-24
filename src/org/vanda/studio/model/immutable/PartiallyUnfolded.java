@@ -99,19 +99,19 @@ public final class PartiallyUnfolded {
 		while (position >= 0) {
 			if (touched.get(position) && outCount[position] == 0) {
 				ji = parent.children.get(position);
-				if (!ji.job.isInputPort()) {
-					for (int j = 0; j < ji.inputs.size(); j++) {
-						Object tok2 = ji.inputs.get(j);
-						if (tok2 != null) {
-							int src = parent.variableOrigins[ji.inputs.get(j)
-									.intValue()];
-							outCount[src]--;
-							touched.set(src);
-						}
+				// if (!ji.job.isInputPort()) {
+				for (int j = 0; j < ji.inputs.size(); j++) {
+					Object tok2 = ji.inputs.get(j);
+					if (tok2 != null) {
+						int src = parent.variableOrigins[ji.inputs.get(j)
+								.intValue()];
+						outCount[src]--;
+						touched.set(src);
 					}
-					deleted.set(position);
-					remaining--;
 				}
+				deleted.set(position);
+				remaining--;
+				// }
 			} else if (parent.children.get(position).job.isChoice()) {
 				// ######################################
 				break;

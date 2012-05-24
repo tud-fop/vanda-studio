@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.modules.profile.model.FragmentBase;
 import org.vanda.studio.modules.profile.model.FragmentIO;
@@ -59,7 +60,9 @@ public class RootLinker implements FragmentLinker {
 	}
 
 	@Override
-	public Fragment link(String name, FragmentBase fb, FragmentIO io)
+	public Fragment link(String name, List<Type> outerinput,
+			List<Type> innerinput, List<Type> inneroutput,
+			List<Type> outeroutput, FragmentBase fb, FragmentIO io)
 			throws IOException {
 		HashSet<String> dependencies = new HashSet<String>();
 		HashSet<String> imports = new HashSet<String>();
@@ -79,7 +82,8 @@ public class RootLinker implements FragmentLinker {
 		Collections.sort(sorted);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("#!/bin/bash\n\nset -e\n\nif [ -z \"$MYPATH\" ]\nthen\n    echo \"Path not set\"\n    exit 1\nfi\n\n");
+		sb.append("#!/bin/bash\n\nset -e\n\nif [ -z \"$MYPATH\" ]\nthen");
+		sb.append("\n    echo \"Path not set\"\n    exit 1\nfi\n\n");
 
 		// source $MYPATH/empty.sh
 		imports.add("empty");

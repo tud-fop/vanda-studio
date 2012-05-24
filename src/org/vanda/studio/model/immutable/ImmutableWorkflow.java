@@ -24,6 +24,8 @@ public final class ImmutableWorkflow {
 	private Type fragmentType;
 	private final List<Port> inputPorts;
 	private final List<Port> outputPorts;
+	private final List<Token> inputPortVariables;
+	private final List<Token> outputPortVariables;
 
 	/**
 	 * 
@@ -33,11 +35,14 @@ public final class ImmutableWorkflow {
 	 *            maximum token
 	 */
 	public ImmutableWorkflow(String name, List<Port> inputPorts,
-			List<Port> outputPorts, Type fragmentType,
+			List<Port> outputPorts, List<Token> inputPortVariables,
+			List<Token> outputPortVariables, Type fragmentType,
 			ArrayList<JobInfo> children, TokenSource token, int maxtoken) {
 		this.name = name;
 		this.inputPorts = inputPorts;
 		this.outputPorts = outputPorts;
+		this.inputPortVariables = inputPortVariables;
+		this.outputPortVariables = outputPortVariables;
 		this.children = children;
 		deref = new HashMap<Token, ImmutableJob>();
 		this.variableSource = token;
@@ -66,6 +71,8 @@ public final class ImmutableWorkflow {
 		fragmentType = null;
 		inputPorts = Collections.emptyList();
 		outputPorts = inputPorts;
+		inputPortVariables = Collections.emptyList();
+		outputPortVariables = inputPortVariables;
 		for (int i = 0; i < unfolded.size(); i++) {
 			ImmutableWorkflow iwf = unfolded.get(i);
 			Token address = TokenSource.getToken(i);
@@ -101,8 +108,16 @@ public final class ImmutableWorkflow {
 		return inputPorts;
 	}
 
+	public List<Token> getInputPortVariables() {
+		return inputPortVariables;
+	}
+
 	public List<Port> getOutputPorts() {
 		return outputPorts;
+	}
+
+	public List<Token> getOutputPortVariables() {
+		return outputPortVariables;
 	}
 
 	public String getName() {
@@ -159,24 +174,12 @@ public final class ImmutableWorkflow {
 	}
 
 	public void appendText(StringBuilder sections) {
-
-
-		HashMap<Port, Token> invars = new HashMap<Port, Token>();
-		HashMap<Port, Token> outvars = new HashMap<Port, Token>();
-		for (JobInfo ji : children) {
-			if (ji.job.isInputPort()) {
-				invars.put(ji.job.getOutputPorts().get(0), ji.outputs.get(0));
-			}
-			if (ji.job.isOutputPort()) {
-				outvars.put(ji.job.getInputPorts().get(0), ji.inputs.get(0));
-			}
-		}
 		StringBuilder lines = new StringBuilder();
 		
 		lines.append(getName());
-		ImmutableJob.appendInput(inputPorts, invars, lines);
+		ImmutableJob.appendInput(inputPortVariables, lines);
 		lines.append(" = ");
-		ImmutableJob.appendOutput(outputPorts, outvars, lines);
+		ImmutableJob.appendOutput(outputPortVariables, lines);
 		if (children.size() > 0)
 			lines.append(" where");
 		lines.append('\n');

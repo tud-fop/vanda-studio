@@ -2,16 +2,14 @@ package org.vanda.studio.modules.profile.concrete;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.vanda.studio.model.elements.Literal;
-import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
+import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.immutable.JobInfo;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
@@ -27,21 +25,8 @@ public class ShellCompiler implements FragmentCompiler {
 	}
 
 	@Override
-	public Fragment compile(String name, List<Port> inputPorts,
-			List<Port> outputPorts, ArrayList<JobInfo> jobs,
+	public Fragment compile(String name, ImmutableWorkflow iwf,
 			ArrayList<String> fragments) {
-
-		HashMap<Port, Token> invars = new HashMap<Port, Token>();
-		HashMap<Port, Token> outvars = new HashMap<Port, Token>();
-		for (JobInfo ji : jobs) {
-			if (ji.job.isInputPort()) {
-				invars.put(ji.job.getOutputPorts().get(0), ji.outputs.get(0));
-			}
-			if (ji.job.isOutputPort()) {
-				outvars.put(ji.job.getInputPorts().get(0), ji.inputs.get(0));
-			}
-		}
-
 		StringBuilder sb = new StringBuilder();
 		HashSet<String> dependencies = new HashSet<String>();
 		sb.append("function ");
@@ -50,8 +35,8 @@ public class ShellCompiler implements FragmentCompiler {
 		StringBuilder sb2 = new StringBuilder();
 		sb2.append("  local");
 		boolean flag = false;
-		for (int i = 0; i < jobs.size(); i++) {
-			for (Token t : jobs.get(i).outputs) {
+		for (JobInfo ji : iwf.getChildren()) {
+			for (Token t : ji.outputs) {
 				sb2.append(' ');
 				appendVariable(name, t, sb2);
 				flag = true;
@@ -60,20 +45,20 @@ public class ShellCompiler implements FragmentCompiler {
 		sb2.append('\n');
 		if (flag)
 			sb.append(sb2.toString());
-		for (int i = 0; i < jobs.size(); i++) {
-			JobInfo ji = jobs.get(i);
+		int i = 0;
+		for (JobInfo ji : iwf.getChildren()) {
 			sb.append("  ");
 			if (ji.job.isInputPort()) {
 				appendVariable(name, ji.outputs.get(0), sb);
 				sb.append("=\"$");
-				sb.append(Integer.toString(invars.get(
-						ji.job.getOutputPorts().get(0)).intValue() + 1));
+				sb.append(Integer.toString(iwf.getInputPortVariables().indexOf(
+						ji.outputs.get(0)) + 1));
 				sb.append('"');
 			} else if (ji.job.isOutputPort()) {
 				sb.append("eval $");
 				// sb.append(Integer.toString(op.getNumber() + 1));
-				sb.append(Integer.toString(outvars.get(
-						ji.job.getInputPorts().get(0)).intValue() + 1));
+				sb.append(Integer.toString(iwf.getOutputPortVariables()
+						.indexOf(ji.inputs.get(0)) + 1));
 				sb.append("=\\\"$");
 				appendVariable(name, ji.inputs.get(0), sb);
 				sb.append("\\\"");
@@ -112,6 +97,7 @@ public class ShellCompiler implements FragmentCompiler {
 				dependencies.add(frag);
 			}
 			sb.append('\n');
+			i++;
 		}
 		sb.append("}\n\n");
 		Set<String> im = Collections.emptySet();

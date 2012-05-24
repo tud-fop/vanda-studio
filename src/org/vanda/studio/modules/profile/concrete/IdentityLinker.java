@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.modules.profile.model.FragmentBase;
 import org.vanda.studio.modules.profile.model.FragmentIO;
@@ -53,7 +54,9 @@ public class IdentityLinker implements FragmentLinker {
 	}
 
 	@Override
-	public Fragment link(String name, FragmentBase fb, FragmentIO io) {
+	public Fragment link(String name, List<Type> outerinput,
+			List<Type> innerinput, List<Type> inneroutput,
+			List<Type> outeroutput, FragmentBase fb, FragmentIO io) {
 		return fb.getFragment(name);
 	}
 

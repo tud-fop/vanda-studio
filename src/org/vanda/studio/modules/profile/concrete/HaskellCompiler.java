@@ -2,16 +2,14 @@ package org.vanda.studio.modules.profile.concrete;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.vanda.studio.model.elements.Literal;
-import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableJob;
+import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.immutable.JobInfo;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
@@ -22,33 +20,21 @@ import org.vanda.studio.util.TokenSource.Token;
 public class HaskellCompiler implements FragmentCompiler {
 
 	@Override
-	public Fragment compile(String name, List<Port> inputPorts,
-			List<Port> outputPorts, ArrayList<JobInfo> jobs,
+	public Fragment compile(String name, ImmutableWorkflow iwf,
 			ArrayList<String> fragments) {
-
-		HashMap<Port, Token> invars = new HashMap<Port, Token>();
-		HashMap<Port, Token> outvars = new HashMap<Port, Token>();
-		for (JobInfo ji : jobs) {
-			if (ji.job.isInputPort()) {
-				invars.put(ji.job.getOutputPorts().get(0), ji.outputs.get(0));
-			}
-			if (ji.job.isOutputPort()) {
-				outvars.put(ji.job.getInputPorts().get(0), ji.inputs.get(0));
-			}
-		}
 
 		StringBuilder sb = new StringBuilder();
 		HashSet<String> dependencies = new HashSet<String>();
 		sb.append(Fragment.normalize(name));
-		for (int i = 0; i < inputPorts.size(); i++) {
+		for (Token var : iwf.getInputPortVariables()) {
 			sb.append(' ');
-			ImmutableJob.appendVariable(invars.get(inputPorts.get(i)), sb);
+			ImmutableJob.appendVariable(var, sb);
 		}
 		sb.append(" = ");
-		ImmutableJob.appendOutput(outputPorts, outvars, sb);
+		ImmutableJob.appendOutput(iwf.getOutputPortVariables(), sb);
 		sb.append(" where \n");
-		for (int i = 0; i < jobs.size(); i++) {
-			JobInfo ji = jobs.get(i);
+		int i = 0;
+		for (JobInfo ji : iwf.getChildren()) {
 			sb.append("  ");
 			if (ji.job.isInputPort() || ji.job.isOutputPort()) {
 				// do nothing
@@ -87,6 +73,7 @@ public class HaskellCompiler implements FragmentCompiler {
 				dependencies.add(frag);
 			}
 			sb.append('\n');
+			i++;
 		}
 		sb.append('\n');
 		Set<String> im = Collections.emptySet();

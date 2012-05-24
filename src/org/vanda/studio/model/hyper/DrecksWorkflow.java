@@ -192,8 +192,8 @@ public class DrecksWorkflow {
 		// Step 2: actual freeze
 		if (topsort.size() == count) {
 			ArrayList<JobInfo> imch = new ArrayList<JobInfo>(topsort.size());
-			List<Port> ports = null;
 			for (DJobInfo ji : topsort) {
+				List<Port> ports = null;
 				ports = ji.job.getInputPorts();
 				ArrayList<Token> intoken = new ArrayList<Token>(ports.size());
 				for (int i = 0; i < ports.size(); i++) {
@@ -209,20 +209,30 @@ public class DrecksWorkflow {
 				imch.add(new JobInfo(ji.job.freeze(), ji.job.address, intoken,
 						outtoken, ji.outCount));
 			}
-			ports = getInputPorts();
+			List<Token> ports = null;
+			ports = inputPorts;
 			ArrayList<Port> inputPorts = new ArrayList<Port>();
+			ArrayList<Token> inputPortVariables = new ArrayList<Token>();
 			for (int i = 0; i < ports.size(); i++) {
-				if (ports.get(i) != null)
-					inputPorts.add(ports.get(i));
+				if (ports.get(i) != null) {
+					DJobInfo daPort = children.get(ports.get(i).intValue());
+					inputPorts.add(daPort.job.getOutputPorts().get(0));
+					inputPortVariables.add(children.get(i).outputs.get(0));
+				}
 			}
-			ports = getOutputPorts();
+			ports = outputPorts;
 			ArrayList<Port> outputPorts = new ArrayList<Port>();
+			ArrayList<Token> outputPortVariables = new ArrayList<Token>();
 			for (int i = 0; i < ports.size(); i++) {
-				if (ports.get(i) != null)
-					outputPorts.add(ports.get(i));
+				if (ports.get(i) != null) {
+					DJobInfo daPort = children.get(ports.get(i).intValue());
+					outputPorts.add(daPort.job.getInputPorts().get(0));
+					outputPortVariables.add(daPort.inputs.get(0));
+				}
 			}
-			return new ImmutableWorkflow(name, inputPorts, outputPorts, null,
-					imch, variableSource, variableSource.getMaxToken());
+			return new ImmutableWorkflow(name, inputPorts, outputPorts,
+					inputPortVariables, outputPortVariables, null, imch,
+					variableSource, variableSource.getMaxToken());
 		} else
 			throw new Exception(
 					"could not do topological sort; cycles probable");

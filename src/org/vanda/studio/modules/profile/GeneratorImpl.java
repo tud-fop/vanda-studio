@@ -3,6 +3,7 @@ package org.vanda.studio.modules.profile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -21,6 +22,7 @@ import org.vanda.studio.modules.profile.model.FragmentCompiler;
 import org.vanda.studio.modules.profile.model.FragmentIO;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
 import org.vanda.studio.modules.profile.model.Profiles;
+import org.vanda.studio.util.TokenSource.Token;
 
 public final class GeneratorImpl implements Generator {
 
@@ -59,8 +61,7 @@ public final class GeneratorImpl implements Generator {
 		};
 	}
 
-	public String generateAtomicFragment(AtomicImmutableJob j)
-			throws IOException {
+	public String generateAtomic(AtomicImmutableJob j) throws IOException {
 		assert (j.getElement() instanceof Tool);
 		Fragment result = map.get(j.getElement().getId());
 		if (result == null) {
@@ -71,14 +72,28 @@ public final class GeneratorImpl implements Generator {
 		return result.name;
 	}
 
-	public String generateCompositeFragment(CompositeImmutableJob j)
-			throws IOException {
+	public String generateComposite(ImmutableWorkflow parent, JobInfo ji,
+			CompositeImmutableJob j) throws IOException {
 		Fragment result = map.get(j);
 		if (result == null) {
 			FragmentLinker fl = prof.getLinker(j.getLinker().getId());
 			assert (fl != null);
-			String inner = generateFragment(j.getWorkflow());
-			result = fl.link(inner, fb, io);
+			ImmutableWorkflow w = j.getWorkflow();
+			String inner = generateFragment(w);
+			List<Type> outerinput = new ArrayList<Type>();
+			List<Type> innerinput = new ArrayList<Type>();
+			List<Type> inneroutput = new ArrayList<Type>();
+			List<Type> outeroutput = new ArrayList<Type>();
+			for (Token var : ji.inputs)
+				outerinput.add(parent.getType(var));
+			for (Token var : ji.outputs)
+				outeroutput.add(parent.getType(var));
+			for (Token var : w.getInputPortVariables())
+				innerinput.add(w.getType(var));
+			for (Token var : w.getOutputPortVariables())
+				inneroutput.add(w.getType(var));
+			result = fl.link(inner, outerinput, innerinput, inneroutput,
+					outeroutput, fb, io);
 			map.put(j, result);
 			fragments.put(result.name, result);
 		}
@@ -93,23 +108,19 @@ public final class GeneratorImpl implements Generator {
 			FragmentCompiler fc = prof.getCompiler(w.getFragmentType());
 			assert (fc != null);
 			ArrayList<JobInfo> jobs = w.getChildren();
-			ArrayList<String> fragments = new ArrayList<String>(jobs.size());
+			ArrayList<String> frags = new ArrayList<String>(jobs.size());
 			for (int i = 0; i < jobs.size(); i++) {
 				JobInfo ji = jobs.get(i);
 				if (ji.job instanceof AtomicImmutableJob
 						&& ((AtomicImmutableJob) ji.job).getElement() instanceof Tool)
-					fragments
-							.add(generateAtomicFragment((AtomicImmutableJob) jobs
-									.get(i).job));
-				else if (ji.job instanceof CompositeImmutableJob) {
-					fragments
-							.add(generateCompositeFragment((CompositeImmutableJob) jobs
-									.get(i).job));
-				} else
-					fragments.add(null);
+					frags.add(generateAtomic((AtomicImmutableJob) ji.job));
+				else if (ji.job instanceof CompositeImmutableJob)
+					frags.add(generateComposite(w, ji,
+							(CompositeImmutableJob) ji.job));
+				else
+					frags.add(null);
 			}
-			result = fc.compile(name, w.getInputPorts(), w.getOutputPorts(),
-					jobs, fragments);
+			result = fc.compile(name, w, frags);
 			assert (result != null);
 			map.put(w, result);
 			this.fragments.put(result.name, result);
@@ -120,7 +131,7 @@ public final class GeneratorImpl implements Generator {
 	@Override
 	public void generate(ImmutableWorkflow iwf) throws IOException {
 		String root = generateFragment(iwf);
-		rootLinker.link(root, fb, io);
+		rootLinker.link(root, null, null, null, null, fb, io);
 	}
 
 	public String makeUnique(String prefix, Object key) {
