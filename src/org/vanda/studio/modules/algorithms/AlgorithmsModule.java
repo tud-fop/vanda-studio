@@ -42,6 +42,7 @@ public class AlgorithmsModule implements Module {
 		private final Application app;
 
 		private static Type shellType = Types.shellType;
+		private static Type haskellType = Types.haskellType;
 
 		private static class Plain2Snt extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
@@ -393,6 +394,468 @@ public class AlgorithmsModule implements Module {
 			}
 		}
 
+		private static class ToWSA extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("string", new CompositeType("String")));
+				inputPorts.add(new Port("token array", new CompositeType(
+						"TokenArray")));
+				outputPorts.add(new Port("wsa", new CompositeType("WSA")));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "unassigned";
+			}
+
+			public String getDescription() {
+				return "";
+			}
+
+			public String getId() {
+				return "toWSA";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "toWSA";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return haskellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-24";
+			}
+		}
+
+		private static class FakeWeights extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("hypergraph", new CompositeType(
+						"Hypergraph")));
+				outputPorts.add(new Port("weight map", new CompositeType(
+						"WeightMap")));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "unassigned";
+			}
+
+			public String getDescription() {
+				return "";
+			}
+
+			public String getId() {
+				return "fakeWeights";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "fakeWeights";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return haskellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-24";
+			}
+		}
+
+		private static class Earley extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("WSA", new CompositeType("WSA")));
+				inputPorts.add(new Port("weight map", new CompositeType(
+						"WeightMap")));
+				inputPorts.add(new Port("hypergraph", new CompositeType(
+						"Hypergraph")));
+				outputPorts.add(new Port("hypergraph", new CompositeType(
+						"Hypergraph")));
+				outputPorts.add(new Port("weight map", new CompositeType(
+						"WeightMap")));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "unassigned";
+			}
+
+			public String getDescription() {
+				return "";
+			}
+
+			public String getId() {
+				return "earley";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "earley";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return haskellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-24";
+			}
+		}
+
+		private static class FinalState extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("string", new CompositeType("String")));
+				outputPorts.add(new Port("state", new CompositeType("State")));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "unassigned";
+			}
+
+			public String getDescription() {
+				return "";
+			}
+
+			public String getId() {
+				return "finalState";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "finalState";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return haskellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-24";
+			}
+		}
+
+		static class MakeFeatures extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("weight map", new CompositeType(
+						"WeightMap")));
+				outputPorts.add(new Port("features", new CompositeType(
+						"Features")));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "unassigned";
+			}
+
+			public String getDescription() {
+				return "";
+			}
+
+			public String getId() {
+				return "makeFeatures";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "makeFeatures";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return haskellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-24";
+			}
+		}
+
+		private static class SingletonVector extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+
+			static {
+				List<Type> typeList = new ArrayList<Type>();
+				typeList.add(new CompositeType("Double"));
+
+				outputPorts.add(new Port("vector", new CompositeType(
+						"Vector", typeList)));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "unassigned";
+			}
+
+			public String getDescription() {
+				return "";
+			}
+
+			public String getId() {
+				return "singletonVector";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "singletonVector";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return haskellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-24";
+			}
+		}
+
+		static class Knuth extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				List<Type> typeList = new ArrayList<Type>();
+				typeList.add(new CompositeType("Double"));
+
+				inputPorts.add(new Port("hypergraph", new CompositeType(
+						"Hypergraph")));
+				inputPorts.add(new Port("state", new CompositeType("State")));
+				inputPorts.add(new Port("features", new CompositeType(
+						"Features")));
+				inputPorts.add(new Port("vector", new CompositeType(
+						"Vector", typeList)));
+
+				List<Type> typeList2 = new ArrayList<Type>();
+				typeList2.add(new CompositeType("Deriv"));
+
+				outputPorts.add(new Port("derivation list", new CompositeType("[]",
+						typeList2)));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "unassigned";
+			}
+
+			public String getDescription() {
+				return "";
+			}
+
+			public String getId() {
+				return "knuth";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "knuth";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return haskellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-24";
+			}
+		}
+
+		static class MakeString extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				List<Type> typeList = new ArrayList<Type>();
+				typeList.add(new CompositeType("Deriv"));
+
+				inputPorts.add(new Port("derivation list", new CompositeType("[]",
+						typeList)));
+				inputPorts.add(new Port("token array", new CompositeType(
+						"TokenArray")));
+				outputPorts
+						.add(new Port("string", new CompositeType("String")));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "unassigned";
+			}
+
+			public String getDescription() {
+				return "";
+			}
+
+			public String getId() {
+				return "makeString";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "makeString";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return haskellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-24";
+			}
+		}
+
 		private static class HaskellLinker implements Linker {
 
 			private final Application app;
@@ -488,6 +951,14 @@ public class AlgorithmsModule implements Module {
 			tr.addItem(new Tokenizer());
 			tr.addItem(new PennToInt());
 			tr.addItem(new GHKM());
+			tr.addItem(new ToWSA());
+			tr.addItem(new FakeWeights());
+			tr.addItem(new Earley());
+			tr.addItem(new FinalState());
+			tr.addItem(new MakeFeatures());
+			tr.addItem(new SingletonVector());
+			tr.addItem(new Knuth());
+			tr.addItem(new MakeString());
 
 			Tool sinkTool = new Tool() {
 				public String getContact() {
