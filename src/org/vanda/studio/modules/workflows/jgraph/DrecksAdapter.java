@@ -10,11 +10,12 @@ import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowChildEvent;
+import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowEvent;
 import org.vanda.studio.modules.workflows.Model;
 import org.vanda.studio.modules.workflows.Model.JobSelection;
 import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.util.Observer;
-import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxCell;
@@ -110,10 +111,83 @@ public final class DrecksAdapter {
 			}
 		}
 	}
+	
+	protected class WorkflowListener implements MutableWorkflow.WorkflowChildListener, MutableWorkflow.WorkflowListener {
+
+		@Override
+		public void childAdded(MutableWorkflow mwf, Job j) {
+			renderChild(mwf, j);
+		}
+
+		@Override
+		public void childModified(MutableWorkflow mwf, Job j) {
+			modifyChild(mwf, j);
+		}
+
+		@Override
+		public void childRemoved(MutableWorkflow mwf, Job j) {
+			removeChild(mwf, j);
+		}
+
+		@Override
+		public void connectionAdded(MutableWorkflow mwf, Connection cc) {
+			renderConnection(mwf, cc);
+		}
+
+		@Override
+		public void connectionRemoved(MutableWorkflow mwf, Connection cc) {
+			removeConnection(mwf, cc);
+		}
+
+		@Override
+		public void inputPortAdded(MutableWorkflow mwf, Job j, int index) {
+			childAddPort(true, mwf, j, index);
+		}
+
+		@Override
+		public void inputPortRemoved(MutableWorkflow mwf, Job j, int index) {
+			childRemovePort(true, mwf, j, index);
+		}
+
+		@Override
+		public void outputPortAdded(MutableWorkflow mwf, Job j, int index) {
+			childAddPort(false, mwf, j, index);
+		}
+
+		@Override
+		public void outputPortRemoved(MutableWorkflow mwf, Job j, int index) {
+			childRemovePort(false, mwf, j, index);
+		}
+
+		@Override
+		public void inputPortAdded(MutableWorkflow mwf, int index) {
+		}
+
+		@Override
+		public void inputPortRemoved(MutableWorkflow mwf, int index) {
+		}
+
+		@Override
+		public void outputPortAdded(MutableWorkflow mwf, int index) {
+		}
+
+		@Override
+		public void outputPortRemoved(MutableWorkflow mwf, int index) {
+		}
+
+		@Override
+		public void propertyChanged(MutableWorkflow mwf) {
+			// TODO improve
+			if (mwf != DrecksAdapter.this.model.getRoot())
+				graph.refresh();
+		}
+		
+	}
 
 	protected final Model model;
 	protected final mxGraph graph;
 	protected final ChangeListener changeListener;
+	protected final WorkflowListener workflowListener;
 	protected final Map<MutableWorkflow, mxICell> translation;
 
 	public DrecksAdapter(Model model) {
@@ -124,98 +198,20 @@ public final class DrecksAdapter {
 		// the current workflow
 		if (model != null) {
 			graph = new Graph();
-
-			model.getAddObservable().addObserver(
-					new Observer<Pair<MutableWorkflow, Job>>() {
-						@Override
-						public void notify(Pair<MutableWorkflow, Job> event) {
-							renderChild(event.fst, event.snd);
-						}
-					});
-
-			model.getModifyObservable().addObserver(
-					new Observer<Pair<MutableWorkflow, Job>>() {
-						@Override
-						public void notify(Pair<MutableWorkflow, Job> event) {
-							modifyChild(event.fst, event.snd);
-						}
-					});
-
-			model.getRemoveObservable().addObserver(
-					new Observer<Pair<MutableWorkflow, Job>>() {
-						@Override
-						public void notify(Pair<MutableWorkflow, Job> event) {
-							removeChild(event.fst, event.snd);
-						}
-					});
-
-			model.getConnectObservable().addObserver(
-					new Observer<Pair<MutableWorkflow, Connection>>() {
-						@Override
-						public void notify(
-								Pair<MutableWorkflow, Connection> event) {
-							renderConnection(event.fst, event.snd);
-						}
-					});
-
-			model.getDisconnectObservable().addObserver(
-					new Observer<Pair<MutableWorkflow, Connection>>() {
-						@Override
-						public void notify(
-								Pair<MutableWorkflow, Connection> event) {
-							removeConnection(event.fst, event.snd);
-						}
-					});
-
-			model.getChildAddInputPortObservable().addObserver(
-					new Observer<Pair<MutableWorkflow, Pair<Job, Integer>>>() {
-						@Override
-						public void notify(
-								Pair<MutableWorkflow, Pair<Job, Integer>> event) {
-							childAddPort(true, event.fst, event.snd.fst,
-									event.snd.snd);
-						}
-					});
-
-			model.getChildAddOutputPortObservable().addObserver(
-					new Observer<Pair<MutableWorkflow, Pair<Job, Integer>>>() {
-						@Override
-						public void notify(
-								Pair<MutableWorkflow, Pair<Job, Integer>> event) {
-							childAddPort(false, event.fst, event.snd.fst,
-									event.snd.snd);
-						}
-					});
-
-			model.getChildRemoveInputPortObservable().addObserver(
-					new Observer<Pair<MutableWorkflow, Pair<Job, Integer>>>() {
-						@Override
-						public void notify(
-								Pair<MutableWorkflow, Pair<Job, Integer>> event) {
-							childRemovePort(true, event.fst, event.snd.fst,
-									event.snd.snd);
-						}
-					});
-
-			model.getChildRemoveOutputPortObservable().addObserver(
-					new Observer<Pair<MutableWorkflow, Pair<Job, Integer>>>() {
-						@Override
-						public void notify(
-								Pair<MutableWorkflow, Pair<Job, Integer>> event) {
-							childRemovePort(false, event.fst, event.snd.fst,
-									event.snd.snd);
-						}
-					});
-
-			model.getNameChangeObservable().addObserver(
-					new Observer<MutableWorkflow>() {
-						@Override
-						public void notify(MutableWorkflow event) {
-							// TODO improve
-							if (event != DrecksAdapter.this.model.getRoot())
-								graph.refresh();
-						}
-					});
+			
+			workflowListener = new WorkflowListener();
+			model.getChildObservable().addObserver(new Observer<WorkflowChildEvent>() {
+				@Override
+				public void notify(WorkflowChildEvent event) {
+					event.doNotify(workflowListener);
+				}
+			});
+			model.getWorkflowObservable().addObserver(new Observer<WorkflowEvent>() {
+				@Override
+				public void notify(WorkflowEvent event) {
+					event.doNotify(workflowListener);
+				}
+			});
 
 			model.getMarkedElementsObservable().addObserver(
 					new Observer<Model>() {
@@ -232,6 +228,7 @@ public final class DrecksAdapter {
 						}
 					});
 		} else {
+			workflowListener = null;
 			// adapter is responsible for palette graph component,
 			// prevent selection of inner workflows
 			graph = new Graph() {

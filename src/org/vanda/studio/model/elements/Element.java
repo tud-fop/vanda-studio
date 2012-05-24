@@ -5,9 +5,18 @@ import java.util.List;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.Observable;
-import org.vanda.studio.util.Pair;
 
 public interface Element extends RepositoryItem, HasActions, Cloneable {
+	
+	public static interface ElementListener {
+		void inputPortAdded(Element e, int index);
+		void inputPortRemoved(Element e, int index);
+		void propertyChanged(Element e);
+	}
+	
+	public static interface ElementEvent {
+		void doNotify(ElementListener el);
+	}
 	
 	public Element clone() throws CloneNotSupportedException;
 	
@@ -15,25 +24,13 @@ public interface Element extends RepositoryItem, HasActions, Cloneable {
 
 	public List<Port> getInputPorts();
 	
-	/**
-	 * may return null if name is immutable
-	 * @return
-	 */
-	public Observable<Element> getNameChangeObservable();
-	
 	public List<Port> getOutputPorts();
 	
 	/**
-	 * may return null if ports are immutable
+	 * may return null if immutable
 	 * @return
 	 */
-	public Observable<Pair<Element, Integer>> getAddInputPortObservable();
-
-	public Observable<Pair<Element, Integer>> getAddOutputPortObservable();
-	
-	public Observable<Pair<Element, Integer>> getRemoveInputPortObservable();
-	
-	public Observable<Pair<Element, Integer>> getRemoveOutputPortObservable();
+	public Observable<ElementEvent> getObservable();
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);
 }

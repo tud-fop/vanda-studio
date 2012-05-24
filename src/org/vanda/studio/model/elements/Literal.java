@@ -8,18 +8,17 @@ import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
-import org.vanda.studio.util.Pair;
 
 public final class Literal implements Element {
 	
 	private String type;
 	private String value;
-	private final MultiplexObserver<Element> nameChangeObservable;
+	private final MultiplexObserver<ElementEvent> observable;
 
 	public Literal(String type, String value) {
 		this.type = type;
 		this.value = value;
-		nameChangeObservable = new MultiplexObserver<Element>();
+		observable = new MultiplexObserver<ElementEvent>();
 	}
 
 	@Override
@@ -89,7 +88,7 @@ public final class Literal implements Element {
 	public void setType(String type) {
 		if (!type.equals(this.type)) {
 			this.type = type;
-			nameChangeObservable.notify(this);
+			observable.notify(new Elements.PropertyChangeEvent(this));
 		}
 	}
 
@@ -100,13 +99,8 @@ public final class Literal implements Element {
 	public void setValue(String value) {
 		if (!value.equals(this.value)) {
 			this.value = value;
-			nameChangeObservable.notify(this);
+			observable.notify(new Elements.PropertyChangeEvent(this));
 		}
-	}
-
-	@Override
-	public Observable<Element> getNameChangeObservable() {
-		return nameChangeObservable;
 	}
 
 	@Override
@@ -115,23 +109,8 @@ public final class Literal implements Element {
 	}
 
 	@Override
-	public Observable<Pair<Element, Integer>> getAddInputPortObservable() {
-		return null;
-	}
-
-	@Override
-	public Observable<Pair<Element, Integer>> getAddOutputPortObservable() {
-		return null;
-	}
-
-	@Override
-	public Observable<Pair<Element, Integer>> getRemoveInputPortObservable() {
-		return null;
-	}
-
-	@Override
-	public Observable<Pair<Element, Integer>> getRemoveOutputPortObservable() {
-		return null;
+	public Observable<ElementEvent> getObservable() {
+		return observable;
 	}
 
 }

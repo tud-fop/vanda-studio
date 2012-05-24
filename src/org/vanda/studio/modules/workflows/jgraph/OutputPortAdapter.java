@@ -25,13 +25,15 @@ public class OutputPortAdapter extends JobAdapter {
 		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(model
 				.getParent(cell));
 		mxGeometry geo = model.getGeometry(cell);
-		if (wa.getChild(job.getAddress()) == cell) {
-			double diff = parent.getGeometry().getWidth() - InputPortAdapter.SIZE;
+		if (wa.getChild(job.getAddress()) == cell
+				&& parent.getGeometry() != null) {
+			double diff = parent.getGeometry().getWidth()
+					- InputPortAdapter.SIZE;
 			if (geo.getX() != diff || geo.getWidth() != InputPortAdapter.SIZE) {
 				geo.setX(diff);
 				geo.setHeight(InputPortAdapter.SIZE);
 				geo.setWidth(InputPortAdapter.SIZE);
-				//geo.setRelative(true);
+				// geo.setRelative(true);
 				cell.setGeometry(geo);
 			}
 			mxICell gparent = parent.getParent();
@@ -46,7 +48,8 @@ public class OutputPortAdapter extends JobAdapter {
 							&& ((PortAdapter) ch.getValue()).port == index) {
 						mxGeometry geo2 = ch.getGeometry();
 						if (geo2.getY() != geo.getY()) {
-							geo2.setY((geo.getY() + 0.5 * geo.getHeight() + 2) / gparent.getGeometry().getHeight());
+							geo2.setY((geo.getY() + 0.5 * geo.getHeight() + 2)
+									/ gparent.getGeometry().getHeight());
 							ch.setGeometry(geo2);
 						}
 						break;

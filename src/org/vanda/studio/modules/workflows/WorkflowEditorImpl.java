@@ -19,7 +19,13 @@ import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 
 import org.vanda.studio.app.Application;
+import org.vanda.studio.model.hyper.Connection;
+import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowChildEvent;
+import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowChildListener;
+import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowEvent;
+import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowListener;
 import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.modules.workflows.Model.WorkflowSelection;
 import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
@@ -33,7 +39,7 @@ import org.vanda.studio.util.Util;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxGraphTransferable;
 
-public class WorkflowEditorImpl implements WorkflowEditor {
+public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, WorkflowChildListener {
 
 	protected final Application app;
 	protected final Model model;
@@ -41,7 +47,6 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 	protected final DrecksAdapter renderer;
 	protected final Palette palette;
 	protected final JSplitPane mainpane;
-	protected final Observer<Object> recheckObserver;
 
 	public WorkflowEditorImpl(Application a, MutableWorkflow hwf,
 			List<ToolFactory> tools) {
@@ -83,31 +88,19 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 			tf.instantiate(this, model);
 		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
 
-		recheckObserver = new Observer<Object>() {
+		model.getChildObservable().addObserver(new Observer<WorkflowChildEvent>() {
+
 			@Override
-			public void notify(Object event) {
-				try {
-					model.checkWorkflow();
-				} catch (Exception e) {
-					app.sendMessage(new ExceptionMessage(e));
-				}
+			public void notify(WorkflowChildEvent event) {
+				event.doNotify(WorkflowEditorImpl.this);
 			}
-		};
-
-		recheckObserver.notify(null);
-
-		model.getAddObservable().addObserver(recheckObserver);
-		model.getRemoveObservable().addObserver(recheckObserver);
-		model.getConnectObservable().addObserver(recheckObserver);
-		model.getDisconnectObservable().addObserver(recheckObserver);
+			
+		});
 		
-		model.getNameChangeObservable().addObserver(new Observer<MutableWorkflow>() {
+		model.getWorkflowObservable().addObserver(new Observer<WorkflowEvent>() {
 			@Override
-			public void notify(MutableWorkflow event) {
-				if (event == model.getRoot()) {
-					mainpane.setName(event.getName());
-					app.getWindowSystem().addContentWindow(null, mainpane, null);
-				}
+			public void notify(WorkflowEvent event) {
+				event.doNotify(WorkflowEditorImpl.this);
 			}
 		});
 	}
@@ -299,7 +292,7 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 
 		@Override
 		public void invoke() {
-			recheckObserver.notify(null);
+			recheck();
 		}
 	}
 
@@ -339,5 +332,77 @@ public class WorkflowEditorImpl implements WorkflowEditor {
 	@Override
 	public Application getApplication() {
 		return app;
+	}
+
+	@Override
+	public void inputPortAdded(MutableWorkflow mwf, int index) {
+	}
+
+	@Override
+	public void inputPortRemoved(MutableWorkflow mwf, int index) {
+	}
+
+	@Override
+	public void outputPortAdded(MutableWorkflow mwf, int index) {
+	}
+
+	@Override
+	public void outputPortRemoved(MutableWorkflow mwf, int index) {
+	}
+
+	@Override
+	public void propertyChanged(MutableWorkflow mwf) {
+		if (mwf == model.getRoot()) {
+			mainpane.setName(mwf.getName());
+			app.getWindowSystem().addContentWindow(null, mainpane, null);
+		}
+	}
+	
+	private void recheck() {
+		try {
+			model.checkWorkflow();
+		} catch (Exception e) {
+			app.sendMessage(new ExceptionMessage(e));
+		}
+	}
+
+	@Override
+	public void childAdded(MutableWorkflow mwf, Job j) {
+		recheck();
+	}
+
+	@Override
+	public void childModified(MutableWorkflow mwf, Job j) {
+	}
+
+	@Override
+	public void childRemoved(MutableWorkflow mwf, Job j) {
+		recheck();
+	}
+
+	@Override
+	public void connectionAdded(MutableWorkflow mwf, Connection cc) {
+		recheck();
+	}
+
+	@Override
+	public void connectionRemoved(MutableWorkflow mwf, Connection cc) {
+		recheck();
+	}
+
+	@Override
+	public void inputPortAdded(MutableWorkflow mwf, Job j, int index) {
+	}
+
+	@Override
+	public void inputPortRemoved(MutableWorkflow mwf, Job j, int index) {
+	}
+
+	@Override
+	public void outputPortAdded(MutableWorkflow mwf, Job j, int index) {
+	}
+
+	@Override
+	public void outputPortRemoved(MutableWorkflow mwf, Job j, int index) {
 	}
 }

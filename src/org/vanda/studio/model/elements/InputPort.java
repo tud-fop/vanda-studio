@@ -7,7 +7,6 @@ import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.Observable;
-import org.vanda.studio.util.Pair;
 
 public final class InputPort implements Element {
 
@@ -84,36 +83,12 @@ public final class InputPort implements Element {
 	}
 
 	@Override
-	public Observable<Element> getNameChangeObservable() {
-		return null;
-	}
-
-	@Override
 	public void visit(RepositoryItemVisitor v) {
 		v.visitInputPort(this);
 	}
 
 	@Override
-	public Observable<Pair<Element, Integer>> getAddInputPortObservable() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Observable<Pair<Element, Integer>> getAddOutputPortObservable() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Observable<Pair<Element, Integer>> getRemoveInputPortObservable() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Observable<Pair<Element, Integer>> getRemoveOutputPortObservable() {
-		// TODO Auto-generated method stub
+	public Observable<ElementEvent> getObservable() {
 		return null;
 	}
 

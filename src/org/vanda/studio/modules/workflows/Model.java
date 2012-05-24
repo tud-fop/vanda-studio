@@ -9,18 +9,23 @@ import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.JobVisitor;
 import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowChildEvent;
+import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowChildListener;
+import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowEvent;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
-import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
-public final class Model {
-	
+public final class Model implements WorkflowChildListener {
+
 	public static interface SelectionVisitor {
 		void visitWorkflow(List<Token> path, MutableWorkflow wf);
-		void visitConnection(List<Token> path, Token address, MutableWorkflow wf, Connection cc);
+
+		void visitConnection(List<Token> path, Token address,
+				MutableWorkflow wf, Connection cc);
+
 		void visitJob(List<Token> path, Token address, MutableWorkflow wf, Job j);
 	}
 
@@ -30,7 +35,7 @@ public final class Model {
 		public WorkflowSelection(List<Token> path) {
 			this.path = path;
 		}
-		
+
 		public void visit(MutableWorkflow root, SelectionVisitor v) {
 			v.visitWorkflow(path, root.dereference(path.listIterator()));
 		}
@@ -44,7 +49,7 @@ public final class Model {
 			super(path);
 			this.address = address;
 		}
-		
+
 		@Override
 		public abstract void visit(MutableWorkflow root, SelectionVisitor v);
 
@@ -91,16 +96,8 @@ public final class Model {
 	protected List<ImmutableWorkflow> unfolded;
 	protected WorkflowSelection selection;
 	protected List<SingleObjectSelection> markedElements;
-	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> addObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> modifyObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow, Job>> removeObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow, Connection>> connectObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow, Connection>> disconnectObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>> childAddInputPortObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>> childRemoveInputPortObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>> childAddOutputPortObservable;
-	protected final MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>> childRemoveOutputPortObservable;
-	protected final MultiplexObserver<MutableWorkflow> nameChangeObservable;
+	protected final MultiplexObserver<WorkflowChildEvent> childObservable;
+	protected final MultiplexObserver<WorkflowEvent> workflowObservable;
 	protected final MultiplexObserver<Model> selectionChangeObservable;
 	protected final MultiplexObserver<Model> markedElementsObservable;
 	protected final MultiplexObserver<Model> workflowCheckObservable;
@@ -110,16 +107,8 @@ public final class Model {
 	public Model(MutableWorkflow hwf) {
 		this.hwf = hwf;
 		this.markedElements = new ArrayList<SingleObjectSelection>();
-		addObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
-		modifyObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
-		removeObservable = new MultiplexObserver<Pair<MutableWorkflow, Job>>();
-		connectObservable = new MultiplexObserver<Pair<MutableWorkflow, Connection>>();
-		disconnectObservable = new MultiplexObserver<Pair<MutableWorkflow, Connection>>();
-		childAddInputPortObservable = new MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>>();
-		childRemoveInputPortObservable = new MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>>();
-		childAddOutputPortObservable = new MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>>();
-		childRemoveOutputPortObservable = new MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>>();
-		nameChangeObservable = new MultiplexObserver<MutableWorkflow>();
+		childObservable = new MultiplexObserver<WorkflowChildEvent>();
+		workflowObservable = new MultiplexObserver<WorkflowEvent>();
 		selectionChangeObservable = new MultiplexObserver<Model>();
 		markedElementsObservable = new MultiplexObserver<Model>();
 		workflowCheckObservable = new MultiplexObserver<Model>();
@@ -132,7 +121,7 @@ public final class Model {
 			public void visitCompositeJob(CompositeJob cj) {
 				bind(cj.getWorkflow());
 			}
-			
+
 		};
 		unbindVisitor = new JobVisitor() {
 			@Override
@@ -143,47 +132,20 @@ public final class Model {
 			public void visitCompositeJob(CompositeJob cj) {
 				unbind(cj.getWorkflow());
 			}
-			
+
 		};
-		addObservable.addObserver(new Observer<Pair<MutableWorkflow, Job>>() {
+		childObservable.addObserver(new Observer<WorkflowChildEvent>() {
 			@Override
-			public void notify(Pair<MutableWorkflow, Job> event) {
-				event.snd.visit(bindVisitor);
-			}
-		});
-		removeObservable.addObserver(new Observer<Pair<MutableWorkflow, Job>>() {
-			@Override
-			public void notify(Pair<MutableWorkflow, Job> event) {
-				event.snd.visit(unbindVisitor);
-				if (selection != null
-						&& Model.this.hwf.dereference(selection.path
-								.listIterator()) == event.fst)
-					setSelection(null);
-			}
-		});
-		disconnectObservable.addObserver(new Observer<Pair<MutableWorkflow, Connection>>() {
-			@Override
-			public void notify(Pair<MutableWorkflow, Connection> event) {
-				if (selection != null
-						&& Model.this.hwf.dereference(selection.path
-								.listIterator()) == event.fst)
-					setSelection(null);
+			public void notify(WorkflowChildEvent event) {
+				event.doNotify(Model.this);
 			}
 		});
 		bind(hwf);
 	}
 
 	private void bind(MutableWorkflow wf) {
-		wf.getAddObservable().addObserver(addObservable);
-		wf.getModifyObservable().addObserver(modifyObservable);
-		wf.getRemoveObservable().addObserver(removeObservable);
-		wf.getConnectObservable().addObserver(connectObservable);
-		wf.getDisconnectObservable().addObserver(disconnectObservable);
-		wf.getNameChangeObservable().addObserver(nameChangeObservable);
-		wf.getChildAddInputPortObservable().addObserver(childAddInputPortObservable);
-		wf.getChildAddOutputPortObservable().addObserver(childAddOutputPortObservable);
-		wf.getChildRemoveInputPortObservable().addObserver(childRemoveInputPortObservable);
-		wf.getChildRemoveOutputPortObservable().addObserver(childRemoveOutputPortObservable);
+		wf.getObservable().addObserver(workflowObservable);
+		wf.getChildObservable().addObserver(childObservable);
 		wf.visitAll(bindVisitor);
 	}
 
@@ -193,6 +155,14 @@ public final class Model {
 		unfolded = frozen.unfold();
 		workflowCheckObservable.notify(this);
 	}
+	
+	public Observable<WorkflowChildEvent> getChildObservable() {
+		return childObservable;
+	}
+	
+	public Observable<WorkflowEvent> getWorkflowObservable() {
+		return workflowObservable;
+	}
 
 	public ImmutableWorkflow getFrozen() {
 		return frozen;
@@ -201,53 +171,13 @@ public final class Model {
 	public List<SingleObjectSelection> getMarkedElements() {
 		return markedElements;
 	}
-	
+
 	public MutableWorkflow getRoot() {
 		return hwf;
 	}
 
 	public WorkflowSelection getSelection() {
 		return selection;
-	}
-
-	public Observable<Pair<MutableWorkflow, Job>> getAddObservable() {
-		return addObservable;
-	}
-
-	public MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>> getChildAddInputPortObservable() {
-		return childAddInputPortObservable;
-	}
-
-	public MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>> getChildRemoveInputPortObservable() {
-		return childRemoveInputPortObservable;
-	}
-
-	public MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>> getChildAddOutputPortObservable() {
-		return childAddOutputPortObservable;
-	}
-
-	public MultiplexObserver<Pair<MutableWorkflow, Pair<Job, Integer>>> getChildRemoveOutputPortObservable() {
-		return childRemoveOutputPortObservable;
-	}
-
-	public Observable<Pair<MutableWorkflow, Connection>> getConnectObservable() {
-		return connectObservable;
-	}
-
-	public Observable<Pair<MutableWorkflow, Connection>> getDisconnectObservable() {
-		return disconnectObservable;
-	}
-
-	public Observable<Pair<MutableWorkflow, Job>> getModifyObservable() {
-		return modifyObservable;
-	}
-
-	public Observable<MutableWorkflow> getNameChangeObservable() {
-		return nameChangeObservable;
-	}
-
-	public Observable<Pair<MutableWorkflow, Job>> getRemoveObservable() {
-		return removeObservable;
 	}
 
 	public Observable<Model> getSelectionChangeObservable() {
@@ -277,17 +207,53 @@ public final class Model {
 	}
 
 	public void unbind(MutableWorkflow wf) {
-		wf.getAddObservable().removeObserver(addObservable);
-		wf.getModifyObservable().removeObserver(modifyObservable);
-		wf.getRemoveObservable().removeObserver(removeObservable);
-		wf.getConnectObservable().removeObserver(connectObservable);
-		wf.getDisconnectObservable().removeObserver(disconnectObservable);
-		wf.getNameChangeObservable().removeObserver(nameChangeObservable);
-		wf.getChildAddInputPortObservable().removeObserver(childAddInputPortObservable);
-		wf.getChildAddOutputPortObservable().removeObserver(childAddOutputPortObservable);
-		wf.getChildRemoveInputPortObservable().removeObserver(childRemoveInputPortObservable);
-		wf.getChildRemoveOutputPortObservable().removeObserver(childRemoveOutputPortObservable);
+		wf.getObservable().removeObserver(workflowObservable);
+		wf.getChildObservable().removeObserver(childObservable);
 		wf.visitAll(unbindVisitor);
+	}
+
+	@Override
+	public void childAdded(MutableWorkflow mwf, Job j) {
+		j.visit(bindVisitor);
+	}
+
+	@Override
+	public void childModified(MutableWorkflow mwf, Job j) {
+	}
+
+	@Override
+	public void childRemoved(MutableWorkflow mwf, Job j) {
+		j.visit(unbindVisitor);
+		if (selection != null
+				&& Model.this.hwf.dereference(selection.path.listIterator()) == mwf)
+			setSelection(null);
+	}
+
+	@Override
+	public void connectionAdded(MutableWorkflow mwf, Connection cc) {
+	}
+
+	@Override
+	public void connectionRemoved(MutableWorkflow mwf, Connection cc) {
+		if (selection != null
+				&& Model.this.hwf.dereference(selection.path.listIterator()) == mwf)
+			setSelection(null);
+	}
+
+	@Override
+	public void inputPortAdded(MutableWorkflow mwf, Job j, int index) {
+	}
+
+	@Override
+	public void inputPortRemoved(MutableWorkflow mwf, Job j, int index) {
+	}
+
+	@Override
+	public void outputPortAdded(MutableWorkflow mwf, Job j, int index) {
+	}
+
+	@Override
+	public void outputPortRemoved(MutableWorkflow mwf, Job j, int index) {
 	}
 
 }

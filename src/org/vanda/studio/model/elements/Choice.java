@@ -7,7 +7,6 @@ import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
-import org.vanda.studio.util.Pair;
 
 /**
  * Choice node. A choice node with one input port acts as identity.
@@ -18,8 +17,7 @@ import org.vanda.studio.util.Pair;
 public final class Choice implements Element {
 
 	private int inputs;
-	private final MultiplexObserver<Pair<Element, Integer>> addPortObservable;
-	private final MultiplexObserver<Pair<Element, Integer>> removePortObservable;
+	private final MultiplexObserver<ElementEvent> observable;
 
 	public Choice() {
 		this(2);
@@ -27,8 +25,7 @@ public final class Choice implements Element {
 
 	public Choice(int inputs) {
 		this.inputs = inputs;
-		addPortObservable = new MultiplexObserver<Pair<Element, Integer>>();
-		removePortObservable = new MultiplexObserver<Pair<Element, Integer>>();
+		observable = new MultiplexObserver<ElementEvent>();
 	}
 
 	@Override
@@ -50,12 +47,12 @@ public final class Choice implements Element {
 		int oldinputs = this.inputs;
 		this.inputs = inputs;
 		while (oldinputs < inputs) {
-			addPortObservable.notify(new Pair<Element, Integer>(this, oldinputs));
+			observable.notify(new Elements.InputPortAddEvent(this, oldinputs));
 			oldinputs++;
 		}
 		while (oldinputs > inputs) {
 			oldinputs--;
-			removePortObservable.notify(new Pair<Element, Integer>(this, oldinputs));
+			observable.notify(new Elements.InputPortRemoveEvent(this, oldinputs));
 		}
 	}
 
@@ -107,33 +104,13 @@ public final class Choice implements Element {
 	}
 
 	@Override
-	public Observable<Element> getNameChangeObservable() {
-		return null;
-	}
-
-	@Override
 	public void visit(RepositoryItemVisitor v) {
 		v.visitChoice(this);
 	}
 
 	@Override
-	public Observable<Pair<Element, Integer>> getAddInputPortObservable() {
-		return addPortObservable;
-	}
-
-	@Override
-	public Observable<Pair<Element, Integer>> getAddOutputPortObservable() {
-		return null;
-	}
-
-	@Override
-	public Observable<Pair<Element, Integer>> getRemoveInputPortObservable() {
-		return removePortObservable;
-	}
-
-	@Override
-	public Observable<Pair<Element, Integer>> getRemoveOutputPortObservable() {
-		return null;
+	public Observable<ElementEvent> getObservable() {
+		return observable;
 	}
 
 }

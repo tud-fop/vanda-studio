@@ -218,8 +218,8 @@ public class InspectorTool implements ToolFactory {
 			};
 			this.m.getSelectionChangeObservable().addObserver(obs);
 			this.m.getWorkflowCheckObservable().addObserver(obs);
-			this.m.getNameChangeObservable().addObserver(obs);
-			this.m.getModifyObservable().addObserver(obs);
+			this.m.getWorkflowObservable().addObserver(obs);
+			// this.m.getChildObservable().addObserver(obs);
 			this.wfe.focusToolWindow(contentPane);
 		}
 

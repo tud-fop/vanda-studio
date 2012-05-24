@@ -11,10 +11,22 @@ import org.vanda.studio.model.immutable.ImmutableJob;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.Observable;
-import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
 public abstract class Job implements HasActions, Cloneable {
+	
+	public static interface JobListener {
+		void inputPortAdded(Job j, int index);
+		void inputPortRemoved(Job j, int index);
+		void outputPortAdded(Job j, int index);
+		void outputPortRemoved(Job j, int index);
+		void propertyChanged(Job j);		
+	}
+	
+	public static interface JobEvent {
+		void doNotify(JobListener jl);
+	}
+	
 	
 	protected Token address;
 
@@ -35,38 +47,10 @@ public abstract class Job implements HasActions, Cloneable {
 
 	public abstract List<Port> getInputPorts();
 	
-	/**
-	 * may return null if name is immutable
-	 * @return
-	 */
-	public abstract Observable<Job> getNameChangeObservable();
+	public abstract Observable<JobEvent> getObservable();
 
 	public abstract List<Port> getOutputPorts();
 	
-	/**
-	 * may return null if ports are immutable
-	 * @return
-	 */
-	public abstract Observable<Pair<Job, Integer>> getAddInputPortObservable();
-
-	/**
-	 * may return null if ports are immutable
-	 * @return
-	 */
-	public abstract Observable<Pair<Job, Integer>> getAddOutputPortObservable();
-
-	/**
-	 * may return null if ports are immutable
-	 * @return
-	 */
-	public abstract Observable<Pair<Job, Integer>> getRemoveInputPortObservable();
-
-	/**
-	 * may return null if ports are immutable
-	 * @return
-	 */
-	public abstract Observable<Pair<Job, Integer>> getRemoveOutputPortObservable();
-
 	public abstract Type getFragmentType();
 
 	public double getWidth() {
