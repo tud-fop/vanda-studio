@@ -9,7 +9,8 @@ public interface FragmentLinker extends RepositoryItem {
 
 	List<String> convertInputs(List<String> outer);
 
-	List<String> convertOutputs(List<String> inner);
+	List<String> convertOutputs(List<String> inner, List<String> outerinputs,
+			String name);
 
 	Fragment link(String name, FragmentBase fb, FragmentIO io)
 			throws IOException;

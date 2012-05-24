@@ -3,6 +3,7 @@ package org.vanda.studio.modules.profile;
 import java.io.File;
 import java.io.IOException;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Generator;
 import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
@@ -16,10 +17,12 @@ import org.vanda.studio.modules.profile.model.Profiles;
 public class ProfileImpl implements Profile, FragmentIO {
 
 	private static final String basePath = "/tmp/";
+	private final Application app;
 	private Profiles prof;
 	private FragmentLinker rootLinker;
 	
-	public ProfileImpl(Profiles prof) {
+	public ProfileImpl(Application app, Profiles prof) {
+		this.app = app;
 		this.prof = prof;
 		rootLinker = new RootLinker();
 	}
@@ -33,7 +36,7 @@ public class ProfileImpl implements Profile, FragmentIO {
 
 	@Override
 	public Generator createGenerator() {
-		return new GeneratorImpl(prof, this, rootLinker);
+		return new GeneratorImpl(app, prof, this, rootLinker);
 	}
 
 	@Override

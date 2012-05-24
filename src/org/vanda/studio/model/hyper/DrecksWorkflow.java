@@ -31,6 +31,7 @@ public class DrecksWorkflow {
 		public final ArrayList<Token> outputs;
 		public int outCount;
 		public int topSortInputsBlocked;
+		public Token portNumber = null;
 
 		public DJobInfo(DrecksWorkflow parent, Job j) {
 			job = j;
@@ -63,10 +64,14 @@ public class DrecksWorkflow {
 	protected final TokenSource variableSource;
 	protected final TokenSource childAddressSource;
 	protected final TokenSource connectionAddressSource;
+	protected final TokenSource inputPortSource;
+	protected final TokenSource outputPortSource;
 	protected final ArrayList<DJobInfo> children;
 	// protected final Map<Token, Pair<TokenValue<F>, List<TokenValue<F>>>>
 	// connections;
 	protected final ArrayList<DConnInfo> connections;
+	protected final ArrayList<Token> inputPorts;
+	protected final ArrayList<Token> outputPorts;
 	protected String name;
 
 	public DrecksWorkflow(String name) {
@@ -77,6 +82,10 @@ public class DrecksWorkflow {
 		variableSource = new TokenSource();
 		childAddressSource = new TokenSource();
 		connectionAddressSource = new TokenSource();
+		inputPortSource = new TokenSource();
+		outputPortSource = new TokenSource();
+		inputPorts = new ArrayList<Token>();
+		outputPorts = new ArrayList<Token>();
 	}
 
 	public DrecksWorkflow(DrecksWorkflow hyperWorkflow)
@@ -96,6 +105,10 @@ public class DrecksWorkflow {
 		variableSource = hyperWorkflow.variableSource.clone();
 		childAddressSource = hyperWorkflow.childAddressSource.clone();
 		connectionAddressSource = hyperWorkflow.connectionAddressSource.clone();
+		inputPortSource = hyperWorkflow.inputPortSource.clone();
+		outputPortSource = hyperWorkflow.outputPortSource.clone();
+		inputPorts = new ArrayList<Token>(hyperWorkflow.inputPorts);
+		outputPorts = new ArrayList<Token>(hyperWorkflow.outputPorts);
 	}
 
 	public Collection<Job> getChildren() {
@@ -113,9 +126,15 @@ public class DrecksWorkflow {
 	 */
 	public List<Port> getInputPorts() {
 		ArrayList<Port> list = new ArrayList<Port>();
-		for (DJobInfo ji : children)
-			if (ji != null && ji.job.isInputPort())
-				list.add(ji.job.getOutputPorts().get(0));
+		for (Token t : inputPorts)
+			if (t == null)
+				list.add(null);
+			else
+				list.add(children.get(t.intValue()).job.getOutputPorts().get(0));
+		/*
+		 * for (DJobInfo ji : children) if (ji != null && ji.job.isInputPort())
+		 * list.add(ji.job.getOutputPorts().get(0));
+		 */
 		return list;
 	}
 
@@ -126,9 +145,16 @@ public class DrecksWorkflow {
 	 */
 	public List<Port> getOutputPorts() {
 		ArrayList<Port> list = new ArrayList<Port>();
-		for (DJobInfo ji : children)
-			if (ji != null && ji.job.isOutputPort())
-				list.add(ji.job.getInputPorts().get(0));
+		for (Token t : outputPorts)
+			if (t == null)
+				list.add(null);
+			else
+				list.add(children.get(t.intValue()).job.getInputPorts().get(0));
+
+		/*
+		 * for (DJobInfo ji : children) if (ji != null && ji.job.isOutputPort())
+		 * list.add(ji.job.getInputPorts().get(0));
+		 */
 		return list;
 	}
 
@@ -166,8 +192,8 @@ public class DrecksWorkflow {
 		// Step 2: actual freeze
 		if (topsort.size() == count) {
 			ArrayList<JobInfo> imch = new ArrayList<JobInfo>(topsort.size());
+			List<Port> ports = null;
 			for (DJobInfo ji : topsort) {
-				List<Port> ports = null;
 				ports = ji.job.getInputPorts();
 				ArrayList<Token> intoken = new ArrayList<Token>(ports.size());
 				for (int i = 0; i < ports.size(); i++) {
@@ -183,9 +209,20 @@ public class DrecksWorkflow {
 				imch.add(new JobInfo(ji.job.freeze(), ji.job.address, intoken,
 						outtoken, ji.outCount));
 			}
-			return new ImmutableWorkflow(name, getInputPorts(),
-					getOutputPorts(), null, imch, variableSource,
-					variableSource.getMaxToken());
+			ports = getInputPorts();
+			ArrayList<Port> inputPorts = new ArrayList<Port>();
+			for (int i = 0; i < ports.size(); i++) {
+				if (ports.get(i) != null)
+					inputPorts.add(ports.get(i));
+			}
+			ports = getOutputPorts();
+			ArrayList<Port> outputPorts = new ArrayList<Port>();
+			for (int i = 0; i < ports.size(); i++) {
+				if (ports.get(i) != null)
+					outputPorts.add(ports.get(i));
+			}
+			return new ImmutableWorkflow(name, inputPorts, outputPorts, null,
+					imch, variableSource, variableSource.getMaxToken());
 		} else
 			throw new Exception(
 					"could not do topological sort; cycles probable");

@@ -8,6 +8,4 @@ public interface Profile extends RepositoryItem {
 	Generator createGenerator();
 	
 	Type getRootType();
-	
-	public static String identityLinker = "identity-linker";
 }

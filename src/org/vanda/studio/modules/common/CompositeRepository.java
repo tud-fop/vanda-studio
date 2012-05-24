@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.vanda.studio.core;
+package org.vanda.studio.modules.common;
 
 import java.util.ArrayList;
 import java.util.Collection;

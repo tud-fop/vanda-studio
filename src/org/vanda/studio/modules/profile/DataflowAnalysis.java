@@ -97,7 +97,7 @@ public class DataflowAnalysis {
 				inp2 = fl.convertInputs(inp2);
 				List<String> out2 = deref.get(ji.job.getAddress())
 						.doIt(inp2, p);
-				out2 = fl.convertOutputs(out2);
+				out2 = fl.convertOutputs(out2, inp2, "SALAD"); // FIXME
 				assert (out2.size() == ji.outputs.size());
 				for (int i = 0; i < ji.outputs.size(); i++)
 					values[ji.outputs.get(i).intValue()] = out2.get(i);

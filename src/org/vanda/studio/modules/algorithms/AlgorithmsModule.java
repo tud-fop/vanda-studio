@@ -17,6 +17,7 @@ import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
+import org.vanda.studio.modules.common.LinkerUtil;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
 
@@ -392,8 +393,13 @@ public class AlgorithmsModule implements Module {
 			}
 		}
 
-		@SuppressWarnings("unused")
-		private static class TheLinker implements Linker {
+		private static class HaskellLinker implements Linker {
+
+			private final Application app;
+
+			public HaskellLinker(Application app) {
+				this.app = app;
+			}
 
 			@Override
 			public void appendActions(List<Action> as) {
@@ -407,12 +413,12 @@ public class AlgorithmsModule implements Module {
 
 			@Override
 			public String getId() {
-				return "boxlinker";
+				return "haskell-linker";
 			}
 
 			@Override
 			public String getName() {
-				return "Box";
+				return "Haskell Box";
 			}
 
 			@Override
@@ -422,12 +428,16 @@ public class AlgorithmsModule implements Module {
 
 			@Override
 			public boolean checkInputTypes(List<Type> outer, List<Type> inner) {
-				return true;
+				return LinkerUtil.checkTypes(app
+						.getConverterToolMetaRepository().getRepository(),
+						outer, inner);
 			}
 
 			@Override
 			public boolean checkOutputTypes(List<Type> outer, List<Type> inner) {
-				return true;
+				return LinkerUtil.checkTypes(app
+						.getConverterToolMetaRepository().getRepository(),
+						inner, outer);
 			}
 
 			@Override
@@ -447,7 +457,7 @@ public class AlgorithmsModule implements Module {
 
 			@Override
 			public String getDescription() {
-				return "";
+				return "Converts a Haskell workflow into a shell tool.";
 			}
 
 			@Override
@@ -532,7 +542,7 @@ public class AlgorithmsModule implements Module {
 			app.getToolMetaRepository().addRepository(tr);
 
 			SimpleRepository<Linker> lr = new SimpleRepository<Linker>(null);
-			//lr.addItem(new TheLinker());
+			lr.addItem(new HaskellLinker(app));
 			lr.addItem(IdentityLinker.getInstance());
 			app.getLinkerMetaRepository().addRepository(lr);
 
