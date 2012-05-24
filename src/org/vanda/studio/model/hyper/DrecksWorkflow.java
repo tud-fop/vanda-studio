@@ -217,7 +217,7 @@ public class DrecksWorkflow {
 				if (ports.get(i) != null) {
 					DJobInfo daPort = children.get(ports.get(i).intValue());
 					inputPorts.add(daPort.job.getOutputPorts().get(0));
-					inputPortVariables.add(children.get(i).outputs.get(0));
+					inputPortVariables.add(daPort.outputs.get(0));
 				}
 			}
 			ports = outputPorts;

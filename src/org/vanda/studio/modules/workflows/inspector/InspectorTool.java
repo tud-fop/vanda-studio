@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.workflows.inspector;
 
 import java.awt.BorderLayout;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -31,19 +32,22 @@ import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.TokenSource.Token;
 
 public class InspectorTool implements ToolFactory {
+	
+	@SuppressWarnings("unchecked")
+	private static final WorkflowSelection emptySelection = new WorkflowSelection((List<Token>) Collections.EMPTY_LIST);
 
 	private final ElementEditorFactories eefs;
 
 	private final class TheSelectionVisitor implements SelectionVisitor,
 			RepositoryItemVisitor {
 
-		private final Model m;
+		private final Model model;
 		private JComponent editor = null;
 		private final StringBuilder sb;
-		
+
 		public TheSelectionVisitor(Model m, WorkflowSelection oldSelection,
 				WorkflowSelection newSelection, JComponent oldEditor) {
-			this.m = m;
+			this.model = m;
 			sb = new StringBuilder();
 			if (oldSelection == newSelection)
 				editor = oldEditor;
@@ -51,8 +55,38 @@ public class InspectorTool implements ToolFactory {
 
 		@Override
 		public void visitWorkflow(List<Token> path, MutableWorkflow wf) {
+			sb.append("<html><h1>");
 			sb.append(wf.getName());
-//			newInspection = wf.getName();
+			sb.append("</h1>");
+			ImmutableWorkflow iwf = null;
+			Type type = null;
+			if (model.getFrozen() != null) {
+				iwf = model.getFrozen().dereference(path.listIterator());
+				type = iwf.getFragmentType();
+			}
+			sb.append("<dl>");
+			if (type != null) {
+				sb.append("</dd><dt>Type</dt><dd>");
+				sb.append(type.toString());
+			}
+			sb.append("</dl>");
+			if (path.isEmpty() && model.getFrozen() != null) {
+				sb.append("<h2>Pseudo code</h2><font size=-1><pre>");
+				model.getFrozen().appendText(sb);
+				sb.append("</pre></font>");
+				if (!model.getFrozen().isSane()) {
+					sb.append("Warning: Your workflow(s) are not executable!\n"
+							+ "The most likely reason is that some input port "
+							+ "is not connected.<p>");
+				}
+				sb.append("<h2>Instances</h2>\n");
+				List<ImmutableWorkflow> iwfs = model.getUnfolded();
+				for (ImmutableWorkflow i : iwfs) {
+					sb.append("<hr><pre>");
+					i.appendText(sb);
+					sb.append("</pre><p>");
+				}
+			}
 			if (editor == null)
 				editor = eefs.workflowFactories.createEditor(wf);
 		}
@@ -63,8 +97,8 @@ public class InspectorTool implements ToolFactory {
 			Token variable = wf.getVariable(address);
 			ImmutableWorkflow iwf = null;
 			Type type = null;
-			if (m.getFrozen() != null)
-				iwf = m.getFrozen().dereference(path.listIterator());
+			if (model.getFrozen() != null)
+				iwf = model.getFrozen().dereference(path.listIterator());
 			if (iwf != null)
 				type = iwf.getType(variable);
 			Job sjob = wf.getChild(cc.source);
@@ -85,7 +119,6 @@ public class InspectorTool implements ToolFactory {
 				sb.append(type.toString());
 			}
 			sb.append("</dd></dl></html>");
-//			newInspection = sb.toString();
 			if (editor == null)
 				editor = eefs.connectionFactories.createEditor(cc);
 
@@ -101,8 +134,8 @@ public class InspectorTool implements ToolFactory {
 			sb.append("</dd><dt>Category</dt><dd>");
 			sb.append(j.getItem().getCategory());
 			sb.append("</dd></dl>");
-			sb.append("<h2>Ports</h2><table width=\"400px\"><tr>" +
-					"<th>Input Ports</th>");
+			sb.append("<h2>Ports</h2><table width=\"400px\"><tr>"
+					+ "<th>Input Ports</th>");
 			sb.append("<th>Output Ports</th></tr>");
 			sb.append("<tr><td><ul>");
 			for (Port p : j.getInputPorts()) {
@@ -122,10 +155,9 @@ public class InspectorTool implements ToolFactory {
 			}
 			sb.append("</ul></td></tr></table>");
 			sb.append("<h2>Description</h2>");
-			sb.append("<p>");
+			// sb.append("<p>");
 			sb.append(j.getItem().getDescription());
-			sb.append("</p>");
-//			newInspection = sb.toString();
+			sb.append("<p>");
 			j.getItem().visit(this);
 			sb.append("</html>");
 		}
@@ -136,7 +168,7 @@ public class InspectorTool implements ToolFactory {
 				editor = eefs.choiceFactories.createEditor(c);
 			}
 		}
-		
+
 		@Override
 		public void visitInputPort(InputPort i) {
 			if (editor == null) {
@@ -154,10 +186,9 @@ public class InspectorTool implements ToolFactory {
 				sb.append(":: " + l.getInnerFragmentType());
 				sb.append("</dd></dl>");
 				editor = eefs.linkerFactories.createEditor(l);
-//				newInspection = sb.toString();
 			}
 		}
-		
+
 		@Override
 		public void visitLiteral(Literal l) {
 			if (editor == null) {
@@ -221,13 +252,16 @@ public class InspectorTool implements ToolFactory {
 			this.m.getWorkflowObservable().addObserver(obs);
 			// this.m.getChildObservable().addObserver(obs);
 			this.wfe.focusToolWindow(contentPane);
+			update();
 		}
 
 		public void update() {
 			WorkflowSelection ws = m.getSelection();
+			if (ws == null)
+				ws = emptySelection;
 			TheSelectionVisitor visitor = new TheSelectionVisitor(m, this.ws,
 					ws, editor);
-			if (ws != null)
+			if (ws != null)  // <--- always true for now
 				ws.visit(m.getRoot(), visitor);
 			inspector.setText(visitor.getInspection());
 			if (visitor.getEditor() != editor) {

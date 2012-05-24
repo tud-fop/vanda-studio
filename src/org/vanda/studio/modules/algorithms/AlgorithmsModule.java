@@ -462,12 +462,12 @@ public class AlgorithmsModule implements Module {
 
 			@Override
 			public Type getInnerFragmentType() {
-				return Types.genericType;
+				return Types.haskellType;
 			}
 
 			@Override
 			public Type getFragmentType() {
-				return Types.genericType;
+				return Types.shellType;
 			}
 
 			@Override

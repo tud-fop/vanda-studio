@@ -102,6 +102,7 @@ public class CompositeJob extends Job implements WorkflowListener {
 			}
 			
 		});
+		workflow.rebind();
 	}
 
 	@Override

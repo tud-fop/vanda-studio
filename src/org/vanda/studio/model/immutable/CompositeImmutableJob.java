@@ -24,10 +24,7 @@ public final class CompositeImmutableJob extends ImmutableJob {
 
 	@Override
 	public ImmutableWorkflow dereference(ListIterator<Token> path) {
-		if (path.hasNext())
-			return workflow.dereference(path);
-		else
-			return null;
+		return workflow.dereference(path);
 	}
 
 	@Override
