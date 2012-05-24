@@ -54,7 +54,7 @@ public class ProfileModule implements Module {
 				}
 			}
 			repository = new SimpleRepository<Profile>(null);
-			repository.addItem(new ProfileImpl(profiles));
+			repository.addItem(new ProfileImpl(app, profiles));
 			manager = null;
 			app.getProfileMetaRepository().addRepository(repository);
 			app.getWindowSystem().addAction(null, new OpenManagerAction(), null);

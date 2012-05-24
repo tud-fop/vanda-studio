@@ -53,7 +53,8 @@ public class RootLinker implements FragmentLinker {
 	}
 
 	@Override
-	public List<String> convertOutputs(List<String> inner) {
+	public List<String> convertOutputs(List<String> inner, List<String> l,
+			String s) {
 		return inner;
 	}
 
@@ -73,31 +74,31 @@ public class RootLinker implements FragmentLinker {
 				imports.addAll(fragment.imports);
 			}
 		}
-		
+
 		ArrayList<String> sorted = new ArrayList<String>(dependencies);
 		Collections.sort(sorted);
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("#!/bin/bash\n\nset -e\n\nif [ -z \"$MYPATH\" ]\nthen\n    echo \"Path not set\"\n    exit 1\nfi\n\n");
-		
+
 		// source $MYPATH/empty.sh
 		imports.add("empty");
 		// source $MYPATH/mapping.sh
 		// source $MYPATH/shorten.sh
-		
+
 		for (String imp0rt : imports) {
 			sb.append("source $MYPATH/");
 			sb.append(imp0rt);
 			sb.append(".sh\n");
 		}
-		
+
 		sb.append('\n');
 
 		for (String dep : sorted) {
 			Fragment fragment = fb.getFragment(dep);
 			sb.append(fragment.text);
 		}
-		
+
 		sb.append("testempty");
 		for (String dep : sorted) {
 			sb.append(' ');
@@ -106,7 +107,7 @@ public class RootLinker implements FragmentLinker {
 		sb.append("\n\n");
 		sb.append(Fragment.normalize(name));
 		sb.append('\n');
-		
+
 		File f = io.createFile(Fragment.normalize(name));
 		FileWriter fw = new FileWriter(f, false);
 		fw.write(sb.toString());

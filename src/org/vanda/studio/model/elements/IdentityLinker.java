@@ -2,7 +2,6 @@ package org.vanda.studio.model.elements;
 
 import java.util.List;
 
-import org.vanda.studio.app.Profile;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
@@ -37,7 +36,7 @@ public final class IdentityLinker implements Linker {
 
 	@Override
 	public String getId() {
-		return Profile.identityLinker;
+		return Linker.identityLinker;
 	}
 	
 	public static Linker getInstance() {

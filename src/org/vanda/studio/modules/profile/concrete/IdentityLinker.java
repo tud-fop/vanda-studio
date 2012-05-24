@@ -2,7 +2,7 @@ package org.vanda.studio.modules.profile.concrete;
 
 import java.util.List;
 
-import org.vanda.studio.app.Profile;
+import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.modules.profile.model.FragmentBase;
@@ -28,7 +28,7 @@ public class IdentityLinker implements FragmentLinker {
 
 	@Override
 	public String getId() {
-		return Profile.identityLinker;
+		return Linker.identityLinker;
 	}
 
 	@Override
@@ -47,7 +47,8 @@ public class IdentityLinker implements FragmentLinker {
 	}
 
 	@Override
-	public List<String> convertOutputs(List<String> inner) {
+	public List<String> convertOutputs(List<String> inner, List<String> l,
+			String s) {
 		return inner;
 	}
 

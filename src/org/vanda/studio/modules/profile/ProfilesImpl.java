@@ -3,9 +3,9 @@ package org.vanda.studio.modules.profile;
 import java.util.Iterator;
 
 import org.vanda.studio.app.MetaRepository;
-import org.vanda.studio.core.CompositeRepository;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
+import org.vanda.studio.modules.common.CompositeRepository;
 import org.vanda.studio.modules.profile.model.FragmentCompiler;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
 import org.vanda.studio.modules.profile.model.Profiles;

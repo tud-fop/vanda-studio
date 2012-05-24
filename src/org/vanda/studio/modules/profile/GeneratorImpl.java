@@ -6,12 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Generator;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.immutable.JobInfo;
+import org.vanda.studio.model.types.Type;
+import org.vanda.studio.modules.common.LinkerUtil;
 import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.modules.profile.model.FragmentBase;
 import org.vanda.studio.modules.profile.model.FragmentCompiler;
@@ -21,16 +24,19 @@ import org.vanda.studio.modules.profile.model.Profiles;
 
 public final class GeneratorImpl implements Generator {
 
-	private FragmentIO io;
-	private WeakHashMap<Object, Fragment> map;
-	private HashMap<String, Fragment> fragments; // i.e., functions
-	private Profiles prof;
-	private FragmentBase fb;
-	private FragmentLinker rootLinker;
+	private final Application app;
+	private final FragmentIO io;
+	private final WeakHashMap<Object, Fragment> map;
+	private final HashMap<String, Fragment> fragments; // i.e., functions
+	private final Profiles prof;
+	private final FragmentBase fb;
+	private final FragmentLinker rootLinker;
 	private final Map<String, Integer> uniqueMap;
 	private final Map<Object, String> uniqueStrings;
 
-	public GeneratorImpl(Profiles prof, FragmentIO io, FragmentLinker rootLinker) {
+	public GeneratorImpl(Application app, Profiles prof, FragmentIO io,
+			FragmentLinker rootLinker) {
+		this.app = app;
 		this.prof = prof;
 		this.io = io;
 		this.rootLinker = rootLinker;
@@ -39,6 +45,13 @@ public final class GeneratorImpl implements Generator {
 		map = new WeakHashMap<Object, Fragment>();
 		fragments = new HashMap<String, Fragment>();
 		fb = new FragmentBase() {
+			@Override
+			public Tool getConversionTool(Type from, Type to) {
+				return LinkerUtil.getConversionTool(GeneratorImpl.this.app
+						.getConverterToolMetaRepository().getRepository(),
+						from, to);
+			}
+
 			@Override
 			public Fragment getFragment(String name) {
 				return fragments.get(name);

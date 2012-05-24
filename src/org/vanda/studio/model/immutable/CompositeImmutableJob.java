@@ -79,14 +79,12 @@ public final class CompositeImmutableJob extends ImmutableJob {
 
 	@Override
 	public List<Port> getInputPorts() {
-		// TODO Auto-generated method stub
-		return null;
+		return linker.convertInputPorts(workflow.getInputPorts());
 	}
 
 	@Override
 	public List<Port> getOutputPorts() {
-		// TODO Auto-generated method stub
-		return null;
+		return linker.convertOutputPorts(workflow.getOutputPorts());
 	}
 
 	@Override

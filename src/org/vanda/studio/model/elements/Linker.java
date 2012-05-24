@@ -73,4 +73,6 @@ public interface Linker extends HasActions, RepositoryItem {
 	Type getInnerFragmentType();
 	
 	Type getFragmentType();
+	
+	public static String identityLinker = "identity-linker";
 }

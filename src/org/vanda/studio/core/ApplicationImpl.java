@@ -14,6 +14,7 @@ import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Tool;
+import org.vanda.studio.modules.common.CompositeRepository;
 import org.vanda.studio.util.Message;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
@@ -26,6 +27,7 @@ public final class ApplicationImpl implements Application {
 
 	protected UIMode mode;
 	protected final ArrayList<UIMode> modes;
+	protected final CompositeRepository<Tool> converterToolRepository;
 	protected final MultiplexObserver<Message> messageObservable;
 	protected final MultiplexObserver<Application> modeObservable;
 	protected final CompositeRepository<Linker> linkerRepository;
@@ -39,6 +41,7 @@ public final class ApplicationImpl implements Application {
 		addUIModes(modes);
 		messageObservable = new MultiplexObserver<Message>();
 		mode = modes.get(0);
+		converterToolRepository = new CompositeRepository<Tool>();
 		modeObservable = new MultiplexObserver<Application>();
 		linkerRepository = new CompositeRepository<Linker>();
 		profileRepository = new CompositeRepository<Profile>();
@@ -109,6 +112,11 @@ public final class ApplicationImpl implements Application {
 				@Override	public boolean isLargeContent() { return true; }
 				@Override	public boolean isLargeUI() { return true; }
 			});
+	}
+
+	@Override
+	public MetaRepository<Tool> getConverterToolMetaRepository() {
+		return converterToolRepository;
 	}
 
 	@Override

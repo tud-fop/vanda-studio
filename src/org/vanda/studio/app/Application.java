@@ -22,6 +22,14 @@ public interface Application {
 	String createUniqueId();
 
 	/**
+	 * Returns the repository of converter tool repositories. Converter tools
+	 * may be used by some linkers to convert port types. A converter tool
+	 * must have exactly one input port and exactly one output port.
+	 * Modules should add or remove their own repositories here.
+	 */
+	MetaRepository<Tool> getConverterToolMetaRepository();
+
+	/**
 	 * Returns the repository of linker repositories. Modules should add or
 	 * remove their own repositories here.
 	 */
