@@ -5,6 +5,8 @@ package org.vanda.studio.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.vanda.studio.app.Application;
@@ -13,11 +15,15 @@ import org.vanda.studio.app.Profile;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.model.elements.Linker;
+import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.Tool;
+import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.TypeVariable;
 import org.vanda.studio.modules.common.CompositeRepository;
 import org.vanda.studio.util.Message;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
+import org.vanda.studio.util.Observer;
 
 /**
  * @author buechse
@@ -35,6 +41,8 @@ public final class ApplicationImpl implements Application {
 	protected final CompositeRepository<Tool> toolRepository;
 	protected final MultiplexObserver<Application> shutdownObservable;
 	protected final WindowSystemImpl windowSystem;
+	protected final HashSet<Type> types;
+	protected final Observer<Tool> typeObserver;
 
 	public ApplicationImpl() {
 		modes = new ArrayList<UIMode>();
@@ -48,6 +56,27 @@ public final class ApplicationImpl implements Application {
 		toolRepository = new CompositeRepository<Tool>();
 		shutdownObservable = new MultiplexObserver<Application>();
 		windowSystem = new WindowSystemImpl(this);
+		types = new HashSet<Type>();
+		typeObserver = new Observer<Tool>() {
+
+			@Override
+			public void notify(Tool event) {
+				for (Port p : event.getInputPorts()) {
+					Type t = p.getType();
+					if (!(t instanceof TypeVariable))
+						types.add(t);
+				}
+				for (Port p : event.getOutputPorts()) {
+					Type t = p.getType();
+					if (!(t instanceof TypeVariable))
+						types.add(t);
+				}
+			}
+			
+		};
+		
+		converterToolRepository.getAddObservable().addObserver(typeObserver);
+		toolRepository.getAddObservable().addObserver(typeObserver);
 	}
 
 	@Override
@@ -142,6 +171,11 @@ public final class ApplicationImpl implements Application {
 	@Override
 	public void sendMessage(Message m) {
 		messageObservable.notify(m);
+	}
+
+	@Override
+	public Set<Type> getTypes() {
+		return types;
 	}
 
 }

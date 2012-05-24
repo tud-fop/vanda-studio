@@ -10,6 +10,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.model.elements.Choice;
 import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.Linker;
@@ -32,21 +33,25 @@ import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.TokenSource.Token;
 
 public class InspectorTool implements ToolFactory {
-	
+
 	@SuppressWarnings("unchecked")
-	private static final WorkflowSelection emptySelection = new WorkflowSelection((List<Token>) Collections.EMPTY_LIST);
+	private static final WorkflowSelection emptySelection = new WorkflowSelection(
+			(List<Token>) Collections.EMPTY_LIST);
 
 	private final ElementEditorFactories eefs;
 
 	private final class TheSelectionVisitor implements SelectionVisitor,
 			RepositoryItemVisitor {
 
+		private final Application app;
 		private final Model model;
 		private JComponent editor = null;
 		private final StringBuilder sb;
 
-		public TheSelectionVisitor(Model m, WorkflowSelection oldSelection,
-				WorkflowSelection newSelection, JComponent oldEditor) {
+		public TheSelectionVisitor(Application app, Model m,
+				WorkflowSelection oldSelection, WorkflowSelection newSelection,
+				JComponent oldEditor) {
+			this.app = app;
 			this.model = m;
 			sb = new StringBuilder();
 			if (oldSelection == newSelection)
@@ -88,7 +93,7 @@ public class InspectorTool implements ToolFactory {
 				}
 			}
 			if (editor == null)
-				editor = eefs.workflowFactories.createEditor(wf);
+				editor = eefs.workflowFactories.createEditor(app, wf);
 		}
 
 		@Override
@@ -120,7 +125,7 @@ public class InspectorTool implements ToolFactory {
 			}
 			sb.append("</dd></dl></html>");
 			if (editor == null)
-				editor = eefs.connectionFactories.createEditor(cc);
+				editor = eefs.connectionFactories.createEditor(app, cc);
 
 		}
 
@@ -165,14 +170,14 @@ public class InspectorTool implements ToolFactory {
 		@Override
 		public void visitChoice(Choice c) {
 			if (editor == null) {
-				editor = eefs.choiceFactories.createEditor(c);
+				editor = eefs.choiceFactories.createEditor(app, c);
 			}
 		}
 
 		@Override
 		public void visitInputPort(InputPort i) {
 			if (editor == null) {
-				editor = eefs.inputPortFactories.createEditor(i);
+				editor = eefs.inputPortFactories.createEditor(app, i);
 			}
 		}
 
@@ -185,28 +190,28 @@ public class InspectorTool implements ToolFactory {
 				sb.append("</dd><dt>Inner Fragment Type</dt><dd>");
 				sb.append(":: " + l.getInnerFragmentType());
 				sb.append("</dd></dl>");
-				editor = eefs.linkerFactories.createEditor(l);
+				editor = eefs.linkerFactories.createEditor(app, l);
 			}
 		}
 
 		@Override
 		public void visitLiteral(Literal l) {
 			if (editor == null) {
-				editor = eefs.literalFactories.createEditor(l);
+				editor = eefs.literalFactories.createEditor(app, l);
 			}
 		}
 
 		@Override
 		public void visitOutputPort(OutputPort o) {
 			if (editor == null) {
-				editor = eefs.outputPortFactories.createEditor(o);
+				editor = eefs.outputPortFactories.createEditor(app, o);
 			}
 		}
 
 		@Override
 		public void visitTool(Tool t) {
 			if (editor == null) {
-				editor = eefs.toolFactories.createEditor(t);
+				editor = eefs.toolFactories.createEditor(app, t);
 			}
 		}
 
@@ -250,7 +255,7 @@ public class InspectorTool implements ToolFactory {
 			this.m.getSelectionChangeObservable().addObserver(obs);
 			this.m.getWorkflowCheckObservable().addObserver(obs);
 			this.m.getWorkflowObservable().addObserver(obs);
-			// this.m.getChildObservable().addObserver(obs);
+			this.m.getChildObservable().addObserver(obs);
 			this.wfe.focusToolWindow(contentPane);
 			update();
 		}
@@ -259,9 +264,9 @@ public class InspectorTool implements ToolFactory {
 			WorkflowSelection ws = m.getSelection();
 			if (ws == null)
 				ws = emptySelection;
-			TheSelectionVisitor visitor = new TheSelectionVisitor(m, this.ws,
-					ws, editor);
-			if (ws != null)  // <--- always true for now
+			TheSelectionVisitor visitor = new TheSelectionVisitor(
+					wfe.getApplication(), m, this.ws, ws, editor);
+			if (ws != null) // <--- always true for now
 				ws.visit(m.getRoot(), visitor);
 			inspector.setText(visitor.getInspection());
 			if (visitor.getEditor() != editor) {

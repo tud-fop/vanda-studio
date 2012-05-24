@@ -54,6 +54,11 @@ public final class CompositeType extends Type {
 			c.freshMap(t, m);
 		}
 	}
+	
+	@Override
+	public int hashCode() {
+		return constructor.hashCode();
+	}
 
 	@Override
 	public Type rename(Map<Token, Token> m) {

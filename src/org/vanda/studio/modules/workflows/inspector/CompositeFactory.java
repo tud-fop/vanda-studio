@@ -6,6 +6,8 @@ import java.util.ListIterator;
 
 import javax.swing.JComponent;
 
+import org.vanda.studio.app.Application;
+
 public class CompositeFactory<T> implements ElementEditorFactory<T> {
 	private List<ElementEditorFactory<? super T>> list;
 	
@@ -18,11 +20,11 @@ public class CompositeFactory<T> implements ElementEditorFactory<T> {
 	}
 	
 	@Override
-	public JComponent createEditor(T object) {
+	public JComponent createEditor(Application app, T object) {
 		JComponent result = null;
 		ListIterator<ElementEditorFactory<? super T>> li = list.listIterator();
 		while (result == null && li.hasNext())
-			result = li.next().createEditor(object);
+			result = li.next().createEditor(app, object);
 		return result;
 	}
 }

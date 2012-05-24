@@ -9,21 +9,25 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.model.elements.Literal;
+import org.vanda.studio.model.types.Type;
 
 public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 	@Override
-	public JComponent createEditor(final Literal l) {
+	public JComponent createEditor(Application app, final Literal l) {
 		final JLabel label1 = new JLabel("Type:");
 		final JLabel label2 = new JLabel("Value:");
 		final JComboBox typeBox = new JComboBox();
+		for (Type t : app.getTypes())
+			typeBox.addItem(t);
 		typeBox.setEditable(true);
 		typeBox.setSelectedItem(l.getType());
 		typeBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				l.setType(typeBox.getSelectedItem().toString());
+				l.setType((Type) typeBox.getSelectedItem());
 			}
 		});
 		

@@ -11,12 +11,16 @@ import org.vanda.studio.util.Observable;
 
 public final class Literal implements Element {
 	
-	private String type;
+	private Port port;
+	private List<Port> ports;
+	// private String type;
 	private String value;
 	private final MultiplexObserver<ElementEvent> observable;
 
-	public Literal(String type, String value) {
-		this.type = type;
+	public Literal(Type type, String value) {
+		port = new Port("literal", type);
+		ports = Collections.singletonList(port);
+		// this.type = type;
 		this.value = value;
 		observable = new MultiplexObserver<ElementEvent>();
 	}
@@ -28,7 +32,7 @@ public final class Literal implements Element {
 	
 	@Override
 	public Element clone() {
-		return new Literal(type, value);
+		return new Literal(port.getType(), value);
 	}
 
 	@Override
@@ -53,7 +57,7 @@ public final class Literal implements Element {
 
 	@Override
 	public List<Port> getOutputPorts() {
-		return Ports.literalOutputs;
+		return ports;
 	}
 
 	@Override
@@ -81,13 +85,13 @@ public final class Literal implements Element {
 		return "n/a";
 	}
 
-	public String getType() {
-		return type;
+	public Type getType() {
+		return port.getType();
 	}
 
-	public void setType(String type) {
-		if (!type.equals(this.type)) {
-			this.type = type;
+	public void setType(Type type) {
+		if (!type.equals(port.getType())) {
+			port.setType(type);
 			observable.notify(new Elements.PropertyChangeEvent(this));
 		}
 	}

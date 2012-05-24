@@ -4,9 +4,11 @@
 package org.vanda.studio.app;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Tool;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.Message;
 import org.vanda.studio.util.Observable;
 
@@ -41,6 +43,8 @@ public interface Application {
 	 */
 	MetaRepository<Profile> getProfileMetaRepository();
 
+	Set<Type> getTypes();
+	
 	/**
 	 * Returns the repository of tool repositories. Modules should add or remove
 	 * their own repositories here.
