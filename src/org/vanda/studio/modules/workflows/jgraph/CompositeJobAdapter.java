@@ -99,6 +99,9 @@ public class CompositeJobAdapter extends JobAdapter {
 				break;
 			}
 		}
+		
+		// set selection to currently modified cell
+		graph.setSelectionCell(cell);
 	}
 	
 	@Override
