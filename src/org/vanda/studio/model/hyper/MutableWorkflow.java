@@ -319,7 +319,14 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 	@Override
 	public void inputPortRemoved(Job j, int index) {
 		DJobInfo ji = children.get(j.address.intValue());
-		// FIXME remove connections to this port!
+		// remove connections to this port!
+		for (int i = 0; i < connections.size(); i++) {
+			DConnInfo ci = connections.get(i);
+			if (ci != null) {
+				if (ci.cc.target == j.address && ci.cc.targetPort == index)
+					removeConnection(ci.cc.address);
+			}
+		}
 		ji.inputs.set(index, null);
 		childObservable.notify(new Workflows.ChildInputPortRemovedEvent(this,
 				j, index));
@@ -343,7 +350,14 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 		DJobInfo ji = children.get(j.address.intValue());
 		Token var = ji.outputs.set(index, null);
 		variableSource.recycleToken(var);
-		// FIXME remove connections from this port
+		// remove connections from this port
+		for (int i = 0; i < connections.size(); i++) {
+			DConnInfo ci = connections.get(i);
+			if (ci != null) {
+				if (ci.cc.source == j.address && ci.cc.sourcePort == index)
+					removeConnection(ci.cc.address);
+			}
+		}
 		childObservable.notify(new Workflows.ChildOutputPortRemovedEvent(this,
 				j, index));
 	}

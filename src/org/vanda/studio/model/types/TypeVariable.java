@@ -27,6 +27,11 @@ public final class TypeVariable extends Type {
 		else
 			return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		return variable.hashCode();
+	}
 
 	@Override
 	public void freshMap(TokenSource t, Map<Token, Token> m) {

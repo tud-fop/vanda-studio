@@ -231,7 +231,7 @@ public class DrecksWorkflow {
 				}
 			}
 			return new ImmutableWorkflow(name, inputPorts, outputPorts,
-					inputPortVariables, outputPortVariables, null, imch,
+					inputPortVariables, outputPortVariables, null, null, imch,
 					variableSource, variableSource.getMaxToken());
 		} else
 			throw new Exception(

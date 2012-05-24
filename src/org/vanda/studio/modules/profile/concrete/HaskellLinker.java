@@ -126,6 +126,7 @@ public class HaskellLinker implements FragmentLinker {
 		StringBuilder sb = new StringBuilder();
 		sb.append("module Main where\n\n");
 
+		imports.add("System.Environment ( getArgs )");
 		for (String imp0rt : imports) {
 			sb.append("import ");
 			sb.append(imp0rt);

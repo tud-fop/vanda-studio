@@ -139,7 +139,6 @@ class Graph extends mxGraph {
 	// Allows folding of NestedHyperworkflows
 	@Override
 	public boolean isCellFoldable(Object cell, boolean collapse) {
-		// FIXME this won't work
 		mxCell c = (mxCell) cell;
 		return c.getValue() instanceof CompositeJobAdapter;
 	}

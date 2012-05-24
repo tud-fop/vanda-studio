@@ -410,7 +410,6 @@ public final class DrecksAdapter {
 		mxICell cell = wa.removeInter(job);
 		if (cell != null) {
 			// wa.setChild(job.getAddress(), cell);
-			// XXX EXPERIMENTAL
 			((Adapter) cell.getValue()).onInsert(graph, parentCell, cell);
 		} else if (job.getAddress() == null
 				|| wa.getChild(job.getAddress()) == null) {

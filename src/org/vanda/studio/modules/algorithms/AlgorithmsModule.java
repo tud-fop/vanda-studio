@@ -16,10 +16,12 @@ import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.TypeVariable;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.common.LinkerUtil;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.TokenSource;
 
 /**
  * @author buechse
@@ -680,8 +682,8 @@ public class AlgorithmsModule implements Module {
 				List<Type> typeList = new ArrayList<Type>();
 				typeList.add(new CompositeType("Double"));
 
-				outputPorts.add(new Port("vector", new CompositeType(
-						"Vector", typeList)));
+				outputPorts.add(new Port("vector", new CompositeType("Vector",
+						typeList)));
 			}
 
 			public String getContact() {
@@ -741,14 +743,14 @@ public class AlgorithmsModule implements Module {
 				inputPorts.add(new Port("state", new CompositeType("State")));
 				inputPorts.add(new Port("features", new CompositeType(
 						"Features")));
-				inputPorts.add(new Port("vector", new CompositeType(
-						"Vector", typeList)));
+				inputPorts.add(new Port("vector", new CompositeType("Vector",
+						typeList)));
 
 				List<Type> typeList2 = new ArrayList<Type>();
 				typeList2.add(new CompositeType("Deriv"));
 
-				outputPorts.add(new Port("derivation list", new CompositeType("[]",
-						typeList2)));
+				outputPorts.add(new Port("derivation list", new CompositeType(
+						"[]", typeList2)));
 			}
 
 			public String getContact() {
@@ -803,8 +805,8 @@ public class AlgorithmsModule implements Module {
 				List<Type> typeList = new ArrayList<Type>();
 				typeList.add(new CompositeType("Deriv"));
 
-				inputPorts.add(new Port("derivation list", new CompositeType("[]",
-						typeList)));
+				inputPorts.add(new Port("derivation list", new CompositeType(
+						"[]", typeList)));
 				inputPorts.add(new Port("token array", new CompositeType(
 						"TokenArray")));
 				outputPorts
@@ -855,15 +857,13 @@ public class AlgorithmsModule implements Module {
 				return "2012-05-24";
 			}
 		}
-		
+
 		static class LoadString extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("#1", new CompositeType(
-						"Text File")));
-				outputPorts.add(new Port("#2", new CompositeType(
-						"String")));
+				inputPorts.add(new Port("#1", new CompositeType("Text File")));
+				outputPorts.add(new Port("#2", new CompositeType("String")));
 			}
 
 			public String getContact() {
@@ -910,15 +910,14 @@ public class AlgorithmsModule implements Module {
 				return "2012-05-24";
 			}
 		}
-		
+
 		static class LoadTokenArray extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("#1", new CompositeType(
-						"TokenArray")));
-				outputPorts.add(new Port("#2", new CompositeType(
-						"TokenArray")));
+				inputPorts.add(new Port("#1", new CompositeType("TokenArray")));
+				outputPorts
+						.add(new Port("#2", new CompositeType("TokenArray")));
 			}
 
 			public String getContact() {
@@ -965,15 +964,15 @@ public class AlgorithmsModule implements Module {
 				return "2012-05-24";
 			}
 		}
-		
+
 		static class LoadSCFG extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
 				inputPorts.add(new Port("#1", new CompositeType(
 						"Literal SCFG Hypergraph")));
-				outputPorts.add(new Port("#2", new CompositeType(
-						"Hypergraph")));
+				outputPorts
+						.add(new Port("#2", new CompositeType("Hypergraph")));
 			}
 
 			public String getContact() {
@@ -1020,15 +1019,13 @@ public class AlgorithmsModule implements Module {
 				return "2012-05-24";
 			}
 		}
-		
+
 		static class SaveString extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("#1", new CompositeType(
-						"String")));
-				outputPorts.add(new Port("#2", new CompositeType(
-						"Text File")));
+				inputPorts.add(new Port("#1", new CompositeType("String")));
+				outputPorts.add(new Port("#2", new CompositeType("Text File")));
 			}
 
 			public String getContact() {
@@ -1125,12 +1122,20 @@ public class AlgorithmsModule implements Module {
 
 			@Override
 			public List<Port> convertInputPorts(List<Port> ips) {
-				return ips;
+				ArrayList<Port> result = new ArrayList<Port>(ips.size());
+				for (int i = 0; i < ips.size(); i++)
+					result.add(new Port(ips.get(i).getIdentifier(),
+							new TypeVariable(TokenSource.getToken(2*i))));
+				return result;
 			}
 
 			@Override
 			public List<Port> convertOutputPorts(List<Port> ops) {
-				return ops;
+				ArrayList<Port> result = new ArrayList<Port>(ops.size());
+				for (int i = 0; i < ops.size(); i++)
+					result.add(new Port(ops.get(i).getIdentifier(),
+							new TypeVariable(TokenSource.getToken(2*i+1))));
+				return result;
 			}
 
 			@Override
@@ -1198,7 +1203,8 @@ public class AlgorithmsModule implements Module {
 				}
 
 				public List<Port> getInputPorts() {
-					Port p = new Port("inputPort", new CompositeType("Text File"));
+					Port p = new Port("inputPort", new CompositeType(
+							"Text File"));
 					List<Port> list = new ArrayList<Port>();
 					list.add(p);
 					return list;
@@ -1228,7 +1234,7 @@ public class AlgorithmsModule implements Module {
 					return "n/a";
 				}
 			};
-			
+
 			SimpleRepository<Tool> ctr = new SimpleRepository<Tool>(null);
 			ctr.addItem(new LoadString());
 			ctr.addItem(new SaveString());

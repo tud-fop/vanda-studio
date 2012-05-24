@@ -22,6 +22,11 @@ public final class Equation {
 		} else
 			return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		return lhs.hashCode() + rhs.hashCode();
+	}
 
 	public boolean canDecompose() {
 		return (lhs instanceof CompositeType && rhs instanceof CompositeType);

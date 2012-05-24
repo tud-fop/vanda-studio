@@ -10,8 +10,8 @@ public class LinkerUtil {
 
 	public static Tool getConversionTool(Repository<Tool> r, Type from, Type to) {
 		for (Tool t : r.getItems()) {
-			if (t.getInputPorts().get(0).equals(from)
-					&& t.getOutputPorts().get(0).equals(to))
+			if (t.getInputPorts().get(0).getType().equals(from)
+					&& t.getOutputPorts().get(0).getType().equals(to))
 				return t; // -------------------- ##########
 		}
 		return null;

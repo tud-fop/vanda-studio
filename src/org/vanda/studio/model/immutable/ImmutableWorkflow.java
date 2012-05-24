@@ -20,10 +20,10 @@ public final class ImmutableWorkflow {
 	final int[] variableOrigins;
 	final String name;
 	private final Map<Token, ImmutableJob> deref;
-	private Type[] types;
+	Type[] types;
 	private Type fragmentType;
-	private final List<Port> inputPorts;
-	private final List<Port> outputPorts;
+	private List<Port> inputPorts;
+	private List<Port> outputPorts;
 	private final List<Token> inputPortVariables;
 	private final List<Token> outputPortVariables;
 
@@ -36,7 +36,7 @@ public final class ImmutableWorkflow {
 	 */
 	public ImmutableWorkflow(String name, List<Port> inputPorts,
 			List<Port> outputPorts, List<Token> inputPortVariables,
-			List<Token> outputPortVariables, Type fragmentType,
+			List<Token> outputPortVariables, Type[] types, Type fragmentType,
 			ArrayList<JobInfo> children, TokenSource token, int maxtoken) {
 		this.name = name;
 		this.inputPorts = inputPorts;
@@ -55,7 +55,7 @@ public final class ImmutableWorkflow {
 			}
 			deref.put(ji.address, ji.job);
 		}
-		types = null;
+		this.types = types;
 		this.fragmentType = fragmentType;
 	}
 
@@ -162,6 +162,16 @@ public final class ImmutableWorkflow {
 		tc.check();
 		types = tc.getTypes();
 		fragmentType = tc.getFragmentType();
+		List<Port> oldInputPorts = inputPorts;
+		List<Port> oldOutputPorts = outputPorts;
+		inputPorts = new ArrayList<Port>(inputPorts.size());
+		outputPorts = new ArrayList<Port>(outputPorts.size());
+		for (int i = 0; i < oldInputPorts.size(); i++)
+			inputPorts.add(new Port(oldInputPorts.get(i).getIdentifier(),
+					types[inputPortVariables.get(i).intValue()]));
+		for (int i = 0; i < oldOutputPorts.size(); i++)
+			outputPorts.add(new Port(oldOutputPorts.get(i).getIdentifier(),
+					types[outputPortVariables.get(i).intValue()]));
 		// System.out.println(fragmentType);
 	}
 
@@ -175,7 +185,7 @@ public final class ImmutableWorkflow {
 
 	public void appendText(StringBuilder sections) {
 		StringBuilder lines = new StringBuilder();
-		
+
 		lines.append(getName());
 		ImmutableJob.appendInput(inputPortVariables, lines);
 		lines.append(" = ");

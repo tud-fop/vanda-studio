@@ -35,44 +35,46 @@ public class HaskellCompiler implements FragmentCompiler {
 		sb.append(" where \n");
 		int i = 0;
 		for (JobInfo ji : iwf.getChildren()) {
-			sb.append("  ");
 			if (ji.job.isInputPort() || ji.job.isOutputPort()) {
 				// do nothing
-			} else if (ji.job.isChoice()) {
-				for (int j = 0; j < ji.inputs.size(); j++) {
-					Token var = ji.inputs.get(j);
-					if (var != null) {
-						ImmutableJob.appendVariable(ji.outputs.get(0), sb);
-						sb.append(" = ");
-						ImmutableJob.appendVariable(var, sb);
-						break; // <------------------------------#############
-					}
-				}
-			} else if (ji.job instanceof AtomicImmutableJob
-					&& ((AtomicImmutableJob) ji.job).getElement() instanceof Literal) {
-				Literal lit = (Literal) ((AtomicImmutableJob) ji.job)
-						.getElement();
-				ImmutableJob.appendVariable(ji.outputs.get(0), sb);
-				sb.append(" = ");
-				if ("String".equals(lit.getType())) {
-					sb.append('"');
-					sb.append(lit.getValue());
-					sb.append('"');
-				} else
-					sb.append(lit.getValue());
 			} else {
-				String frag = fragments.get(i);
-				assert (frag != null);
-				ImmutableJob.appendOutput(ji.outputs, sb);
-				sb.append(" = ");
-				sb.append(Fragment.normalize(name));
-				for (int j = 0; j < ji.inputs.size(); j++) {
-					sb.append(" ");
-					ImmutableJob.appendVariable(ji.inputs.get(j), sb);
+				sb.append("  ");
+				if (ji.job.isChoice()) {
+					for (int j = 0; j < ji.inputs.size(); j++) {
+						Token var = ji.inputs.get(j);
+						if (var != null) {
+							ImmutableJob.appendVariable(ji.outputs.get(0), sb);
+							sb.append(" = ");
+							ImmutableJob.appendVariable(var, sb);
+							break; // <--------------------------#############
+						}
+					}
+				} else if (ji.job instanceof AtomicImmutableJob
+						&& ((AtomicImmutableJob) ji.job).getElement() instanceof Literal) {
+					Literal lit = (Literal) ((AtomicImmutableJob) ji.job)
+							.getElement();
+					ImmutableJob.appendVariable(ji.outputs.get(0), sb);
+					sb.append(" = ");
+					if ("String".equals(lit.getType().toString())) {
+						sb.append('"');
+						sb.append(lit.getValue());
+						sb.append('"');
+					} else
+						sb.append(lit.getValue());
+				} else {
+					String frag = fragments.get(i);
+					assert (frag != null);
+					ImmutableJob.appendOutput(ji.outputs, sb);
+					sb.append(" = ");
+					sb.append(Fragment.normalize(frag));
+					for (int j = 0; j < ji.inputs.size(); j++) {
+						sb.append(" ");
+						ImmutableJob.appendVariable(ji.inputs.get(j), sb);
+					}
+					dependencies.add(frag);
 				}
-				dependencies.add(frag);
+				sb.append('\n');
 			}
-			sb.append('\n');
 			i++;
 		}
 		sb.append('\n');
@@ -117,7 +119,7 @@ public class HaskellCompiler implements FragmentCompiler {
 
 	@Override
 	public void visit(RepositoryItemVisitor v) {
-		
+
 	}
 
 }

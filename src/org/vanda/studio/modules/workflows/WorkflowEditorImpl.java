@@ -97,6 +97,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 
 		for (ToolFactory tf : tools)
 			tf.instantiate(this, model);
+		app.getWindowSystem().addAction(mainpane, new ResetZoomAction(),
+				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK));
 		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
 
@@ -317,6 +319,19 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 		@Override
 		public void invoke() {
 			close();
+		}
+	}
+
+	protected class ResetZoomAction implements Action {
+
+		@Override
+		public String getName() {
+			return "Reset Zoom";
+		}
+
+		@Override
+		public void invoke() {
+			component.zoomActual();
 		}
 	}
 

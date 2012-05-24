@@ -158,7 +158,7 @@ public class Unfolder {
 				ImmutableWorkflow wf = new ImmutableWorkflow(parent.name,
 						parent.getInputPorts(), parent.getOutputPorts(),
 						parent.getInputPortVariables(),
-						parent.getOutputPortVariables(),
+						parent.getOutputPortVariables(), parent.types,
 						parent.getFragmentType(), children,
 						parent.variableSource, 0); // XXX 0 bad hack?
 				result.add(wf);
