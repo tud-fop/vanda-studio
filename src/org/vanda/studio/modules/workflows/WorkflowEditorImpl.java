@@ -1,5 +1,6 @@
 package org.vanda.studio.modules.workflows;
 
+import java.awt.Cursor;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
@@ -8,9 +9,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -30,16 +33,23 @@ import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.modules.workflows.Model.WorkflowSelection;
 import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
+import org.vanda.studio.modules.workflows.jgraph.WorkflowAdapter;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.HasActions;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.Util;
 
+import com.mxgraph.model.mxICell;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.swing.handler.mxGraphHandler;
 import com.mxgraph.swing.util.mxGraphTransferable;
+import com.mxgraph.view.mxCellState;
+import com.mxgraph.view.mxGraph;
 
-public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, WorkflowChildListener {
+public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
+		WorkflowChildListener {
 
 	protected final Application app;
 	protected final Model model;
@@ -56,8 +66,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, Wor
 		palette = new Palette(app);
 		palette.update();
 
-		component = new mxGraphComponent(renderer.getGraph());
-		//component.setDragEnabled(false);
+		component = new MyMxGraphComponent(renderer.getGraph());
+		// component.setDragEnabled(false);
 		component.getGraphControl().addMouseListener(new EditMouseAdapter());
 		component.getGraphControl().addMouseWheelListener(
 				new MouseZoomAdapter(app, component));
@@ -79,30 +89,34 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, Wor
 					component.zoomActual();
 			}
 		});
-		app.getWindowSystem().addAction(mainpane, new CheckWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
+		app.getWindowSystem().addAction(mainpane, new CheckWorkflowAction(),
+				KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
 		app.getWindowSystem().addContentWindow(null, mainpane, null);
 		app.getWindowSystem().focusContentWindow(mainpane);
 		mainpane.requestFocusInWindow();
-		
+
 		for (ToolFactory tf : tools)
 			tf.instantiate(this, model);
-		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
+		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction(),
+				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
 
-		model.getChildObservable().addObserver(new Observer<WorkflowChildEvent>() {
+		model.getChildObservable().addObserver(
+				new Observer<WorkflowChildEvent>() {
 
-			@Override
-			public void notify(WorkflowChildEvent event) {
-				event.doNotify(WorkflowEditorImpl.this);
-			}
-			
-		});
-		
-		model.getWorkflowObservable().addObserver(new Observer<WorkflowEvent>() {
-			@Override
-			public void notify(WorkflowEvent event) {
-				event.doNotify(WorkflowEditorImpl.this);
-			}
-		});
+					@Override
+					public void notify(WorkflowChildEvent event) {
+						event.doNotify(WorkflowEditorImpl.this);
+					}
+
+				});
+
+		model.getWorkflowObservable().addObserver(
+				new Observer<WorkflowEvent>() {
+					@Override
+					public void notify(WorkflowEvent event) {
+						event.doNotify(WorkflowEditorImpl.this);
+					}
+				});
 	}
 
 	static {
@@ -120,7 +134,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, Wor
 		// remove tab
 		app.getWindowSystem().removeContentWindow(mainpane);
 	}
-	
+
 	/**
 	 * Handles KeyEvents such as removing cells when focused and pressing DEL
 	 * 
@@ -147,7 +161,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, Wor
 		if (ws instanceof SingleObjectSelection)
 			((SingleObjectSelection) ws).remove(model.getRoot());
 	}
-	
+
 	/**
 	 * Handles mouse actions: opens cell-specific views/editors on double-click,
 	 * opens context menu on mouse right-click
@@ -171,16 +185,16 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, Wor
 			} else if (e.getButton() == 3) {
 				// show context menu when right clicking a node or an edge
 				Object cell = component.getCellAt(e.getX(), e.getY());
-				final Object value = component.getGraph().getModel()
-						.getValue(cell);
+				final Object value = component.getGraph().getModel().getValue(
+						cell);
 
 				PopupMenu menu = null;
-				
+
 				// create connection specific context menu
 				if (value instanceof ConnectionAdapter) {
 					// menu = new PopupMenu(((Connection<?>) value).toString());
 					menu = new PopupMenu(cell.toString());
-					
+
 					@SuppressWarnings("serial")
 					JMenuItem item = new JMenuItem("Remove Connection") {
 						@Override
@@ -194,22 +208,22 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, Wor
 					menu.add(item);
 				}
 
-				//TODO enable context menu for jobs
-//				// create node specific context menu
-//				if (value instanceof JobAdapter) {
-//					menu = new PopupMenu(((JobAdapter)value).getName());
-//
-//					@SuppressWarnings("serial")
-//					JMenuItem item = new JMenuItem("Remove Job") {
-//						@Override
-//						public void fireActionPerformed(ActionEvent e) {
-//							removeSelectedCell();
-//						}
-//					};
-//					item.setAccelerator(KeyStroke.getKeyStroke(
-//							KeyEvent.VK_DELETE, 0));
-//					menu.add(item);
-//				}
+				// TODO enable context menu for jobs
+				// // create node specific context menu
+				// if (value instanceof JobAdapter) {
+				// menu = new PopupMenu(((JobAdapter)value).getName());
+				//
+				// @SuppressWarnings("serial")
+				// JMenuItem item = new JMenuItem("Remove Job") {
+				// @Override
+				// public void fireActionPerformed(ActionEvent e) {
+				// removeSelectedCell();
+				// }
+				// };
+				// item.setAccelerator(KeyStroke.getKeyStroke(
+				// KeyEvent.VK_DELETE, 0));
+				// menu.add(item);
+				// }
 
 				if (menu != null) {
 					if (value instanceof HasActions) {
@@ -259,12 +273,9 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, Wor
 
 			// translate view to keep mouse point as fixpoint
 			double scaleAfter = component.getGraph().getView().getScale();
-			component
-					.getGraph()
-					.getView()
-					.scaleAndTranslate(scaleAfter,
-							-e.getX() * (1.0 - 1.0 / scaleAfter),
-							-e.getY() * (1.0 - 1.0 / scaleAfter));
+			component.getGraph().getView().scaleAndTranslate(scaleAfter,
+					-e.getX() * (1.0 - 1.0 / scaleAfter),
+					-e.getY() * (1.0 - 1.0 / scaleAfter));
 		}
 	}
 
@@ -357,7 +368,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, Wor
 			app.getWindowSystem().addContentWindow(null, mainpane, null);
 		}
 	}
-	
+
 	private void recheck() {
 		try {
 			model.checkWorkflow();
@@ -404,5 +415,130 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener, Wor
 
 	@Override
 	public void outputPortRemoved(MutableWorkflow mwf, Job j, int index) {
+	}
+
+	@SuppressWarnings("serial")
+	private static class MyMxGraphComponent extends mxGraphComponent {
+
+		protected mxICell currentCollapsibleCell;
+		protected List<mxICell> collapsedCells;
+
+		public MyMxGraphComponent(mxGraph graph) {
+			super(graph);
+			this.graphHandler = new MyMxGraphHandler(this);
+			// DO NOT change this setting, otherwise selecting an inner
+			// workflow's parent job is kind of hard because the inner workflow
+			// is always selected
+			setSwimlaneSelectionEnabled(false);
+			collapsedCells = new ArrayList<mxICell>();
+		}
+
+		@Override
+		public boolean hitFoldingIcon(Object cell, int x, int y) {
+			if (cell != null) {
+				mxIGraphModel model = graph.getModel();
+
+				// Draws the collapse/expand icons
+				boolean isEdge = model.isEdge(cell);
+
+				if (foldingEnabled && (model.isVertex(cell) || isEdge)) {
+					mxCellState state = graph.getView().getState(cell);
+
+					if (state != null
+							&& graph.getModel().getValue(cell) instanceof WorkflowAdapter) {
+						state = graph.getView().getState(
+								graph.getModel().getParent(cell));
+
+						ImageIcon icon = getFoldingIcon(state);
+
+						if (icon != null) {
+							if (getFoldingIconBounds(state, icon)
+									.contains(x, y)) {
+								currentCollapsibleCell = (mxICell) graph
+										.getModel().getParent(cell);
+							} else
+								currentCollapsibleCell = null;
+						}
+					}
+				}
+			}
+
+			return super.hitFoldingIcon(cell, x, y);
+		}
+	}
+
+	private static class MyMxGraphHandler extends mxGraphHandler {
+
+		private MyMxGraphComponent component;
+
+		public MyMxGraphHandler(MyMxGraphComponent component) {
+			super(component);
+			this.component = component;
+		}
+
+		@Override
+		protected Cursor getCursor(MouseEvent e) {
+			Cursor cursor = super.getCursor(e);
+
+			Object cell = graphComponent.getCellAt(e.getX(), e.getY(), false);
+			mxIGraphModel m = graphComponent.getGraph().getModel();
+
+			// if mouse is over an inner workflow's title bar
+			if (cell != null && m.getValue(cell) instanceof WorkflowAdapter) {
+
+				// check if the fold button of its parent job was hit and adjust
+				// cursor image
+				if ((component.currentCollapsibleCell != null && component.currentCollapsibleCell
+						.equals(m.getParent(cell)))) {
+					cursor = FOLD_CURSOR;
+				}
+			}
+
+			return cursor;
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			super.mouseReleased(e);
+
+			Object cell = graphComponent.getCellAt(e.getX(), e.getY(), false);
+
+			// if an inner workflow cell was clicked
+			if (cell != null
+					&& graphComponent.getGraph().getModel().getValue(cell) instanceof WorkflowAdapter) {
+
+				// if mouse is currently over the fold button of the parent job,
+				// collapse or expand parent
+				if (component.currentCollapsibleCell != null
+						&& ((mxICell) cell).getParent().equals(
+								component.currentCollapsibleCell)) {
+
+					// if current collapsible cell is already in collapsed
+					// state,
+					// it is an element of the collapsedCells list
+					boolean collapsed = component.collapsedCells
+							.contains(component.currentCollapsibleCell);
+
+					//FIXME? for some reason, getGraph().foldCells(...)
+					// does not update the isCollapsed state of the changed cell
+					// which is why there is a collapsedCells list that keeps track
+					// of all currently collapsed cells
+					
+					// collapse/expand depending on current state
+					graphComponent.getGraph().foldCells(!collapsed, false,
+							new Object[] { component.currentCollapsibleCell });
+
+					// remove expanded cell from collapsedCells list
+					if (collapsed) {
+						component.collapsedCells
+								.remove(component.currentCollapsibleCell);
+					} else {
+						component.collapsedCells
+								.add(component.currentCollapsibleCell);
+					}
+				}
+
+			}
+		}
 	}
 }
