@@ -10,6 +10,7 @@ import java.util.Map;
 import org.vanda.studio.model.elements.IdentityLinker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
 
@@ -170,8 +171,12 @@ public final class ImmutableWorkflow {
 			inputPorts.add(new Port(oldInputPorts.get(i).getIdentifier(),
 					types[inputPortVariables.get(i).intValue()]));
 		for (int i = 0; i < oldOutputPorts.size(); i++)
-			outputPorts.add(new Port(oldOutputPorts.get(i).getIdentifier(),
-					types[outputPortVariables.get(i).intValue()]));
+			if (outputPortVariables.get(i) != null)
+				outputPorts.add(new Port(oldOutputPorts.get(i).getIdentifier(),
+						types[outputPortVariables.get(i).intValue()]));
+			else
+				outputPorts.add(new Port(oldOutputPorts.get(i).getIdentifier(),
+						Types.undefined));
 		// System.out.println(fragmentType);
 	}
 
