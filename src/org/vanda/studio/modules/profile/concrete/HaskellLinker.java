@@ -126,6 +126,7 @@ public class HaskellLinker implements FragmentLinker {
 		StringBuilder sb = new StringBuilder();
 		sb.append("module Main where\n\n");
 
+		imports.add("Vanda.Functions");
 		imports.add("System.Environment ( getArgs )");
 		for (String imp0rt : imports) {
 			sb.append("import ");
@@ -166,7 +167,7 @@ public class HaskellLinker implements FragmentLinker {
 			sb.append(Integer.toString(i + 1));
 			sb.append('\n');
 		}
-		sb.append("      ");
+		sb.append("      let ");
 		if (inneroutput.size() != 1)
 			sb.append('(');
 		for (i = 0; i < inneroutput.size(); i++) {
@@ -202,14 +203,14 @@ public class HaskellLinker implements FragmentLinker {
 		fw.close();
 
 		sb = new StringBuilder();
-		sb.append('(');
+		sb.append("(");
 		for (i = 0; i < outerinput.size(); i++) {
 			if (i > 0)
 				sb.append(',');
 			sb.append("$");
 			sb.append(Integer.toString(i + 1));
 		}
-		sb.append(')');
+		sb.append(")");
 		String args = sb.toString();
 
 		// make shell fragment
@@ -217,19 +218,35 @@ public class HaskellLinker implements FragmentLinker {
 		sb.append("function ");
 		sb.append(hsname);
 		sb.append(" {\n");
+		if (!outeroutput.isEmpty()) {
+		sb.append("  local");
 		for (i = 0; i < outeroutput.size(); i++) {
-			sb.append("  eval $");
-			sb.append(Integer.toString(outerinput.size() + i + 1));
-			sb.append("=\\\"");
+			sb.append(' ');
+			sb.append(Fragment.normalize(name));
+			sb.append(i + 1);
+		}
+		sb.append('\n');
+		}
+		for (i = 0; i < outeroutput.size(); i++) {
+			sb.append("  ");
+			sb.append(Fragment.normalize(name));
+			sb.append(i + 1);
+			sb.append("=\"");
 			sb.append(hsname);
-			sb.append('#');
+			// sb.append('#');
 			sb.append(Integer.toString(i+1));
 			sb.append(args);
+			sb.append("\"\n");
+			sb.append("  eval $");
+			sb.append(Integer.toString(outerinput.size() + i + 1));
+			sb.append("=\\\"$");
+			sb.append(Fragment.normalize(name));
+			sb.append(i + 1);
 			sb.append("\\\"\n");
 		}
 		sb.append("  ghc --make ");
 		sb.append(hsname);
-		sb.append("\n  ./");
+		sb.append(" &> /dev/null\n  ./");
 		sb.append(Fragment.normalize(name));
 		for (i = 0; i < outerinput.size(); i++) {
 			sb.append(" \"$");
@@ -238,8 +255,9 @@ public class HaskellLinker implements FragmentLinker {
 		}
 		for (i = 0; i < outeroutput.size(); i++) {
 			sb.append(" \"$");
-			sb.append(Integer.toString(outerinput.size() + i + 1));
-			sb.append('"');
+			sb.append(Fragment.normalize(name));
+			sb.append(Integer.toString(i + 1));
+			sb.append("\"");
 		}
 		sb.append("\n}\n\n");
 

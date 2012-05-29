@@ -6,6 +6,7 @@ package org.vanda.studio.core;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -79,6 +80,7 @@ public class WindowSystemImpl implements WindowSystem {
 		menuBar = new JMenuBar();
 		fileMenu = new JMenu("Studio");
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
+		exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_MASK));
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

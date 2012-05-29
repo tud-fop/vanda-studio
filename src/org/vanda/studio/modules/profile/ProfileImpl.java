@@ -16,7 +16,7 @@ import org.vanda.studio.modules.profile.model.Profiles;
 
 public class ProfileImpl implements Profile, FragmentIO {
 
-	private static final String basePath = "/tmp/";
+	private static final String basePath = "/home/mbue/workspace/vanda/experiment/";
 	private final Application app;
 	private Profiles prof;
 	private FragmentLinker rootLinker;

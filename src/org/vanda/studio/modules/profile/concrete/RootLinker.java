@@ -82,16 +82,19 @@ public class RootLinker implements FragmentLinker {
 		Collections.sort(sorted);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("#!/bin/bash\n\nset -e\n\nif [ -z \"$MYPATH\" ]\nthen");
-		sb.append("\n    echo \"Path not set\"\n    exit 1\nfi\n\n");
+		sb.append("#!/bin/bash\n\nset -e\n\n");
+		
+		sb.append("BASEPATH=/home/mbue/workspace/vanda/experiment\n\n");
+		// sb.append("if [ -z \"$BASEPATH\" ]\nthen");
+		// sb.append("\n    echo \"Path not set\"\n    exit 1\nfi\n\n");
 
 		// source $MYPATH/empty.sh
-		imports.add("empty");
+		// imports.add("empty");
 		// source $MYPATH/mapping.sh
 		// source $MYPATH/shorten.sh
 
 		for (String imp0rt : imports) {
-			sb.append("source $MYPATH/");
+			sb.append("source $BASEPATH/");
 			sb.append(imp0rt);
 			sb.append(".sh\n");
 		}
@@ -103,12 +106,13 @@ public class RootLinker implements FragmentLinker {
 			sb.append(fragment.text);
 		}
 
-		sb.append("testempty");
+		/*sb.append("testempty");
 		for (String dep : sorted) {
 			sb.append(' ');
 			sb.append(Fragment.normalize(dep));
 		}
-		sb.append("\n\n");
+		sb.append("\n\n");*/
+		sb.append("cd $BASEPATH\n");
 		sb.append(Fragment.normalize(name));
 		sb.append('\n');
 
