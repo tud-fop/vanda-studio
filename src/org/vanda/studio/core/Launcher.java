@@ -11,6 +11,7 @@ import javax.swing.UIManager;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.util.ExceptionMessage;
+import org.vanda.studio.util.RCChecker;
 
 public final class Launcher implements Runnable {
 
@@ -20,7 +21,6 @@ public final class Launcher implements Runnable {
 
 	@Override
 	public void run() {
-
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
@@ -64,6 +64,7 @@ public final class Launcher implements Runnable {
 	 *            Command line Arguments
 	 */
 	public static void main(String[] args) {
+		RCChecker.ensureRC();
 		SwingUtilities.invokeLater(new Launcher());
 	}
 

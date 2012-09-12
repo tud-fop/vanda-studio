@@ -16,7 +16,9 @@ import org.vanda.studio.modules.profile.model.Profiles;
 
 public class ProfileImpl implements Profile, FragmentIO {
 
-	private static final String basePath = "/home/mbue/workspace/vanda/experiment/";
+//	private static final String basePath = "/home/mbue/workspace/vanda/experiment/";
+	private static final String basePath = System.getProperty("user.home") + "/"
+			+ ".vanda/output/";
 	private final Application app;
 	private Profiles prof;
 	private FragmentLinker rootLinker;
@@ -29,7 +31,9 @@ public class ProfileImpl implements Profile, FragmentIO {
 
 	@Override
 	public File createFile(String name) throws IOException {
+		System.out.println("Creating file.");
 		File result = new File(basePath + name);
+		System.out.println(result.getAbsolutePath());
 		result.createNewFile();
 		return result;
 	}

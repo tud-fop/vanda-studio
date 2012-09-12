@@ -222,6 +222,67 @@ public class AlgorithmsModule implements Module {
 				return "2012-05-16";
 			}
 		}
+		
+		private static class RemEmptyLines extends Tool {
+			
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("Corpus", new CompositeType(
+						"Sentence Corpus")));
+				inputPorts.add(new Port("Corpus", new CompositeType(
+						"Sentence Corpus")));
+				outputPorts.add(new Port("Corpus without empty lines", new CompositeType(
+						"Sentence Corpus")));
+				outputPorts.add(new Port("Corpus without empty lines", new CompositeType(
+						"Sentence Corpus")));
+			}
+			
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "corpus tools";
+			}
+
+			public String getDescription() {
+				return "Removes empty lines from corpora.";
+			}
+
+			public String getId() {
+				return "remEmptyLines";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "remEmptyLines";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return shellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-09-11";
+			}
+			
+		}
 
 		private static class Tokenizer extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
@@ -1121,6 +1182,7 @@ public class AlgorithmsModule implements Module {
 			tr.addItem(new Plain2Snt());
 			tr.addItem(new GIZA());
 			tr.addItem(new Berkeley());
+			tr.addItem(new RemEmptyLines());
 			tr.addItem(new Tokenizer());
 			tr.addItem(new PennToInt());
 			tr.addItem(new GHKM());

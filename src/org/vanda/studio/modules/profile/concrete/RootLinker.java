@@ -18,6 +18,9 @@ import org.vanda.studio.modules.profile.model.FragmentLinker;
 
 public class RootLinker implements FragmentLinker {
 
+	private static final String BASEPATH = System.getProperty("user.home") + "/.vanda/output";
+	private static final String RCPATH = System.getProperty("user.home") + "/.vanda/vandarc";
+	
 	@Override
 	public String getCategory() {
 		return "Boxes";
@@ -84,7 +87,8 @@ public class RootLinker implements FragmentLinker {
 		StringBuilder sb = new StringBuilder();
 		sb.append("#!/bin/bash\n\nset -e\n\n");
 		
-		sb.append("BASEPATH=/home/mbue/workspace/vanda/experiment\n\n");
+		sb.append("BASEPATH=" + BASEPATH + "\n\n");
+		sb.append("source " + RCPATH + "\n\n");
 		// sb.append("if [ -z \"$BASEPATH\" ]\nthen");
 		// sb.append("\n    echo \"Path not set\"\n    exit 1\nfi\n\n");
 

@@ -84,7 +84,7 @@ public class DataflowAnalysis {
 					String s = sb.toString();
 					for (int i = 0; i < ji.outputs.size(); i++) {
 						values[ji.outputs.get(i).intValue()] = aj.getElement()
-								.getName() + "#" + Integer.toString(i) + s;
+								.getName() + s + "." + Integer.toString(i);
 					}
 				}
 			} else if (ji.job instanceof CompositeImmutableJob) {

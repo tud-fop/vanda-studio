@@ -233,9 +233,9 @@ public class HaskellLinker implements FragmentLinker {
 			sb.append(i + 1);
 			sb.append("=\"");
 			sb.append(hsname);
-			// sb.append('#');
-			sb.append(Integer.toString(i+1));
 			sb.append(args);
+			sb.append('.');
+			sb.append(Integer.toString(i+1));
 			sb.append("\"\n");
 			sb.append("  eval $");
 			sb.append(Integer.toString(outerinput.size() + i + 1));
