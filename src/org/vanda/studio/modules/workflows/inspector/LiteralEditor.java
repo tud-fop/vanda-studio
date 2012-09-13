@@ -3,11 +3,16 @@ package org.vanda.studio.modules.workflows.inspector;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.GroupLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.elements.Literal;
@@ -27,19 +32,55 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 		typeBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				l.setType((Type) typeBox.getSelectedItem());
+				Type t = (Type) typeBox.getSelectedItem();
+				l.setType(t);
 			}
 		});
 		
-		final JComboBox valueBox = new JComboBox();
-		valueBox.setEditable(true);
-		valueBox.setSelectedItem(l.getValue());
-		valueBox.addActionListener(new ActionListener() {
+		final JTextField value = new JTextField(l.getValue());
+		value.addActionListener(new ActionListener() {
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				l.setValue(valueBox.getSelectedItem().toString());
+				l.setValue(value.getText());
+				
 			}
 		});
+
+		final Action aValue = new AbstractAction("...") {
+			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(null);
+
+		        if (returnVal == JFileChooser.APPROVE_OPTION) {
+		            value.setText(fc.getSelectedFile().getAbsolutePath());
+		            l.setValue(value.getText());
+		        }
+			}
+		};
+		final JButton bValue = new JButton(aValue);
+		
+//		final JPanel valueBox = new JPanel();
+//		valueBox.setLayout(new BorderLayout());
+//		valueBox.add(value, BorderLayout.CENTER);
+//		valueBox.add(bValue, BorderLayout.EAST);
+		
+//		final JComboBox valueBox = new JComboBox();
+//		valueBox.setEditable(true);
+//		valueBox.setSelectedItem(l.getValue());
+//		valueBox.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				l.setValue(valueBox.getSelectedItem().toString());
+//			}
+//		});
 
 		JPanel editor = new JPanel();
 		GroupLayout layout = new GroupLayout(editor);
@@ -53,7 +94,10 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 								.addComponent(label2))
 				.addGroup(
 						layout.createParallelGroup().addComponent(typeBox)
-								.addComponent(valueBox)));
+								.addComponent(value))
+				.addGroup(
+						layout.createParallelGroup().addComponent(bValue)));
+
 		layout.setVerticalGroup(layout
 				.createSequentialGroup()
 				.addGroup(
@@ -64,7 +108,8 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 						layout.createParallelGroup(
 								GroupLayout.Alignment.BASELINE)
 								.addComponent(label2)
-								.addComponent(valueBox)));
+								.addComponent(value)
+								.addComponent(bValue)));
 		return editor;
 	}
 

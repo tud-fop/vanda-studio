@@ -1,0 +1,14 @@
+#!/bin/bash
+
+BERKELEY_PARSER=~/.vanda/bin/berkeleyParser.jar
+BERKELEY_TOKENIZER=~/.vanda/bin/berkeleyTokenizer
+REM_EMPTY_LINES=~.vanda/bin/remEmptyLines/remEmptyLines
+PLAIN2SNT=~/.vanda/bin/giza/plain2snt.out
+MOSES=~/.vanda/bin/mosesdecoder
+GIZA=~/.vanda/bin/giza
+
+DATAPATH=~/.vanda/input
+OUTPATH=~/.vanda/output
+FUNCFILE=~/.vanda/functions.bash
+
+source "$FUNCFILE"

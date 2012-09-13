@@ -54,7 +54,9 @@ public class AlgorithmsModule implements Module {
 						"Sentence Corpus")));
 				inputPorts.add(new Port("French", new CompositeType(
 						"Sentence Corpus")));
-				outputPorts.add(new Port("Parallel", new CompositeType(
+				outputPorts.add(new Port("English_French", new CompositeType(
+						"GIZA.snt")));
+				outputPorts.add(new Port("French_English", new CompositeType(
 						"GIZA.snt")));
 				outputPorts.add(new Port("English.vcb", new CompositeType(
 						"GIZA.vcb")));
@@ -163,6 +165,63 @@ public class AlgorithmsModule implements Module {
 			@Override
 			public String getVersion() {
 				return "2012-05-16";
+			}
+		}
+		
+		private static class GIZA3 extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("English corpus", new CompositeType(
+						"Sentence Corpus")));
+				inputPorts.add(new Port("French corpus", new CompositeType(
+						"Sentence Corpus")));
+				outputPorts.add(new Port("Alignments", new CompositeType(
+						"GIZA Alignments")));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "alignments";
+			}
+
+			public String getDescription() {
+				return "computes alignments and translation tables";
+			}
+
+			public String getId() {
+				return "GIZA3";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "GIZA3";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return shellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-09-12";
 			}
 		}
 
@@ -1181,6 +1240,7 @@ public class AlgorithmsModule implements Module {
 
 			tr.addItem(new Plain2Snt());
 			tr.addItem(new GIZA());
+			tr.addItem(new GIZA3());
 			tr.addItem(new Berkeley());
 			tr.addItem(new RemEmptyLines());
 			tr.addItem(new Tokenizer());
