@@ -201,7 +201,7 @@ public class AlgorithmsModule implements Module {
 			}
 
 			public String getName() {
-				return "GIZA3";
+				return "GIZA";
 			}
 
 			public List<Port> getOutputPorts() {
@@ -461,14 +461,12 @@ public class AlgorithmsModule implements Module {
 			static {
 				inputPorts.add(new Port("Alignment", new CompositeType(
 						"GIZA Alignments")));
-				inputPorts.add(new Port("Integerized Tree Corpus",
+				inputPorts.add(new Port("Tree Corpus",
 						new CompositeType("Penn Tree Corpus")));
-				inputPorts.add(new Port("Conversion Table", new CompositeType(
-						"TokenMap")));
+				inputPorts.add(new Port("Corpus", new CompositeType(
+						"Sentence Corpus")));
 				outputPorts.add(new Port("Rules", new CompositeType(
 						"GHKM Hypergraph")));
-				outputPorts.add(new Port("Conversion Table", new CompositeType(
-						"TokenMap")));
 			}
 
 			public String getContact() {
@@ -480,7 +478,7 @@ public class AlgorithmsModule implements Module {
 			}
 
 			public String getDescription() {
-				return "Extracts GHKM rules from a GIZA alignment and an integizered tree corpus";
+				return "Extracts GHKM rules from a GIZA alignment, a corpus and a tree corpus";
 			}
 
 			public String getId() {
@@ -1239,7 +1237,7 @@ public class AlgorithmsModule implements Module {
 			SimpleRepository<Tool> tr = new SimpleRepository<Tool>(null);
 
 			tr.addItem(new Plain2Snt());
-			tr.addItem(new GIZA());
+//			tr.addItem(new GIZA());
 			tr.addItem(new GIZA3());
 			tr.addItem(new Berkeley());
 			tr.addItem(new RemEmptyLines());
