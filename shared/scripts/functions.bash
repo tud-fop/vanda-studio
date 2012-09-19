@@ -1,15 +1,18 @@
 BerkeleyTokenizer () {
 	echo "Running: BerkeleyTokenizer..."
-	btout="$OUTPATH/BTokenize($1)"
-	cat "$DATAPATH/$1" | java -cp "$BERKELEY_PARSER:$BERKELEY_TOKENIZER" Main > "$btout"
+	pathAndName "$1" f1 n1
+	btout="$OUTPATH/BTokenize($n1)"
+	cat "$f1" | java -cp "$BERKELEY_PARSER:$BERKELEY_TOKENIZER" Main > "$btout"
 	eval $2=\"$btout\"
 	echo "Done."
 }
 
 BerkeleyParser () {
 	echo "Running: BerkeleyParser..."
-	bpout="$OUTPATH/BParse($2,$1)"
-	java -jar "$BERKELEY_PARSER" -gr "$DATAPATH/$2" -inputFile "$DATAPATH/$1" -outputFile "$bpout"
+	pathAndName "$1" f1 n1
+	pathAndName "$2" f2 n2
+	bpout="$OUTPATH/BParse($n2,$n1)"
+	java -jar "$BERKELEY_PARSER" -gr "$f2" -inputFile "$f1" -outputFile "$bpout"
 	eval $3=\"$bpout\"
 	echo "Done."
 }
@@ -20,6 +23,12 @@ PennToInt () {
 
 HyperGHKM () {
 	echo "Running: HyperGHKM."
+	pathAndName "$1" align nAlign
+	pathAndName "$2" ecorpus nEcorpus
+	pathAndName "$3" fcorpus nFcorpus
+	target="$OUTPATH/HyperGHKM($nAlign,$nEcorpus,$nFcorpus)"
+	java -Xmx1g -Xms1g -cp "$GHKM/ghkm.jar:$GHKM/fastutil.jar" -XX:+UseCompressedOops edu.stanford.nlp.mt.syntax.ghkm.RuleExtractor -fCorpus "$fcorpus" -eParsedCorpus "$ecorpus" -align "$align" -joshuaFormat false > "$target"
+	eval $4=\"$target\"
 }
 
 GIZA () {
@@ -30,12 +39,12 @@ GIZA3 () {
 	echo "Running: GIZA3..."
 	TMP="$OUTPATH/GIZA3_TMP"
 	mkdir -p "$TMP"
-	i1orig=${1//"/"/"#"}
-	i2orig=${2//"/"/"#"}
 	i1new="corpus.en"
 	i2new="corpus.fr"
-	cp "$DATAPATH/$1" "$TMP/$i1new"
-	cp "$DATAPATH/$2" "$TMP/$i2new"
+	pathAndName "$1" f1 i1orig
+	pathAndName "$2" f2 i2orig
+	cp "$f1" "$TMP/$i1new"
+	cp "$f2" "$TMP/$i2new"
 	$MOSES/scripts/training/train-model.perl -root-dir "$OUTPATH/GIZA3_TMP" --corpus "$TMP/corpus" --e en --f fr --last-step 3 --external-bin-dir="$GIZA"
 	out="$OUTPATH/GIZA3($i1orig,$i2orig)"
 	mv "$TMP/model/aligned.grow-diag-final" "$out"
@@ -46,8 +55,10 @@ GIZA3 () {
 plain2snt () {
 	echo "Running: plain2snt..."
 #	copy input files because of write-permission
-	i1new=$OUTPATH/${1//"/"/"#"}
-	i2new=$OUTPATH/${2//"/"/"#"}
+	pathAndName "$1" f1 n1
+	pathAndName "$2" f2 n2
+	i1new=$OUTPATH/$n1
+	i2new=$OUTPATH/$n2
 	i1new=${i1new/%.txt/}
 	i1new=${i1new/%.tok/}
 	i2new=${i2new/%.txt/}
@@ -61,10 +72,10 @@ plain2snt () {
 	g2vcb="${i2new}.vcb"
 	$PLAIN2SNT "$i1new" "$i2new"
 #	generate new filenames for output files
-	o1snt="plain2snt($(basename "$i1new"),$(basename "$i2new")).1"
-	o2snt="plain2snt($(basename "$i1new"),$(basename "$i2new")).2"
-	o1vcb="plain2snt($(basename "$i1new"),$(basename "$i2new")).3"
-	o2vcb="plain2snt($(basename "$i1new"),$(basename "$i2new")).4"
+	o1snt="plain2snt($n1,$n2).1"
+	o2snt="plain2snt($n1,$n2).2"
+	o1vcb="plain2snt($n1,$n2).3"
+	o2vcb="plain2snt($n1,$n2).4"
 #	rename generated files to intended names
 	mv "$g1snt" "$o1snt"
 	mv "$g1vcb" "$o1vcb"
@@ -80,12 +91,37 @@ plain2snt () {
 
 remEmptyLines () {
 	echo "Running: remEmptyLines..."
-	in1=${1//"/"/"#"}
-	in2=${2//"/"/"#"}
+	pathAndName "$1" f1 in1
+	pathAndName "$2" f2 in2
 	out1="$OUTPATH/remEmptyLines($in1,$in2).1"
 	out2="$OUTPATH/remEmptyLines($in1,$in2).2"
 	$REM_EMPTY_LINES "$DATAPATH/$1" "$DATAPATH/$2" "$out1" "$out2"
 	eval $3=\"$out1\"
 	eval $4=\"$out2\"
 	echo "Done."
+}
+
+findFile () {
+	if   [ -f "$1" ];
+	then eval $2=\"$1\"
+	else if   [ -f "$OUTPATH/$1" ];
+         then eval $2=\"$OUTPATH/$1\"
+	     else eval $2=\"$DATAPATH/$1\"
+	     fi
+	fi
+}
+
+getName () {
+	name=${1#"$DATAPATH/"}
+	name=${name#"$OUTPATH/"}
+	name=${name#"$DATAPATH/"}
+	name=${name//"/"/"#"}
+	eval $2=\"$name\"
+}
+
+pathAndName () {
+	findFile "$1" path
+	getName "$path" name
+	eval $2=\"$path\"
+	eval $3=\"$name\"
 }
