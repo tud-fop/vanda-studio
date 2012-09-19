@@ -2,6 +2,8 @@ package org.vanda.studio.modules.workflows.inspector;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -13,6 +15,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileSystemView;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.elements.Literal;
@@ -56,12 +59,16 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser fc = new JFileChooser();
+				String prefix = System.getProperty("user.home") + "/.vanda/input/";
+				File f = new File(prefix);
+				FileSystemView rfsv = new RestrictedFileSystemView(f);
+				JFileChooser fc = new JFileChooser(rfsv);
 				int returnVal = fc.showOpenDialog(null);
 
 		        if (returnVal == JFileChooser.APPROVE_OPTION) {
-		            value.setText(fc.getSelectedFile().getAbsolutePath());
-		            l.setValue(value.getText());
+		            String choice = fc.getSelectedFile().getAbsolutePath().replaceFirst(prefix, "");
+		        	value.setText(choice);
+		            l.setValue(choice);
 		        }
 			}
 		};
@@ -111,6 +118,47 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 								.addComponent(value)
 								.addComponent(bValue)));
 		return editor;
+	}
+	
+	private class RestrictedFileSystemView extends FileSystemView{
+		
+		File rootDir;
+
+		public RestrictedFileSystemView(File root)
+		{
+			super();
+			rootDir = root;
+		}
+		
+		public boolean isRoot(File f) {
+			if (f.equals(rootDir)) return true;
+			return false;
+		}
+
+		@Override
+		public File getDefaultDirectory()
+		{
+			return rootDir;
+		}
+
+		@Override
+		public File getHomeDirectory()
+		{
+			return rootDir;
+		}
+
+		@Override
+		public File[] getRoots()
+		{
+			return new File[] {rootDir};
+		}
+
+		@Override
+		public File createNewFolder(File containingDir) throws IOException {
+			File dir = new File(containingDir, "New Folder");
+			dir.mkdir();
+			return dir;
+		}
 	}
 
 }
