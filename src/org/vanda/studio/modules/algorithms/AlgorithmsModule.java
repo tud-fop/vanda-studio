@@ -25,7 +25,7 @@ import org.vanda.studio.util.TokenSource;
 
 /**
  * @author buechse
- * 
+ *
  */
 public class AlgorithmsModule implements Module {
 
@@ -124,6 +124,7 @@ public class AlgorithmsModule implements Module {
 			}
 
 			public String getContact() {
+				System.out.println("test");
 				return "Matthias.Buechse@tu-dresden.de";
 			}
 
