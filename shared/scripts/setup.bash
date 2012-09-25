@@ -79,6 +79,12 @@ moses () {
 
 ghkm () {
 	echo "Installing GHKM..."
+	wget "http://www-nlp.stanford.edu/~mgalley/software/stanford-ghkm-latest.tar.gz"
+	tar xfv "stanford-ghkm-latest.tar.gz"
+	mkdir -p ~/.vanda/bin/ghkm
+	cp stanford-ghkm-*/ghkm.jar ~/.vanda/bin/ghkm/.
+	cp stanford-ghkm-*/lib/fastutil.jar ~/.vanda/bin/ghkm/.
+	rm -rf stanford-ghkm-*
 	echo "GHKM=$HOME/.vanda/bin/ghkm" >> ~/.vanda/vandarc
 	echo "Done."
 }
