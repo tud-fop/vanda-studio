@@ -63,8 +63,8 @@ plain2snt () {
 	i1new=${i1new/%.tok/}
 	i2new=${i2new/%.txt/}
 	i2new=${i2new/%.tok/}
-	cp "$DATAPATH/$1" "$i1new"
-	cp "$DATAPATH/$2" "$i2new"
+	cp "$f1" "$i1new"
+	cp "$f2" "$i2new"
 #	determine the filenames of generated files
 	g1snt="${i1new}_$(basename "$i2new").snt"
 	g1vcb="${i1new}.vcb"
@@ -95,9 +95,34 @@ remEmptyLines () {
 	pathAndName "$2" f2 in2
 	out1="$OUTPATH/remEmptyLines($in1,$in2).1"
 	out2="$OUTPATH/remEmptyLines($in1,$in2).2"
-	$REM_EMPTY_LINES "$DATAPATH/$1" "$DATAPATH/$2" "$out1" "$out2"
+	$REM_EMPTY_LINES "$f1" "$f2" "$out1" "$out2"
 	eval $3=\"$out1\"
 	eval $4=\"$out2\"
+	echo "Done."
+}
+
+EMDictionary () {
+	echo "Running: EMDictionary..."
+	pathAndName "$1" f1 in1
+	out="$OUTPATH/EMDictionary($in1,$2)"
+	$EMDICTIONARY best "$2" "$f1" > "$out"
+	eval $3=\"$out\"
+	echo "Done."
+}
+
+EMDictionarySteps () {
+	echo "Running: EMDictionarySteps..."
+	pathAndName "$1" f1 in1
+	out="$OUTPATH/EMDictionarySteps($in1,$2)"
+	$EMDICTIONARY csv "$2" "$f1" > "$out"
+	eval $3=\"$out\"
+	echo "Done."
+}
+
+EMDictionaryShowSteps () {
+	echo "Running: EMDictionaryShowSteps..."
+	pathAndName "$1" f1 in1
+	java -cp "$EMDICTIONARYSHOW" DictViewTest "$f1" &
 	echo "Done."
 }
 

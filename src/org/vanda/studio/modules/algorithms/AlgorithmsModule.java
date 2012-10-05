@@ -514,6 +514,173 @@ public class AlgorithmsModule implements Module {
 				return "2012-05-16";
 			}
 		}
+		
+		private static class EMDictionary extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("Corpus", new CompositeType(
+						"Parallel Sentence Corpus")));
+				inputPorts.add(new Port("Accuracy",
+						new CompositeType("String")));
+				outputPorts.add(new Port("Dictionary", new CompositeType(
+						"Dictionary")));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "training";
+			}
+
+			public String getDescription() {
+				return "Trains a dictionary with a bilingual corpus";
+			}
+
+			public String getId() {
+				return "EMDictionary";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "EMDictionary";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return shellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-16";
+			}
+		}
+		
+		private static class EMDictionarySteps extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("Corpus", new CompositeType(
+						"Parallel Sentence Corpus")));
+				inputPorts.add(new Port("Accuracy",
+						new CompositeType("String")));
+				outputPorts.add(new Port("EM Steps", new CompositeType(
+						"EM Steps")));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "training";
+			}
+
+			public String getDescription() {
+				return "Trains a dictionary with a bilingual corpus remembering computation steps";
+			}
+
+			public String getId() {
+				return "EMDictionarySteps";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "EMDictionarySteps";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return shellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-16";
+			}
+		}
+		
+		private static class EMDictionaryShowSteps extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static List<Port> outputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("EM Steps", new CompositeType(
+						"EM Steps")));
+			}
+
+			public String getContact() {
+				return "Matthias.Buechse@tu-dresden.de";
+			}
+
+			public String getCategory() {
+				return "training";
+			}
+
+			public String getDescription() {
+				return "Shows computation steps of EMDictionary training";
+			}
+
+			public String getId() {
+				return "EMDictionaryShowSteps";
+			}
+
+			public List<Port> getInputPorts() {
+				return inputPorts;
+			}
+
+			public String getName() {
+				return "EMDictionaryShowSteps";
+			}
+
+			public List<Port> getOutputPorts() {
+				return outputPorts;
+			}
+
+			public Type getFragmentType() {
+				return shellType;
+			}
+
+			public <R> R selectRenderer(RendererAssortment<R> ra) {
+				return ra.selectAlgorithmRenderer();
+			}
+
+			public void appendActions(List<Action> as) {
+			}
+
+			@Override
+			public String getVersion() {
+				return "2012-05-16";
+			}
+		}
 
 		static class SinkTool extends Tool {
 			public String getContact() {
@@ -1245,6 +1412,9 @@ public class AlgorithmsModule implements Module {
 			tr.addItem(new Tokenizer());
 			tr.addItem(new PennToInt());
 			tr.addItem(new GHKM());
+			tr.addItem(new EMDictionary());
+			tr.addItem(new EMDictionarySteps());
+			tr.addItem(new EMDictionaryShowSteps());
 			tr.addItem(new ToWSA());
 			tr.addItem(new InputProduct());
 			tr.addItem(new MakeFeature());

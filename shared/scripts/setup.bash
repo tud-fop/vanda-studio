@@ -8,6 +8,8 @@ setup () {
 	giza
 	moses
 	ghkm
+	emDictionary
+	emDictionaryShow
 }
 
 base () {
@@ -86,6 +88,26 @@ ghkm () {
 	cp stanford-ghkm-*/lib/fastutil.jar ~/.vanda/bin/ghkm/.
 	rm -rf stanford-ghkm-*
 	echo "GHKM=$HOME/.vanda/bin/ghkm" >> ~/.vanda/vandarc
+	echo "Done."
+}
+
+emDictionary () {
+	echo "Installing EMDictionary..."
+	cd EMDictionary
+	ghc --make Algorithms/EMDictionary.hs -O -fforce-recomp -main-is Algorithms.EMDictionary
+	mkdir -p ~/.vanda/bin/EMDictionary
+	cp Algorithms/EMDictionary ~/.vanda/bin/EMDictionary
+	echo "EMDICTIONARY=$HOME/.vanda/bin/EMDictionary/EMDictionary" >> ~/.vanda/vandarc
+	echo "Done."
+}
+
+emDictionaryShow () {
+	echo "Installing EMDictionaryShowSteps..."
+	cd EMDictionaryShowSteps
+	javac DictViewTest.java
+	mkdir -p ~/.vanda/bin/EMDictionaryShowSteps
+	cp *.class ~/.vanda/bin/EMDictionaryShowSteps
+	echo "EMDICTIONARYSHOW=$HOME/.vanda/bin/EMDictionaryShowSteps" >> ~/.vanda/vandarc
 	echo "Done."
 }
 
