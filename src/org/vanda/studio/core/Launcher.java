@@ -64,7 +64,7 @@ public final class Launcher implements Runnable {
 	 *            Command line Arguments
 	 */
 	public static void main(String[] args) {
-		RCChecker.ensureRC();
+		RCChecker.readRC();
 		SwingUtilities.invokeLater(new Launcher());
 	}
 

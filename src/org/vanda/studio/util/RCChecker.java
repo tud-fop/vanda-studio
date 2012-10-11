@@ -10,14 +10,23 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 public class RCChecker {
+	private static String basePath = System.getProperty("user.home") + "/.vanda/";
+	private static String rcPath = basePath + "vandarc";
+	private static String funcPath = basePath + "functions.bash";
+	private static String inPath = basePath + "input";
+	private static String outPath = basePath + "output";
+	
+	public static String getOutPath() {
+		return outPath;
+	}
+	
+	public static void readRC() {
+		if (ensureRC()) {
+			//TODO read path vars from file
+		}
+	}
+	
 	public static boolean ensureRC() {
-		String basePath = System.getProperty("user.home") + "/.vanda/";
-		String rcPath = basePath + "vandarc";
-		String funcPath = basePath + "functions.bash";
-		String inPath = basePath + "input";
-		String outPath = basePath + "output";
-
-		
 		File base = new File(basePath);
 		if (!base.exists()){
 			if (!base.mkdirs())

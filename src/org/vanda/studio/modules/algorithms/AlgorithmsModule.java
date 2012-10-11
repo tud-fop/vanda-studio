@@ -178,7 +178,7 @@ public class AlgorithmsModule implements Module {
 				inputPorts.add(new Port("French corpus", new CompositeType(
 						"Sentence Corpus")));
 				outputPorts.add(new Port("Alignments", new CompositeType(
-						"GIZA Alignments")));
+						"Alignments")));
 			}
 
 			public String getContact() {
@@ -461,7 +461,7 @@ public class AlgorithmsModule implements Module {
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
 				inputPorts.add(new Port("Alignment", new CompositeType(
-						"GIZA Alignments")));
+						"Alignments")));
 				inputPorts.add(new Port("Tree Corpus",
 						new CompositeType("Penn Tree Corpus")));
 				inputPorts.add(new Port("Corpus", new CompositeType(

@@ -129,9 +129,9 @@ public final class GeneratorImpl implements Generator {
 	}
 
 	@Override
-	public void generate(ImmutableWorkflow iwf) throws IOException {
+	public Fragment generate(ImmutableWorkflow iwf) throws IOException {
 		String root = generateFragment(iwf);
-		rootLinker.link(root, null, null, null, null, fb, io);
+		return rootLinker.link(root, null, null, null, null, fb, io);
 	}
 
 	public String makeUnique(String prefix, Object key) {

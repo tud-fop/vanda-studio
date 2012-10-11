@@ -18,7 +18,7 @@ import org.vanda.studio.modules.profile.model.FragmentLinker;
 
 public class RootLinker implements FragmentLinker {
 
-	private static final String BASEPATH = System.getProperty("user.home") + "/.vanda/output";
+	private static final String BASEPATH = "$OUTPATH";
 	private static final String RCPATH = System.getProperty("user.home") + "/.vanda/vandarc";
 	
 	@Override
