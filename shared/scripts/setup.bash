@@ -53,6 +53,14 @@ remEmptyLines () {
 	echo "Done."
 }
 
+toParallelCorpus () {
+	echo "Installing toParallelCorpus..."
+	mkdir -p ~/.vanda/bin/toParallelCorpus
+	ghc --make -o ~/.vanda/bin/toParallelCorpus toParallelCorpus/toParallelCorpus.hs
+	echo "TO_PARALLEL_CORPUS=$HOME/.vanda/bin/toParallelCorpus/toParallelCorpus" >> ~/.vanda/vandarc
+	echo "Done."
+}
+
 giza () {
 	echo "Installing GIZA..."
 	wget http://giza-pp.googlecode.com/files/giza-pp-v1.0.7.tar.gz

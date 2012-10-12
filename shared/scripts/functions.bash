@@ -29,15 +29,12 @@ HyperGHKM () {
 	target="$OUTPATH/HyperGHKM($nAlign,$nEcorpus,$nFcorpus)"
 	java -Xmx1g -Xms1g -cp "$GHKM/ghkm.jar:$GHKM/fastutil.jar" -XX:+UseCompressedOops edu.stanford.nlp.mt.syntax.ghkm.RuleExtractor -fCorpus "$fcorpus" -eParsedCorpus "$ecorpus" -align "$align" -joshuaFormat false > "$target"
 	eval $4=\"$target\"
+	echo "Done."
 }
 
 GIZA () {
-	echo "Running: GIZA."
-}
-
-GIZA3 () {
-	echo "Running: GIZA3..."
-	TMP="$OUTPATH/GIZA3_TMP"
+	echo "Running: GIZA..."
+	TMP="$OUTPATH/GIZA_TMP"
 	mkdir -p "$TMP"
 	i1new="corpus.en"
 	i2new="corpus.fr"
@@ -45,11 +42,12 @@ GIZA3 () {
 	pathAndName "$2" f2 i2orig
 	cp "$f1" "$TMP/$i1new"
 	cp "$f2" "$TMP/$i2new"
-	$MOSES/scripts/training/train-model.perl -root-dir "$OUTPATH/GIZA3_TMP" --corpus "$TMP/corpus" --e en --f fr --last-step 3 --external-bin-dir="$GIZA"
-	out="$OUTPATH/GIZA3($i1orig,$i2orig)"
+	$MOSES/scripts/training/train-model.perl -root-dir "$TMP" --corpus "$TMP/corpus" --e en --f fr --last-step 3 --external-bin-dir="$GIZA"
+	out="$OUTPATH/GIZA($i1orig,$i2orig)"
 	mv "$TMP/model/aligned.grow-diag-final" "$out"
 	eval $3=\"$out\"
 	rm -rf "$TMP"
+	echo "Done."
 }
 
 plain2snt () {
@@ -98,6 +96,16 @@ remEmptyLines () {
 	$REM_EMPTY_LINES "$f1" "$f2" "$out1" "$out2"
 	eval $3=\"$out1\"
 	eval $4=\"$out2\"
+	echo "Done."
+}
+
+toParallelCorpus () {
+	echo "Running: toParallelCorpus..."
+	pathAndName "$1" f1 in1
+	pathAndName "$2" f2 in2
+	out="$OUTPATH/toParallelCorpus($in1,$in2)"
+	$TO_PARALLEL_CORPUS "$f1" "$f2" > "$out"
+	eval $3=\"$out\"
 	echo "Done."
 }
 
