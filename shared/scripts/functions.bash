@@ -104,18 +104,12 @@ remEmptyLines () {
 EMDictionary () {
 	echo "Running: EMDictionary..."
 	pathAndName "$1" f1 in1
-	out="$OUTPATH/EMDictionary($in1,$2)"
-	$EMDICTIONARY best "$2" "$f1" > "$out"
-	eval $3=\"$out\"
-	echo "Done."
-}
-
-EMDictionarySteps () {
-	echo "Running: EMDictionarySteps..."
-	pathAndName "$1" f1 in1
-	out="$OUTPATH/EMDictionarySteps($in1,$2)"
-	$EMDICTIONARY csv "$2" "$f1" > "$out"
-	eval $3=\"$out\"
+	out1="$OUTPATH/EMDictionary($in1,$2).1"
+	out2="$OUTPATH/EMDictionary($in1,$2).2"
+	$EMDICTIONARY best "$2" "$f1" > "$out1"
+	$EMDICTIONARY csv "$2" "$f1" > "$out2"
+	eval $3=\"$out1\"
+	eval $4=\"$out2\"
 	echo "Done."
 }
 

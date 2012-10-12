@@ -4,9 +4,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -27,9 +32,17 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 	public JComponent createEditor(Application app, final Literal l) {
 		final JLabel label1 = new JLabel("Type:");
 		final JLabel label2 = new JLabel("Value:");
+		final List<Type> types = new ArrayList<Type>();
 		final JComboBox typeBox = new JComboBox();
 		for (Type t : app.getTypes())
-			typeBox.addItem(t);
+			types.add(t);
+		Collections.sort(types, new Comparator<Type>() {
+			@Override
+			public int compare(Type o1, Type o2) {
+				return o1.toString().compareTo(o2.toString());
+			}
+		});
+		typeBox.setModel(new DefaultComboBoxModel(types.toArray()));
 		typeBox.setEditable(true);
 		typeBox.setSelectedItem(l.getType());
 		typeBox.addActionListener(new ActionListener() {

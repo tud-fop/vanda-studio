@@ -1,6 +1,7 @@
 package org.vanda.studio.model.types;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
@@ -59,6 +60,11 @@ public final class TypeVariable extends Type {
 	@Override
 	public String toString() {
 		return "t" + variable.toString();
+	}
+
+	@Override
+	public Set<Type> getSubTypes(Set<Type> types) {
+		return types;
 	}
 
 }

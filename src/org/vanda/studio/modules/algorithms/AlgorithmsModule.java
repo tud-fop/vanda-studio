@@ -113,66 +113,6 @@ public class AlgorithmsModule implements Module {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("Parallel", new CompositeType(
-						"GIZA.snt")));
-				inputPorts.add(new Port("English.vcb", new CompositeType(
-						"GIZA.vcb")));
-				inputPorts.add(new Port("French.vcb", new CompositeType(
-						"GIZA.vcb")));
-				outputPorts.add(new Port("Alignments", new CompositeType(
-						"GIZA Alignments")));
-			}
-
-			public String getContact() {
-				System.out.println("test");
-				return "Matthias.Buechse@tu-dresden.de";
-			}
-
-			public String getCategory() {
-				return "alignments";
-			}
-
-			public String getDescription() {
-				return "computes alignments and translation tables";
-			}
-
-			public String getId() {
-				return "GIZA";
-			}
-
-			public List<Port> getInputPorts() {
-				return inputPorts;
-			}
-
-			public String getName() {
-				return "GIZA";
-			}
-
-			public List<Port> getOutputPorts() {
-				return outputPorts;
-			}
-
-			public Type getFragmentType() {
-				return shellType;
-			}
-
-			public <R> R selectRenderer(RendererAssortment<R> ra) {
-				return ra.selectAlgorithmRenderer();
-			}
-
-			public void appendActions(List<Action> as) {
-			}
-
-			@Override
-			public String getVersion() {
-				return "2012-05-16";
-			}
-		}
-		
-		private static class GIZA3 extends Tool {
-			static List<Port> inputPorts = new ArrayList<Port>();
-			static List<Port> outputPorts = new ArrayList<Port>();
-			static {
 				inputPorts.add(new Port("English corpus", new CompositeType(
 						"Sentence Corpus")));
 				inputPorts.add(new Port("French corpus", new CompositeType(
@@ -194,7 +134,7 @@ public class AlgorithmsModule implements Module {
 			}
 
 			public String getId() {
-				return "GIZA3";
+				return "GIZA";
 			}
 
 			public List<Port> getInputPorts() {
@@ -522,9 +462,11 @@ public class AlgorithmsModule implements Module {
 				inputPorts.add(new Port("Corpus", new CompositeType(
 						"Parallel Sentence Corpus")));
 				inputPorts.add(new Port("Threshold",
-						new CompositeType("Float")));
+						new CompositeType("Double")));
 				outputPorts.add(new Port("Dictionary", new CompositeType(
 						"Dictionary")));
+				outputPorts.add(new Port("EM Steps", new CompositeType(
+						"EM Steps")));
 			}
 
 			public String getContact() {
@@ -549,63 +491,6 @@ public class AlgorithmsModule implements Module {
 
 			public String getName() {
 				return "EMDictionary";
-			}
-
-			public List<Port> getOutputPorts() {
-				return outputPorts;
-			}
-
-			public Type getFragmentType() {
-				return shellType;
-			}
-
-			public <R> R selectRenderer(RendererAssortment<R> ra) {
-				return ra.selectAlgorithmRenderer();
-			}
-
-			public void appendActions(List<Action> as) {
-			}
-
-			@Override
-			public String getVersion() {
-				return "2012-05-16";
-			}
-		}
-		
-		private static class EMDictionarySteps extends Tool {
-			static List<Port> inputPorts = new ArrayList<Port>();
-			static List<Port> outputPorts = new ArrayList<Port>();
-			static {
-				inputPorts.add(new Port("Corpus", new CompositeType(
-						"Parallel Sentence Corpus")));
-				inputPorts.add(new Port("Threshold",
-						new CompositeType("Float")));
-				outputPorts.add(new Port("EM Steps", new CompositeType(
-						"EM Steps")));
-			}
-
-			public String getContact() {
-				return "Matthias.Buechse@tu-dresden.de";
-			}
-
-			public String getCategory() {
-				return "training";
-			}
-
-			public String getDescription() {
-				return "Trains a dictionary with a bilingual corpus remembering computation steps";
-			}
-
-			public String getId() {
-				return "EMDictionarySteps";
-			}
-
-			public List<Port> getInputPorts() {
-				return inputPorts;
-			}
-
-			public String getName() {
-				return "EMDictionarySteps";
 			}
 
 			public List<Port> getOutputPorts() {
@@ -1406,14 +1291,13 @@ public class AlgorithmsModule implements Module {
 
 			tr.addItem(new Plain2Snt());
 //			tr.addItem(new GIZA());
-			tr.addItem(new GIZA3());
+			tr.addItem(new GIZA());
 			tr.addItem(new Berkeley());
 			tr.addItem(new RemEmptyLines());
 			tr.addItem(new Tokenizer());
 			tr.addItem(new PennToInt());
 			tr.addItem(new GHKM());
 			tr.addItem(new EMDictionary());
-			tr.addItem(new EMDictionarySteps());
 			tr.addItem(new EMDictionaryShowSteps());
 			tr.addItem(new ToWSA());
 			tr.addItem(new InputProduct());

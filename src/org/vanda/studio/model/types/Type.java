@@ -1,6 +1,7 @@
 package org.vanda.studio.model.types;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
@@ -14,5 +15,7 @@ public abstract class Type {
 	public abstract Type rename(Map<Token, Token> m);
 	
 	public abstract Type substitute(Token variable, Type nt);
+	
+	public abstract Set<Type> getSubTypes(Set<Type> types);
 
 }

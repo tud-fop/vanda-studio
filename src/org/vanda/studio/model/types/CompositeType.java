@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
@@ -93,6 +94,14 @@ public final class CompositeType extends Type {
 			sb.append(')');
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public Set<Type> getSubTypes(Set<Type> types) {
+		types.add(this);
+		for (Type t : children)
+			t.getSubTypes(types);
+		return types;
 	}
 
 }

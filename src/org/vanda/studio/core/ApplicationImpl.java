@@ -63,13 +63,11 @@ public final class ApplicationImpl implements Application {
 			public void notify(Tool event) {
 				for (Port p : event.getInputPorts()) {
 					Type t = p.getType();
-					if (!(t instanceof TypeVariable))
-						types.add(t);
+					t.getSubTypes(types);
 				}
 				for (Port p : event.getOutputPorts()) {
 					Type t = p.getType();
-					if (!(t instanceof TypeVariable))
-						types.add(t);
+					t.getSubTypes(types);
 				}
 			}
 			
