@@ -521,8 +521,8 @@ public class AlgorithmsModule implements Module {
 			static {
 				inputPorts.add(new Port("Corpus", new CompositeType(
 						"Parallel Sentence Corpus")));
-				inputPorts.add(new Port("Accuracy",
-						new CompositeType("String")));
+				inputPorts.add(new Port("Threshold",
+						new CompositeType("Float")));
 				outputPorts.add(new Port("Dictionary", new CompositeType(
 						"Dictionary")));
 			}
@@ -578,8 +578,8 @@ public class AlgorithmsModule implements Module {
 			static {
 				inputPorts.add(new Port("Corpus", new CompositeType(
 						"Parallel Sentence Corpus")));
-				inputPorts.add(new Port("Accuracy",
-						new CompositeType("String")));
+				inputPorts.add(new Port("Threshold",
+						new CompositeType("Float")));
 				outputPorts.add(new Port("EM Steps", new CompositeType(
 						"EM Steps")));
 			}

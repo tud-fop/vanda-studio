@@ -97,6 +97,7 @@ emDictionary () {
 	ghc --make Algorithms/EMDictionary.hs -O -fforce-recomp -main-is Algorithms.EMDictionary
 	mkdir -p ~/.vanda/bin/EMDictionary
 	cp Algorithms/EMDictionary ~/.vanda/bin/EMDictionary
+	cd ..
 	echo "EMDICTIONARY=$HOME/.vanda/bin/EMDictionary/EMDictionary" >> ~/.vanda/vandarc
 	echo "Done."
 }
@@ -107,6 +108,7 @@ emDictionaryShow () {
 	javac DictViewTest.java
 	mkdir -p ~/.vanda/bin/EMDictionaryShowSteps
 	cp *.class ~/.vanda/bin/EMDictionaryShowSteps
+	cd ..
 	echo "EMDICTIONARYSHOW=$HOME/.vanda/bin/EMDictionaryShowSteps" >> ~/.vanda/vandarc
 	echo "Done."
 }
