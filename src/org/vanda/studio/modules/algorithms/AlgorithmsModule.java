@@ -284,65 +284,6 @@ public class AlgorithmsModule implements Module {
 			
 		}
 		
-private static class ToParallelCorpus extends Tool {
-			
-			static List<Port> inputPorts = new ArrayList<Port>();
-			static List<Port> outputPorts = new ArrayList<Port>();
-			static {
-				inputPorts.add(new Port("Corpus", new CompositeType(
-						"Sentence Corpus")));
-				inputPorts.add(new Port("Corpus", new CompositeType(
-						"Sentence Corpus")));
-				outputPorts.add(new Port("parallel corpus", new CompositeType(
-						"Parallel Sentence Corpus")));
-			}
-			
-			public String getContact() {
-				return "Matthias.Buechse@tu-dresden.de";
-			}
-
-			public String getCategory() {
-				return "corpus tools";
-			}
-
-			public String getDescription() {
-				return "Joins two corpora to one parallel corpus.";
-			}
-
-			public String getId() {
-				return "toParallelCorpus";
-			}
-
-			public List<Port> getInputPorts() {
-				return inputPorts;
-			}
-
-			public String getName() {
-				return "toParallelCorpus";
-			}
-
-			public List<Port> getOutputPorts() {
-				return outputPorts;
-			}
-
-			public Type getFragmentType() {
-				return shellType;
-			}
-
-			public <R> R selectRenderer(RendererAssortment<R> ra) {
-				return ra.selectAlgorithmRenderer();
-			}
-
-			public void appendActions(List<Action> as) {
-			}
-
-			@Override
-			public String getVersion() {
-				return "2012-10-12";
-			}
-			
-		}
-
 		private static class Tokenizer extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
@@ -518,8 +459,10 @@ private static class ToParallelCorpus extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
 			static {
-				inputPorts.add(new Port("Corpus", new CompositeType(
-						"Parallel Sentence Corpus")));
+				inputPorts.add(new Port("english corpus", new CompositeType(
+						"Sentence Corpus")));
+				inputPorts.add(new Port("french corpus", new CompositeType(
+						"Sentence Corpus")));
 				inputPorts.add(new Port("Threshold",
 						new CompositeType("Double")));
 				outputPorts.add(new Port("Dictionary", new CompositeType(
@@ -1352,7 +1295,6 @@ private static class ToParallelCorpus extends Tool {
 			tr.addItem(new GIZA());
 			tr.addItem(new Berkeley());
 			tr.addItem(new RemEmptyLines());
-			tr.addItem(new ToParallelCorpus());
 			tr.addItem(new Tokenizer());
 			tr.addItem(new PennToInt());
 			tr.addItem(new GHKM());

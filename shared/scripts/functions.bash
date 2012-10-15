@@ -99,25 +99,19 @@ remEmptyLines () {
 	echo "Done."
 }
 
-toParallelCorpus () {
-	echo "Running: toParallelCorpus..."
-	pathAndName "$1" f1 in1
-	pathAndName "$2" f2 in2
-	out="$OUTPATH/toParallelCorpus($in1,$in2)"
-	$TO_PARALLEL_CORPUS "$f1" "$f2" > "$out"
-	eval $3=\"$out\"
-	echo "Done."
-}
-
 EMDictionary () {
 	echo "Running: EMDictionary..."
 	pathAndName "$1" f1 in1
+	pathAndName "$2" f2 in2
+	out="$OUTPATH/toParallelCorpus($in1,$in2)"
 	out1="$OUTPATH/EMDictionary($in1,$2).1"
 	out2="$OUTPATH/EMDictionary($in1,$2).2"
-	$EMDICTIONARY best "$2" "$f1" > "$out1"
-	$EMDICTIONARY csv "$2" "$f1" > "$out2"
-	eval $3=\"$out1\"
-	eval $4=\"$out2\"
+	$TO_PARALLEL_CORPUS "$f1" "$f2" > "$out"
+	$EMDICTIONARY best "$3" "$out" > "$out1"
+	$EMDICTIONARY csv "$3" "$out" > "$out2"
+	eval $4=\"$out1\"
+	eval $5=\"$out2\"
+	rm "$out"
 	echo "Done."
 }
 
