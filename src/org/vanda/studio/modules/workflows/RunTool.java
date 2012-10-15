@@ -66,12 +66,13 @@ public class RunTool implements ToolFactory {
 			runs = new ArrayList<Run>();
 			
 			tRuntool = new JTextArea();
+			tRuntool.setEditable(false);
 			sRuntool = new JScrollPane(tRuntool);
 			DefaultCaret caret = (DefaultCaret)tRuntool.getCaret();
 			caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 			
 			pMain = new JPanel();
-			pMain.setName("Run");
+			pMain.setName("Console");
 			pMain.setLayout(new GridBagLayout());
 			
 			bClear = new JButton(new ClearAction());
