@@ -55,16 +55,6 @@ public class CompositeJob extends Job implements WorkflowListener {
 	}
 
 	@Override
-	public boolean isInputPort() {
-		return false;
-	}
-
-	@Override
-	public boolean isOutputPort() {
-		return false;
-	}
-
-	@Override
 	public Type getFragmentType() {
 		return linker.getFragmentType();
 	}

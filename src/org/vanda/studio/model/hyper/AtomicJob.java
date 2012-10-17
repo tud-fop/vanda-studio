@@ -6,8 +6,6 @@ import java.util.ListIterator;
 import org.vanda.studio.model.elements.Element;
 import org.vanda.studio.model.elements.Element.ElementEvent;
 import org.vanda.studio.model.elements.Element.ElementListener;
-import org.vanda.studio.model.elements.InputPort;
-import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.elements.RepositoryItem;
@@ -51,16 +49,6 @@ public class AtomicJob extends Job implements ElementListener {
 	@Override
 	public List<Port> getOutputPorts() {
 		return element.getOutputPorts();
-	}
-
-	@Override
-	public boolean isInputPort() {
-		return element instanceof InputPort;
-	}
-
-	@Override
-	public boolean isOutputPort() {
-		return element instanceof OutputPort;
 	}
 
 	@Override

@@ -65,10 +65,6 @@ public abstract class Job implements HasActions, Cloneable {
 		return dimensions[1];
 	}
 
-	public abstract boolean isInputPort();
-
-	public abstract boolean isOutputPort();
-
 	public abstract ImmutableJob freeze() throws Exception;
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);

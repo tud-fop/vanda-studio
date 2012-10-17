@@ -1,19 +1,29 @@
 package org.vanda.studio.model.elements;
 
-public interface RepositoryItemVisitor {
+public abstract class RepositoryItemVisitor {
 
-	void visitChoice(Choice c);
-	
-	void visitInputPort(InputPort i);
-	
-	void visitLinker(Linker l);
-	
-	void visitLiteral(Literal l);
-	
-	void visitOutputPort(OutputPort o);
-	
-	void visitTool(Tool t);
-	
-	
-	
+	public void visitChoice(Choice c) {
+
+	}
+
+	public void visitInputPort(InputPort i) {
+
+	}
+
+	public void visitLinker(Linker l) {
+
+	}
+
+	public void visitLiteral(Literal l) {
+
+	}
+
+	public void visitOutputPort(OutputPort o) {
+
+	}
+
+	public void visitTool(Tool t) {
+
+	}
+
 }

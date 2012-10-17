@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.vanda.studio.model.elements.InputPort;
+import org.vanda.studio.model.elements.OutputPort;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.hyper.Job.JobEvent;
 import org.vanda.studio.model.hyper.Job.JobListener;
 import org.vanda.studio.util.MultiplexObserver;
@@ -85,10 +88,10 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 		return new MutableWorkflow(this);
 	}
 
-	public Token addChild(Job job) {
+	public Token addChild(final Job job) {
 		assert (job.address == null);
 		job.address = childAddressSource.makeToken();
-		DJobInfo ji = new DJobInfo(this, job);
+		final DJobInfo ji = new DJobInfo(this, job);
 		if (job.address.intValue() < children.size())
 			children.set(job.address.intValue(), ji);
 		else {
@@ -96,29 +99,36 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 			children.add(ji);
 		}
 		bind(job);
-		if (job.isInputPort()) {
-			Token t = inputPortSource.makeToken();
-			if (t.intValue() < inputPorts.size())
-				inputPorts.set(t.intValue(), job.address);
-			else {
-				assert (t.intValue() == inputPorts.size());
-				inputPorts.add(job.address);
+		job.getItem().visit(new RepositoryItemVisitor() {
+			@Override
+			public void visitInputPort(InputPort ip) {
+				Token t = inputPortSource.makeToken();
+				if (t.intValue() < inputPorts.size())
+					inputPorts.set(t.intValue(), job.address);
+				else {
+					assert (t.intValue() == inputPorts.size());
+					inputPorts.add(job.address);
+				}
+				ji.portNumber = t;
+				observable.notify(new Workflows.InputPortAddedEvent(
+						MutableWorkflow.this, t.intValue()));
 			}
-			ji.portNumber = t;
-			observable.notify(new Workflows.InputPortAddedEvent(this, t
-					.intValue()));
-		} else if (job.isOutputPort()) {
-			Token t = outputPortSource.makeToken();
-			if (t.intValue() < outputPorts.size())
-				outputPorts.set(t.intValue(), job.address);
-			else {
-				assert (t.intValue() == outputPorts.size());
-				outputPorts.add(job.address);
+
+			@Override
+			public void visitOutputPort(OutputPort op) {
+				Token t = outputPortSource.makeToken();
+				if (t.intValue() < outputPorts.size())
+					outputPorts.set(t.intValue(), job.address);
+				else {
+					assert (t.intValue() == outputPorts.size());
+					outputPorts.add(job.address);
+				}
+				ji.portNumber = t;
+				observable.notify(new Workflows.OutputPortAddedEvent(
+						MutableWorkflow.this, getOutputPorts().indexOf(
+								job.getInputPorts().get(0))));
 			}
-			ji.portNumber = t;
-			observable.notify(new Workflows.OutputPortAddedEvent(this,
-					getOutputPorts().indexOf(job.getInputPorts().get(0))));
-		}
+		});
 		childObservable.notify(new Workflows.ChildAddedEvent(this, job));
 		return job.address;
 	}
@@ -172,20 +182,26 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 	}
 
 	public void removeChild(Token address) {
-		DJobInfo ji = children.get(address.intValue());
+		final DJobInfo ji = children.get(address.intValue());
 		if (ji == null)
 			return;
-		if (ji.job.isInputPort()) {
-			inputPorts.set(ji.portNumber.intValue(), null);
-			inputPortSource.recycleToken(ji.portNumber);
-			observable.notify(new Workflows.InputPortRemovedEvent(this,
-					ji.portNumber.intValue()));
-		} else if (ji.job.isOutputPort()) {
-			outputPorts.set(ji.portNumber.intValue(), null);
-			outputPortSource.recycleToken(ji.portNumber);
-			observable.notify(new Workflows.OutputPortRemovedEvent(this,
-					ji.portNumber.intValue()));
-		}
+		ji.job.getItem().visit(new RepositoryItemVisitor() {
+			@Override
+			public void visitInputPort(InputPort ip) {
+				inputPorts.set(ji.portNumber.intValue(), null);
+				inputPortSource.recycleToken(ji.portNumber);
+				observable.notify(new Workflows.InputPortRemovedEvent(
+						MutableWorkflow.this, ji.portNumber.intValue()));
+			}
+
+			@Override
+			public void visitOutputPort(OutputPort op) {
+				outputPorts.set(ji.portNumber.intValue(), null);
+				outputPortSource.recycleToken(ji.portNumber);
+				observable.notify(new Workflows.OutputPortRemovedEvent(
+						MutableWorkflow.this, ji.portNumber.intValue()));
+			}
+		});
 		for (int i = 0; i < connections.size(); i++) {
 			DConnInfo ci = connections.get(i);
 			if (ci != null) {

@@ -18,7 +18,6 @@ import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.Type;
-import org.vanda.studio.model.types.TypeVariable;
 import org.vanda.studio.modules.common.CompositeRepository;
 import org.vanda.studio.util.Message;
 import org.vanda.studio.util.MultiplexObserver;

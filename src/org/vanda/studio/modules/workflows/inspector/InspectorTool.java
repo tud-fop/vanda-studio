@@ -40,8 +40,8 @@ public class InspectorTool implements ToolFactory {
 
 	private final ElementEditorFactories eefs;
 
-	private final class TheSelectionVisitor implements SelectionVisitor,
-			RepositoryItemVisitor {
+	private final class TheSelectionVisitor extends RepositoryItemVisitor
+			implements SelectionVisitor {
 
 		private final Application app;
 		private final Model model;

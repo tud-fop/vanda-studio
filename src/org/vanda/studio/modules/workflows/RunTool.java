@@ -1,6 +1,5 @@
 package org.vanda.studio.modules.workflows;
 
-import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -19,14 +18,11 @@ import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.text.DefaultCaret;
 
 import org.vanda.studio.app.Application;
@@ -86,7 +82,7 @@ public class RunTool implements ToolFactory {
 				public void itemStateChanged(ItemEvent e) {
 					Run r = (Run) lRuns.getSelectedItem();
 					if (r != null) {
-						String txt = r.getText();
+						// String txt = r.getText();
 						tRuntool.setText(((Run) lRuns.getSelectedItem()).getText());
 					}
 				}
@@ -198,6 +194,11 @@ public class RunTool implements ToolFactory {
 		
 		private final class ClearAction extends AbstractAction {
 
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				List<Run> runs2 = new ArrayList<Run>();
@@ -218,6 +219,11 @@ public class RunTool implements ToolFactory {
 		}
 		
 		private final class CancelAction extends AbstractAction {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
