@@ -226,8 +226,8 @@ public class JobRendering {
 				List<Port> out = hj.getOutputPorts();
 				for (int i = 0; i < out.size(); i++) {
 					mxGeometry geo = new mxGeometry(1, (i + 1.0)
-							/ (out.size() + 1.0), PORT_DIAMETER, PORT_DIAMETER);
-					geo.setOffset(new mxPoint(0, -PORT_RADIUS));
+							/ (out.size() + 1.0), OPORT_DIAMETER, OPORT_DIAMETER);
+					geo.setOffset(new mxPoint(0, -OPORT_RADIUS));
 					geo.setRelative(true);
 
 					mxCell port = new mxCell(new PortAdapter(false, i), geo,
@@ -383,7 +383,9 @@ public class JobRendering {
 	}
 
 	protected static final int PORT_DIAMETER = 14;
+	protected static final int OPORT_DIAMETER = 30;
 
 	protected static final int PORT_RADIUS = PORT_DIAMETER / 2;
+	protected static final int OPORT_RADIUS = OPORT_DIAMETER / 2;
 
 }
