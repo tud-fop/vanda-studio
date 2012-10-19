@@ -22,14 +22,15 @@ PennToInt () {
 }
 
 HyperGHKM () {
-	echo "Running: HyperGHKM."
+	echo "Running: HyperGHKM..."
 	pathAndName "$1" align nAlign
 	pathAndName "$2" ecorpus nEcorpus
 	pathAndName "$3" fcorpus nFcorpus
 	target="$OUTPATH/HyperGHKM($nAlign,$nEcorpus,$nFcorpus)"
 	java -Xmx1g -Xms1g -cp "$GHKM/ghkm.jar:$GHKM/fastutil.jar" -XX:+UseCompressedOops edu.stanford.nlp.mt.syntax.ghkm.RuleExtractor -fCorpus "$fcorpus" -eParsedCorpus "$ecorpus" -align "$align" -joshuaFormat false > "$target"
 	eval $4=\"$target\"
-	echo "Done."
+#	GHKM answers "Done." on its own
+#	echo "Done."
 }
 
 GIZA () {
