@@ -177,11 +177,9 @@ public class RunTool implements ToolFactory {
 								// ignore
 							}
 						}
-						// append(line, style);
 					}
 				} catch (IOException e) {
 					// ignore
-					// app.sendMessage(new ExceptionMessage(e));
 				}
 			}
 		}
@@ -262,7 +260,7 @@ public class RunTool implements ToolFactory {
 				try {
 					i = process.waitFor();
 				} catch (Exception e) {
-					app.sendMessage(new ExceptionMessage(e));
+					// ignore
 				}
 				if (i == 0)
 					rt.doFinish();
@@ -340,22 +338,20 @@ public class RunTool implements ToolFactory {
 
 			@Override
 			public void doCancel() {
-				// cancel(true);
 				state = new StateCancelled();
-				lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
-				lRuns.revalidate();
+				lRuns.repaint();
 				pMain.revalidate();
 			}
 
 			public void cancel() {
+				super.cancel(true);
 				state.cancel(this);
 			}
 
 			@Override
 			public void doFinish() {
 				state = new StateDone();
-				lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
-				lRuns.revalidate();
+				lRuns.repaint();
 				pMain.revalidate();
 			}
 
@@ -363,8 +359,7 @@ public class RunTool implements ToolFactory {
 			public void doRun() {
 				frag = generate();
 				state = new StateRunning(app, frag, doc);
-				lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
-				lRuns.revalidate();
+				lRuns.repaint();
 				pMain.revalidate();
 				state.finish(this);
 			}
@@ -386,7 +381,7 @@ public class RunTool implements ToolFactory {
 				runs.remove(r);
 				lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
 				if (runs.size() > 0)
-					lRuns.setSelectedIndex(runs.size() - 1);
+					lRuns.setSelectedIndex(lRuns.getItemCount() - 1);
 				else
 					tRuntool.setText("");
 
@@ -429,14 +424,13 @@ public class RunTool implements ToolFactory {
 			public void invoke() {
 				frag = generate();
 				if (frag != null) {
-					Run r = new Run(generate());
+					Run r = new Run(frag);
 					runs.add(r);
 					r.execute();
 					lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
-					lRuns.setSelectedItem(r);
-					tRuntool.setDocument(r.getDocument());
-					pMain.revalidate();
 					wfe.focusToolWindow(pMain);
+					lRuns.setSelectedIndex(lRuns.getItemCount() - 1);
+					tRuntool.setDocument(r.getDocument());
 				}
 			}
 

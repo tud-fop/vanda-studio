@@ -46,7 +46,6 @@ GIZA () {
 	out="$OUTPATH/GIZA($i1orig,$i2orig)"
 	mv "$TMP/model/aligned.grow-diag-final" "$out"
 	eval $3=\"$out\"
-	rm -rf "$TMP"
 	echo "Done."
 }
 
@@ -104,14 +103,12 @@ EMDictionary () {
 	pathAndName "$1" f1 in1
 	pathAndName "$2" f2 in2
 	out="$OUTPATH/toParallelCorpus($in1,$in2)"
-	out1="$OUTPATH/EMDictionary($in1,$2).1"
-	out2="$OUTPATH/EMDictionary($in1,$2).2"
+	out1="$OUTPATH/EMDictionary($in1,$in2).1"
+	out2="$OUTPATH/EMDictionary($in1,$in2).2"
 	$TO_PARALLEL_CORPUS "$f1" "$f2" > "$out"
-	$EMDICTIONARY best "$3" "$out" > "$out1"
-	$EMDICTIONARY csv "$3" "$out" > "$out2"
+	$EMDICTIONARY csvAndBest "$3" "$out" "$out2" > "$out1"
 	eval $4=\"$out1\"
 	eval $5=\"$out2\"
-	rm "$out"
 	echo "Done."
 }
 
