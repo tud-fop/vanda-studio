@@ -10,6 +10,7 @@ setup () {
 	ghkm
 	emDictionary
 	emDictionaryShow
+	examples
 }
 
 base () {
@@ -118,6 +119,12 @@ emDictionaryShow () {
 	cp *.class ~/.vanda/bin/EMDictionaryShowSteps
 	cd ..
 	echo "EMDICTIONARYSHOW=$HOME/.vanda/bin/EMDictionaryShowSteps" >> ~/.vanda/vandarc
+	echo "Done."
+}
+
+examples () {
+	echo "Copying examples..."
+	cp -R "../examples/*" "$HOME/.vanda/input/."
 	echo "Done."
 }
 
