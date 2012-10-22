@@ -440,8 +440,7 @@ public class RunTool implements ToolFactory {
 			try {
 				m.checkWorkflow();
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				app.sendMessage(new ExceptionMessage(e1));
 			}
 			List<ImmutableWorkflow> unfolded = m.getUnfolded();
 			if (unfolded != null
