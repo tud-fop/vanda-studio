@@ -218,7 +218,7 @@ public class RunTool implements ToolFactory {
 			}
 
 			String getString(Date date) {
-				return "[I] " + date.toString();
+				return "[Initial] " + date.toString();
 			}
 		}
 
@@ -269,19 +269,19 @@ public class RunTool implements ToolFactory {
 			}
 
 			String getString(Date date) {
-				return "[R] " + date.toString();
+				return "[Running] " + date.toString();
 			}
 		}
 
 		private static class StateCancelled extends RunState {
 			String getString(Date date) {
-				return "[C] " + date.toString();
+				return "[Cancelled] " + date.toString();
 			}
 		}
 
 		private static class StateDone extends RunState {
 			String getString(Date date) {
-				return "[D] " + date.toString();
+				return "[Done] " + date.toString();
 			}
 		}
 
