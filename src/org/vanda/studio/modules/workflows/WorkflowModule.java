@@ -155,7 +155,6 @@ public class WorkflowModule implements Module {
 					}
 				};
 
-				chooser.setCurrentDirectory(new File(app.getProperty("lastDir")));
 				chooser.setDialogType(JFileChooser.SAVE_DIALOG);
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				chooser.setFileFilter(new FileNameExtensionFilter(
@@ -169,7 +168,6 @@ public class WorkflowModule implements Module {
 					String filePath = chosenFile.getPath();
 					try {
 						Serialization.save(app, model.getRoot(), filePath);
-						app.setProperty("lastDir", chosenFile.getParent());
 					} catch (Exception e) {
 						app.sendMessage(new ExceptionMessage(e));
 					}
