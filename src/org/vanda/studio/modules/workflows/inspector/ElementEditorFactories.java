@@ -25,6 +25,8 @@ public class ElementEditorFactories {
 	
 	public final CompositeFactory<Tool> toolFactories;
 	
+	public final CompositeFactory<MutableWorkflow> variableFactories;
+	
 	public final CompositeFactory<MutableWorkflow> workflowFactories;
 	
 	{
@@ -35,6 +37,7 @@ public class ElementEditorFactories {
 		literalFactories = new CompositeFactory<Literal>();
 		outputPortFactories = new CompositeFactory<OutputPort>();
 		toolFactories = new CompositeFactory<Tool>();
+		variableFactories = new CompositeFactory<MutableWorkflow>();
 		workflowFactories = new CompositeFactory<MutableWorkflow>();
 	}
 

@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows;
+package org.vanda.studio.modules.profile;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -27,6 +27,9 @@ import javax.swing.text.DefaultCaret;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Profile;
+import org.vanda.studio.app.ToolFactory;
+import org.vanda.studio.app.WorkflowEditor;
+import org.vanda.studio.model.Model;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.profile.model.Fragment;

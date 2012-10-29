@@ -1,5 +1,7 @@
 package org.vanda.studio.modules.workflows.inspector;
 
+import java.util.List;
+
 import javax.swing.GroupLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -10,11 +12,13 @@ import javax.swing.event.DocumentListener;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.util.TokenSource.Token;
 
 public class WorkflowEditor implements ElementEditorFactory<MutableWorkflow> {
 
 	@Override
-	public JComponent createEditor(Application app, final MutableWorkflow mwf) {
+	public JComponent createEditor(Application app, List<Token> path,
+			Token address, final MutableWorkflow mwf) {
 		final JLabel label = new JLabel("Name:");
 		final JTextField text = new JTextField(mwf.getName(), 20);
 		text.getDocument().addDocumentListener(new DocumentListener() {
@@ -28,11 +32,11 @@ public class WorkflowEditor implements ElementEditorFactory<MutableWorkflow> {
 			public void removeUpdate(DocumentEvent e) {
 				mwf.setName(text.getText());
 			}
-			
+
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 			}
-			
+
 		});
 
 		JPanel editor = new JPanel();

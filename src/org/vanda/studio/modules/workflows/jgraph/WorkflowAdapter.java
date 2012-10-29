@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.vanda.studio.model.Model;
+import org.vanda.studio.model.Model.WorkflowSelection;
 import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.modules.workflows.Model;
-import org.vanda.studio.modules.workflows.Model.WorkflowSelection;
 import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxICell;

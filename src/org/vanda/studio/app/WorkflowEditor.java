@@ -1,9 +1,8 @@
-package org.vanda.studio.modules.workflows;
+package org.vanda.studio.app;
 
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
-import org.vanda.studio.app.Application;
 import org.vanda.studio.util.Action;
 
 public interface WorkflowEditor {

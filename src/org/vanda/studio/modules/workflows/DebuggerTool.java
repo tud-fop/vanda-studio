@@ -5,6 +5,9 @@ import java.util.List;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.vanda.studio.app.ToolFactory;
+import org.vanda.studio.app.WorkflowEditor;
+import org.vanda.studio.model.Model;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.util.Observer;
 

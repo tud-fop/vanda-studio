@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows;
+package org.vanda.studio.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +27,8 @@ public final class Model implements WorkflowChildListener {
 				MutableWorkflow wf, Connection cc);
 
 		void visitJob(List<Token> path, Token address, MutableWorkflow wf, Job j);
+		
+		void visitVariable(List<Token> path, Token variable, MutableWorkflow wf);
 	}
 
 	public static class WorkflowSelection {
@@ -88,6 +90,23 @@ public final class Model implements WorkflowChildListener {
 		public void visit(MutableWorkflow root, SelectionVisitor v) {
 			root = root.dereference(path.listIterator());
 			v.visitJob(path, address, root, root.getChild(address));
+		}
+	}
+
+	public static class VariableSelection extends SingleObjectSelection {
+		public VariableSelection(List<Token> path, Token variable) {
+			super(path, variable);
+		}
+
+		@Override
+		public void remove(MutableWorkflow root) {
+			// do nothing
+		}
+
+		@Override
+		public void visit(MutableWorkflow root, SelectionVisitor v) {
+			root = root.dereference(path.listIterator());
+			v.visitVariable(path, address, root);
 		}
 	}
 

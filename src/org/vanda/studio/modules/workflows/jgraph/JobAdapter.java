@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.vanda.studio.model.Model;
+import org.vanda.studio.model.Model.JobSelection;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.hyper.Job;
-import org.vanda.studio.modules.workflows.Model;
-import org.vanda.studio.modules.workflows.Model.JobSelection;
 import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxGeometry;

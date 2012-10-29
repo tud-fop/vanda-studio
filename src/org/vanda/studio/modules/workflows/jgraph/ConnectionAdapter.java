@@ -4,9 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.vanda.studio.model.Model;
+import org.vanda.studio.model.Model.ConnectionSelection;
 import org.vanda.studio.model.hyper.Connection;
-import org.vanda.studio.modules.workflows.Model;
-import org.vanda.studio.modules.workflows.Model.ConnectionSelection;
 import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxICell;

@@ -6,15 +6,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.vanda.studio.model.Model;
+import org.vanda.studio.model.Model.JobSelection;
+import org.vanda.studio.model.Model.SingleObjectSelection;
 import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowChildEvent;
 import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowEvent;
-import org.vanda.studio.modules.workflows.Model;
-import org.vanda.studio.modules.workflows.Model.JobSelection;
-import org.vanda.studio.modules.workflows.Model.SingleObjectSelection;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.TokenSource.Token;
 

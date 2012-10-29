@@ -12,8 +12,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
+import org.vanda.studio.app.ToolFactory;
+import org.vanda.studio.app.WorkflowEditor;
+import org.vanda.studio.model.Model;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.hyper.Serialization;
+import org.vanda.studio.modules.profile.RunTool;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.inspector.InspectorTool;
 import org.vanda.studio.modules.workflows.inspector.LiteralEditor;

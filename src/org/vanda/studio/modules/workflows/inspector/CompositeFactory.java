@@ -7,24 +7,26 @@ import java.util.ListIterator;
 import javax.swing.JComponent;
 
 import org.vanda.studio.app.Application;
+import org.vanda.studio.util.TokenSource.Token;
 
 public class CompositeFactory<T> implements ElementEditorFactory<T> {
 	private List<ElementEditorFactory<? super T>> list;
-	
+
 	public CompositeFactory() {
 		list = new LinkedList<ElementEditorFactory<? super T>>();
 	}
-	
+
 	public void add(ElementEditorFactory<? super T> eef) {
 		list.add(eef);
 	}
-	
+
 	@Override
-	public JComponent createEditor(Application app, T object) {
+	public JComponent createEditor(Application app, List<Token> path,
+			Token address, T object) {
 		JComponent result = null;
 		ListIterator<ElementEditorFactory<? super T>> li = list.listIterator();
 		while (result == null && li.hasNext())
-			result = li.next().createEditor(app, object);
+			result = li.next().createEditor(app, path, address, object);
 		return result;
 	}
 }

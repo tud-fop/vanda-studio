@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.vanda.studio.modules.workflows.Model;
+import org.vanda.studio.model.Model;
 import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxICell;
