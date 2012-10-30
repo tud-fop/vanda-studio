@@ -64,13 +64,13 @@ final class TypeChecker {
 					Equation eq = new Equation(new TypeVariable(
 							ji.inputs.get(i)), in.get(i).getType()
 							.rename(rename));
-					eqs.put(eq, ji.address);
+					eqs.put(eq, ji.inputs.get(i));
 				}
 			}
 			for (int i = 0; i < ou.size(); i++) {
 				Equation eq = new Equation(new TypeVariable(ji.outputs.get(i)),
 						ou.get(i).getType().rename(rename));
-				eqs.put(eq, ji.address);
+				eqs.put(eq, ji.outputs.get(i));
 			}
 		}
 	}
