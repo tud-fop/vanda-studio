@@ -47,14 +47,14 @@ public final class ExceptionMessage implements Message {
 
 	@Override
 	public void onSelect(Application app) {
-		// TODO Auto-generated method stub
-		System.out.println("[s] " + this.getHeadline());
+		// TODO invoke change in mxGraph
+
 	}
 
 	@Override
 	public void onDeselect(Application app) {
-		// TODO Auto-generated method stub
-		System.out.println("[d] " + this.getHeadline());
+		// TODO invoke change in mxGraph
+
 	}
 
 }
