@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.MetaRepository;
 import org.vanda.studio.app.Profile;
+import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.model.elements.Linker;
@@ -38,6 +39,7 @@ public final class ApplicationImpl implements Application {
 	protected final CompositeRepository<Linker> linkerRepository;
 	protected final CompositeRepository<Profile> profileRepository;
 	protected final CompositeRepository<Tool> toolRepository;
+	protected final CompositeRepository<ToolFactory> toolFactoryRepository;
 	protected final MultiplexObserver<Application> shutdownObservable;
 	protected final WindowSystemImpl windowSystem;
 	protected final HashSet<Type> types;
@@ -53,6 +55,7 @@ public final class ApplicationImpl implements Application {
 		linkerRepository = new CompositeRepository<Linker>();
 		profileRepository = new CompositeRepository<Profile>();
 		toolRepository = new CompositeRepository<Tool>();
+		toolFactoryRepository = new CompositeRepository<ToolFactory>();
 		shutdownObservable = new MultiplexObserver<Application>();
 		windowSystem = new WindowSystemImpl(this);
 		types = new HashSet<Type>();
@@ -158,6 +161,11 @@ public final class ApplicationImpl implements Application {
 	@Override
 	public MetaRepository<Tool> getToolMetaRepository() {
 		return toolRepository;
+	}
+
+	@Override
+	public MetaRepository<ToolFactory> getToolFactoryMetaRepository() {
+		return toolFactoryRepository;
 	}
 
 	@Override

@@ -172,7 +172,7 @@ public class RunTool implements ToolFactory {
 			}
 			
 			private void runFragment() {
-				frag = generate();
+				// generate();
 				String fileName = Fragment.normalize(frag.name);
 				Runtime rt = Runtime.getRuntime();
 				try {
@@ -245,7 +245,7 @@ public class RunTool implements ToolFactory {
 
 			@Override
 			public void invoke() {
-				frag = generate();
+				generate();
 			}
 
 		}
@@ -259,19 +259,19 @@ public class RunTool implements ToolFactory {
 
 			@Override
 			public void invoke() {
-				frag = generate();
-				if (frag != null){
-					Run r = new Run(generate());
+				generate();
+				/*if (frag != null){
+					Run r = new Run(frag);
 					runs.add(r);
 					lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
 					lRuns.setSelectedItem(r);
 					pMain.revalidate();
-				}
+				}*/
 			}
 
 		}
 
-		private Fragment generate() {
+		private void generate() {
 			try {
 				m.checkWorkflow();
 			} catch (Exception e1) {
@@ -286,12 +286,11 @@ public class RunTool implements ToolFactory {
 				ImmutableWorkflow root = new ImmutableWorkflow(m.getRoot()
 						.getName(), unfolded);
 				try {
-					return prof.createGenerator().generate(root);
+					prof.generate(root);
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}
 			}
-			return null;
 		}
 		
 		

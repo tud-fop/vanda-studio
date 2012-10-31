@@ -570,16 +570,21 @@ public class AlgorithmsModule implements Module {
 		}
 
 		static class SinkTool extends Tool {
+			static List<Port> inputPorts = new ArrayList<Port>();
+			static {
+				inputPorts.add(new Port("inputPort", Types.genericType));
+			}
+			
 			public String getContact() {
-				return "Anja.Fischer@mailbox.tu-dresden.de";
+				return "Matthias.Buechse@tu-dresden.de";
 			}
 
 			public String getCategory() {
-				return "testCategory";
+				return "basics";
 			}
 
 			public String getDescription() {
-				return "TestSink";
+				return "Sink";
 			}
 
 			public String getId() {
@@ -587,10 +592,7 @@ public class AlgorithmsModule implements Module {
 			}
 
 			public List<Port> getInputPorts() {
-				Port p = new Port("inputPort", new CompositeType("Text File"));
-				List<Port> list = new ArrayList<Port>();
-				list.add(p);
-				return list;
+				return inputPorts;
 			}
 
 			public String getName() {
@@ -1291,7 +1293,7 @@ public class AlgorithmsModule implements Module {
 
 			SimpleRepository<Tool> tr = new SimpleRepository<Tool>(null);
 
-			tr.addItem(new Plain2Snt());
+			// tr.addItem(new Plain2Snt());
 			tr.addItem(new GIZA());
 			tr.addItem(new Berkeley());
 			tr.addItem(new RemEmptyLines());
@@ -1300,26 +1302,26 @@ public class AlgorithmsModule implements Module {
 			tr.addItem(new GHKM());
 			tr.addItem(new EMDictionary());
 			tr.addItem(new EMDictionaryShowSteps());
-			tr.addItem(new ToWSA());
-			tr.addItem(new InputProduct());
-			tr.addItem(new MakeFeature());
-			tr.addItem(new BestDeriv());
-			tr.addItem(new GetInputString());
-			tr.addItem(new GetOutputString());
+			// tr.addItem(new ToWSA());
+			// tr.addItem(new InputProduct());
+			// tr.addItem(new MakeFeature());
+			// tr.addItem(new BestDeriv());
+			// tr.addItem(new GetInputString());
+			// tr.addItem(new GetOutputString());
 			tr.addItem(new SinkTool());
 			app.getToolMetaRepository().addRepository(tr);
 
-			SimpleRepository<Tool> ctr = new SimpleRepository<Tool>(null);
-			ctr.addItem(new LoadText());
-			ctr.addItem(new SaveText());
-			ctr.addItem(new LoadWeights());
-			ctr.addItem(new LoadSCFG());
-			app.getConverterToolMetaRepository().addRepository(ctr);
+			// SimpleRepository<Tool> ctr = new SimpleRepository<Tool>(null);
+			// ctr.addItem(new LoadText());
+			// ctr.addItem(new SaveText());
+			// ctr.addItem(new LoadWeights());
+			// ctr.addItem(new LoadSCFG());
+			// app.getConverterToolMetaRepository().addRepository(ctr);
 
-			SimpleRepository<Linker> lr = new SimpleRepository<Linker>(null);
-			lr.addItem(new HaskellLinker(app));
-			lr.addItem(IdentityLinker.getInstance());
-			app.getLinkerMetaRepository().addRepository(lr);
+			// SimpleRepository<Linker> lr = new SimpleRepository<Linker>(null);
+			// lr.addItem(new HaskellLinker(app));
+			// lr.addItem(IdentityLinker.getInstance());
+			// app.getLinkerMetaRepository().addRepository(lr);
 
 		}
 	}

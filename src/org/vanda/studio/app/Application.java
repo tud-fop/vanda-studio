@@ -52,6 +52,12 @@ public interface Application {
 	MetaRepository<Tool> getToolMetaRepository();
 	
 	/**
+	 * Returns the repository of tool factory repositories. Modules should add
+	 * or remove their own repositories here.
+	 */
+	MetaRepository<ToolFactory> getToolFactoryMetaRepository();
+	
+	/**
 	 * Returns an immutable combined view of the workflow repositories.
 	 *
 	Repository<WorkflowDescription> getWorkflowRepository();	

@@ -17,11 +17,8 @@ import javax.swing.JTextField;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.vanda.studio.app.Application;
-import org.vanda.studio.model.elements.Choice;
-import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Literal;
-import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.hyper.AtomicJob;
 import org.vanda.studio.model.hyper.CompositeJob;
@@ -88,9 +85,9 @@ public class Palette {
 				.getItems())
 			templates.add(new CompositeJob(l, new MutableWorkflow(
 					"inner workflow")));
-		templates.add(new AtomicJob(new Choice()));
-		templates.add(new AtomicJob(new InputPort()));
-		templates.add(new AtomicJob(new OutputPort()));
+		// templates.add(new AtomicJob(new Choice()));
+		// templates.add(new AtomicJob(new InputPort()));
+		// templates.add(new AtomicJob(new OutputPort()));
 		templates.add(new AtomicJob(
 				new Literal(new CompositeType("String"), "")));
 		Collections.sort(templates, new Comparator<Job>() {

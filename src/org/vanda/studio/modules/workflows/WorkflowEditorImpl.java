@@ -61,8 +61,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	protected final Palette palette;
 	protected final JSplitPane mainpane;
 
-	public WorkflowEditorImpl(Application a, MutableWorkflow hwf,
-			List<ToolFactory> tools) {
+	public WorkflowEditorImpl(Application a, MutableWorkflow hwf) {
 		app = a;
 		model = new Model(hwf);
 		renderer = new DrecksAdapter(model);
@@ -98,7 +97,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 		app.getWindowSystem().focusContentWindow(mainpane);
 		mainpane.requestFocusInWindow();
 
-		for (ToolFactory tf : tools)
+		for (ToolFactory tf : app.getToolFactoryMetaRepository()
+				.getRepository().getItems())
 			tf.instantiate(this, model);
 		app.getWindowSystem().addAction(mainpane, new ResetZoomAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK));
@@ -190,8 +190,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 			} else if (e.getButton() == 3) {
 				// show context menu when right clicking a node or an edge
 				Object cell = component.getCellAt(e.getX(), e.getY());
-				final Object value = component.getGraph().getModel().getValue(
-						cell);
+				final Object value = component.getGraph().getModel()
+						.getValue(cell);
 
 				PopupMenu menu = null;
 
@@ -278,9 +278,12 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 
 			// translate view to keep mouse point as fixpoint
 			double scaleAfter = component.getGraph().getView().getScale();
-			component.getGraph().getView().scaleAndTranslate(scaleAfter,
-					-e.getX() * (1.0 - 1.0 / scaleAfter),
-					-e.getY() * (1.0 - 1.0 / scaleAfter));
+			component
+					.getGraph()
+					.getView()
+					.scaleAndTranslate(scaleAfter,
+							-e.getX() * (1.0 - 1.0 / scaleAfter),
+							-e.getY() * (1.0 - 1.0 / scaleAfter));
 		}
 	}
 
@@ -537,11 +540,12 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 					boolean collapsed = component.collapsedCells
 							.contains(component.currentCollapsibleCell);
 
-					//FIXME? for some reason, getGraph().foldCells(...)
+					// FIXME? for some reason, getGraph().foldCells(...)
 					// does not update the isCollapsed state of the changed cell
-					// which is why there is a collapsedCells list that keeps track
+					// which is why there is a collapsedCells list that keeps
+					// track
 					// of all currently collapsed cells
-					
+
 					// collapse/expand depending on current state
 					graphComponent.getGraph().foldCells(!collapsed, false,
 							new Object[] { component.currentCollapsibleCell });

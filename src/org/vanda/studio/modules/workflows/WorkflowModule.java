@@ -2,8 +2,6 @@ package org.vanda.studio.modules.workflows;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -12,12 +10,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
+import org.vanda.studio.app.Serialization;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
 import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.model.hyper.Serialization;
-import org.vanda.studio.modules.profile.RunTool;
+import org.vanda.studio.modules.common.ListRepository;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.inspector.InspectorTool;
 import org.vanda.studio.modules.workflows.inspector.LiteralEditor;
@@ -39,7 +37,7 @@ public class WorkflowModule implements Module {
 	protected static final class WorkflowModuleInstance {
 
 		private final Application app;
-		private final List<ToolFactory> toolFactories;
+		// private final List<ToolFactory> toolFactories;
 		private final ElementEditorFactories eefs;
 
 		public WorkflowModuleInstance(Application a) {
@@ -49,12 +47,12 @@ public class WorkflowModule implements Module {
 			eefs.workflowFactories.add(new org.vanda.studio.modules.workflows.inspector.WorkflowEditor());
 			eefs.literalFactories.add(new LiteralEditor());
 
-			toolFactories = new LinkedList<ToolFactory>();
-			toolFactories.add(new DebuggerTool());
-			toolFactories.add(new InspectorTool(eefs));
-			toolFactories.add(new InstanceTool());
-			toolFactories.add(new RunTool());
-			toolFactories.add(new ToolFactory() {
+			ListRepository<ToolFactory> toolFactories = new ListRepository<ToolFactory>();
+			toolFactories.addItem(new DebuggerTool());
+			toolFactories.addItem(new InspectorTool(eefs));
+			toolFactories.addItem(new InstanceTool());
+			// toolFactories.add(new RunTool());
+			toolFactories.addItem(new ToolFactory() {
 				@Override
 				public Object instantiate(WorkflowEditor wfe, Model m) {
 					Action a = new SaveWorkflowAction(m);
@@ -62,6 +60,7 @@ public class WorkflowModule implements Module {
 					return a;
 				}
 			});
+			app.getToolFactoryMetaRepository().addRepository(toolFactories);
 
 			app.getWindowSystem().addAction(null, new OpenWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
 			app.getWindowSystem().addAction(null, new NewWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
@@ -76,7 +75,7 @@ public class WorkflowModule implements Module {
 			@Override
 			public void invoke() {
 				MutableWorkflow mwf = new MutableWorkflow("Workflow");
-				new WorkflowEditorImpl(app, mwf, toolFactories);
+				new WorkflowEditorImpl(app, mwf);
 			}
 		}
 
@@ -104,7 +103,7 @@ public class WorkflowModule implements Module {
 					MutableWorkflow hwf;
 					try {
 						hwf = Serialization.load(app, filePath);
-						new WorkflowEditorImpl(app, hwf, toolFactories);
+						new WorkflowEditorImpl(app, hwf);
 					} catch (Exception e) {
 						app.sendMessage(new ExceptionMessage(e));
 					}

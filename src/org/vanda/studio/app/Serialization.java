@@ -1,13 +1,13 @@
-package org.vanda.studio.model.hyper;
+package org.vanda.studio.app;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 
-import org.vanda.studio.app.Application;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Tool;
+import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.TokenSource;
 

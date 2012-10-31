@@ -5,7 +5,9 @@ import java.util.Collection;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.app.Profile;
+import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.model.elements.Linker;
+import org.vanda.studio.modules.common.ListRepository;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.modules.profile.concrete.HaskellCompiler;
 import org.vanda.studio.modules.profile.concrete.HaskellLinker;
@@ -59,7 +61,12 @@ public class ProfileModule implements Module {
 			repository.addItem(new ProfileImpl(app, profiles));
 			manager = null;
 			app.getProfileMetaRepository().addRepository(repository);
-			app.getWindowSystem().addAction(null, new OpenManagerAction(), null);
+			
+			ListRepository<ToolFactory> rep = new ListRepository<ToolFactory>();
+			rep.addItem(new RunTool());
+			app.getToolFactoryMetaRepository().addRepository(rep);
+			
+			// app.getWindowSystem().addAction(null, new OpenManagerAction(), null);
 		}
 
 		public final class OpenManagerAction implements Action {
