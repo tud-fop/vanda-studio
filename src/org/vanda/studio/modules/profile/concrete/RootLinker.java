@@ -87,8 +87,7 @@ public class RootLinker implements FragmentLinker {
 		StringBuilder sb = new StringBuilder();
 		sb.append("#!/bin/bash\n\nset -e\n\n");
 		
-		sb.append("BASEPATH=" + BASEPATH + "\n\n");
-		sb.append("source " + RCPATH + "\n\n");
+		sb.append("source " + RCPATH + "\n");
 		// sb.append("if [ -z \"$BASEPATH\" ]\nthen");
 		// sb.append("\n    echo \"Path not set\"\n    exit 1\nfi\n\n");
 
@@ -116,7 +115,7 @@ public class RootLinker implements FragmentLinker {
 			sb.append(Fragment.normalize(dep));
 		}
 		sb.append("\n\n");*/
-		sb.append("cd $BASEPATH\n");
+		sb.append("cd " + BASEPATH + "\n");
 		sb.append(Fragment.normalize(name));
 		sb.append('\n');
 
