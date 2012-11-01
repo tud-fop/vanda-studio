@@ -52,19 +52,19 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 				l.setType(t);
 			}
 		});
-		
+
 		final JTextField value = new JTextField(l.getValue());
 		value.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				l.setValue(value.getText());
-				
+
 			}
 		});
 
 		final Action aValue = new AbstractAction("...") {
-			
+
 			/**
 			 * 
 			 */
@@ -72,35 +72,37 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String prefix = System.getProperty("user.home") + "/.vanda/input/";
+				String prefix = System.getProperty("user.home")
+						+ "/.vanda/input/";
 				File f = new File(prefix);
 				FileSystemView rfsv = new RestrictedFileSystemView(f);
 				JFileChooser fc = new JFileChooser(rfsv);
 				int returnVal = fc.showOpenDialog(null);
 
-		        if (returnVal == JFileChooser.APPROVE_OPTION) {
-		            String choice = fc.getSelectedFile().getAbsolutePath().replaceFirst(prefix, "");
-		        	value.setText(choice);
-		            l.setValue(choice);
-		        }
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					String choice = fc.getSelectedFile().getAbsolutePath()
+							.replaceFirst(prefix, "");
+					value.setText(choice);
+					l.setValue(choice);
+				}
 			}
 		};
 		final JButton bValue = new JButton(aValue);
-		
-//		final JPanel valueBox = new JPanel();
-//		valueBox.setLayout(new BorderLayout());
-//		valueBox.add(value, BorderLayout.CENTER);
-//		valueBox.add(bValue, BorderLayout.EAST);
-		
-//		final JComboBox valueBox = new JComboBox();
-//		valueBox.setEditable(true);
-//		valueBox.setSelectedItem(l.getValue());
-//		valueBox.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				l.setValue(valueBox.getSelectedItem().toString());
-//			}
-//		});
+
+		// final JPanel valueBox = new JPanel();
+		// valueBox.setLayout(new BorderLayout());
+		// valueBox.add(value, BorderLayout.CENTER);
+		// valueBox.add(bValue, BorderLayout.EAST);
+
+		// final JComboBox valueBox = new JComboBox();
+		// valueBox.setEditable(true);
+		// valueBox.setSelectedItem(l.getValue());
+		// valueBox.addActionListener(new ActionListener() {
+		// @Override
+		// public void actionPerformed(ActionEvent e) {
+		// l.setValue(valueBox.getSelectedItem().toString());
+		// }
+		// });
 
 		JPanel editor = new JPanel();
 		GroupLayout layout = new GroupLayout(editor);
@@ -115,8 +117,7 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 				.addGroup(
 						layout.createParallelGroup().addComponent(typeBox)
 								.addComponent(value))
-				.addGroup(
-						layout.createParallelGroup().addComponent(bValue)));
+				.addGroup(layout.createParallelGroup().addComponent(bValue)));
 
 		layout.setVerticalGroup(layout
 				.createSequentialGroup()
@@ -127,43 +128,28 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 				.addGroup(
 						layout.createParallelGroup(
 								GroupLayout.Alignment.BASELINE)
-								.addComponent(label2)
-								.addComponent(value)
+								.addComponent(label2).addComponent(value)
 								.addComponent(bValue)));
 		return editor;
 	}
-	
-	private class RestrictedFileSystemView extends FileSystemView{
-		
+
+	private class RestrictedFileSystemView extends FileSystemView {
+
 		File rootDir;
 
-		public RestrictedFileSystemView(File root)
-		{
+		public RestrictedFileSystemView(File root) {
 			super();
 			rootDir = root;
 		}
-		
-		public boolean isRoot(File f) {
-			if (f.equals(rootDir)) return true;
-			return false;
-		}
 
 		@Override
-		public File getDefaultDirectory()
-		{
+		public File getDefaultDirectory() {
 			return rootDir;
 		}
 
 		@Override
-		public File getHomeDirectory()
-		{
+		public File getHomeDirectory() {
 			return rootDir;
-		}
-
-		@Override
-		public File[] getRoots()
-		{
-			return new File[] {rootDir};
 		}
 
 		@Override

@@ -74,6 +74,7 @@ class Graph extends mxGraph {
 			Object source, Object target, String style) {
 		if (value == null || "".equals(value))
 			value = new ConnectionAdapter(null);
+		// XXX don't call with a constant
 		return super.createEdge(parent, id, value, source, target, "ROUNDED");
 	}
 

@@ -534,7 +534,7 @@ public final class DrecksAdapter {
 				String st = mxStyleUtils.removeStylename(cell.getStyle(),
 						"highlightededge");
 				System.out.println(st);
-				cell.setStyle(null);
+				cell.setStyle(st);
 			}
 		}
 		graph.refresh();
