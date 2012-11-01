@@ -1,9 +1,5 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-
 import org.vanda.studio.model.Model;
 import org.vanda.studio.model.Model.ConnectionSelection;
 import org.vanda.studio.model.hyper.Connection;
@@ -79,27 +75,18 @@ public class ConnectionAdapter implements Adapter {
 	}
 
 	@Override
-	public void prependPath(LinkedList<Token> path) {
-		// do nothing
-	}
-
-	@Override
-	public void setSelection(Model m, List<Token> path) {
+	public void setSelection(Model m) {
 		if (cc != null)
-			m.setSelection(new ConnectionSelection(path, cc.address));
+			m.setSelection(new ConnectionSelection(m.getRoot(), cc.address));
 		else
 			m.setSelection(null);
+		// TODO no nesting support here because of m.getRoot()
 	}
 
 	@Override
 	public void register(mxICell parent, mxICell cell) {
 		WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
 		wa.setConnection(cc.address, cell);
-	}
-
-	@Override
-	public mxICell dereference(ListIterator<Token> path, mxICell current) {
-		return null;
 	}
 
 	@Override

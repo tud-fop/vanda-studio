@@ -35,6 +35,7 @@ public class AtomicJob extends Job implements ElementListener {
 	@Override
 	public AtomicJob clone() throws CloneNotSupportedException {
 		return new AtomicJob(element.clone());
+		// TODO clone dimensions
 	}
 
 	public Element getElement() {

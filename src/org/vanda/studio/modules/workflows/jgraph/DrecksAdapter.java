@@ -1,14 +1,10 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.vanda.studio.model.Model;
-import org.vanda.studio.model.Model.JobSelection;
-import org.vanda.studio.model.Model.SingleObjectSelection;
 import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
@@ -16,7 +12,6 @@ import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowChildEvent;
 import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowEvent;
 import org.vanda.studio.util.Observer;
-import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -28,7 +23,6 @@ import com.mxgraph.model.mxGraphModel.mxValueChange;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxPoint;
-import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
@@ -95,16 +89,7 @@ public final class DrecksAdapter {
 				} else if (c instanceof mxSelectionChange && model != null) {
 					Object cell = graph.getSelectionCell();
 					if (cell != null) {
-						LinkedList<Token> path = new LinkedList<Token>();
-						Object cl = (mxCell) gmodel.getParent(cell);
-						while (cl != null) {
-							Object value = gmodel.getValue(cl);
-							if (value != null)
-								((Adapter) value).prependPath(path);
-							cl = gmodel.getParent(cl);
-						}
-						((Adapter) gmodel.getValue(cell)).setSelection(model,
-								path);
+						((Adapter) gmodel.getValue(cell)).setSelection(model);
 					} else
 						model.setSelection(null);
 				}
@@ -213,7 +198,7 @@ public final class DrecksAdapter {
 				}
 			});
 
-			model.getMarkedElementsObservable().addObserver(
+			/*model.getMarkedElementsObservable().addObserver(
 					new Observer<Model>() {
 						@Override
 						public void notify(Model model) {
@@ -227,6 +212,7 @@ public final class DrecksAdapter {
 							highlightCells(markedCells);
 						}
 					});
+					*/
 		} else {
 			workflowListener = null;
 			// adapter is responsible for palette graph component,
@@ -295,6 +281,7 @@ public final class DrecksAdapter {
 		}
 	}
 
+	/*
 	private List<mxICell> calculateInverseCellList(Object cell,
 			List<mxICell> cells) {
 
@@ -329,11 +316,13 @@ public final class DrecksAdapter {
 
 		return inverseList;
 	}
+	*/
 
 	public mxGraph getGraph() {
 		return graph;
 	}
 
+	/*
 	private void highlightCells(List<mxICell> cells) {
 		for (mxICell cell : cells) {
 			if (cell.isVertex()) {
@@ -347,6 +336,7 @@ public final class DrecksAdapter {
 		}
 		graph.refresh();
 	}
+	*/
 
 	public void modifyChild(MutableWorkflow hwf, Job job) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
@@ -465,6 +455,7 @@ public final class DrecksAdapter {
 		}
 	}
 
+	/*
 	private List<mxICell> transformElementsToCells(
 			List<SingleObjectSelection> elements) {
 		List<mxICell> cellList = new ArrayList<mxICell>();
@@ -473,8 +464,9 @@ public final class DrecksAdapter {
 		List<mxICell> activeInputPorts = new ArrayList<mxICell>();
 
 		for (SingleObjectSelection element : elements) {
-			mxICell wfcell = ((Adapter) rootCell.getValue()).dereference(
-					element.path.listIterator(), rootCell);
+			mxICell wfcell = null;
+			// ((Adapter) rootCell.getValue()).dereference(
+			//		element.path.listIterator(), rootCell);
 			if (wfcell != null) {
 				WorkflowAdapter adapter = (WorkflowAdapter) wfcell.getValue();
 				mxICell cell = null;
@@ -521,6 +513,7 @@ public final class DrecksAdapter {
 
 		return cellList;
 	}
+	
 
 	private void unhighlightCells(List<mxICell> cells) {
 
@@ -539,4 +532,5 @@ public final class DrecksAdapter {
 		}
 		graph.refresh();
 	}
+	*/
 }

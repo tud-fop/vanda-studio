@@ -2,9 +2,6 @@ package org.vanda.studio.modules.workflows.jgraph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.vanda.studio.model.Model;
@@ -100,33 +97,14 @@ public class WorkflowAdapter implements Adapter {
 	}
 
 	@Override
-	public void prependPath(LinkedList<Token> path) {
-		// do nothing
-	}
-
-	@Override
-	public void setSelection(Model m, List<Token> path) {
-		m.setSelection(new WorkflowSelection(path));
+	public void setSelection(Model m) {
+		m.setSelection(new WorkflowSelection(workflow));
 	}
 
 	@Override
 	public void register(mxICell parent, mxICell cell) {
 		// do nothing
 		
-	}
-
-	@Override
-	public mxICell dereference(ListIterator<Token> path, mxICell current) {
-		if (!path.hasNext())
-			return current;
-		else {
-			Token address = path.next();
-			mxICell child = getChild(address);
-			if (child != null)
-				return ((Adapter) child.getValue()).dereference(path, child);
-			else
-				return null;
-		}
 	}
 
 	@Override

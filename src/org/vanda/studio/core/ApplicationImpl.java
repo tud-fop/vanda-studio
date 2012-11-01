@@ -5,13 +5,14 @@ package org.vanda.studio.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.MetaRepository;
-import org.vanda.studio.app.Profile;
+import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
@@ -37,7 +38,8 @@ public final class ApplicationImpl implements Application {
 	protected final MultiplexObserver<Message> messageObservable;
 	protected final MultiplexObserver<Application> modeObservable;
 	protected final CompositeRepository<Linker> linkerRepository;
-	protected final CompositeRepository<Profile> profileRepository;
+	// protected final CompositeRepository<Profile> profileRepository;
+	protected final HashMap<Type, PreviewFactory> previewFactories;
 	protected final CompositeRepository<Tool> toolRepository;
 	protected final CompositeRepository<ToolFactory> toolFactoryRepository;
 	protected final MultiplexObserver<Application> shutdownObservable;
@@ -53,7 +55,8 @@ public final class ApplicationImpl implements Application {
 		converterToolRepository = new CompositeRepository<Tool>();
 		modeObservable = new MultiplexObserver<Application>();
 		linkerRepository = new CompositeRepository<Linker>();
-		profileRepository = new CompositeRepository<Profile>();
+		// profileRepository = new CompositeRepository<Profile>();
+		previewFactories = new HashMap<Type, PreviewFactory>();
 		toolRepository = new CompositeRepository<Tool>();
 		toolFactoryRepository = new CompositeRepository<ToolFactory>();
 		shutdownObservable = new MultiplexObserver<Application>();
@@ -153,10 +156,10 @@ public final class ApplicationImpl implements Application {
 		return linkerRepository;
 	}
 
-	@Override
-	public MetaRepository<Profile> getProfileMetaRepository() {
-		return profileRepository;
-	}
+	// @Override
+	// public MetaRepository<Profile> getProfileMetaRepository() {
+	// 	return profileRepository;
+	// }
 
 	@Override
 	public MetaRepository<Tool> getToolMetaRepository() {
@@ -181,6 +184,19 @@ public final class ApplicationImpl implements Application {
 	@Override
 	public Set<Type> getTypes() {
 		return types;
+	}
+
+	@Override
+	public PreviewFactory getPreviewFactory(Type type) {
+		PreviewFactory result = previewFactories.get(type);
+		if (result == null)
+			result = previewFactories.get(null);
+		return result;
+	}
+
+	@Override
+	public void registerPreviewFactory(Type type, PreviewFactory pf) {
+		previewFactories.put(type, pf);
 	}
 
 }

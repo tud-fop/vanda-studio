@@ -1,6 +1,6 @@
 package org.vanda.studio.model.hyper;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -27,17 +27,16 @@ public abstract class Job implements HasActions, Cloneable {
 		void doNotify(JobListener jl);
 	}
 	
+	public final ArrayList<Token> inputs = new ArrayList<Token>();
+	
+	public final ArrayList<Token> outputs = new ArrayList<Token>();
 	
 	protected Token address;
 
-	protected double[] dimensions = new double[4];
-
+	protected final double[] dimensions = new double[4];
+	
 	@Override
-	public Job clone() throws CloneNotSupportedException {
-		Job cl = (Job) super.clone();
-		cl.dimensions = Arrays.copyOf(dimensions, 4);
-		return cl;
-	}
+	public abstract Job clone() throws CloneNotSupportedException;
 
 	public abstract MutableWorkflow dereference(ListIterator<Token> address);
 

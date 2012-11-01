@@ -37,6 +37,7 @@ public class CompositeJob extends Job implements WorkflowListener {
 	@Override
 	public CompositeJob clone() throws CloneNotSupportedException {
 		return new CompositeJob(linker, workflow.clone());
+		// TODO clone dimensions
 	}
 
 	@Override

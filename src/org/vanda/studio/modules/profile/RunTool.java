@@ -26,7 +26,6 @@ import javax.swing.SwingWorker;
 import javax.swing.text.DefaultCaret;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.app.Profile;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
@@ -43,8 +42,8 @@ public class RunTool implements ToolFactory {
 		private final WorkflowEditor wfe;
 		private final Model m;
 		private final Application app;
-		private Profile prof;
-		private Fragment frag;
+		private final Profile prof;
+		// private Fragment frag;
 		private final List<Run> runs;
 		private final JTextArea tRuntool;
 		private final JScrollPane sRuntool;
@@ -52,73 +51,84 @@ public class RunTool implements ToolFactory {
 		private final JButton bClear, bCancel;
 		private final JComboBox lRuns;
 
-		public Tool(WorkflowEditor wfe, Model m) {
+		public Tool(WorkflowEditor wfe, Model m, Profile prof) {
 			this.wfe = wfe;
 			this.m = m;
 			app = wfe.getApplication();
-			prof = app.getProfileMetaRepository().getRepository()
-					.getItem("fragment-profile");
-			if (prof != null){
-				wfe.addAction(new GenerateAction(), KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
-				wfe.addAction(new RunAction(), KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
-			}
+			this.prof = prof;
+			// prof = app.getProfileMetaRepository().getRepository()
+			// .getItem("fragment-profile");
+			// if (prof != null){
+			wfe.addAction(new GenerateAction(),
+					KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
+			wfe.addAction(new RunAction(),
+					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+			// }
 			runs = new ArrayList<Run>();
-			
+
 			tRuntool = new JTextArea();
 			sRuntool = new JScrollPane(tRuntool);
-			DefaultCaret caret = (DefaultCaret)tRuntool.getCaret();
+			DefaultCaret caret = (DefaultCaret) tRuntool.getCaret();
 			caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-			
+
 			pMain = new JPanel();
 			pMain.setName("Run");
 			pMain.setLayout(new GridBagLayout());
-			
+
 			bClear = new JButton(new ClearAction());
 			bClear.setText("clear");
 			bCancel = new JButton(new CancelAction());
 			bCancel.setText("cancel");
-			
+
 			lRuns = new JComboBox();
 			lRuns.addItemListener(new ItemListener() {
-				
+
 				@Override
 				public void itemStateChanged(ItemEvent e) {
 					Run r = (Run) lRuns.getSelectedItem();
 					if (r != null) {
 						// String txt = r.getText();
-						tRuntool.setText(((Run) lRuns.getSelectedItem()).getText());
+						tRuntool.setText(((Run) lRuns.getSelectedItem())
+								.getText());
 					}
 				}
 			});
-			
+
 			GridBagConstraints gbc = new GridBagConstraints();
 			gbc.fill = GridBagConstraints.BOTH;
-			
-			gbc.weightx = 0; gbc.weighty = 0;
-			gbc.gridwidth = 1; gbc.gridheight = 1;
-			
-			gbc.gridx = 1; gbc.gridy = 0;
+
+			gbc.weightx = 0;
+			gbc.weighty = 0;
+			gbc.gridwidth = 1;
+			gbc.gridheight = 1;
+
+			gbc.gridx = 1;
+			gbc.gridy = 0;
 			pMain.add(bCancel, gbc);
-			
-			gbc.gridx = 2; gbc.gridy = 0;
+
+			gbc.gridx = 2;
+			gbc.gridy = 0;
 			pMain.add(bClear, gbc);
 
-			gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 1;
+			gbc.gridx = 0;
+			gbc.gridy = 0;
+			gbc.weightx = 1;
 			pMain.add(lRuns, gbc);
-			
-			gbc.gridx = 0; gbc.gridy = 1; gbc.weighty = 1; gbc.gridwidth = 3;
+
+			gbc.gridx = 0;
+			gbc.gridy = 1;
+			gbc.weighty = 1;
+			gbc.gridwidth = 3;
 			pMain.add(sRuntool, gbc);
-					
-			this.wfe.addToolWindow(pMain);
 		}
-		
+
 		private final class Run {
 			private String text = "";
 			private Date date;
 			private Fragment frag;
 			private SwingWorker<String, String> sw;
 			private boolean running = true, finished = false;
-			
+
 			public Run(Fragment fragment) {
 				date = new Date();
 				frag = fragment;
@@ -129,12 +139,12 @@ public class RunTool implements ToolFactory {
 						runFragment();
 						return null;
 					}
-					
+
 				};
 				append(date.toString());
 				sw.execute();
 			}
-			
+
 			public String toString() {
 				if (running)
 					return "[R] " + date.toString();
@@ -142,19 +152,19 @@ public class RunTool implements ToolFactory {
 					return "[D] " + date.toString();
 				return "[C] " + date.toString();
 			}
-			
+
 			public String getText() {
 				return text;
 			}
-			
+
 			public void append(String line) {
 				text += line + "\n";
-				if (lRuns.getSelectedItem() == this){
+				if (lRuns.getSelectedItem() == this) {
 					tRuntool.setText(getText());
 					pMain.revalidate();
 				}
 			}
-			
+
 			public void cancel() {
 				sw.cancel(true);
 				running = false;
@@ -162,7 +172,7 @@ public class RunTool implements ToolFactory {
 				lRuns.revalidate();
 				pMain.revalidate();
 			}
-			
+
 			public void finish() {
 				finished = true;
 				running = false;
@@ -170,21 +180,23 @@ public class RunTool implements ToolFactory {
 				lRuns.revalidate();
 				pMain.revalidate();
 			}
-			
+
 			private void runFragment() {
 				// generate();
 				String fileName = Fragment.normalize(frag.name);
 				Runtime rt = Runtime.getRuntime();
 				try {
-					Process p = rt.exec(RCChecker.getOutPath() + "/" + fileName, null, null);
-					
+					Process p = rt
+							.exec(RCChecker.getOutPath() + "/" + fileName,
+									null, null);
+
 					InputStream stdin = p.getInputStream();
 					InputStreamReader isr = new InputStreamReader(stdin);
 					BufferedReader br = new BufferedReader(isr);
 
 					String line = null;
-					while ( (line = br.readLine()) != null){
-					     append(line);
+					while ((line = br.readLine()) != null) {
+						append(line);
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -192,9 +204,9 @@ public class RunTool implements ToolFactory {
 				}
 				finish();
 			}
-			
+
 		}
-		
+
 		private final class ClearAction extends AbstractAction {
 
 			/**
@@ -205,7 +217,7 @@ public class RunTool implements ToolFactory {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				List<Run> runs2 = new ArrayList<Run>();
-				for (Run r : runs){
+				for (Run r : runs) {
 					if (r.running)
 						runs2.add(r);
 				}
@@ -216,11 +228,11 @@ public class RunTool implements ToolFactory {
 					lRuns.setSelectedIndex(runs.size() - 1);
 				else
 					tRuntool.setText("");
-				
+				Tool.this.wfe.removeToolWindow(pMain);
 			}
-			
+
 		}
-		
+
 		private final class CancelAction extends AbstractAction {
 
 			/**
@@ -233,7 +245,7 @@ public class RunTool implements ToolFactory {
 				((Run) lRuns.getSelectedItem()).cancel();
 				pMain.revalidate();
 			}
-			
+
 		}
 
 		private final class GenerateAction implements Action {
@@ -249,7 +261,7 @@ public class RunTool implements ToolFactory {
 			}
 
 		}
-		
+
 		private final class RunAction implements Action {
 
 			@Override
@@ -259,19 +271,21 @@ public class RunTool implements ToolFactory {
 
 			@Override
 			public void invoke() {
-				generate();
-				/*if (frag != null){
+				Fragment frag = generate();
+				if (frag != null) {
 					Run r = new Run(frag);
 					runs.add(r);
 					lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
 					lRuns.setSelectedItem(r);
 					pMain.revalidate();
-				}*/
+					Tool.this.wfe.addToolWindow(pMain);
+					Tool.this.wfe.focusToolWindow(pMain);
+				}
 			}
 
 		}
 
-		private void generate() {
+		private Fragment generate() {
 			try {
 				m.checkWorkflow();
 			} catch (Exception e1) {
@@ -283,23 +297,30 @@ public class RunTool implements ToolFactory {
 					&& unfolded.size() != 0
 					&& Types.canUnify(unfolded.get(0).getFragmentType(),
 							prof.getRootType())) {
+				// TODO this workflow metaprogramming resolution
+				// should be done in the model!
 				ImmutableWorkflow root = new ImmutableWorkflow(m.getRoot()
 						.getName(), unfolded);
 				try {
-					prof.generate(root);
+					return prof.generate(root);
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}
 			}
+			return null;
 		}
-		
-		
-		
+
+	}
+
+	private final Profile prof;
+
+	public RunTool(Profile prof) {
+		this.prof = prof;
 	}
 
 	@Override
 	public Object instantiate(WorkflowEditor wfe, Model m) {
-		return new Tool(wfe, m);
+		return new Tool(wfe, m, prof);
 	}
 
 }

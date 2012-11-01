@@ -45,6 +45,7 @@ public final class Launcher implements Runnable {
 				// new org.vanda.studio.modules.wrtgs.WrtgModule(),
 				// new org.vanda.studio.modules.terms.TermModule(),
 				new org.vanda.studio.modules.workflows.WorkflowModule() };
+		app.registerPreviewFactory(null, new DefaultPreviewFactory(app));
 
 		ModuleManager moduleManager = new ModuleManager(app);
 		moduleManager.loadModules();

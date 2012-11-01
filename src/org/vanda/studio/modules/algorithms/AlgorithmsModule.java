@@ -8,20 +8,14 @@ import java.util.List;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.model.elements.IdentityLinker;
-import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
-import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.model.types.Type;
-import org.vanda.studio.model.types.TypeVariable;
 import org.vanda.studio.model.types.Types;
-import org.vanda.studio.modules.common.LinkerUtil;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
-import org.vanda.studio.util.TokenSource;
 
 /**
  * @author buechse
@@ -44,8 +38,9 @@ public class AlgorithmsModule implements Module {
 		private final Application app;
 
 		private static Type shellType = Types.shellType;
-		private static Type haskellType = Types.haskellType;
+		// private static Type haskellType = Types.haskellType;
 
+		/*
 		private static class Plain2Snt extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
@@ -107,7 +102,7 @@ public class AlgorithmsModule implements Module {
 			public String getVersion() {
 				return "2012-05-16";
 			}
-		}
+		}*/
 
 		private static class GIZA extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
@@ -620,6 +615,7 @@ public class AlgorithmsModule implements Module {
 			}
 		}
 
+		/*
 		static class LoadSCFG extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static List<Port> outputPorts = new ArrayList<Port>();
@@ -1286,7 +1282,7 @@ public class AlgorithmsModule implements Module {
 				v.visitLinker(this);
 			}
 
-		}
+		}*/
 
 		public WorkflowModuleInstance(Application a) {
 			app = a;

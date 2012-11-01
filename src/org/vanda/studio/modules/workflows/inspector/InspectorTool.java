@@ -1,8 +1,6 @@
 package org.vanda.studio.modules.workflows.inspector;
 
 import java.awt.BorderLayout;
-import java.util.Collections;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -14,13 +12,9 @@ import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
 import org.vanda.studio.model.Model.WorkflowSelection;
 import org.vanda.studio.util.Observer;
-import org.vanda.studio.util.TokenSource.Token;
 
 public class InspectorTool implements ToolFactory {
 
-	@SuppressWarnings("unchecked")
-	private static final WorkflowSelection emptySelection = new WorkflowSelection(
-			(List<Token>) Collections.EMPTY_LIST);
 	private final ElementEditorFactories eefs;
 
 	public final class Inspector {
@@ -41,7 +35,7 @@ public class InspectorTool implements ToolFactory {
 			therealinspector = new JScrollPane(inspector);
 			contentPane = new JPanel(new BorderLayout());
 			contentPane.add(therealinspector, BorderLayout.CENTER);
-			contentPane.setName("Inspector");
+			contentPane.setName("Syntax Inspector");
 			editor = null;
 			this.wfe.addToolWindow(contentPane);
 			Observer<Object> obs = new Observer<Object>() {
@@ -61,12 +55,12 @@ public class InspectorTool implements ToolFactory {
 		public void update() {
 			WorkflowSelection ws = m.getSelection();
 			if (ws == null)
-				ws = emptySelection;
+				ws = new WorkflowSelection(m.getRoot());
 			// set inspector text
 			{
 				InspectorialVisitor visitor = new InspectorialVisitor(m);
 				if (ws != null) // <--- always true for now
-					ws.visit(m.getRoot(), visitor);
+					ws.visit(visitor);
 				inspector.setText(visitor.getInspection());
 			}
 			// create editor
@@ -74,7 +68,7 @@ public class InspectorTool implements ToolFactory {
 				EditorialVisitor visitor = new EditorialVisitor(eefs,
 						wfe.getApplication());
 				if (ws != null) // <--- always true for now
-					ws.visit(m.getRoot(), visitor);
+					ws.visit(visitor);
 				if (visitor.getEditor() != editor) {
 					if (editor != null) {
 						contentPane.remove(editor);

@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.app.Profile;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.modules.common.ListRepository;
@@ -41,32 +40,38 @@ public class ProfileModule implements Module {
 		public ProfileModuleInstance(Application app) {
 			this.app = app;
 			profiles = new ProfilesImpl();
-			SimpleRepository<FragmentCompiler> compilers = new SimpleRepository<FragmentCompiler>(null);
+			SimpleRepository<FragmentCompiler> compilers = new SimpleRepository<FragmentCompiler>(
+					null);
 			compilers.addItem(new HaskellCompiler());
 			compilers.addItem(new ShellCompiler());
-			profiles.getFragmentCompilerMetaRepository().addRepository(compilers);
-			SimpleRepository<FragmentLinker> linkers = new SimpleRepository<FragmentLinker>(null);
+			profiles.getFragmentCompilerMetaRepository().addRepository(
+					compilers);
+			SimpleRepository<FragmentLinker> linkers = new SimpleRepository<FragmentLinker>(
+					null);
 			linkers.addItem(new IdentityLinker());
 			linkers.addItem(new HaskellLinker());
 			profiles.getFragmentLinkerMetaRepository().addRepository(linkers);
 			if (false) {
-				Collection<Linker> ls = app.getLinkerMetaRepository().getRepository().getItems();
+				Collection<Linker> ls = app.getLinkerMetaRepository()
+						.getRepository().getItems();
 				for (Linker l : ls) {
 					FragmentLinker fl = profiles.getLinker(l.getId());
-					if (fl == null /*|| !fl.check(l)*/)
+					if (fl == null /* || !fl.check(l) */)
 						throw new RuntimeException();
 				}
 			}
 			repository = new SimpleRepository<Profile>(null);
 			repository.addItem(new ProfileImpl(app, profiles));
 			manager = null;
-			app.getProfileMetaRepository().addRepository(repository);
-			
+			// app.getProfileMetaRepository().addRepository(repository);
+
 			ListRepository<ToolFactory> rep = new ListRepository<ToolFactory>();
-			rep.addItem(new RunTool());
+			rep.addItem(new RunTool(repository.getItem("fragment-profile")));
+			rep.addItem(new InspectorTool(profiles));
 			app.getToolFactoryMetaRepository().addRepository(rep);
-			
-			// app.getWindowSystem().addAction(null, new OpenManagerAction(), null);
+
+			app.getWindowSystem()
+					.addAction(null, new OpenManagerAction(), null);
 		}
 
 		public final class OpenManagerAction implements Action {
@@ -79,12 +84,13 @@ public class ProfileModule implements Module {
 			public void invoke() {
 				if (manager == null) {
 					manager = new ProfileManager(app, repository);
-					manager.getCloseObservable().addObserver(new CloseObserver());
+					manager.getCloseObservable().addObserver(
+							new CloseObserver());
 				}
-				manager.focus();				
+				manager.focus();
 			}
 		}
-		
+
 		public final class CloseObserver implements Observer<ProfileManager> {
 			@Override
 			public void notify(ProfileManager event) {

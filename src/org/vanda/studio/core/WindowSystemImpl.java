@@ -80,7 +80,8 @@ public class WindowSystemImpl implements WindowSystem {
 		menuBar = new JMenuBar();
 		fileMenu = new JMenu("Studio");
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
-		exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_MASK));
+		exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+				KeyEvent.CTRL_MASK));
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -170,7 +171,8 @@ public class WindowSystemImpl implements WindowSystem {
 						toolPane.add(tc);
 				}
 				try {
-					toolPane.setSelectedIndex(idx);
+					toolPane.setSelectedIndex(Math.min(idx,
+							toolPane.getTabCount() - 1));
 				} catch (IndexOutOfBoundsException ex) {
 					// ignore
 				}
@@ -194,7 +196,7 @@ public class WindowSystemImpl implements WindowSystem {
 			}
 		});
 	}
-	
+
 	@Override
 	public void addAction(JComponent c, final Action a, KeyStroke keyStroke) {
 		JMenuItem item = new JMenuItem(a.getName());
@@ -248,9 +250,11 @@ public class WindowSystemImpl implements WindowSystem {
 			tcs = new ArrayList<JComponent>();
 			windowTools.put(window, tcs);
 		}
-		tcs.add(c);
-		if (contentPane.getSelectedComponent() == window)
-			toolPane.add(c);
+		if (!tcs.contains(c)) {
+			tcs.add(c);
+			if (contentPane.getSelectedComponent() == window)
+				toolPane.add(c);
+		}
 	}
 
 	@Override

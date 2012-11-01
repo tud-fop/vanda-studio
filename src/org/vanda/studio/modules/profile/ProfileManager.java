@@ -14,7 +14,6 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.app.Profile;
 import org.vanda.studio.app.Repository;
 import org.vanda.studio.model.elements.RepositoryItem;
 import org.vanda.studio.modules.common.SimpleRepository;

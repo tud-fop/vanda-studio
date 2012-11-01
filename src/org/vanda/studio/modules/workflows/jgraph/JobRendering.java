@@ -7,6 +7,7 @@ import java.util.Map;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.hyper.Job;
+import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -55,12 +56,12 @@ public class JobRendering {
 			r.addStyle(style);
 			stylesheet.putCellStyle(r.getStyleName(), style);
 		}
-	
+
 		style = new HashMap<String, Object>();
 		style.put(mxConstants.STYLE_STROKECOLOR, "#0099FF");
 		style.put(mxConstants.STYLE_STROKEWIDTH, "3");
 		stylesheet.putCellStyle("highlighted", style);
-		
+
 		style = new HashMap<String, Object>(stylesheet.getDefaultEdgeStyle());
 		style.put(mxConstants.STYLE_STROKECOLOR, "#0099FF");
 		style.put(mxConstants.STYLE_STROKEWIDTH, "3");
@@ -76,7 +77,9 @@ public class JobRendering {
 		 */
 
 		style = stylesheet.getDefaultEdgeStyle();
-		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.SideToSide);
+		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.orthConnector); // SideToSide);
+		style.put(mxConstants.STYLE_ROUNDED, "true");
+		style.put(mxConstants.STYLE_MOVABLE, "false");
 
 		style = new HashMap<String, Object>();
 		// portStyle.putAll(graph.getStylesheet().getDefaultVertexStyle());
@@ -97,6 +100,15 @@ public class JobRendering {
 		style.put(mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
 		style.put(mxConstants.STYLE_PORT_CONSTRAINT, mxConstants.DIRECTION_EAST);
 		stylesheet.putCellStyle("outport", style);
+
+		style = new HashMap<String, Object>();
+		// portStyle.putAll(graph.getStylesheet().getDefaultVertexStyle());
+		style.put(mxConstants.STYLE_MOVABLE, "false");
+		style.put(mxConstants.STYLE_NOLABEL, "true");
+		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
+		style.put(mxConstants.STYLE_PERIMETER, mxPerimeter.EllipsePerimeter);
+		style.put(mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
+		stylesheet.putCellStyle("location", style);
 
 		return stylesheet;
 	}
@@ -180,7 +192,7 @@ public class JobRendering {
 		@Override
 		public void addStyle(Map<String, Object> style) {
 			// style.put(mxConstants.STYLE_AUTOSIZE, "0");
-			style.put(mxConstants.STYLE_SPACING, 10);
+			style.put(mxConstants.STYLE_SPACING, 14);
 			style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
 			style.put(mxConstants.STYLE_AUTOSIZE, "1");
 			style.put(mxConstants.STYLE_RESIZABLE, "0");
@@ -198,8 +210,8 @@ public class JobRendering {
 			try {
 				// insert new node into the graph that has the specified hwf as
 				// value and that shared the same dimensions
-				v = (mxCell) g.insertVertex(parent, null, createAdapter(hj), hj.getX(),
-						hj.getY(), hj.getWidth(), hj.getHeight(),
+				v = (mxCell) g.insertVertex(parent, null, createAdapter(hj),
+						hj.getX(), hj.getY(), hj.getWidth(), hj.getHeight(),
 						this.getStyleName());
 				v.setConnectable(false);
 
@@ -226,15 +238,30 @@ public class JobRendering {
 				List<Port> out = hj.getOutputPorts();
 				for (int i = 0; i < out.size(); i++) {
 					mxGeometry geo = new mxGeometry(1, (i + 1.0)
-							/ (out.size() + 1.0), PORT_DIAMETER, PORT_DIAMETER);
-					geo.setOffset(new mxPoint(0, -PORT_RADIUS));
+							/ (out.size() + 1.0), LOCATION_DIAMETER,
+							LOCATION_DIAMETER);
+					geo.setOffset(new mxPoint(-LOCATION_RADIUS,
+							-LOCATION_RADIUS));
 					geo.setRelative(true);
 
+					Token address = null;
+					if (hj.outputs.size() > 0) {
+						address = hj.outputs.get(i);
+					}
+					mxCell loc = new mxCell(new LocationAdapter(i, address),
+							geo, "location");
+					loc.setVertex(true);
+
+					geo = new mxGeometry(1, (i + 1.0) / (out.size() + 1.0),
+							OUTPORT_DIAMETER, OUTPORT_DIAMETER);
+					geo.setOffset(new mxPoint(LOCATION_RADIUS, -OUTPORT_RADIUS));
+					geo.setRelative(true);
 					mxCell port = new mxCell(new PortAdapter(false, i), geo,
 							"outport");
 					port.setVertex(true);
 
 					g.addCell(port, v);
+					g.addCell(loc, v);
 				}
 
 			} finally {
@@ -242,7 +269,7 @@ public class JobRendering {
 			}
 			return v;
 		}
-		
+
 		protected Adapter createAdapter(Job job) {
 			return new JobAdapter(job);
 		}
@@ -308,7 +335,7 @@ public class JobRendering {
 			style.put(mxConstants.STYLE_AUTOSIZE, "0");
 			style.put(mxConstants.STYLE_STARTSIZE, "23");
 		}
-		
+
 		@Override
 		public String getStyleName() {
 			return "workflow";
@@ -326,38 +353,38 @@ public class JobRendering {
 		@Override
 		public void addStyle(Map<String, Object> style) {
 			super.addStyle(style);
-			//style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
+			// style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
 			style.put(mxConstants.STYLE_NOLABEL, "true");
 		}
-		
+
 		@Override
 		public String getStyleName() {
 			return "inputPort";
 		}
-		
+
 		@Override
 		protected Adapter createAdapter(Job job) {
 			return new InputPortAdapter(job);
-		}		
+		}
 	}
 
 	protected static class OutputPortRenderer extends DefaultRenderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
 			super.addStyle(style);
-			//style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
+			// style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
 			style.put(mxConstants.STYLE_NOLABEL, "true");
 		}
-		
+
 		@Override
 		public String getStyleName() {
 			return "outputPort";
 		}
-		
+
 		@Override
 		protected Adapter createAdapter(Job job) {
 			return new OutputPortAdapter(job);
-		}		
+		}
 	}
 
 	protected static class BoxRenderer extends DefaultRenderer {
@@ -370,12 +397,12 @@ public class JobRendering {
 			style.put(mxConstants.STYLE_NOLABEL, "true");
 			style.put(mxConstants.STYLE_FILLCOLOR, "white");
 		}
-		
+
 		@Override
 		public String getStyleName() {
 			return "box";
 		}
-		
+
 		@Override
 		protected Adapter createAdapter(Job job) {
 			return new CompositeJobAdapter(job);
@@ -386,4 +413,11 @@ public class JobRendering {
 
 	protected static final int PORT_RADIUS = PORT_DIAMETER / 2;
 
+	protected static final int OUTPORT_DIAMETER = 14;
+
+	protected static final int OUTPORT_RADIUS = OUTPORT_DIAMETER / 2;
+
+	protected static final int LOCATION_DIAMETER = 16;
+
+	protected static final int LOCATION_RADIUS = LOCATION_DIAMETER / 2;
 }

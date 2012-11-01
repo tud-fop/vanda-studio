@@ -48,9 +48,9 @@ public class WorkflowModule implements Module {
 			eefs.literalFactories.add(new LiteralEditor());
 
 			ListRepository<ToolFactory> toolFactories = new ListRepository<ToolFactory>();
-			toolFactories.addItem(new DebuggerTool());
+			// toolFactories.addItem(new DebuggerTool());
 			toolFactories.addItem(new InspectorTool(eefs));
-			toolFactories.addItem(new InstanceTool());
+			// toolFactories.addItem(new InstanceTool());
 			// toolFactories.add(new RunTool());
 			toolFactories.addItem(new ToolFactory() {
 				@Override

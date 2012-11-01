@@ -47,8 +47,8 @@ public class DataflowAnalysis {
 		values = new String[varcount];
 	}
 
-	public List<String> doIt(List<String> inputs, Profiles p) {
-		List<String> result = new ArrayList<String>(outportIndex.size());
+	public void doIt(List<String> inputs, Profiles p) {
+		// List<String> result = new ArrayList<String>(outportIndex.size());
 		for (JobInfo ji : workflow.getChildren()) {
 			if (ji.job instanceof AtomicImmutableJob) {
 				AtomicImmutableJob aj = (AtomicImmutableJob) ji.job;
@@ -56,10 +56,10 @@ public class DataflowAnalysis {
 					values[ji.outputs.get(0).intValue()] = inputs
 							.get(inportIndex.get(aj.getOutputPorts().get(0)));
 				} else if (aj.isOutputPort()) {
-					int n = outportIndex.get(aj.getInputPorts().get(0));
+					/* int n = outportIndex.get(aj.getInputPorts().get(0));
 					while (n >= result.size())
 						result.add(null);
-					result.set(n, values[ji.inputs.get(0).intValue()]);
+					result.set(n, values[ji.inputs.get(0).intValue()]); */
 				} else if (aj.isChoice()) {
 					for (int i = 0; i < ji.inputs.size(); i++) {
 						Token var = ji.inputs.get(i);
@@ -95,16 +95,30 @@ public class DataflowAnalysis {
 				for (int i = 0; i < ji.inputs.size(); i++)
 					inp2.add(values[ji.inputs.get(i).intValue()]);
 				inp2 = fl.convertInputs(inp2);
-				List<String> out2 = deref.get(ji.job.getAddress())
-						.doIt(inp2, p);
+				DataflowAnalysis dfa = deref.get(ji.job.getAddress());
+				dfa.doIt(inp2, p);
+				List<String> out2 = dfa.getOutputs();
 				out2 = fl.convertOutputs(out2, inp2, "SALAD"); // FIXME
 				assert (out2.size() == ji.outputs.size());
 				for (int i = 0; i < ji.outputs.size(); i++)
 					values[ji.outputs.get(i).intValue()] = out2.get(i);
 			}
 		}
-
+	}
+	
+	public List<String> getOutputs() {
+		List<Token> outs = workflow.getOutputPortVariables();
+		ArrayList<String> result = new ArrayList<String>(outs.size());
+		for (int i = 0; i < outs.size(); i++)
+			result.add(values[outs.get(i).intValue()]);
 		return result;
+	}
+	
+	public String getValue(Token address) {
+		if (address != null && address.intValue() < values.length)
+			return values[address.intValue()];
+		else
+			return null;
 	}
 
 	private static final void makeIndex(List<Port> l, Map<Port, Integer> m) {

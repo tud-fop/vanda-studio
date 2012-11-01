@@ -41,7 +41,9 @@ public interface Application {
 	 * Returns the repository of profile repositories. Modules should add or
 	 * remove their own repositories here.
 	 */
-	MetaRepository<Profile> getProfileMetaRepository();
+	// MetaRepository<Profile> getProfileMetaRepository();
+	
+	PreviewFactory getPreviewFactory(Type type);
 
 	Set<Type> getTypes();
 	
@@ -90,6 +92,14 @@ public interface Application {
 	/**
 	 */
 	WindowSystem getWindowSystem();
+	
+	/**
+	 * if type is null, pf will be regarded as fallback
+	 * 
+	 * @param type
+	 * @param pf
+	 */
+	void registerPreviewFactory(Type type, PreviewFactory pf);
 	
 	/**
 	 */

@@ -24,13 +24,14 @@ import javax.swing.filechooser.FileSystemView;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.elements.Literal;
+import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.TokenSource.Token;
 
 public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 	@Override
-	public JComponent createEditor(Application app, List<Token> path,
+	public JComponent createEditor(Application app, MutableWorkflow wf,
 			Token address, final Literal l) {
 		final JLabel label1 = new JLabel("Type:");
 		final JLabel label2 = new JLabel("Value:");

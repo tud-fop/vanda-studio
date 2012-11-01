@@ -1,10 +1,7 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import java.util.ListIterator;
-
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -114,15 +111,6 @@ public class CompositeJobAdapter extends JobAdapter {
 		}
 	}
 
-	@Override
-	public mxICell dereference(ListIterator<Token> path, mxICell current) {
-		mxICell child = findWorkflow(current);
-		if (child != null)
-			return ((Adapter) child.getValue()).dereference(path, child);
-		else
-			return null;
-	}
-	
 	public mxICell renderWorkflowCell(mxGraph graph, mxICell cell, MutableWorkflow hwf) {
 		// two reasons why we might not know about hwf:
 		// a) it is not in the graph

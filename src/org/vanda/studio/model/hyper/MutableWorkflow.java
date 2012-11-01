@@ -139,12 +139,12 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 		DJobInfo tji = children.get(cc.target.intValue());
 		assert (sji.job.getOutputPorts().get(cc.sourcePort) != null);
 		assert (tji.job.getInputPorts().get(cc.targetPort) != null);
-		if (tji.inputs.get(cc.targetPort) != null)
+		if (tji.job.inputs.get(cc.targetPort) != null)
 			throw new RuntimeException("!!!"); // FIXME better exception
-		Token tok = sji.outputs.get(cc.sourcePort);
+		Token tok = sji.job.outputs.get(cc.sourcePort);
 		DConnInfo ci = new DConnInfo(tok, cc);
 		cc.address = connectionAddressSource.makeToken();
-		tji.inputs.set(cc.targetPort, tok);
+		tji.job.inputs.set(cc.targetPort, tok);
 		tji.inputsBlocked++;
 		if (cc.address.intValue() < connections.size())
 			connections.set(cc.address.intValue(), ci);
@@ -167,8 +167,8 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 
 	public Token getVariable(Token source, int sourcePort) {
 		DJobInfo ji = children.get(source.intValue());
-		if (ji != null && 0 <= sourcePort && sourcePort < ji.outputs.size()) {
-			return ji.outputs.get(sourcePort);
+		if (ji != null && 0 <= sourcePort && sourcePort < ji.job.outputs.size()) {
+			return ji.job.outputs.get(sourcePort);
 		} else
 			return null;
 	}
@@ -209,8 +209,8 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 					removeConnection(ci.cc.address);
 			}
 		}
-		for (int i = 0; i < ji.outputs.size(); i++) {
-			variableSource.recycleToken(ji.outputs.get(i));
+		for (int i = 0; i < ji.job.outputs.size(); i++) {
+			variableSource.recycleToken(ji.job.outputs.get(i));
 		}
 		unbind(ji.job);
 		children.set(ji.job.address.intValue(), null);
@@ -225,7 +225,7 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 			DJobInfo sji = children.get(ci.cc.source.intValue());
 			DJobInfo tji = children.get(ci.cc.target.intValue());
 			// assert (sji.outputs.get(sourcePort) == tji.inputs.get(ci.port));
-			tji.inputs.set(ci.cc.targetPort, null);
+			tji.job.inputs.set(ci.cc.targetPort, null);
 			tji.inputsBlocked--;
 			sji.outCount--;
 			connections.set(address.intValue(), null);
@@ -323,11 +323,11 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 	@Override
 	public void inputPortAdded(Job j, int index) {
 		DJobInfo ji = children.get(j.address.intValue());
-		if (index >= ji.inputs.size()) {
-			assert (index == ji.inputs.size());
-			ji.inputs.add(null);
+		if (index >= ji.job.inputs.size()) {
+			assert (index == ji.job.inputs.size());
+			ji.job.inputs.add(null);
 		} else
-			assert (ji.inputs.get(index) == null);
+			assert (ji.job.inputs.get(index) == null);
 		childObservable.notify(new Workflows.ChildInputPortAddedEvent(this, j,
 				index));
 	}
@@ -343,7 +343,7 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 					removeConnection(ci.cc.address);
 			}
 		}
-		ji.inputs.set(index, null);
+		ji.job.inputs.set(index, null);
 		childObservable.notify(new Workflows.ChildInputPortRemovedEvent(this,
 				j, index));
 	}
@@ -351,12 +351,12 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 	@Override
 	public void outputPortAdded(Job j, int index) {
 		DJobInfo ji = children.get(j.address.intValue());
-		if (index >= ji.outputs.size()) {
-			assert (index == ji.outputs.size());
-			ji.outputs.add(null);
+		if (index >= ji.job.outputs.size()) {
+			assert (index == ji.job.outputs.size());
+			ji.job.outputs.add(null);
 		} else
-			assert (ji.outputs.get(index) == null);
-		ji.outputs.set(index, variableSource.makeToken());
+			assert (ji.job.outputs.get(index) == null);
+		ji.job.outputs.set(index, variableSource.makeToken());
 		childObservable.notify(new Workflows.ChildOutputPortAddedEvent(this, j,
 				index));
 	}
@@ -364,7 +364,7 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 	@Override
 	public void outputPortRemoved(Job j, int index) {
 		DJobInfo ji = children.get(j.address.intValue());
-		Token var = ji.outputs.set(index, null);
+		Token var = ji.job.outputs.set(index, null);
 		variableSource.recycleToken(var);
 		// remove connections from this port
 		for (int i = 0; i < connections.size(); i++) {

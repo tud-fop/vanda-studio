@@ -164,7 +164,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	private void removeSelectedCell() {
 		WorkflowSelection ws = model.getSelection();
 		if (ws instanceof SingleObjectSelection)
-			((SingleObjectSelection) ws).remove(model.getRoot());
+			((SingleObjectSelection) ws).remove();
 	}
 
 	/**

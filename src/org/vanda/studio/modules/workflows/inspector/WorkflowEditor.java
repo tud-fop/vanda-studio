@@ -1,7 +1,5 @@
 package org.vanda.studio.modules.workflows.inspector;
 
-import java.util.List;
-
 import javax.swing.GroupLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -17,7 +15,7 @@ import org.vanda.studio.util.TokenSource.Token;
 public class WorkflowEditor implements ElementEditorFactory<MutableWorkflow> {
 
 	@Override
-	public JComponent createEditor(Application app, List<Token> path,
+	public JComponent createEditor(Application app, MutableWorkflow wf,
 			Token address, final MutableWorkflow mwf) {
 		final JLabel label = new JLabel("Name:");
 		final JTextField text = new JTextField(mwf.getName(), 20);

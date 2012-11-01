@@ -21,25 +21,25 @@ import org.vanda.studio.util.TokenSource.Token;
 public final class Model implements WorkflowChildListener {
 
 	public static interface SelectionVisitor {
-		void visitWorkflow(List<Token> path, MutableWorkflow wf);
+		void visitWorkflow(MutableWorkflow wf);
 
-		void visitConnection(List<Token> path, Token address,
+		void visitConnection(Token address,
 				MutableWorkflow wf, Connection cc);
 
-		void visitJob(List<Token> path, Token address, MutableWorkflow wf, Job j);
+		void visitJob(Token address, MutableWorkflow wf, Job j);
 		
-		void visitVariable(List<Token> path, Token variable, MutableWorkflow wf);
+		void visitVariable(Token variable, MutableWorkflow wf);
 	}
 
 	public static class WorkflowSelection {
-		public final List<Token> path;
+		public final MutableWorkflow workflow;
 
-		public WorkflowSelection(List<Token> path) {
-			this.path = path;
+		public WorkflowSelection(MutableWorkflow workflow) {
+			this.workflow = workflow;
 		}
 
-		public void visit(MutableWorkflow root, SelectionVisitor v) {
-			v.visitWorkflow(path, root.dereference(path.listIterator()));
+		public void visit(SelectionVisitor v) {
+			v.visitWorkflow(workflow);
 		}
 	}
 
@@ -47,66 +47,63 @@ public final class Model implements WorkflowChildListener {
 			WorkflowSelection {
 		public final Token address;
 
-		public SingleObjectSelection(List<Token> path, Token address) {
-			super(path);
+		public SingleObjectSelection(MutableWorkflow workflow, Token address) {
+			super(workflow);
 			this.address = address;
 		}
 
 		@Override
-		public abstract void visit(MutableWorkflow root, SelectionVisitor v);
+		public abstract void visit(SelectionVisitor v);
 
-		public abstract void remove(MutableWorkflow root);
+		public abstract void remove();
 	}
 
 	public static class ConnectionSelection extends SingleObjectSelection {
 
-		public ConnectionSelection(List<Token> path, Token address) {
-			super(path, address);
+		public ConnectionSelection(MutableWorkflow workflow, Token address) {
+			super(workflow, address);
 		}
 
 		@Override
-		public void remove(MutableWorkflow root) {
-			root.dereference(path.listIterator()).removeConnection(address);
+		public void remove() {
+			workflow.removeConnection(address);
 		}
 
 		@Override
-		public void visit(MutableWorkflow root, SelectionVisitor v) {
-			root = root.dereference(path.listIterator());
-			v.visitConnection(path, address, root, root.getConnection(address));
+		public void visit(SelectionVisitor v) {
+			v.visitConnection(address, workflow, workflow.getConnection(address));
 		}
 	}
 
 	public static class JobSelection extends SingleObjectSelection {
-		public JobSelection(List<Token> path, Token address) {
-			super(path, address);
+		public JobSelection(MutableWorkflow workflow, Token address) {
+			super(workflow, address);
 		}
 
 		@Override
-		public void remove(MutableWorkflow root) {
-			root.dereference(path.listIterator()).removeChild(address);
+		public void remove() {
+			workflow.removeChild(address);
 		}
 
 		@Override
-		public void visit(MutableWorkflow root, SelectionVisitor v) {
-			root = root.dereference(path.listIterator());
-			v.visitJob(path, address, root, root.getChild(address));
+		public void visit(SelectionVisitor v) {
+			v.visitJob(address, workflow, workflow.getChild(address));
 		}
 	}
 
 	public static class VariableSelection extends SingleObjectSelection {
-		public VariableSelection(List<Token> path, Token variable) {
-			super(path, variable);
+		public VariableSelection(MutableWorkflow workflow, Token variable) {
+			super(workflow, variable);
 		}
 
 		@Override
-		public void remove(MutableWorkflow root) {
+		public void remove() {
 			// do nothing
 		}
 
 		@Override
-		public void visit(MutableWorkflow root, SelectionVisitor v) {
-			root = root.dereference(path.listIterator());
-			v.visitVariable(path, address, root);
+		public void visit(SelectionVisitor v) {
+			v.visitVariable(address, workflow);
 		}
 	}
 
@@ -243,8 +240,7 @@ public final class Model implements WorkflowChildListener {
 	@Override
 	public void childRemoved(MutableWorkflow mwf, Job j) {
 		j.visit(unbindVisitor);
-		if (selection != null
-				&& Model.this.hwf.dereference(selection.path.listIterator()) == mwf)
+		if (selection != null && selection.workflow == mwf)
 			setSelection(null);
 	}
 
@@ -254,8 +250,7 @@ public final class Model implements WorkflowChildListener {
 
 	@Override
 	public void connectionRemoved(MutableWorkflow mwf, Connection cc) {
-		if (selection != null
-				&& Model.this.hwf.dereference(selection.path.listIterator()) == mwf)
+		if (selection != null && selection.workflow == mwf)
 			setSelection(null);
 	}
 

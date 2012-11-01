@@ -1,8 +1,5 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.vanda.studio.model.Model;
@@ -66,6 +63,7 @@ public class JobAdapter implements Adapter, Cloneable {
 				if (graph.getSelectionCell() == cell)
 					graph.setSelectionCell(cell);
 			}
+			updateLocations(cell);
 			onResize(graph, parent, cell);
 		}
 	}
@@ -104,15 +102,10 @@ public class JobAdapter implements Adapter, Cloneable {
 	}
 
 	@Override
-	public void prependPath(LinkedList<Token> path) {
-		path.addFirst(job.getAddress());
-
-	}
-
-	@Override
-	public void setSelection(Model m, List<Token> path) {
+	public void setSelection(Model m) {
 		if (job.getAddress() != null)
-			m.setSelection(new JobSelection(path, job.getAddress()));
+			m.setSelection(new JobSelection(m.getRoot(), job.getAddress()));
+		// TODO no nesting support here because of m.getRoot()
 	}
 
 	@Override
@@ -122,12 +115,16 @@ public class JobAdapter implements Adapter, Cloneable {
 	}
 
 	@Override
-	public mxICell dereference(ListIterator<Token> path, mxICell current) {
-		return null;
-	}
-
-	@Override
 	public boolean inModel() {
 		return job.getAddress() != null;
+	}
+	
+	protected void updateLocations(mxICell cell) {
+		for (int i = 0; i < cell.getChildCount(); i++) {
+			if (cell.getChildAt(i).getValue() instanceof LocationAdapter) {
+				LocationAdapter la = (LocationAdapter)cell.getChildAt(i).getValue();
+				la.updateLocation(job);
+			}
+		}
 	}
 }

@@ -15,8 +15,8 @@ import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.TokenSource.Token;
 
-final class InspectorialVisitor extends RepositoryItemVisitor
-		implements SelectionVisitor {
+final class InspectorialVisitor extends RepositoryItemVisitor implements
+		SelectionVisitor {
 
 	private final Model model;
 	private final StringBuilder sb;
@@ -27,14 +27,14 @@ final class InspectorialVisitor extends RepositoryItemVisitor
 	}
 
 	@Override
-	public void visitWorkflow(List<Token> path, MutableWorkflow wf) {
+	public void visitWorkflow(MutableWorkflow wf) {
 		sb.append("<html><h1>");
 		sb.append(wf.getName());
 		sb.append("</h1>");
 		ImmutableWorkflow iwf = null;
 		Type type = null;
 		if (model.getFrozen() != null) {
-			iwf = model.getFrozen().dereference(path.listIterator());
+			iwf = model.getFrozen(); // XXX .dereference(path.listIterator());
 			type = iwf.getFragmentType();
 		}
 		sb.append("<dl>");
@@ -43,7 +43,7 @@ final class InspectorialVisitor extends RepositoryItemVisitor
 			sb.append(type.toString());
 		}
 		sb.append("</dl>");
-		if (path.isEmpty() && model.getFrozen() != null) {
+		if (/* path.isEmpty() && */model.getFrozen() != null) {
 			sb.append("<h2>Pseudo code</h2><font size=-1><pre>");
 			model.getFrozen().appendText(sb);
 			sb.append("</pre></font>");
@@ -63,13 +63,12 @@ final class InspectorialVisitor extends RepositoryItemVisitor
 	}
 
 	@Override
-	public void visitConnection(List<Token> path, Token address,
-			MutableWorkflow wf, Connection cc) {
+	public void visitConnection(Token address, MutableWorkflow wf, Connection cc) {
 		Token variable = wf.getVariable(address);
 		ImmutableWorkflow iwf = null;
 		Type type = null;
 		if (model.getFrozen() != null)
-			iwf = model.getFrozen().dereference(path.listIterator());
+			iwf = model.getFrozen(); // XXX .dereference(path.listIterator());
 		if (iwf != null)
 			type = iwf.getType(variable);
 		Job sjob = wf.getChild(cc.source);
@@ -94,8 +93,7 @@ final class InspectorialVisitor extends RepositoryItemVisitor
 	}
 
 	@Override
-	public void visitJob(List<Token> path, Token address,
-			MutableWorkflow wf, Job j) {
+	public void visitJob(Token address, MutableWorkflow wf, Job j) {
 		sb.append("<html><h1>");
 		sb.append(j.getItem().getName());
 		sb.append("</h1><dl><dt>Contact</dt><dd>");
@@ -146,10 +144,21 @@ final class InspectorialVisitor extends RepositoryItemVisitor
 	}
 
 	@Override
-	public void visitVariable(List<Token> path, Token variable,
-			MutableWorkflow wf) {
-		// TODO Auto-generated method stub
-
+	public void visitVariable(Token variable, MutableWorkflow wf) {
+		ImmutableWorkflow iwf = null;
+		Type type = null;
+		if (model.getFrozen() != null)
+			iwf = model.getFrozen(); // XXX .dereference(path.listIterator());
+		if (iwf != null)
+			type = iwf.getType(variable);
+		sb.append("<html><h1>Location</h1><dl>");
+		sb.append("</dd><dt>Variable</dt><dd>x");
+		sb.append(variable.toString());
+		if (type != null) {
+			sb.append("</dd><dt>Type</dt><dd>");
+			sb.append(type.toString());
+		}
+		sb.append("</dd></dl></html>");
 	}
 
 }

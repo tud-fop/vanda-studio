@@ -1,11 +1,6 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-
 import org.vanda.studio.model.Model;
-import org.vanda.studio.util.TokenSource.Token;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
@@ -35,23 +30,13 @@ class PortAdapter implements Adapter, Cloneable {
 	}
 
 	@Override
-	public void prependPath(LinkedList<Token> path) {
-		
-	}
-
-	@Override
-	public void setSelection(Model m, List<Token> path) {
+	public void setSelection(Model m) {
 		
 	}
 
 	@Override
 	public void register(mxICell parent, mxICell cell) {
 		
-	}
-
-	@Override
-	public mxICell dereference(ListIterator<Token> path, mxICell current) {
-		return null;
 	}
 
 	@Override

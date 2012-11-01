@@ -1,7 +1,5 @@
 package org.vanda.studio.modules.workflows.inspector;
 
-import java.util.List;
-
 import javax.swing.JComponent;
 
 import org.vanda.studio.app.Application;
@@ -30,54 +28,51 @@ final class EditorialVisitor implements SelectionVisitor {
 	}
 
 	@Override
-	public void visitWorkflow(List<Token> path, MutableWorkflow wf) {
-		editor = eefs.workflowFactories.createEditor(app, path, null, wf);
+	public void visitWorkflow(MutableWorkflow wf) {
+		editor = eefs.workflowFactories.createEditor(app, wf, null, wf);
 	}
 
 	@Override
-	public void visitConnection(List<Token> path, Token address,
-			MutableWorkflow wf, Connection cc) {
-		editor = eefs.connectionFactories.createEditor(app, path, address, cc);
+	public void visitConnection(Token address, MutableWorkflow wf, Connection cc) {
+		editor = eefs.connectionFactories.createEditor(app, wf, address, cc);
 	}
 
 	@Override
-	public void visitJob(final List<Token> path, final Token address,
-			final MutableWorkflow wf, final Job j) {
+	public void visitJob(final Token address, final MutableWorkflow wf,
+			final Job j) {
 		j.getItem().visit(new RepositoryItemVisitor() {
 
 			@Override
 			public void visitChoice(Choice c) {
-				editor = eefs.choiceFactories.createEditor(app, path, address,
-						c);
+				editor = eefs.choiceFactories.createEditor(app, wf, address, c);
 			}
 
 			@Override
 			public void visitInputPort(InputPort i) {
-				editor = eefs.inputPortFactories.createEditor(app, path,
-						address, i);
+				editor = eefs.inputPortFactories.createEditor(app, wf, address,
+						i);
 			}
 
 			@Override
 			public void visitLinker(Linker l) {
-				editor = eefs.linkerFactories.createEditor(app, path, address,
-						l);
+				editor = eefs.linkerFactories.createEditor(app, wf, address, l);
 			}
 
 			@Override
 			public void visitLiteral(Literal l) {
-				editor = eefs.literalFactories.createEditor(app, path, address,
-						l);
+				editor = eefs.literalFactories
+						.createEditor(app, wf, address, l);
 			}
 
 			@Override
 			public void visitOutputPort(OutputPort o) {
-				editor = eefs.outputPortFactories.createEditor(app, path,
+				editor = eefs.outputPortFactories.createEditor(app, wf,
 						address, o);
 			}
 
 			@Override
 			public void visitTool(Tool t) {
-				editor = eefs.toolFactories.createEditor(app, path, address, t);
+				editor = eefs.toolFactories.createEditor(app, wf, address, t);
 			}
 
 		});
@@ -88,9 +83,8 @@ final class EditorialVisitor implements SelectionVisitor {
 	}
 
 	@Override
-	public void visitVariable(List<Token> path, Token variable,
-			MutableWorkflow wf) {
-		editor = eefs.variableFactories.createEditor(app, path, variable, wf);
+	public void visitVariable(Token variable, MutableWorkflow wf) {
+		editor = eefs.variableFactories.createEditor(app, wf, variable, wf);
 	}
 
 }

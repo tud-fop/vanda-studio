@@ -105,10 +105,11 @@ class Graph extends mxGraph {
 		JobRendering.refStylesheet(-1);
 		super.finalize();
 	}
-	
+
 	@Override
 	public boolean isCellSelectable(Object cell) {
-		if (getModel().getValue(cell) instanceof PortAdapter)
+		if (getModel().getValue(cell) instanceof PortAdapter
+				&& !(getModel().getValue(cell) instanceof LocationAdapter))
 			return false;
 		return super.isCellSelectable(cell);
 	}
