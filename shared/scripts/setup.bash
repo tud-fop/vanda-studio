@@ -5,6 +5,7 @@ setup () {
 	berkeleyParser
 	berkeleyTokenizer
 	remEmptyLines
+	toParallelCorpus
 	giza
 	moses
 	ghkm
@@ -57,7 +58,7 @@ remEmptyLines () {
 toParallelCorpus () {
 	echo "Installing toParallelCorpus..."
 	mkdir -p ~/.vanda/bin/toParallelCorpus
-	ghc --make -o ~/.vanda/bin/toParallelCorpus toParallelCorpus/toParallelCorpus.hs
+	ghc --make -o ~/.vanda/bin/toParallelCorpus toParallelCorpus/toParallelCorpus.hs -main-is Main.main
 	echo "TO_PARALLEL_CORPUS=$HOME/.vanda/bin/toParallelCorpus/toParallelCorpus" >> ~/.vanda/vandarc
 	echo "Done."
 }
