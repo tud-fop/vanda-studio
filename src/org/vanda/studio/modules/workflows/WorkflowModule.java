@@ -159,12 +159,16 @@ public class WorkflowModule implements Module {
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				chooser.setFileFilter(new FileNameExtensionFilter(
 						"Hyperworkflows (*.hwf)", "hwf"));
+				String lastDir = app.getProperty("lastDir");
+				if (lastDir != null)
+					chooser.setCurrentDirectory(new File(lastDir));
 				chooser.setVisible(true);
 				int result = chooser.showSaveDialog(null);
 
 				// once file choice is approved, save the chosen file
 				if (result == JFileChooser.APPROVE_OPTION) {
 					File chosenFile = chooser.getSelectedFile();
+					app.setProperty("lastDir", chosenFile.getParentFile().getAbsolutePath());
 					String filePath = chosenFile.getPath();
 					try {
 						Serialization.save(app, model.getRoot(), filePath);
