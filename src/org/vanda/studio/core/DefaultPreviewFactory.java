@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JScrollPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
@@ -13,17 +14,19 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
 
 public final class DefaultPreviewFactory implements PreviewFactory {
-	
+
+	@SuppressWarnings("unused")
 	private final Application app;
-	
+
 	public DefaultPreviewFactory(Application app) {
 		this.app = app;
 	}
 
 	@Override
 	public JComponent createPreview(String value) {
-		JEditorPane result = new JEditorPane();
-		Document doc = result.getDocument();
+		JEditorPane editor = new JEditorPane();
+		JScrollPane result = new JScrollPane(editor);
+		Document doc = editor.getDocument();
 		try {
 			// use buffering, reading one line at a time
 			// FileReader always assumes default encoding is OK!
@@ -33,7 +36,8 @@ public final class DefaultPreviewFactory implements PreviewFactory {
 				int i = 0;
 				while (i < 10 && (line = input.readLine()) != null) {
 					doc.insertString(doc.getLength(), line, null);
-					doc.insertString(doc.getLength(), System.getProperty("line.separator"), null);
+					doc.insertString(doc.getLength(),
+							System.getProperty("line.separator"), null);
 					i++;
 				}
 			} finally {
@@ -43,14 +47,28 @@ public final class DefaultPreviewFactory implements PreviewFactory {
 			// do nothing
 		} catch (IOException ex) {
 			// ex.printStackTrace();
-			result.setText("unable to open file " + value);
+			editor.setText("unable to open file " + value);
 		}
 		return result;
 	}
 
 	@Override
-	public void openEditor(String value) {
-		app.createUniqueId(); // TODO open editor instead
+	public void openEditor(final String value) {
+		Thread t = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					System.out.println("xdg-open " + value);
+					Runtime.getRuntime().exec("xdg-open " + value);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+
+		t.start();
 	}
 
 }
