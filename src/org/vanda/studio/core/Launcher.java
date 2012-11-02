@@ -6,7 +6,6 @@ package org.vanda.studio.core;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
@@ -22,7 +21,7 @@ public final class Launcher implements Runnable {
 	@Override
 	public void run() {
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
 			// UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 			// UIManager.setLookAndFeel("com.seaglasslookandfeel.SeaGlassLookAndFeel");
