@@ -3,16 +3,14 @@ package org.vanda.studio.modules.profile;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.app.ToolFactory;
@@ -36,10 +34,12 @@ public class InspectorTool implements ToolFactory {
 		private final Model m;
 		private final JPanel contentPane;
 		private final JLabel fileName;
-		private final JScrollPane therealinspector;
 		private ImmutableWorkflow frozen;
 		private DataflowAnalysis dfa;
 		private String value;
+		private PreviewFactory pf;
+		private GridBagConstraints gbc;
+		private JLabel dummyPreview;
 		private JComponent preview;
 
 		private class InspectorialVisitor implements SelectionVisitor {
@@ -70,50 +70,35 @@ public class InspectorTool implements ToolFactory {
 
 		}
 
-		Action aOpenEditor = new AbstractAction("Editor") {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Thread t = new Thread(new Runnable() {
-
-					@Override
-					public void run() {
-						try {
-							System.out.println("xdg-open "
-									+ ProfileImpl.findFile(
-											wfe.getApplication(), value));
-							Runtime.getRuntime()
-									.exec("xdg-open "
-											+ ProfileImpl.findFile(
-													wfe.getApplication(), value));
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
-
-				t.start();
-			}
-		};
-
 		public Inspector(WorkflowEditor wfe, Model m) {
 			this.wfe = wfe;
 			this.m = m;
 			fileName = new JLabel("Select a location or a connection.");
-			therealinspector = new JScrollPane();
 			contentPane = new JPanel(new GridBagLayout());
-			JButton bOpenEditor = new JButton(aOpenEditor);
+			@SuppressWarnings("serial")
+			JButton bOpenEditor = new JButton(new AbstractAction("Editor") {
 
-			GridBagConstraints gbc = new GridBagConstraints();
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (pf != null && value != null)
+						pf.openEditor(ProfileImpl.findFile(
+								Inspector.this.wfe.getApplication(), value));
+				}
+			});
 
+			dummyPreview = new JLabel("<html><center>(select a location or a connection<br> for a quick preview)</center></html>", SwingConstants.CENTER);
+			preview = dummyPreview;
+
+			gbc = new GridBagConstraints();
 			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.weightx = 1;
 			gbc.gridx = 0;
 			gbc.gridy = 0;
 			gbc.gridheight = 1;
 			gbc.gridwidth = 1;
 			contentPane.add(fileName, gbc);
 
+			gbc = new GridBagConstraints();
 			gbc.fill = GridBagConstraints.NONE;
 			gbc.gridx = 1;
 			gbc.gridy = 0;
@@ -121,6 +106,7 @@ public class InspectorTool implements ToolFactory {
 			gbc.gridwidth = 1;
 			contentPane.add(bOpenEditor, gbc);
 
+			gbc = new GridBagConstraints();
 			gbc.fill = GridBagConstraints.BOTH;
 			gbc.weightx = 1;
 			gbc.weighty = 1;
@@ -128,13 +114,13 @@ public class InspectorTool implements ToolFactory {
 			gbc.gridy = 1;
 			gbc.gridheight = 1;
 			gbc.gridwidth = 2;
-			contentPane.add(therealinspector, gbc);
+			contentPane.add(preview, gbc);
 
 			contentPane.setName("Semantics Inspector");
 			frozen = null;
 			dfa = null;
 			value = null;
-			preview = null;
+			pf = null;
 			this.wfe.addToolWindow(contentPane);
 			Observer<Object> obs = new Observer<Object>() {
 				@Override
@@ -175,7 +161,7 @@ public class InspectorTool implements ToolFactory {
 				ws = new WorkflowSelection(m.getRoot());
 			// set inspector text
 			String newvalue = null;
-			JComponent newpreview = null;
+			JComponent newpreview = dummyPreview;
 			Type type = null;
 			if (frozen != null && dfa != null) {
 				InspectorialVisitor visitor = new InspectorialVisitor();
@@ -189,8 +175,7 @@ public class InspectorTool implements ToolFactory {
 				if (type != null && value != null) {
 					fileName.setText(value + " :: " + type.toString());
 					// create preview
-					PreviewFactory pf = wfe.getApplication().getPreviewFactory(
-							type);
+					pf = wfe.getApplication().getPreviewFactory(type);
 					if (pf != null)
 						newpreview = pf.createPreview(ProfileImpl.findFile(
 								wfe.getApplication(), value));
@@ -199,14 +184,11 @@ public class InspectorTool implements ToolFactory {
 			} else
 				newpreview = preview;
 			if (newpreview != preview) {
+				if (preview != null)
+					contentPane.remove(preview);
 				preview = newpreview;
-				therealinspector.setViewportView(null);
-				if (preview != null) {
-					therealinspector.setViewportView(preview);
-					therealinspector.revalidate();
-					preview.revalidate();
-					contentPane.revalidate();
-				}
+				if (preview != null)
+					contentPane.add(preview, gbc);
 			}
 		}
 	}
