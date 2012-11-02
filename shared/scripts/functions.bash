@@ -1,7 +1,7 @@
 BerkeleyTokenizer () {
 	echo "Running: BerkeleyTokenizer..."
 	pathAndName "$1" f1 n1
-	btout="$OUTPATH/BTokenize($n1)"
+	btout="$OUTPATH/BTokenize($n1).0"
 	cat "$f1" | java -cp "$BERKELEY_PARSER:$BERKELEY_TOKENIZER" Main > "$btout"
 	eval $2=\"$btout\"
 	echo "Done."
@@ -11,7 +11,7 @@ BerkeleyParser () {
 	echo "Running: BerkeleyParser..."
 	pathAndName "$1" f1 n1
 	pathAndName "$2" f2 n2
-	bpout="$OUTPATH/BParse($n2,$n1)"
+	bpout="$OUTPATH/BParse($n2,$n1).0"
 	java -jar "$BERKELEY_PARSER" -gr "$f2" -inputFile "$f1" -outputFile "$bpout"
 	eval $3=\"$bpout\"
 	echo "Done."
@@ -26,7 +26,7 @@ HyperGHKM () {
 	pathAndName "$1" align nAlign
 	pathAndName "$2" ecorpus nEcorpus
 	pathAndName "$3" fcorpus nFcorpus
-	target="$OUTPATH/HyperGHKM($nAlign,$nEcorpus,$nFcorpus)"
+	target="$OUTPATH/HyperGHKM($nAlign,$nEcorpus,$nFcorpus).0"
 	java -Xmx1g -Xms1g -cp "$GHKM/ghkm.jar:$GHKM/fastutil.jar" -XX:+UseCompressedOops edu.stanford.nlp.mt.syntax.ghkm.RuleExtractor -fCorpus "$fcorpus" -eParsedCorpus "$ecorpus" -align "$align" -joshuaFormat false > "$target"
 	eval $4=\"$target\"
 #	GHKM answers "Done." on its own
@@ -44,7 +44,7 @@ GIZA () {
 	cp "$f1" "$TMP/$i1new"
 	cp "$f2" "$TMP/$i2new"
 	$MOSES/scripts/training/train-model.perl -root-dir "$TMP" --corpus "$TMP/corpus" --e en --f fr --last-step 3 --external-bin-dir="$GIZA"
-	out="$OUTPATH/GIZA($i1orig,$i2orig)"
+	out="$OUTPATH/GIZA($i1orig,$i2orig).0"
 	mv "$TMP/model/aligned.grow-diag-final" "$out"
 	eval $3=\"$out\"
 	echo "Done."
@@ -70,10 +70,10 @@ plain2snt () {
 	g2vcb="${i2new}.vcb"
 	$PLAIN2SNT "$i1new" "$i2new"
 #	generate new filenames for output files
-	o1snt="plain2snt($n1,$n2).1"
-	o2snt="plain2snt($n1,$n2).2"
-	o1vcb="plain2snt($n1,$n2).3"
-	o2vcb="plain2snt($n1,$n2).4"
+	o1snt="plain2snt($n1,$n2).0"
+	o2snt="plain2snt($n1,$n2).1"
+	o1vcb="plain2snt($n1,$n2).2"
+	o2vcb="plain2snt($n1,$n2).3"
 #	rename generated files to intended names
 	mv "$g1snt" "$o1snt"
 	mv "$g1vcb" "$o1vcb"
@@ -91,8 +91,8 @@ remEmptyLines () {
 	echo "Running: remEmptyLines..."
 	pathAndName "$1" f1 in1
 	pathAndName "$2" f2 in2
-	out1="$OUTPATH/remEmptyLines($in1,$in2).1"
-	out2="$OUTPATH/remEmptyLines($in1,$in2).2"
+	out1="$OUTPATH/remEmptyLines($in1,$in2).0"
+	out2="$OUTPATH/remEmptyLines($in1,$in2).1"
 	$REM_EMPTY_LINES "$f1" "$f2" "$out1" "$out2"
 	eval $3=\"$out1\"
 	eval $4=\"$out2\"
@@ -104,8 +104,8 @@ EMDictionary () {
 	pathAndName "$1" f1 in1
 	pathAndName "$2" f2 in2
 	out="$OUTPATH/toParallelCorpus($in1,$in2)"
-	out1="$OUTPATH/EMDictionary($in1,$in2).1"
-	out2="$OUTPATH/EMDictionary($in1,$in2).2"
+	out1="$OUTPATH/EMDictionary($in1,$in2,$3).0"
+	out2="$OUTPATH/EMDictionary($in1,$in2,$3).1"
 	$TO_PARALLEL_CORPUS "$f1" "$f2" > "$out"
 	$EMDICTIONARY csvAndBest "$3" "$out" "$out2" > "$out1"
 	eval $4=\"$out1\"
