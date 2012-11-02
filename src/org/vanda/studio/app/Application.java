@@ -4,7 +4,6 @@
 package org.vanda.studio.app;
 
 import java.util.Collection;
-import java.util.Properties;
 import java.util.Set;
 
 import org.vanda.studio.model.elements.Linker;

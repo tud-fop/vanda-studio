@@ -147,7 +147,6 @@ public class RunTool implements ToolFactory {
 		}
 
 		private static class StreamGobbler extends Thread {
-			private final Application app;
 			private final InputStream is;
 			private final SimpleAttributeSet style;
 			private final StyledDocument doc;
@@ -157,7 +156,6 @@ public class RunTool implements ToolFactory {
 				this.is = is;
 				this.style = style;
 				this.doc = doc;
-				this.app = app;
 			}
 
 			public void run() {
@@ -225,13 +223,11 @@ public class RunTool implements ToolFactory {
 		}
 
 		private static class StateRunning extends RunState {
-			private final Application app;
 			private Process process;
 			private StreamGobbler isg;
 			private StreamGobbler esg;
 
 			public StateRunning(Application app, Fragment f, StyledDocument doc) {
-				this.app = app;
 				try {
 					process = Runtime.getRuntime().exec(
 							RCChecker.getOutPath() + "/"
