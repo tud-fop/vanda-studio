@@ -11,7 +11,7 @@ BerkeleyParser () {
 	echo "Running: BerkeleyParser..."
 	pathAndName "$1" f1 n1
 	pathAndName "$2" f2 n2
-	bpout="$OUTPATH/BParse($n2,$n1).0"
+	bpout="$OUTPATH/BerkeleyParser($n1,$n2).0"
 	java -jar "$BERKELEY_PARSER" -gr "$f2" -inputFile "$f1" -outputFile "$bpout"
 	eval $3=\"$bpout\"
 	echo "Done."
