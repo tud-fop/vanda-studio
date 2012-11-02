@@ -12,6 +12,7 @@ import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.immutable.JobInfo;
+import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
 import org.vanda.studio.modules.profile.model.Profiles;
 import org.vanda.studio.util.TokenSource.Token;
@@ -56,10 +57,11 @@ public class DataflowAnalysis {
 					values[ji.outputs.get(0).intValue()] = inputs
 							.get(inportIndex.get(aj.getOutputPorts().get(0)));
 				} else if (aj.isOutputPort()) {
-					/* int n = outportIndex.get(aj.getInputPorts().get(0));
-					while (n >= result.size())
-						result.add(null);
-					result.set(n, values[ji.inputs.get(0).intValue()]); */
+					/*
+					 * int n = outportIndex.get(aj.getInputPorts().get(0));
+					 * while (n >= result.size()) result.add(null);
+					 * result.set(n, values[ji.inputs.get(0).intValue()]);
+					 */
 				} else if (aj.isChoice()) {
 					for (int i = 0; i < ji.inputs.size(); i++) {
 						Token var = ji.inputs.get(i);
@@ -74,17 +76,22 @@ public class DataflowAnalysis {
 					StringBuilder sb = new StringBuilder();
 					sb.append('(');
 					if (ji.inputs.size() > 0) {
-						sb.append(values[ji.inputs.get(0).intValue()]);
+						sb.append(values[ji.inputs.get(0).intValue()].replace(
+								'/', '#'));
 					}
 					for (int i = 1; i < ji.inputs.size(); i++) {
 						sb.append(',');
-						sb.append(values[ji.inputs.get(i).intValue()]);
+						sb.append(values[ji.inputs.get(i).intValue()].replace(
+								'/', '#'));
 					}
 					sb.append(')');
 					String s = sb.toString();
 					for (int i = 0; i < ji.outputs.size(); i++) {
-						values[ji.outputs.get(i).intValue()] = aj.getElement()
-								.getName() + s + "." + Integer.toString(i);
+						values[ji.outputs.get(i).intValue()] = Fragment
+								.normalize(aj.getElement().getId())
+								+ s
+								+ "."
+								+ Integer.toString(i);
 					}
 				}
 			} else if (ji.job instanceof CompositeImmutableJob) {
@@ -105,7 +112,7 @@ public class DataflowAnalysis {
 			}
 		}
 	}
-	
+
 	public List<String> getOutputs() {
 		List<Token> outs = workflow.getOutputPortVariables();
 		ArrayList<String> result = new ArrayList<String>(outs.size());
@@ -113,7 +120,7 @@ public class DataflowAnalysis {
 			result.add(values[outs.get(i).intValue()]);
 		return result;
 	}
-	
+
 	public String getValue(Token address) {
 		if (address != null && address.intValue() < values.length)
 			return values[address.intValue()];

@@ -29,10 +29,6 @@ import org.vanda.studio.util.TokenSource.Token;
 
 public class ProfileImpl implements Profile, FragmentIO {
 
-	// private static final String basePath =
-	// "/home/mbue/workspace/vanda/experiment/";
-	private static final String basePath = System.getProperty("user.home")
-			+ "/" + ".vanda/output/";
 	private final Application app;
 	private Profiles prof;
 	private FragmentLinker rootLinker;
@@ -167,10 +163,20 @@ public class ProfileImpl implements Profile, FragmentIO {
 		this.prof = prof;
 		rootLinker = new RootLinker();
 	}
+	
+	public static String findFile(Application app, String value) {
+		if (value.startsWith("/"))
+			return value;
+		if (new File(app.getProperty("inputPath") + value).exists())
+			return app.getProperty("inputPath") + value;
+		if (new File(app.getProperty("outputPath") + value).exists())
+			return app.getProperty("outputPath") + value;
+		return value;
+	}
 
 	@Override
 	public File createFile(String name) throws IOException {
-		File result = new File(basePath + name);
+		File result = new File(app.getProperty("outputPath") + name);
 		result.createNewFile();
 		return result;
 	}

@@ -1,8 +1,14 @@
 package org.vanda.studio.modules.profile;
 
-import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -64,14 +70,66 @@ public class InspectorTool implements ToolFactory {
 
 		}
 
+		Action aOpenEditor = new AbstractAction("Editor") {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Thread t = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							System.out.println("xdg-open "
+									+ ProfileImpl.findFile(
+											wfe.getApplication(), value));
+							Runtime.getRuntime()
+									.exec("xdg-open "
+											+ ProfileImpl.findFile(
+													wfe.getApplication(), value));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+
+				t.start();
+			}
+		};
+
 		public Inspector(WorkflowEditor wfe, Model m) {
 			this.wfe = wfe;
 			this.m = m;
 			fileName = new JLabel("Select a location or a connection.");
 			therealinspector = new JScrollPane();
-			contentPane = new JPanel(new BorderLayout());
-			contentPane.add(fileName, BorderLayout.NORTH);
-			contentPane.add(therealinspector, BorderLayout.CENTER);
+			contentPane = new JPanel(new GridBagLayout());
+			JButton bOpenEditor = new JButton(aOpenEditor);
+
+			GridBagConstraints gbc = new GridBagConstraints();
+
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 0;
+			gbc.gridy = 0;
+			gbc.gridheight = 1;
+			gbc.gridwidth = 1;
+			contentPane.add(fileName, gbc);
+
+			gbc.fill = GridBagConstraints.NONE;
+			gbc.gridx = 1;
+			gbc.gridy = 0;
+			gbc.gridheight = 1;
+			gbc.gridwidth = 1;
+			contentPane.add(bOpenEditor, gbc);
+
+			gbc.fill = GridBagConstraints.BOTH;
+			gbc.weightx = 1;
+			gbc.weighty = 1;
+			gbc.gridx = 0;
+			gbc.gridy = 1;
+			gbc.gridheight = 1;
+			gbc.gridwidth = 2;
+			contentPane.add(therealinspector, gbc);
+
 			contentPane.setName("Semantics Inspector");
 			frozen = null;
 			dfa = null;
@@ -93,9 +151,8 @@ public class InspectorTool implements ToolFactory {
 								.getUnfolded();
 						if (unfolded != null && unfolded.size() != 0) {
 							// XXX here I only support looking at the first
-							// instance
-							// because the value of instances is not yet clear
-							// anyway
+							// instance because the value of instances is not
+							// yet clear anyway
 							ImmutableWorkflow frozen = unfolded.get(0);
 							dfa = new DataflowAnalysis(frozen);
 							dfa.doIt(null, profiles);
@@ -135,10 +192,12 @@ public class InspectorTool implements ToolFactory {
 					PreviewFactory pf = wfe.getApplication().getPreviewFactory(
 							type);
 					if (pf != null)
-						newpreview = pf.createPreview(value);
+						newpreview = pf.createPreview(ProfileImpl.findFile(
+								wfe.getApplication(), value));
 				} else
 					fileName.setText("");
-			}
+			} else
+				newpreview = preview;
 			if (newpreview != preview) {
 				preview = newpreview;
 				therealinspector.setViewportView(null);

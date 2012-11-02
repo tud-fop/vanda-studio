@@ -201,6 +201,16 @@ public final class ApplicationImpl implements Application {
 
 	@Override
 	public String getProperty(String key) {
+		if (!properties.contains(key)){
+			String outputPath = System.getProperty("user.home")
+					+ "/" + ".vanda/output/";
+			String inputPath = System.getProperty("user.home")
+					+ "/" + ".vanda/input/";
+			if (key.equals("inputPath"))
+				setProperty(key, inputPath);
+			if (key.equals("outputPath"))
+				setProperty(key, outputPath);
+		}
 		return properties.getProperty(key);
 	}
 

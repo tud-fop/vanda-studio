@@ -31,7 +31,7 @@ import org.vanda.studio.util.TokenSource.Token;
 public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 	@Override
-	public JComponent createEditor(Application app, MutableWorkflow wf,
+	public JComponent createEditor(final Application app, MutableWorkflow wf,
 			Token address, final Literal l) {
 		final JLabel label1 = new JLabel("Type:");
 		final JLabel label2 = new JLabel("Value:");
@@ -75,8 +75,7 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String prefix = System.getProperty("user.home")
-						+ "/.vanda/input/";
+				String prefix = app.getProperty("inputPath");
 				File f = new File(prefix);
 				FileSystemView rfsv = new RestrictedFileSystemView(f);
 				JFileChooser fc = new JFileChooser(rfsv);
