@@ -439,6 +439,7 @@ public class RunTool implements ToolFactory {
 					wfe.focusToolWindow(pMain);
 					lRuns.setSelectedIndex(lRuns.getItemCount() - 1);
 					tRuntool.setDocument(r.getDocument());
+					Tool.this.wfe.addToolWindow(pMain);
 					Tool.this.wfe.focusToolWindow(pMain);
 				}
 			}

@@ -8,7 +8,7 @@ import org.vanda.studio.util.TokenSource.Token;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
-public class LocationAdapter implements Adapter {
+public class LocationAdapter implements Adapter, Cloneable {
 	
 	private final int index;
 	private Token address;
@@ -16,6 +16,12 @@ public class LocationAdapter implements Adapter {
 	public LocationAdapter(int index, Token address) {
 		this.index = index;
 		this.address = address;
+	}
+
+	@Override
+	public LocationAdapter clone() throws CloneNotSupportedException {
+		return new LocationAdapter(index, address);
+
 	}
 
 	@Override
