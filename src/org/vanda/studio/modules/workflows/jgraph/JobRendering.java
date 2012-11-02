@@ -410,8 +410,10 @@ public class JobRendering {
 	}
 
 	protected static final int PORT_DIAMETER = 14;
+	protected static final int OPORT_DIAMETER = 30;
 
 	protected static final int PORT_RADIUS = PORT_DIAMETER / 2;
+	protected static final int OPORT_RADIUS = OPORT_DIAMETER / 2;
 
 	protected static final int OUTPORT_DIAMETER = 14;
 

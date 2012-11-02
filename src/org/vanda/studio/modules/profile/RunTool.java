@@ -1,5 +1,6 @@
 package org.vanda.studio.modules.profile;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -20,10 +21,18 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultCaret;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.ToolFactory;
@@ -45,11 +54,23 @@ public class RunTool implements ToolFactory {
 		private final Profile prof;
 		// private Fragment frag;
 		private final List<Run> runs;
-		private final JTextArea tRuntool;
+		private final JTextPane tRuntool;
 		private final JScrollPane sRuntool;
 		private final JPanel pMain;
 		private final JButton bClear, bCancel;
 		private final JComboBox lRuns;
+		private static final SimpleAttributeSet messageStyle, errorStyle,
+				infoStyle;
+
+		static {
+
+			infoStyle = new SimpleAttributeSet();
+			messageStyle = new SimpleAttributeSet();
+			errorStyle = new SimpleAttributeSet();
+			StyleConstants.setForeground(errorStyle, Color.RED);
+			StyleConstants.setForeground(infoStyle, Color.BLUE);
+
+		}
 
 		public Tool(WorkflowEditor wfe, Model m, Profile prof) {
 			this.wfe = wfe;
@@ -66,17 +87,18 @@ public class RunTool implements ToolFactory {
 			// }
 			runs = new ArrayList<Run>();
 
-			tRuntool = new JTextArea();
+			tRuntool = new JTextPane();
+			tRuntool.setEditable(false);
 			sRuntool = new JScrollPane(tRuntool);
 			DefaultCaret caret = (DefaultCaret) tRuntool.getCaret();
 			caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 			pMain = new JPanel();
-			pMain.setName("Run");
+			pMain.setName("Console");
 			pMain.setLayout(new GridBagLayout());
 
-			bClear = new JButton(new ClearAction());
-			bClear.setText("clear");
+			bClear = new JButton(new CloseAction());
+			bClear.setText("close");
 			bCancel = new JButton(new CancelAction());
 			bCancel.setText("cancel");
 
@@ -87,9 +109,10 @@ public class RunTool implements ToolFactory {
 				public void itemStateChanged(ItemEvent e) {
 					Run r = (Run) lRuns.getSelectedItem();
 					if (r != null) {
-						// String txt = r.getText();
-						tRuntool.setText(((Run) lRuns.getSelectedItem())
-								.getText());
+						Document doc = ((Run) lRuns.getSelectedItem())
+								.getDocument();
+						tRuntool.setDocument(doc);
+						tRuntool.setCaretPosition(doc.getLength());
 					}
 				}
 			});
@@ -120,94 +143,237 @@ public class RunTool implements ToolFactory {
 			gbc.weighty = 1;
 			gbc.gridwidth = 3;
 			pMain.add(sRuntool, gbc);
+
 		}
 
-		private final class Run {
-			private String text = "";
+		private static class StreamGobbler extends Thread {
+			private final Application app;
+			private final InputStream is;
+			private final SimpleAttributeSet style;
+			private final StyledDocument doc;
+
+			public StreamGobbler(InputStream is, SimpleAttributeSet style,
+					StyledDocument doc, Application app) {
+				this.is = is;
+				this.style = style;
+				this.doc = doc;
+				this.app = app;
+			}
+
+			public void run() {
+				InputStreamReader isr = new InputStreamReader(is);
+				BufferedReader br = new BufferedReader(isr);
+				String line = null;
+				try {
+					while ((line = br.readLine()) != null) {
+						synchronized (doc) {
+							try {
+								if (line.startsWith("Running:")
+										| line.startsWith("Done."))
+									doc.insertString(doc.getLength(), line
+											+ "\n", infoStyle);
+								else
+									doc.insertString(doc.getLength(), line
+											+ "\n", style);
+							} catch (BadLocationException e) {
+								// ignore
+							}
+						}
+					}
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		private static interface RunTransitions {
+			void doCancel();
+
+			void doFinish();
+
+			void doRun();
+		}
+
+		private static class RunState {
+
+			void cancel(RunTransitions rt) {
+
+			}
+
+			void finish(RunTransitions rt) {
+
+			}
+
+			void run(RunTransitions rt) {
+
+			}
+
+			String getString(Date date) {
+				return date.toString();
+			}
+		}
+
+		private static class StateInit extends RunState {
+
+			void run(RunTransitions rt) {
+				rt.doRun();
+			}
+
+			String getString(Date date) {
+				return "[Initial] " + date.toString();
+			}
+		}
+
+		private static class StateRunning extends RunState {
+			private final Application app;
+			private Process process;
+			private StreamGobbler isg;
+			private StreamGobbler esg;
+
+			public StateRunning(Application app, Fragment f, StyledDocument doc) {
+				this.app = app;
+				try {
+					process = Runtime.getRuntime().exec(
+							RCChecker.getOutPath() + "/"
+									+ Fragment.normalize(f.name), null, null);
+
+				} catch (Exception e) {
+					app.sendMessage(new ExceptionMessage(e));
+				}
+
+				InputStream stdin = process.getInputStream();
+				InputStream stderr = process.getErrorStream();
+				isg = new StreamGobbler(stdin, messageStyle, doc, app);
+				esg = new StreamGobbler(stderr, errorStyle, doc, app);
+				isg.start();
+				esg.start();
+			}
+
+			@Override
+			void cancel(RunTransitions rt) {
+				process.destroy();
+				process = null;
+				rt.doCancel();
+			}
+
+			@Override
+			void finish(RunTransitions rt) {
+				int i = 0;
+				try {
+					i = process.waitFor();
+				} catch (Exception e) {
+					// ignore
+				}
+				if (i == 0)
+					rt.doFinish();
+				else
+					rt.doCancel();
+			}
+
+			String getString(Date date) {
+				return "[Running] " + date.toString();
+			}
+		}
+
+		private static class StateCancelled extends RunState {
+			String getString(Date date) {
+				return "[Cancelled] " + date.toString();
+			}
+		}
+
+		private static class StateDone extends RunState {
+			String getString(Date date) {
+				return "[Done] " + date.toString();
+			}
+		}
+
+		private final class Run extends SwingWorker<String, String> implements
+				RunTransitions {
+			private StyledDocument doc;
 			private Date date;
 			private Fragment frag;
-			private SwingWorker<String, String> sw;
-			private boolean running = true, finished = false;
+			private RunState state = new StateInit();
 
 			public Run(Fragment fragment) {
-				date = new Date();
-				frag = fragment;
-				this.sw = new SwingWorker<String, String>() {
+				doc = new DefaultStyledDocument();
+				doc.addDocumentListener(new DocumentListener() {
 
 					@Override
-					protected String doInBackground() throws Exception {
-						runFragment();
-						return null;
+					public void insertUpdate(DocumentEvent e) {
+						if (lRuns.getSelectedItem() == Run.this) {
+							tRuntool.setCaretPosition(tRuntool.getText()
+									.length());
+							// pMain.revalidate();
+						}
 					}
 
-				};
-				append(date.toString());
-				sw.execute();
+					@Override
+					public void removeUpdate(DocumentEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void changedUpdate(DocumentEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+				});
+				date = new Date();
+				frag = fragment;
+				try {
+					doc.insertString(doc.getLength(), date.toString() + "\n",
+							messageStyle);
+				} catch (BadLocationException e1) {
+					// ignore
+				}
 			}
 
 			public String toString() {
-				if (running)
-					return "[R] " + date.toString();
-				if (finished)
-					return "[D] " + date.toString();
-				return "[C] " + date.toString();
+				return state.getString(date);
 			}
 
-			public String getText() {
-				return text;
+			public StyledDocument getDocument() {
+				return doc;
 			}
 
-			public void append(String line) {
-				text += line + "\n";
-				if (lRuns.getSelectedItem() == this) {
-					tRuntool.setText(getText());
-					pMain.revalidate();
-				}
+			@Override
+			public void doCancel() {
+				state = new StateCancelled();
+				lRuns.repaint();
+				pMain.revalidate();
 			}
 
 			public void cancel() {
-				sw.cancel(true);
-				running = false;
-				lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
-				lRuns.revalidate();
+				super.cancel(true);
+				state.cancel(this);
+			}
+
+			@Override
+			public void doFinish() {
+				state = new StateDone();
+				lRuns.repaint();
 				pMain.revalidate();
 			}
 
-			public void finish() {
-				finished = true;
-				running = false;
-				lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
-				lRuns.revalidate();
+			@Override
+			public void doRun() {
+				state = new StateRunning(app, frag, doc);
+				lRuns.repaint();
 				pMain.revalidate();
+				state.finish(this);
 			}
 
-			private void runFragment() {
-				// generate();
-				String fileName = Fragment.normalize(frag.name);
-				Runtime rt = Runtime.getRuntime();
-				try {
-					Process p = rt
-							.exec(RCChecker.getOutPath() + "/" + fileName,
-									null, null);
-
-					InputStream stdin = p.getInputStream();
-					InputStreamReader isr = new InputStreamReader(stdin);
-					BufferedReader br = new BufferedReader(isr);
-
-					String line = null;
-					while ((line = br.readLine()) != null) {
-						append(line);
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				finish();
+			@Override
+			protected String doInBackground() {
+				state.run(this);
+				return null;
 			}
 
 		}
 
-		private final class ClearAction extends AbstractAction {
+		private final class CloseAction extends AbstractAction {
 
 			/**
 			 * 
@@ -216,18 +382,15 @@ public class RunTool implements ToolFactory {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				List<Run> runs2 = new ArrayList<Run>();
-				for (Run r : runs) {
-					if (r.running)
-						runs2.add(r);
-				}
-				runs.clear();
-				runs.addAll(runs2);
+				Run r = (Run) lRuns.getSelectedItem();
+				r.cancel();
+				runs.remove(r);
 				lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
 				if (runs.size() > 0)
-					lRuns.setSelectedIndex(runs.size() - 1);
+					lRuns.setSelectedIndex(lRuns.getItemCount() - 1);
 				else
 					tRuntool.setText("");
+				//TODO make empty before remove
 				Tool.this.wfe.removeToolWindow(pMain);
 			}
 
@@ -275,10 +438,11 @@ public class RunTool implements ToolFactory {
 				if (frag != null) {
 					Run r = new Run(frag);
 					runs.add(r);
+					r.execute();
 					lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
-					lRuns.setSelectedItem(r);
-					pMain.revalidate();
-					Tool.this.wfe.addToolWindow(pMain);
+					wfe.focusToolWindow(pMain);
+					lRuns.setSelectedIndex(lRuns.getItemCount() - 1);
+					tRuntool.setDocument(r.getDocument());
 					Tool.this.wfe.focusToolWindow(pMain);
 				}
 			}
@@ -289,8 +453,7 @@ public class RunTool implements ToolFactory {
 			try {
 				m.checkWorkflow();
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				app.sendMessage(new ExceptionMessage(e1));
 			}
 			List<ImmutableWorkflow> unfolded = m.getUnfolded();
 			if (unfolded != null
@@ -311,9 +474,7 @@ public class RunTool implements ToolFactory {
 		}
 
 	}
-
 	private final Profile prof;
-
 	public RunTool(Profile prof) {
 		this.prof = prof;
 	}

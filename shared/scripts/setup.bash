@@ -5,11 +5,13 @@ setup () {
 	berkeleyParser
 	berkeleyTokenizer
 	remEmptyLines
+	toParallelCorpus
 	giza
 	moses
 	ghkm
 	emDictionary
 	emDictionaryShow
+	examples
 }
 
 base () {
@@ -56,7 +58,7 @@ remEmptyLines () {
 toParallelCorpus () {
 	echo "Installing toParallelCorpus..."
 	mkdir -p ~/.vanda/bin/toParallelCorpus
-	ghc --make -o ~/.vanda/bin/toParallelCorpus toParallelCorpus/toParallelCorpus.hs
+	ghc --make -o ~/.vanda/bin/toParallelCorpus toParallelCorpus/toParallelCorpus.hs -main-is Main.main
 	echo "TO_PARALLEL_CORPUS=$HOME/.vanda/bin/toParallelCorpus/toParallelCorpus" >> ~/.vanda/vandarc
 	echo "Done."
 }
@@ -118,6 +120,12 @@ emDictionaryShow () {
 	cp *.class ~/.vanda/bin/EMDictionaryShowSteps
 	cd ..
 	echo "EMDICTIONARYSHOW=$HOME/.vanda/bin/EMDictionaryShowSteps" >> ~/.vanda/vandarc
+	echo "Done."
+}
+
+examples () {
+	echo "Copying examples..."
+	cp -R "../examples/*" "$HOME/.vanda/input/."
 	echo "Done."
 }
 

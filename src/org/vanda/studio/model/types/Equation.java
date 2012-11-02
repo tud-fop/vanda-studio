@@ -1,6 +1,6 @@
 package org.vanda.studio.model.types;
 
-import java.util.Set;
+import java.util.Map;
 
 import org.vanda.studio.util.TokenSource.Token;
 
@@ -22,7 +22,7 @@ public final class Equation {
 		} else
 			return false;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return lhs.hashCode() + rhs.hashCode();
@@ -44,11 +44,11 @@ public final class Equation {
 		return (lhs instanceof TypeVariable);
 	}
 
-	public void decompose(Set<Equation> target) {
+	public void decompose(Map<Equation, Token> t, Token addr) {
 		CompositeType l = (CompositeType) lhs;
 		CompositeType r = (CompositeType) rhs;
 		for (int i = 0; i < l.children.size(); i++) {
-			target.add(new Equation(l.children.get(i), r.children.get(i)));
+			t.put(new Equation(l.children.get(i), r.children.get(i)), addr);
 		}
 	}
 
@@ -66,20 +66,23 @@ public final class Equation {
 			return false;
 	}
 
-	public void flip(Set<Equation> target) {
-		target.add(new Equation(rhs, lhs));
+	public void flip(Map<Equation, Token> t, Token addr) {
+		t.put(new Equation(rhs, lhs), addr);
 	}
 
-	public void substitute(Set<Equation> source1, Set<Equation> source2,
-			Set<Equation> target1, Set<Equation> target2) {
+	public void substitute(Map<Equation, Token> source1,
+			Map<Equation, Token> source2, Map<Equation, Token> target1,
+			Map<Equation, Token> target2, Token addr) {
 		Token var = ((TypeVariable) lhs).variable;
-		for (Equation e : source1)
-			target1.add(new Equation(e.lhs.substitute(var, rhs), e.rhs
-					.substitute(var, rhs)));
-		for (Equation e : source2)
-			target2.add(new Equation(e.lhs.substitute(var, rhs), e.rhs
-					.substitute(var, rhs)));
-		target2.add(this);
+		for (Equation e : source1.keySet())
+			target1.put(
+					new Equation(e.lhs.substitute(var, rhs), e.rhs.substitute(
+							var, rhs)), source1.get(e));
+		for (Equation e : source2.keySet())
+			target2.put(
+					new Equation(e.lhs.substitute(var, rhs), e.rhs.substitute(
+							var, rhs)), source2.get(e));
+		target2.put(this, addr);
 	}
 
 	@Override

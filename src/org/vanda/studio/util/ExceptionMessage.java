@@ -5,6 +5,8 @@ import java.io.StringWriter;
 import java.util.Date;
 import java.util.List;
 
+import org.vanda.studio.app.Application;
+
 public final class ExceptionMessage implements Message {
 
 	private final Date d;
@@ -41,6 +43,18 @@ public final class ExceptionMessage implements Message {
 	@Override
 	public Date getDate() {
 		return d;
+	}
+
+	@Override
+	public void onSelect(Application app) {
+		// TODO invoke change in mxGraph
+
+	}
+
+	@Override
+	public void onDeselect(Application app) {
+		// TODO invoke change in mxGraph
+
 	}
 
 }

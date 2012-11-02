@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts, Rank2Types #-}
+{-# LANGUAGE BangPatterns, FlexibleContexts, Rank2Types #-}
 
 -- (c) 2011 Toni Dietze <Toni.Dietze@tu-dresden.de>
 --
@@ -29,21 +29,21 @@ module Algorithms.EMDictionary
 , corpusToInts
 ) where
 
-import Tools.PrettyPrint (putStrColumns)
+import Tools.PrettyPrint (columnize)
 
 import Control.Arrow
 import Control.Exception (bracket)
 import Control.Monad
 import Control.Monad.ST (ST)
-import qualified Control.Monad.Trans.State.Lazy as StL
+import qualified Control.Monad.Trans.State.Strict as StS
 import qualified Data.Array.Base as AB
 import qualified Data.Array.IArray as A
 import qualified Data.Array.ST.Safe as A
 import qualified Data.Array.Unboxed as A
 import qualified Data.Ix as Ix
 import qualified Data.List as L
-import qualified Data.Map as M
-import qualified Data.IntMap as IM
+import qualified Data.Map.Strict as M
+import qualified Data.IntMap.Strict as IM
 import Data.Tuple (swap)
 import System.Environment (getArgs)
 import System.IO
@@ -166,7 +166,7 @@ corpusToArrays corpus = (\ res@(cA, (m, _)) -> cA `seq` m `seq` res) $
                  corpus
   in second inv
   $ first (A.listArray (0, size - 1))
-  $ flip StL.runState (0, IM.empty)
+  $ flip StS.runState (0, IM.empty)
   $ fmap concat $ forM corpus $ \ (es, fs) ->
       let le = length es in
       fmap concat $ forM fs $ \ f ->
@@ -181,15 +181,16 @@ corpusToArrays corpus = (\ res@(cA, (m, _)) -> cA `seq` m `seq` res) $
         )
 
 
-lookupInsert :: Int -> Int -> StL.State (Int, IM.IntMap (IM.IntMap Int)) Int
+lookupInsert :: Int -> Int -> StS.State (Int, IM.IntMap (IM.IntMap Int)) Int
 lookupInsert k1 k2 = do
-  (cnt, m) <- StL.get
+  (cnt, m) <- StS.get
   let m' = IM.findWithDefault IM.empty k1 m
   case IM.lookup k2 m' of
-    Nothing -> let cnt' = cnt + 1
-            in cnt' `seq` StL.put (cnt', IM.insert k1 (IM.insert k2 cnt m') m)
+    Nothing -> StS.put (pair (cnt + 1) (IM.insert k1 (IM.insert k2 cnt m') m))
             >> return cnt
     Just i  -> return i
+  where
+    pair !x !y = (x, y)
 
 
 corpusToInts
@@ -237,58 +238,83 @@ main = do
       -> mainTrain True (read delta) corpus
     ["csv", delta, corpus]
       -> mainSteps (read delta) corpus
+    ["csvAndBest", delta, corpus, csv]
+      -> mainCsvAndBests (read delta) corpus csv
     ["unzipCorpus", corpus]
       -> mainUnzipCorpus corpus
     ["generate-test-corpus", wordCnt, wordCntPerSentence]
       -> mainGenerateTestCorpus (read wordCnt) (read wordCntPerSentence)
     (_:_)
-      -> error "Unknown action or wrong number of arguments."
-    _
-      -> do
-          putStrLn "Expecting an action with its arguments:"
-          putStrLn "  best <maximal delta> <corpus file>"
-          putStrLn "  csv <maximal delta> <corpus file>"
+      -> hPutStr stderr . unlines
+       $ "Unknown action or wrong number of arguments." : "" : helpLines
+    _ -> putStr $ unlines helpLines
+  where
+    helpLines =
+      [ "Expecting an action with its arguments:"
+      , "  best <maximal delta> <corpus file>"
+      , "  bestSwap <maximal delta> <corpus file>"
+      , "  csv <maximal delta> <corpus file>"
+      , "  csvAndBest <maximal delta> <corpus file> <csv output file>"
+      , "  unzipCorpus <corpus file>"
+      , "  generate-test-corpus <type count> <token count per sentence>"
+      ]
 
 
 mainTrain :: Bool -> Double -> String -> IO ()
 mainTrain swapLangs delta corpus
   = parseCorpus corpus
-  >>= putStrColumns [" | "]
-    . (\ (x, y, z) -> ["e" : x, "f" : y, "p(f|e)" : z])
-    . unzip3
-    . fmap (\ ((e, f), w) -> (e, f, show w))
-    . filter ((<) 0.1 . snd)
-    . assocs
+  >>= putStr
+    . prettyPrintBests
     . last
     . train delta
     . (if swapLangs then map (\ (a, b) -> (b, a)) else id)
 
 
+prettyPrintBests :: M.Map String (M.Map String Double) -> String
+prettyPrintBests
+  = columnize [" | "]
+  . (\ (x, y, z) -> ["e" : x, "f" : y, "p(f|e)" : z])
+  . unzip3
+  . fmap (\ ((e, f), w) -> (e, f, show w))
+  . filter ((<) 0.1 . snd)
+  . assocs
+
+
 mainSteps :: Double -> String -> IO ()
-mainSteps delta corpus = do
-  xs <- fmap (train delta) $ parseCorpus corpus
-  let fullMap = M.map (M.map (const 0)) $ head xs
-  putStr
-    . unlines
+mainSteps delta corpus = parseCorpus corpus >>= putStr . toCSV . train delta
+
+
+toCSV ::(Num a, Show a) => [M.Map String (M.Map String a)] -> String
+toCSV [] = ""
+toCSV (m : ms)
+  = ( unlines
     . map (L.intercalate "\t")
     . (\ (x, y, z) -> [x, y, z])
     . unzip3
     . fmap (\ ((e, f), w) -> (e, f, {-replaceComma $-} show w))
-    . assocs
-    $ head xs
-  putStr
-    . unlines
-    . fmap
+    $ assocs m
+    ) ++
+    ( unlines
+    $ fmap
       ( L.intercalate "\t"
       . fmap ({-replaceComma .-} show . snd)
       . assocs
       . M.unionWith (M.unionWith (+)) fullMap
       )
-    $ tail xs
---   where
+      ms
+    )
+  where
+    fullMap = M.map (M.map (const 0)) m
 --     replaceComma "" = ""
 --     replaceComma ('.' : cs) = ',' : cs
 --     replaceComma (c   : cs) = c   : replaceComma cs
+
+
+mainCsvAndBests :: Double -> FilePath -> FilePath -> IO ()
+mainCsvAndBests delta corpus csv = do
+  ms <- fmap (train delta) (parseCorpus corpus)
+  writeFile csv $ toCSV ms
+  putStr $ prettyPrintBests $ last ms
 
 
 mainUnzipCorpus :: FilePath -> IO ()

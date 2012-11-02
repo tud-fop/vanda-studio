@@ -77,10 +77,11 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 		mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
 				palette.getComponent());
 		mainpane.setOneTouchExpandable(true);
-		mainpane.setResizeWeight(1);
+		mainpane.setResizeWeight(0.9);
 		mainpane.setDividerSize(6);
 		mainpane.setBorder(null);
 		mainpane.setName(model.getRoot().getName());
+		mainpane.setDividerLocation(0.7);
 
 		app.getUIModeObservable().addObserver(new Observer<Application>() {
 			@Override

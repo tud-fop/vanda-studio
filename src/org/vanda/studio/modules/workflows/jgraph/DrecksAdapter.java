@@ -15,16 +15,16 @@ import org.vanda.studio.util.Observer;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxICell;
-import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
 import com.mxgraph.model.mxGraphModel.mxValueChange;
+import com.mxgraph.model.mxICell;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
+import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxUndoableEdit;
-import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphSelectionModel.mxSelectionChange;
@@ -527,7 +527,7 @@ public final class DrecksAdapter {
 				String st = mxStyleUtils.removeStylename(cell.getStyle(),
 						"highlightededge");
 				System.out.println(st);
-				cell.setStyle(null);
+				cell.setStyle(st);
 			}
 		}
 		graph.refresh();

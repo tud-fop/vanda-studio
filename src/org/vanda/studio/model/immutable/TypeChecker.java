@@ -1,10 +1,8 @@
 package org.vanda.studio.model.immutable;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.types.Equation;
@@ -15,7 +13,7 @@ import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
 
 final class TypeChecker {
-	private final Set<Equation> eqs;
+	private final Map<Equation, Token> eqs;
 	private final TokenSource variableSource;
 	private final TokenSource freshSource;
 	private final Token fragmentTypeToken;
@@ -25,7 +23,7 @@ final class TypeChecker {
 
 	public TypeChecker(TokenSource variableSource)
 			throws CloneNotSupportedException {
-		eqs = new HashSet<Equation>();
+		eqs = new HashMap<Equation, Token>();
 		this.variableSource = variableSource;
 		freshSource = variableSource.clone();
 		fragmentTypeToken = freshSource.makeToken();
@@ -37,7 +35,7 @@ final class TypeChecker {
 	public void addFragmentTypeEquation(Type ft) {
 		Map<Token, Token> rename = new HashMap<Token, Token>();
 		ft.freshMap(freshSource, rename);
-		eqs.add(new Equation(fragmentTypeVariable, ft.rename(rename)));
+		eqs.put(new Equation(fragmentTypeVariable, ft.rename(rename)), null);
 	}
 
 	public void addLinkerEquation(Type oft, Type ift, Type iwft) {
@@ -46,8 +44,8 @@ final class TypeChecker {
 		oft.freshMap(freshSource, rename);
 		ift.freshMap(freshSource, rename);
 		iwft.freshMap(freshSource, renm2);
-		eqs.add(new Equation(fragmentTypeVariable, oft.rename(rename)));
-		eqs.add(new Equation(ift.rename(rename), iwft.rename(renm2)));
+		eqs.put(new Equation(fragmentTypeVariable, oft.rename(rename)), null);
+		eqs.put(new Equation(ift.rename(rename), iwft.rename(renm2)), null);
 	}
 
 	public void addDataFlowEquations(JobInfo ji) {
@@ -62,14 +60,17 @@ final class TypeChecker {
 			for (Port p : ou)
 				p.getType().freshMap(freshSource, rename);
 			for (int i = 0; i < in.size(); i++) {
-				if (ji.inputs.get(i) != null)
-					eqs.add(new Equation(
-							new TypeVariable(ji.inputs.get(i)), in.get(i)
-									.getType().rename(rename)));
+				if (ji.inputs.get(i) != null) {
+					Equation eq = new Equation(new TypeVariable(
+							ji.inputs.get(i)), in.get(i).getType()
+							.rename(rename));
+					eqs.put(eq, ji.inputs.get(i));
+				}
 			}
 			for (int i = 0; i < ou.size(); i++) {
-				eqs.add(new Equation(new TypeVariable(ji.outputs.get(i)),
-						ou.get(i).getType().rename(rename)));
+				Equation eq = new Equation(new TypeVariable(ji.outputs.get(i)),
+						ou.get(i).getType().rename(rename));
+				eqs.put(eq, ji.outputs.get(i));
 			}
 		}
 	}
@@ -77,7 +78,7 @@ final class TypeChecker {
 	public void check() throws Exception {
 		Types.unify(eqs);
 		types = new Type[variableSource.getMaxToken()];
-		for (Equation eq : eqs) {
+		for (Equation eq : eqs.keySet()) {
 			Token i = ((TypeVariable) eq.lhs).variable;
 			if (i.intValue() < types.length)
 				types[i.intValue()] = eq.rhs;

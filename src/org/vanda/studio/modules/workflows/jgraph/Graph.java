@@ -1,8 +1,11 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
+import java.util.Hashtable;
+
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxIGraphModel;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxMultiplicity;
 
@@ -25,6 +28,9 @@ class Graph extends mxGraph {
 		setMultigraph(false); // no effect!
 		setAllowLoops(false);
 		setAllowDanglingEdges(false);
+		Hashtable<String, Object> style = new Hashtable<String, Object>();
+		style.put(mxConstants.STYLE_ROUNDED, true);
+		getStylesheet().putCellStyle("ROUNDED", style);
 		setMultiplicities(new mxMultiplicity[] {
 				new mxMultiplicity(false, null, null, null, 0, "1", null, ".",
 						"", false) {
@@ -68,7 +74,8 @@ class Graph extends mxGraph {
 			Object source, Object target, String style) {
 		if (value == null || "".equals(value))
 			value = new ConnectionAdapter(null);
-		return super.createEdge(parent, id, value, source, target, style);
+		// XXX don't call with a constant
+		return super.createEdge(parent, id, value, source, target, "ROUNDED");
 	}
 
 	@Override

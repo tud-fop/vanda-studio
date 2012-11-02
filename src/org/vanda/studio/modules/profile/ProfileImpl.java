@@ -170,9 +170,7 @@ public class ProfileImpl implements Profile, FragmentIO {
 
 	@Override
 	public File createFile(String name) throws IOException {
-		System.out.println("Creating file.");
 		File result = new File(basePath + name);
-		System.out.println(result.getAbsolutePath());
 		result.createNewFile();
 		return result;
 	}

@@ -145,12 +145,6 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 			rootDir = root;
 		}
 
-		public boolean isRoot(File f) {
-			if (f.equals(rootDir))
-				return true;
-			return false;
-		}
-
 		@Override
 		public File getDefaultDirectory() {
 			return rootDir;
@@ -159,11 +153,6 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 		@Override
 		public File getHomeDirectory() {
 			return rootDir;
-		}
-
-		@Override
-		public File[] getRoots() {
-			return new File[] { rootDir };
 		}
 
 		@Override

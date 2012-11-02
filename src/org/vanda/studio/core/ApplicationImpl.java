@@ -3,10 +3,16 @@
  */
 package org.vanda.studio.core;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.InvalidPropertiesFormatException;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
@@ -21,6 +27,7 @@ import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.modules.common.CompositeRepository;
+import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.Message;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
@@ -46,6 +53,9 @@ public final class ApplicationImpl implements Application {
 	protected final WindowSystemImpl windowSystem;
 	protected final HashSet<Type> types;
 	protected final Observer<Tool> typeObserver;
+	protected final Properties properties;
+	
+	protected static String PROPERTIES_FILE = System.getProperty("user.home") + "/.vanda/studio.conf";
 
 	public ApplicationImpl() {
 		modes = new ArrayList<UIMode>();
@@ -62,6 +72,12 @@ public final class ApplicationImpl implements Application {
 		shutdownObservable = new MultiplexObserver<Application>();
 		windowSystem = new WindowSystemImpl(this);
 		types = new HashSet<Type>();
+		properties = new Properties();
+		try {
+			properties.loadFromXML(new FileInputStream(PROPERTIES_FILE));
+		} catch (Exception e) {
+			sendMessage(new ExceptionMessage(e));
+		}
 		typeObserver = new Observer<Tool>() {
 
 			@Override
@@ -187,6 +203,20 @@ public final class ApplicationImpl implements Application {
 	}
 
 	@Override
+	public String getProperty(String key) {
+		return properties.getProperty(key);
+	}
+
+	@Override
+	public void setProperty(String key, String value) {
+		properties.setProperty(key, value);
+		try {
+			properties.storeToXML(new FileOutputStream(PROPERTIES_FILE), null);
+		} catch (Exception e) {
+			sendMessage(new ExceptionMessage(e));
+		}
+	}
+	
 	public PreviewFactory getPreviewFactory(Type type) {
 		PreviewFactory result = previewFactories.get(type);
 		if (result == null)
@@ -198,11 +228,6 @@ public final class ApplicationImpl implements Application {
 	public void registerPreviewFactory(Type type, PreviewFactory pf) {
 		previewFactories.put(type, pf);
 	}
-
-}
-
-
-
 	/*
 	@Override
 	public <T extends VObject>
@@ -221,6 +246,6 @@ public final class ApplicationImpl implements Application {
 			if (!as.add(a))
 				throw new UnsupportedOperationException("cannot add action twice");
 		}
-	}
-	 */
 
+	 */
+}
