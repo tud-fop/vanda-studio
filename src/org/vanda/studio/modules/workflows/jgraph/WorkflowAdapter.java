@@ -25,6 +25,12 @@ public class WorkflowAdapter implements Adapter {
 		inter = new HashMap<Object, mxICell>();
 	}
 	
+	@Override
+	public WorkflowAdapter clone() {
+		// TODO this is highly bogus!
+		return new WorkflowAdapter(workflow);
+	}
+	
 	public mxICell getChild(Token address) {
 		int i = address.intValue();
 		if (i < children.size())

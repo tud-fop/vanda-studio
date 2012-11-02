@@ -15,6 +15,11 @@ public class ConnectionAdapter implements Adapter {
 	public ConnectionAdapter(Connection cc) {
 		this.cc = cc;
 	}
+	
+	@Override
+	public ConnectionAdapter clone() {
+		return new ConnectionAdapter(cc);
+	}
 
 	@Override
 	public String getName() {

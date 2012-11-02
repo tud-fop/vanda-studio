@@ -1,6 +1,5 @@
 package org.vanda.studio.modules.workflows.inspector;
 
-import java.util.List;
 import java.util.Locale;
 
 import org.vanda.studio.model.Model;
@@ -52,6 +51,7 @@ final class InspectorialVisitor extends RepositoryItemVisitor implements
 						+ "The most likely reason is that some input port "
 						+ "is not connected.<p>");
 			}
+			/*
 			sb.append("<h2>Instances</h2>\n");
 			List<ImmutableWorkflow> iwfs = model.getUnfolded();
 			for (ImmutableWorkflow i : iwfs) {
@@ -59,6 +59,7 @@ final class InspectorialVisitor extends RepositoryItemVisitor implements
 				i.appendText(sb);
 				sb.append("</pre><p>");
 			}
+			*/
 		}
 	}
 

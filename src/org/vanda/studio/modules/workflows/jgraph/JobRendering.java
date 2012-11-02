@@ -14,7 +14,6 @@ import com.mxgraph.model.mxGeometry;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxEdgeStyle;
-import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxPerimeter;
 import com.mxgraph.view.mxStylesheet;
 
@@ -42,7 +41,7 @@ public class JobRendering {
 	private JobRendering() {
 	}
 
-	public static mxGraph createGraph() {
+	public static Graph createGraph() {
 		return new Graph();
 	}
 
@@ -199,7 +198,7 @@ public class JobRendering {
 		}
 
 		@Override
-		public mxCell render(Job hj, mxGraph g, Object parentCell) {
+		public mxCell render(Job hj, Graph g, Object parentCell) {
 			Object parent = parentCell;
 			if (parentCell == null) {
 				parent = g.getDefaultParent();
@@ -227,7 +226,7 @@ public class JobRendering {
 					geo.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
 					geo.setRelative(true);
 
-					mxCell port = new mxCell(new PortAdapter(true, i), geo,
+					mxCell port = g.createCell(new PortAdapter(true, i), geo,
 							"inport");
 					port.setVertex(true);
 
@@ -248,7 +247,7 @@ public class JobRendering {
 					if (hj.outputs.size() > 0) {
 						address = hj.outputs.get(i);
 					}
-					mxCell loc = new mxCell(new LocationAdapter(i, address),
+					mxCell loc = g.createCell(new LocationAdapter(i, address),
 							geo, "location");
 					loc.setVertex(true);
 
@@ -256,7 +255,7 @@ public class JobRendering {
 							OUTPORT_DIAMETER, OUTPORT_DIAMETER);
 					geo.setOffset(new mxPoint(LOCATION_RADIUS, -OUTPORT_RADIUS));
 					geo.setRelative(true);
-					mxCell port = new mxCell(new PortAdapter(false, i), geo,
+					mxCell port = g.createCell(new PortAdapter(false, i), geo,
 							"outport");
 					port.setVertex(true);
 

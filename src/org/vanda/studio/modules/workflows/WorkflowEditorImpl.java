@@ -123,6 +123,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 						event.doNotify(WorkflowEditorImpl.this);
 					}
 				});
+		recheck(); // XXX experimental
 	}
 
 	static {

@@ -170,7 +170,7 @@ public final class DrecksAdapter {
 	}
 
 	protected final Model model;
-	protected final mxGraph graph;
+	protected final Graph graph;
 	protected final ChangeListener changeListener;
 	protected final WorkflowListener workflowListener;
 	protected final Map<MutableWorkflow, mxICell> translation;

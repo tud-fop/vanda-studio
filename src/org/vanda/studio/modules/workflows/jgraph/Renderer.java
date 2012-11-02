@@ -5,12 +5,11 @@ import java.util.Map;
 import org.vanda.studio.model.hyper.Job;
 
 import com.mxgraph.model.mxCell;
-import com.mxgraph.view.mxGraph;
 
 public interface Renderer {
 	void addStyle(Map<String, Object> style);
 
 	String getStyleName();
 
-	mxCell render(Job to, mxGraph g, Object parentCell);
+	mxCell render(Job to, Graph g, Object parentCell);
 }

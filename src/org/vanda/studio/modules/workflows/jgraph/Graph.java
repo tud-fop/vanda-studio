@@ -68,6 +68,10 @@ class Graph extends mxGraph {
 		else
 			return "";
 	}
+	
+	public mxCell createCell(Object value, mxGeometry geometry, String style) {
+		return new Cell(value, geometry, style);
+	}
 
 	@Override
 	public Object createEdge(Object parent, String id, Object value,
@@ -84,21 +88,7 @@ class Graph extends mxGraph {
 			boolean relative) {
 		mxGeometry geometry = new mxGeometry(x, y, width, height);
 		geometry.setRelative(relative);
-		@SuppressWarnings("serial")
-		mxCell vertex = new mxCell(value, geometry, style) {
-			@Override
-			protected Object cloneValue() {
-				Object value = getValue();
-				if (value instanceof JobAdapter) {
-					try {
-						return ((JobAdapter) value).clone();
-					} catch (CloneNotSupportedException e) {
-						return super.cloneValue();
-					}
-				} else
-					return super.cloneValue();
-			}
-		};
+		mxCell vertex = createCell(value, geometry, style);
 
 		vertex.setId(id);
 		vertex.setVertex(true);
@@ -151,4 +141,29 @@ class Graph extends mxGraph {
 		return c.getValue() instanceof CompositeJobAdapter;
 	}
 
+	
+	private static class Cell extends mxCell {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 39927174614076724L;
+
+		public Cell(Object value, mxGeometry geometry, String style) {
+			super(value, geometry, style);
+		}
+
+		@Override
+		protected Object cloneValue() {
+			Object value = getValue();
+			if (value instanceof Adapter && value instanceof Cloneable) {
+				try {
+					return ((Adapter) value).clone();
+				} catch (CloneNotSupportedException e) {
+					return super.cloneValue();
+				}
+			} else
+				return super.cloneValue();
+		}
+	}	
+	
 }

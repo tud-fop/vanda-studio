@@ -251,9 +251,19 @@ public class WindowSystemImpl implements WindowSystem {
 			windowTools.put(window, tcs);
 		}
 		if (!tcs.contains(c)) {
-			tcs.add(c);
-			if (contentPane.getSelectedComponent() == window)
-				toolPane.add(c);
+			int idx = 0;
+			String name = c.getName();
+			while (idx < tcs.size() && name.compareTo(tcs.get(idx).getName()) > 0)
+				idx++;
+			tcs.add(idx, c);
+			if (contentPane.getSelectedComponent() == window) {
+				if (window != null) {
+					List<JComponent> l = windowTools.get(null);
+					if (l != null)
+						idx += l.size();
+				}
+				toolPane.add(c, idx);
+			}
 		}
 	}
 

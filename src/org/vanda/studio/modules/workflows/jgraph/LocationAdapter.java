@@ -21,7 +21,6 @@ public class LocationAdapter implements Adapter, Cloneable {
 	@Override
 	public LocationAdapter clone() throws CloneNotSupportedException {
 		return new LocationAdapter(index, address);
-
 	}
 
 	@Override

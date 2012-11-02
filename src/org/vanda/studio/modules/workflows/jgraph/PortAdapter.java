@@ -13,6 +13,12 @@ class PortAdapter implements Adapter, Cloneable {
 		this.input = input;
 		this.port = port;
 	}
+	
+	@Override
+	public PortAdapter clone() throws CloneNotSupportedException {
+		return new PortAdapter(input, port);
+
+	}
 
 	@Override
 	public String getName() {

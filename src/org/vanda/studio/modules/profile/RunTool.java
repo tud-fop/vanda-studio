@@ -77,14 +77,10 @@ public class RunTool implements ToolFactory {
 			this.m = m;
 			app = wfe.getApplication();
 			this.prof = prof;
-			// prof = app.getProfileMetaRepository().getRepository()
-			// .getItem("fragment-profile");
-			// if (prof != null){
 			wfe.addAction(new GenerateAction(),
 					KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
 			wfe.addAction(new RunAction(),
 					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
-			// }
 			runs = new ArrayList<Run>();
 
 			tRuntool = new JTextPane();
@@ -144,6 +140,7 @@ public class RunTool implements ToolFactory {
 			gbc.gridwidth = 3;
 			pMain.add(sRuntool, gbc);
 
+			Tool.this.wfe.addToolWindow(pMain);
 		}
 
 		private static class StreamGobbler extends Thread {
@@ -386,8 +383,8 @@ public class RunTool implements ToolFactory {
 					lRuns.setSelectedIndex(lRuns.getItemCount() - 1);
 				else
 					tRuntool.setText("");
-				//TODO make empty before remove
-				Tool.this.wfe.removeToolWindow(pMain);
+				// EX-TO-DO make empty before remove
+				// Tool.this.wfe.removeToolWindow(pMain);
 			}
 
 		}
@@ -439,7 +436,6 @@ public class RunTool implements ToolFactory {
 					wfe.focusToolWindow(pMain);
 					lRuns.setSelectedIndex(lRuns.getItemCount() - 1);
 					tRuntool.setDocument(r.getDocument());
-					Tool.this.wfe.addToolWindow(pMain);
 					Tool.this.wfe.focusToolWindow(pMain);
 				}
 			}
