@@ -63,41 +63,42 @@ public class InstanceTool implements ToolFactory {
 
 			List<SingleObjectSelection> elements = new ArrayList<SingleObjectSelection>();
 
-			// add all child nodes recursively to the SingleObjectSelection list
-			for (JobInfo ji : iwf.getChildren()) {
-				elements.add(new JobSelection(path, ji.job.getAddress()));
-
-				if (ji.job instanceof CompositeImmutableJob) {
-					List<Token> newPath = new ArrayList<Token>(path);
-					Token currentAddress = ji.job.getAddress();
-					newPath.add(currentAddress);
-					assert (mwf.getChild(currentAddress) instanceof CompositeJob);
-					MutableWorkflow newMwf = ((CompositeJob) mwf
-							.getChild(currentAddress)).getWorkflow();
-					elements.addAll(retrieveWorkflowElements(newMwf,
-							((CompositeImmutableJob) ji.job).getWorkflow(),
-							newPath));
-				}
-			}
-
-			// add all connections to SingleObjectSelection list
-			for (Connection conn : mwf.getConnections()) {
-				boolean sourceFound = false;
-				boolean targetFound = false;
-				for (JobInfo info : iwf.getChildren()) {
-					if (info.job.getAddress().equals(conn.source))
-						sourceFound = true;
-					if (info.job.getAddress().equals(conn.target)
-							&& info.inputs.get(conn.targetPort) != null) {
-						// int i =
-						// info.job.getInputPorts().indexOf(conn.targetPort);
-						// if (i != -1 && info.inputs.get(i) != null)
-						targetFound = true;
-					}
-				}
-				if (sourceFound && targetFound)
-					elements.add(new ConnectionSelection(path, conn.address));
-			}
+			// // add all child nodes recursively to the SingleObjectSelection
+			// // list
+			// for (JobInfo ji : iwf.getChildren()) {
+			// elements.add(new JobSelection(path, ji.job.getAddress()));
+			//
+			// if (ji.job instanceof CompositeImmutableJob) {
+			// List<Token> newPath = new ArrayList<Token>(path);
+			// Token currentAddress = ji.job.getAddress();
+			// newPath.add(currentAddress);
+			// assert (mwf.getChild(currentAddress) instanceof CompositeJob);
+			// MutableWorkflow newMwf = ((CompositeJob) mwf
+			// .getChild(currentAddress)).getWorkflow();
+			// elements.addAll(retrieveWorkflowElements(newMwf,
+			// ((CompositeImmutableJob) ji.job).getWorkflow(),
+			// newPath));
+			// }
+			// }
+			//
+			// // add all connections to SingleObjectSelection list
+			// for (Connection conn : mwf.getConnections()) {
+			// boolean sourceFound = false;
+			// boolean targetFound = false;
+			// for (JobInfo info : iwf.getChildren()) {
+			// if (info.job.getAddress().equals(conn.source))
+			// sourceFound = true;
+			// if (info.job.getAddress().equals(conn.target)
+			// && info.inputs.get(conn.targetPort) != null) {
+			// // int i =
+			// // info.job.getInputPorts().indexOf(conn.targetPort);
+			// // if (i != -1 && info.inputs.get(i) != null)
+			// targetFound = true;
+			// }
+			// }
+			// if (sourceFound && targetFound)
+			// elements.add(new ConnectionSelection(path, conn.address));
+			// }
 
 			return elements;
 		}
