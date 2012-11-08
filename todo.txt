@@ -1,0 +1,19 @@
+#[<priority>]
+#<task1>
+#<task2>
+#...
+
+[high]
+. semantics preview should update properly
+
+[medium]
+. CLI start for workflows
+. file format for workflows (JSON?)
+. show less lines in DictionaryShowSteps (show first, last, some in between)
+. improve propagation of unification errors (red edge in workflow)
+
+[low]
+. open EMDictionaryShowSteps in own window
+. preview for grammar
+. DefaultPreview appends "[...]" if file is truncated for preview
+
