@@ -1,7 +1,7 @@
 BerkeleyTokenizer () {
 	echo "Running: BerkeleyTokenizer..."
 	pathAndName "$1" f1 n1
-	btout="$OUTPATH/BTokenize($n1).0"
+	btout="$OUTPATH/BerkeleyTokenizer($n1).0"
 	cat "$f1" | java -cp "$BERKELEY_PARSER:$BERKELEY_TOKENIZER" Main > "$btout"
 	eval $2=\"$btout\"
 	echo "Done."
