@@ -407,6 +407,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 
 	@Override
 	public void childModified(MutableWorkflow mwf, Job j) {
+		recheck();
 	}
 
 	@Override

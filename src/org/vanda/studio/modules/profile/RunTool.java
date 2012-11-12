@@ -346,6 +346,12 @@ public class RunTool implements ToolFactory {
 			@Override
 			public void doFinish() {
 				state = new StateDone();
+				try {
+					m.checkWorkflow();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				lRuns.repaint();
 				pMain.revalidate();
 			}
