@@ -175,8 +175,6 @@ public class InspectorTool implements ToolFactory {
 				if (type != null && value != null) {
 					fileName.setText(value + " :: " + type.toString());
 					// create preview
-					//TODO syso
-					System.out.println(type.toString());
 					pf = wfe.getApplication().getPreviewFactory(type);
 					if (pf != null)
 						newpreview = pf.createPreview(ProfileImpl.findFile(

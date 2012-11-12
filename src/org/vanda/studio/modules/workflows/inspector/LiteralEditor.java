@@ -62,7 +62,6 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				l.setValue(value.getText());
-
 			}
 		});
 

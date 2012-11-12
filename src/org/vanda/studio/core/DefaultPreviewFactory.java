@@ -40,6 +40,9 @@ public final class DefaultPreviewFactory implements PreviewFactory {
 							System.getProperty("line.separator"), null);
 					i++;
 				}
+				if (input.readLine() != null){
+					doc.insertString(doc.getLength(), "[...]", null);
+				}
 			} finally {
 				input.close();
 			}

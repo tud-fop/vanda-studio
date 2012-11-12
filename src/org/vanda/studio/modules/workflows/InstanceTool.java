@@ -13,15 +13,9 @@ import javax.swing.event.ListSelectionListener;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
-import org.vanda.studio.model.Model.ConnectionSelection;
-import org.vanda.studio.model.Model.JobSelection;
 import org.vanda.studio.model.Model.SingleObjectSelection;
-import org.vanda.studio.model.hyper.CompositeJob;
-import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
-import org.vanda.studio.model.immutable.JobInfo;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.TokenSource.Token;
 

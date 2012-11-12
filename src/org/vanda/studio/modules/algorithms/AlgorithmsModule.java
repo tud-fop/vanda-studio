@@ -17,6 +17,7 @@ import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.previewFactories.BerkeleyGrammarPreviewFactory;
 import org.vanda.studio.util.previewFactories.BerkeleyTreePreviewFactory;
 
 /**
@@ -28,7 +29,9 @@ public class AlgorithmsModule implements Module {
 	@Override
 	public Object createInstance(Application a) {
 		PreviewFactory pf = new BerkeleyTreePreviewFactory();
+		PreviewFactory pf2 = new BerkeleyGrammarPreviewFactory();
 		a.registerPreviewFactory(new CompositeType("Penn Tree Corpus"), pf);
+		a.registerPreviewFactory(new CompositeType("BerkeleyGrammar.sm6"), pf2);
 		return new WorkflowModuleInstance(a);
 	}
 
@@ -490,59 +493,6 @@ public class AlgorithmsModule implements Module {
 			}
 		}
 
-		// private static class EMDictionaryShowSteps extends Tool {
-		// static List<Port> inputPorts = new ArrayList<Port>();
-		// static List<Port> outputPorts = new ArrayList<Port>();
-		// static {
-		// inputPorts.add(new Port("EM Steps", new CompositeType(
-		// "EM Steps")));
-		// }
-		//
-		// public String getContact() {
-		// return "Matthias.Buechse@tu-dresden.de";
-		// }
-		//
-		// public String getCategory() {
-		// return "training";
-		// }
-		//
-		// public String getDescription() {
-		// return "Shows computation steps of EMDictionary training";
-		// }
-		//
-		// public String getId() {
-		// return "EMDictionaryShowSteps";
-		// }
-		//
-		// public List<Port> getInputPorts() {
-		// return inputPorts;
-		// }
-		//
-		// public String getName() {
-		// return "EMDictionaryShowSteps";
-		// }
-		//
-		// public List<Port> getOutputPorts() {
-		// return outputPorts;
-		// }
-		//
-		// public Type getFragmentType() {
-		// return shellType;
-		// }
-		//
-		// public <R> R selectRenderer(RendererAssortment<R> ra) {
-		// return ra.selectAlgorithmRenderer();
-		// }
-		//
-		// public void appendActions(List<Action> as) {
-		// }
-		//
-		// @Override
-		// public String getVersion() {
-		// return "2012-05-16";
-		// }
-		// }
-
 		static class SinkTool extends Tool {
 			static List<Port> inputPorts = new ArrayList<Port>();
 			static {
@@ -986,7 +936,6 @@ public class AlgorithmsModule implements Module {
 			tr.addItem(new PennToInt());
 			tr.addItem(new GHKM());
 			tr.addItem(new EMDictionary());
-			// tr.addItem(new EMDictionaryShowSteps());
 			// tr.addItem(new ToWSA());
 			// tr.addItem(new InputProduct());
 			// tr.addItem(new MakeFeature());

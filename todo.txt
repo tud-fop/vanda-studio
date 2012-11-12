@@ -1,10 +1,13 @@
-#[<priority>]
-#<task1>
-#<task2>
-#...
+contains tasks sorted by priority
+#
+# [<priority>]
+# . <new_task>
+# + <solved_task>
+# - <rejected_task>
+# ...
 
 [high]
-. semantics preview should update properly
++ semantics preview should update properly
 
 [medium]
 . CLI start for workflows
@@ -14,6 +17,7 @@
 
 [low]
 . open EMDictionaryShowSteps in own window
-. preview for grammar
-. DefaultPreview appends "[...]" if file is truncated for preview
-
++ preview for grammar
+. BerkleyTreePreview implemented without latex
+. store Algorithms in external file
++ DefaultPreview appends "[...]" if file is truncated for preview
