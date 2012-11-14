@@ -3,6 +3,8 @@ package org.vanda.studio.util.previewFactories;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +48,9 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 		/**
 		 * Constructor for leaves
-		 * @param lbl Label of the leave
+		 * 
+		 * @param lbl
+		 *            Label of the leave
 		 */
 		public Tree(String lbl) {
 			this(lbl, null);
@@ -141,23 +145,30 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 		public void setTree(Tree t) {
 			tree = t;
-			System.out.println(t);
 			repaint();
 		}
 
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
+			((Graphics2D) g).setRenderingHint(
+					RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
 			if (tree != null)
 				drawTree(g, 1, 0, tree);
 		}
 
 		/**
 		 * Draws a Tree to a Graphics object
-		 * @param g target Graphics object
-		 * @param level level of the current subtree in the root tree 
-		 * @param seedX x coordinate of the latest drawn leaves right edge
-		 * @param t subtree to draw
+		 * 
+		 * @param g
+		 *            target Graphics object
+		 * @param level
+		 *            level of the current subtree in the root tree
+		 * @param seedX
+		 *            x coordinate of the latest drawn leaves right edge
+		 * @param t
+		 *            subtree to draw
 		 * @return new right edge of latest drawn tree
 		 */
 		public int drawTree(Graphics g, int level, int seedX, Tree t) {
@@ -234,7 +245,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			pan.add(bMore, BorderLayout.SOUTH);
 			JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pan,
 					new JScrollPane(jTree));
-			split.setDividerLocation(0.5);
+			split.setDividerLocation(0.8);
 			add(split, BorderLayout.CENTER);
 		}
 
