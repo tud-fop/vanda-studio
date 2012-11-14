@@ -120,7 +120,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		/**
 		 * horizontal distance between edges of consecutive leaves
 		 */
-		public static final int DX = 10;
+		public static final int DX = 20;
 
 		public static final int FONT_SIZE = 18;
 
@@ -235,6 +235,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		private List<String> yields;
 		private JList lTrees;
 		private TreeView jTree;
+		private JScrollPane sTree;
 		private JButton bMore;
 
 		private Scanner scan;
@@ -258,7 +259,6 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					more();
-
 				}
 			});
 			jTree = new TreeView(new Tree("", null));
@@ -268,15 +268,16 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				public void valueChanged(ListSelectionEvent e) {
 					String s = lTrees.getSelectedValue().toString();
 					jTree.setTree(s);
+					sTree.revalidate();
 				}
 			});
 			more();
 			JPanel pan = new JPanel(new BorderLayout());
 			pan.add(new JScrollPane(lTrees), BorderLayout.CENTER);
 			pan.add(bMore, BorderLayout.SOUTH);
+			sTree = new JScrollPane(jTree);
 			JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pan,
-					new JScrollPane(jTree));
-			split.setDividerLocation(0.8);
+					sTree);
 			add(split, BorderLayout.CENTER);
 		}
 
