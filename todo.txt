@@ -18,6 +18,6 @@ contains tasks sorted by priority
 [low]
 . open EMDictionaryShowSteps in own window
 + preview for grammar
-. BerkleyTreePreview implemented without latex
++ BerkleyTreePreview implemented without latex
 . store Algorithms in external file
 + DefaultPreview appends "[...]" if file is truncated for preview

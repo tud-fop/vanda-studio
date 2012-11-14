@@ -1,7 +1,9 @@
 package org.vanda.studio.util.previewFactories;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -112,10 +114,12 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		 */
 		public static final int DX = 10;
 
+		public static final int FONT_SIZE = 18;
+		
 		/**
 		 * vertical distance between anchors of adjoining levels
 		 */
-		public static final int DY = 50;
+		public static final int DY = 40;
 
 		/**
 		 * Tree to draw
@@ -151,11 +155,14 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			((Graphics2D) g).setRenderingHint(
+			Graphics2D g2 = (Graphics2D) g;
+			g2.setStroke(new BasicStroke(1.5f));
+			g2.setFont(new Font("Serif", Font.BOLD, FONT_SIZE));
+			g2.setRenderingHint(
 					RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			if (tree != null)
-				drawTree(g, 1, 0, tree);
+				drawTree(g2, 1, 0, tree);
 		}
 
 		/**
@@ -171,11 +178,14 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		 *            subtree to draw
 		 * @return new right edge of latest drawn tree
 		 */
-		public int drawTree(Graphics g, int level, int seedX, Tree t) {
+		public int drawTree(Graphics2D g, int level, int seedX, Tree t) {
 			int currentX = seedX;
-			int width = (new JLabel(t.label)).getPreferredSize().width;
+			JLabel lbl = new JLabel(t.label);
+			lbl.setFont(new Font("Serif", Font.BOLD, FONT_SIZE));
+			int width = lbl.getPreferredSize().width;
 			if (t.children.length == 0) {
-				g.drawString(t.label, currentX + DX, level * DY);
+				g.setColor(Color.BLUE);
+				g.drawString(t.label, currentX + DX, level * (DY + FONT_SIZE));
 				seeds.put(t, currentX + DX + width / 2);
 				currentX += DX + width;
 			} else {
@@ -184,11 +194,12 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				}
 				int xMid = (seeds.get(t.children[0]) + seeds
 						.get(t.children[t.children.length - 1])) / 2;
-				g.drawString(t.label, xMid - width / 2, level * DY);
+				g.setColor(Color.BLACK);
+				g.drawString(t.label, xMid - width / 2, level * (DY + FONT_SIZE));
 				seeds.put(t, xMid);
 				for (Tree t2 : t.children) {
-					g.drawLine(xMid, level * DY + 4, seeds.get(t2), level * DY
-							+ DY - 13);
+					g.drawLine(xMid, level * (DY + FONT_SIZE) + 4, seeds.get(t2), (level + 1) * (DY + FONT_SIZE)
+							- (FONT_SIZE + 4));
 				}
 			}
 			return currentX;
