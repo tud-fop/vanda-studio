@@ -3,6 +3,7 @@ package org.vanda.studio.util.previewFactories;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -56,6 +57,13 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		 */
 		public Tree(String lbl) {
 			this(lbl, null);
+		}
+
+		public int levels() {
+			int max = 0;
+			for (Tree t : children)
+				max = Math.max(max, t.levels());
+			return max + 1;
 		}
 
 		@Override
@@ -115,11 +123,13 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		public static final int DX = 10;
 
 		public static final int FONT_SIZE = 18;
-		
+
 		/**
 		 * vertical distance between anchors of adjoining levels
 		 */
 		public static final int DY = 40;
+
+		private int width = 0;
 
 		/**
 		 * Tree to draw
@@ -158,11 +168,18 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			Graphics2D g2 = (Graphics2D) g;
 			g2.setStroke(new BasicStroke(1.5f));
 			g2.setFont(new Font("Serif", Font.BOLD, FONT_SIZE));
-			g2.setRenderingHint(
-					RenderingHints.KEY_ANTIALIASING,
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			if (tree != null)
-				drawTree(g2, 1, 0, tree);
+				width = drawTree(g2, 0, 2, tree);
+		}
+
+		@Override
+		public Dimension getPreferredSize() {
+			Dimension result = new Dimension();
+			result.height = FONT_SIZE + (tree.levels() - 1) * (DY + FONT_SIZE) + 4;
+			result.width = width + 2;
+			return result;
 		}
 
 		/**
@@ -185,7 +202,8 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			int width = lbl.getPreferredSize().width;
 			if (t.children.length == 0) {
 				g.setColor(Color.BLUE);
-				g.drawString(t.label, currentX + DX, level * (DY + FONT_SIZE));
+				g.drawString(t.label, currentX + DX, 2 + FONT_SIZE + level
+						* (DY + FONT_SIZE));
 				seeds.put(t, currentX + DX + width / 2);
 				currentX += DX + width;
 			} else {
@@ -195,11 +213,13 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				int xMid = (seeds.get(t.children[0]) + seeds
 						.get(t.children[t.children.length - 1])) / 2;
 				g.setColor(Color.BLACK);
-				g.drawString(t.label, xMid - width / 2, level * (DY + FONT_SIZE));
+				g.drawString(t.label, xMid - width / 2, 2 + FONT_SIZE + level
+						* (DY + FONT_SIZE));
 				seeds.put(t, xMid);
 				for (Tree t2 : t.children) {
-					g.drawLine(xMid, level * (DY + FONT_SIZE) + 4, seeds.get(t2), (level + 1) * (DY + FONT_SIZE)
-							- (FONT_SIZE + 4));
+					g.drawLine(xMid, 2 + FONT_SIZE + level * (DY + FONT_SIZE)
+							+ 4, seeds.get(t2), 2 + FONT_SIZE + (level + 1)
+							* (DY + FONT_SIZE) - (FONT_SIZE + 4));
 				}
 			}
 			return currentX;
