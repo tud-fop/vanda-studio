@@ -65,13 +65,29 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				max = Math.max(max, t.levels());
 			return max + 1;
 		}
-
-		@Override
-		public String toString() {
+		
+		public String nestedParentheses() {
 			String result = label + "(";
 			for (Tree c : children)
 				result += c.toString() + ", ";
 			return (result + ")").replace(", )", ")").replace("()", "");
+		}
+		
+		public String yield() {
+			if (children.length == 0) {
+				return label;
+			} else {
+				String result = "";
+				for (Tree c : children) {
+					result += c.yield() + " ";
+				}
+				return result.trim().replaceAll(" +", " ");
+			}
+		}
+
+		@Override
+		public String toString() {
+			return yield();
 		}
 	}
 
@@ -177,7 +193,10 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		@Override
 		public Dimension getPreferredSize() {
 			Dimension result = new Dimension();
-			result.height = FONT_SIZE + (tree.levels() - 1) * (DY + FONT_SIZE) + 4;
+			if (tree != null)
+				result.height = FONT_SIZE + (tree.levels() - 1) * (DY + FONT_SIZE) + 4;
+			else
+				result.height = 0;
 			result.width = width + 2;
 			return result;
 		}
@@ -200,27 +219,35 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			JLabel lbl = new JLabel(t.label);
 			lbl.setFont(new Font("Serif", Font.BOLD, FONT_SIZE));
 			int width = lbl.getPreferredSize().width;
+			int xMid;
 			if (t.children.length == 0) {
 				g.setColor(Color.BLUE);
 				g.drawString(t.label, currentX + DX, 2 + FONT_SIZE + level
 						* (DY + FONT_SIZE));
-				seeds.put(t, currentX + DX + width / 2);
+				g.setColor(Color.BLACK);
+				
+				xMid = currentX + DX + width / 2;
+				seeds.put(t, xMid);
 				currentX += DX + width;
 			} else {
-				for (Tree t1 : t.children) {
+				// draw the subtrees
+				for (Tree t1 : t.children)
 					currentX = drawTree(g, level + 1, currentX, t1);
-				}
-				int xMid = (seeds.get(t.children[0]) + seeds
+				
+				// determine x value of the nodes center
+				xMid = (seeds.get(t.children[0]) + seeds
 						.get(t.children[t.children.length - 1])) / 2;
-				g.setColor(Color.BLACK);
+				seeds.put(t, xMid);
+				
+				// draw the node
 				g.drawString(t.label, xMid - width / 2, 2 + FONT_SIZE + level
 						* (DY + FONT_SIZE));
-				seeds.put(t, xMid);
-				for (Tree t2 : t.children) {
+				
+				// draw the branches
+				for (Tree t2 : t.children)
 					g.drawLine(xMid, 2 + FONT_SIZE + level * (DY + FONT_SIZE)
 							+ 4, seeds.get(t2), 2 + FONT_SIZE + (level + 1)
 							* (DY + FONT_SIZE) - (FONT_SIZE + 4));
-				}
 			}
 			return currentX;
 		}
@@ -232,7 +259,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private List<String> yields;
+		private List<Tree> trees;
 		private JList lTrees;
 		private TreeView jTree;
 		private JScrollPane sTree;
@@ -247,7 +274,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			} catch (FileNotFoundException e1) {
 				// ignore
 			}
-			yields = new ArrayList<String>();
+			trees = new ArrayList<Tree>();
 			setLayout(new BorderLayout());
 			bMore = new JButton(new AbstractAction("more") {
 
@@ -266,12 +293,11 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			lTrees.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-					String s = lTrees.getSelectedValue().toString();
-					jTree.setTree(s);
+					Tree t = (Tree) lTrees.getSelectedValue();
+					jTree.setTree(t);
 					sTree.revalidate();
 				}
 			});
-			more();
 			JPanel pan = new JPanel(new BorderLayout());
 			pan.add(new JScrollPane(lTrees), BorderLayout.CENTER);
 			pan.add(bMore, BorderLayout.SOUTH);
@@ -279,17 +305,22 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pan,
 					sTree);
 			add(split, BorderLayout.CENTER);
+			
+			more();
 		}
 
 		public void more() {
 			int i = 0;
+			String line;
 			while (i < SIZE & scan.hasNextLine()) {
-				yields.add(scan.nextLine());
+				line = scan.nextLine();
+				trees.add(parseTree(line.substring(2,
+						line.length() - 2)).t);
 				i++;
 			}
 			if (!scan.hasNextLine())
 				bMore.setEnabled(false);
-			lTrees.setListData(yields.toArray());
+			lTrees.setListData(trees.toArray());
 			revalidate();
 		}
 	}
