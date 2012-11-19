@@ -183,7 +183,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			super.paintComponent(g);
 			Graphics2D g2 = (Graphics2D) g;
 			g2.setStroke(new BasicStroke(1.5f));
-			g2.setFont(new Font("Serif", Font.BOLD, FONT_SIZE));
+			g2.setFont(new Font("SansSerif", Font.BOLD, FONT_SIZE));
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			if (tree != null)
@@ -217,7 +217,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		public int drawTree(Graphics2D g, int level, int seedX, Tree t) {
 			int currentX = seedX;
 			JLabel lbl = new JLabel(t.label);
-			lbl.setFont(new Font("Serif", Font.BOLD, FONT_SIZE));
+			lbl.setFont(new Font("SansSerif", Font.BOLD, FONT_SIZE));
 			int width = lbl.getPreferredSize().width;
 			int xMid;
 			if (t.children.length == 0) {

@@ -12,10 +12,11 @@ contains tasks sorted by priority
 [medium]
 . CLI start for workflows
 . file format for workflows (JSON?)
-. show less lines in DictionaryShowSteps (show first, last, some in between)
++ show less lines in DictionaryShowSteps (show first, last, some in between)
 . improve propagation of unification errors (red edge in workflow)
 
 [low]
+. shorten file names in tabs (EMDictionaryShowSteps, Tooltip with complete name)
 . open EMDictionaryShowSteps in own window
 + preview for grammar
 + BerkleyTreePreview implemented without latex

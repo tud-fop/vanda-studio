@@ -85,7 +85,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 				l = fs.nextLine().split(" ");
 				for (String s : l) {
 					if (s.equals("->"))
-						txt += " &rarr; ";
+						txt += " &#10230; ";
 					else if (l[l.length - 1] == s) {
 						if (s.split("E").length > 1)
 							txt += "  [" + s.split("E")[0].substring(0, 5)
