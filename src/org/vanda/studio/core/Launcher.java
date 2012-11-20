@@ -3,6 +3,7 @@
  */
 package org.vanda.studio.core;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,14 +14,47 @@ import javax.swing.SwingUtilities;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.app.Serialization;
+import org.vanda.studio.app.ToolFactory;
+import org.vanda.studio.model.Model;
 import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.studio.model.immutable.ImmutableWorkflow;
+import org.vanda.studio.modules.common.SimpleRepository;
+import org.vanda.studio.modules.profile.Profile;
 import org.vanda.studio.modules.profile.ProfileImpl;
 import org.vanda.studio.modules.profile.ProfilesImpl;
+import org.vanda.studio.modules.profile.concrete.HaskellCompiler;
+import org.vanda.studio.modules.profile.concrete.HaskellLinker;
+import org.vanda.studio.modules.profile.concrete.IdentityLinker;
+import org.vanda.studio.modules.profile.concrete.ShellCompiler;
 import org.vanda.studio.modules.profile.model.Fragment;
+import org.vanda.studio.modules.profile.model.FragmentCompiler;
+import org.vanda.studio.modules.profile.model.FragmentLinker;
+import org.vanda.studio.modules.profile.model.Profiles;
 import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.RCChecker;
 
 public final class Launcher implements Runnable {
+
+	private static class StreamGobbler extends Thread {
+		private final InputStream is;
+
+		public StreamGobbler(InputStream is) {
+			this.is = is;
+		}
+
+		public void run() {
+			InputStreamReader isr = new InputStreamReader(is);
+			BufferedReader br = new BufferedReader(isr);
+			String line = null;
+			try {
+				while ((line = br.readLine()) != null) {
+					System.out.println(line);
+				}
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
 
 	private Launcher() {
 		// utility class
@@ -73,44 +107,74 @@ public final class Launcher implements Runnable {
 	 */
 	public static void main(String[] args) {
 		RCChecker.readRC();
-		// if (args.length > 1
-		// && (args[0].equals("-r") || args[0].equals("--run"))) {
-		// System.out.println(args.length);
-		// Application app = new ApplicationImpl();
-		// Module[] ms = { new
-		// org.vanda.studio.modules.messages.MessageModule(),
-		// new org.vanda.studio.modules.algorithms.AlgorithmsModule(),
-		// new org.vanda.studio.modules.profile.ProfileModule(),
-		// new org.vanda.studio.modules.dictionaries.DictionaryModule(),
-		// // new org.vanda.studio.modules.wrtgs.WrtgModule(),
-		// // new org.vanda.studio.modules.terms.TermModule(),
-		// new org.vanda.studio.modules.workflows.WorkflowModule() };
-		//
-		// ModuleManager moduleManager = new ModuleManager(app);
-		// moduleManager.loadModules();
-		// for (Module m : ms)
-		// moduleManager.loadModule(m);
-		// moduleManager.initModules();
-		//
-		// app.getToolMetaRepository().getRepository().refresh();
-		//
-		// try {
-		// MutableWorkflow hwf = Serialization.load(app, args[1]);;
-		// Fragment frag = (new ProfileImpl(null, null)).generate(hwf.freeze());
-		// Process process = Runtime.getRuntime().exec(
-		// RCChecker.getOutPath() + "/"
-		// + Fragment.normalize(frag.name), null, null);
-		// InputStream stdin = process.getInputStream();
-		// InputStream stderr = process.getErrorStream();
-		// } catch (IOException e1) {
-		// // TODO Auto-generated catch block
-		// e1.printStackTrace();
-		// } catch (Exception e1) {
-		// // TODO Auto-generated catch block
-		// e1.printStackTrace();
-		// }
-		// } else
+		if (args.length > 1
+				&& (args[0].equals("-r") || args[0].equals("--run"))) {
+			runWorkflow(args[1]);
+		} else {
+			displayGUI();
+		}
+
+	}
+
+	public static void displayGUI() {
 		SwingUtilities.invokeLater(new Launcher());
+	}
+
+	/**
+	 * executes a workflow without loading the GUI
+	 * @param fileName workflow to be executed
+	 */
+	public static void runWorkflow(String fileName) {
+		Application app = new ApplicationImpl(false);
+
+		// only load AlgorithmsModule, nothing else is needed
+		ModuleManager moduleManager = new ModuleManager(app);
+		moduleManager.loadModules();
+		moduleManager
+				.loadModule(new org.vanda.studio.modules.algorithms.AlgorithmsModule());
+		moduleManager.initModules();
+
+		Profiles profiles = new ProfilesImpl();
+		SimpleRepository<FragmentCompiler> compilers = new SimpleRepository<FragmentCompiler>(
+				null);
+		compilers.addItem(new HaskellCompiler());
+		compilers.addItem(new ShellCompiler());
+		profiles.getFragmentCompilerMetaRepository().addRepository(compilers);
+
+		SimpleRepository<FragmentLinker> linkers = new SimpleRepository<FragmentLinker>(
+				null);
+		linkers.addItem(new IdentityLinker());
+		linkers.addItem(new HaskellLinker());
+		profiles.getFragmentLinkerMetaRepository().addRepository(linkers);
+		Profile profile = new ProfileImpl(app, profiles);
+
+		try {
+			MutableWorkflow hwf = Serialization.load(app, fileName);
+			for (ToolFactory tf : app.getToolFactoryMetaRepository()
+					.getRepository().getItems())
+				tf.instantiate(null, new Model(hwf));
+			ImmutableWorkflow iwf = hwf.freeze();
+			iwf.typeCheck();
+			Fragment frag = profile.generate(iwf);
+			Process process = Runtime.getRuntime().exec(
+					RCChecker.getOutPath() + "/"
+							+ Fragment.normalize(frag.name), null, null);
+			InputStream stdin = process.getInputStream();
+			StreamGobbler sgIn = new StreamGobbler(stdin);
+			sgIn.start();
+			InputStream stderr = process.getErrorStream();
+			StreamGobbler sgErr = new StreamGobbler(stderr);
+			sgErr.start();
+			process.waitFor();
+			stdin.close();
+			stderr.close();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 	public static class ExceptionHandler implements

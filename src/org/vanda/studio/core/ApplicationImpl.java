@@ -55,6 +55,10 @@ public final class ApplicationImpl implements Application {
 	protected static String PROPERTIES_FILE = System.getProperty("user.home") + "/.vanda/studio.conf";
 
 	public ApplicationImpl() {
+		this(true);
+	}
+	
+	public ApplicationImpl(boolean gui) {
 		modes = new ArrayList<UIMode>();
 		addUIModes(modes);
 		messageObservable = new MultiplexObserver<Message>();
@@ -67,7 +71,10 @@ public final class ApplicationImpl implements Application {
 		toolRepository = new CompositeRepository<Tool>();
 		toolFactoryRepository = new CompositeRepository<ToolFactory>();
 		shutdownObservable = new MultiplexObserver<Application>();
-		windowSystem = new WindowSystemImpl(this);
+		if (gui)
+			windowSystem = new WindowSystemImpl(this);
+		else
+			windowSystem = null;
 		types = new HashSet<Type>();
 		properties = new Properties();
 		try {
