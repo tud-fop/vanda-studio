@@ -164,7 +164,7 @@ public class AlgorithmsModule implements Module {
 			}
 
 			public String getDescription() {
-				return "Berkeley parser using a state-split grammar";
+				return "Berkeley parser using a state-split grammar. Corpus must not contain empty lines.";
 			}
 
 			public String getId() {
@@ -512,7 +512,7 @@ public class AlgorithmsModule implements Module {
 			}
 
 			public String getId() {
-				return "cat";
+				return "echo";
 			}
 
 			public List<Port> getInputPorts() {
