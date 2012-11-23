@@ -57,11 +57,10 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 
 			try {
 				fs = new Scanner(new FileInputStream(value + ".prev"));
+				more();
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				add(new JLabel("Preview does not exist."));
 			}
-			more();
 		}
 
 		public Component add(Component c) {
@@ -76,6 +75,8 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 		}
 
 		public void more() {
+			if (fs == null)
+				return;
 			remove(bMore);
 			List<String> lst = new ArrayList<String>();
 			String[] l;
