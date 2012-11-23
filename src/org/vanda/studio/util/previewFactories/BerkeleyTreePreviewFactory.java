@@ -4,14 +4,22 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,7 +39,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -125,6 +135,61 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		}
 	}
 
+	class DragScrollListener extends MouseAdapter implements MouseWheelListener {
+		private final Cursor defCursor = Cursor
+				.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+		private final Cursor hndCursor = Cursor
+				.getPredefinedCursor(Cursor.HAND_CURSOR);
+		private final Point pp = new Point();
+		private final TreeView tv;
+		private final JScrollPane scr;
+		
+		public void mouseWheelMoved(MouseWheelEvent e) {
+			if (e.getWheelRotation() < 0)
+				tv.zoomOut();
+			else if (e.getWheelRotation() > 0)
+				tv.zoomIn();
+			scr.revalidate();
+		}
+		
+		public DragScrollListener(TreeView tv, JScrollPane scr){
+			super();
+			this.tv = tv;
+			this.scr = scr;
+		}
+		
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			final JComponent jc = (JComponent) e.getSource();
+			Container c = jc.getParent();
+			if (c instanceof JViewport) {
+				JViewport vport = (JViewport) c;
+				Point cp = SwingUtilities.convertPoint(jc, e.getPoint(), vport);
+				Point vp = vport.getViewPosition();
+				vp.translate(pp.x - cp.x, pp.y - cp.y);
+				jc.scrollRectToVisible(new Rectangle(vp, vport.getSize()));
+				pp.setLocation(cp);
+			}
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			JComponent jc = (JComponent) e.getSource();
+			Container c = jc.getParent();
+			if (c instanceof JViewport) {
+				jc.setCursor(hndCursor);
+				JViewport vport = (JViewport) c;
+				Point cp = SwingUtilities.convertPoint(jc, e.getPoint(), vport);
+				pp.setLocation(cp);
+			}
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			((JComponent) e.getSource()).setCursor(defCursor);
+		}
+	}
+
 	public class TreeView extends JPanel {
 
 		/**
@@ -179,12 +244,12 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		}
 
 		public void zoomIn() {
-			zoomFactor *= Math.sqrt(2);
+			zoomFactor *= Math.pow(2, 0.25);
 			repaint();
 		}
 
 		public void zoomOut() {
-			zoomFactor *= 1 / Math.sqrt(2);
+			zoomFactor *= Math.pow(2, -0.25);
 			repaint();
 		}
 
@@ -197,9 +262,9 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			Graphics2D g2 = (Graphics2D) g;
-			AffineTransform tr2= new AffineTransform(g2.getTransform());
-    		tr2.scale(zoomFactor, zoomFactor);
-    		g2.setTransform(tr2);
+			AffineTransform tr2 = new AffineTransform(g2.getTransform());
+			tr2.scale(zoomFactor, zoomFactor);
+			g2.setTransform(tr2);
 			g2.setStroke(new BasicStroke(1.5f));
 			g2.setFont(new Font("SansSerif", Font.BOLD, FONT_SIZE));
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -212,8 +277,9 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		public Dimension getPreferredSize() {
 			Dimension result = new Dimension();
 			if (tree != null)
-				result.height = (int) Math.round((FONT_SIZE + (tree.levels() - 1)
-						* (DY + FONT_SIZE) + 4) * zoomFactor);
+				result.height = (int) Math.round((FONT_SIZE
+						+ (tree.levels() - 1) * (DY + FONT_SIZE) + 4)
+						* zoomFactor);
 			else
 				result.height = 0;
 			result.width = (int) Math.round((width + 2) * zoomFactor);
@@ -333,7 +399,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 					return lbl;
 				}
 			});
-			
+
 			bZoomIn = new JButton(new AbstractAction("+") {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -355,7 +421,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 					sTree.revalidate();
 				}
 			});
-			
+
 			JPanel pan = new JPanel(new BorderLayout());
 			pan.add(new JScrollPane(lTrees), BorderLayout.CENTER);
 			pan.add(bMore, BorderLayout.SOUTH);
@@ -368,8 +434,12 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			gbc.weighty = 1;
 			gbc.gridheight = 2;
 			sTree = new JScrollPane(jTree);
+			DragScrollListener dsl = new DragScrollListener(jTree, sTree);
+			jTree.addMouseMotionListener(dsl);
+			jTree.addMouseListener(dsl);
+			jTree.addMouseWheelListener(dsl);
 			panR.add(sTree, gbc);
-			
+
 			gbc.fill = GridBagConstraints.NONE;
 			gbc.anchor = GridBagConstraints.SOUTH;
 			gbc.weightx = 0;
@@ -378,13 +448,13 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			gbc.gridx = 1;
 			gbc.gridheight = 1;
 			panR.add(bZoomOut, gbc);
-			
+
 			gbc.gridx = 2;
 			panR.add(bZoomN, gbc);
-			
+
 			gbc.gridx = 3;
 			panR.add(bZoomIn, gbc);
-			
+
 			JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pan,
 					panR);
 			add(split, BorderLayout.CENTER);

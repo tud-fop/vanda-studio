@@ -22,6 +22,8 @@ contains tasks sorted by priority
 . shorten file names in tabs (EMDictionaryShowSteps, Tooltip with complete name)
 . open EMDictionaryShowSteps in own window
 . store Algorithms in external file
+. Types know if there is a file in background
++ drag PennTree with, zoom with wheel
 + CLI start for workflows
 + DefaultPreview appends "[...]" if file is truncated for preview
 + preview for grammar
