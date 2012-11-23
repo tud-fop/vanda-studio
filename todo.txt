@@ -8,11 +8,15 @@ contains tasks sorted by priority
 
 [high]
 + semantics preview should update properly
++ NullPointerException in BerkeleyGrammar.sm6 preview
++ IndexOutOfBoundException in BerkeleyParser (empty lines)
 
 [medium]
 . file format for workflows (JSON?)
 . improve propagation of unification errors (red edge in workflow)
+. show preview even if not all edges are connected
 + show less lines in DictionaryShowSteps (show first, last, some in between)
++ show PennTreeString in list of Trees in PennTreePreview
 
 [low]
 . shorten file names in tabs (EMDictionaryShowSteps, Tooltip with complete name)
@@ -22,3 +26,4 @@ contains tasks sorted by priority
 + DefaultPreview appends "[...]" if file is truncated for preview
 + preview for grammar
 + BerkleyTreePreview implemented without latex
++ Make PennTrees zoomable
