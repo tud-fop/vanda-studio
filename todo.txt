@@ -14,6 +14,8 @@
 [medium]
 . file format for workflows (JSON?)
 . improve propagation of unification errors (red edge in workflow)
+  . only red vertex by now
+  . strange error with SinkTool
 . show preview even if not all edges are connected
 + show less lines in DictionaryShowSteps (show first, last, some in between)
 + show PennTreeString in list of Trees in PennTreePreview

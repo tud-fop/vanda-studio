@@ -1,10 +1,12 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.vanda.studio.model.Model;
+import org.vanda.studio.model.Model.SingleObjectSelection;
 import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
@@ -24,6 +26,7 @@ import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
@@ -96,8 +99,10 @@ public final class DrecksAdapter {
 			}
 		}
 	}
-	
-	protected class WorkflowListener implements MutableWorkflow.WorkflowChildListener, MutableWorkflow.WorkflowListener {
+
+	protected class WorkflowListener implements
+			MutableWorkflow.WorkflowChildListener,
+			MutableWorkflow.WorkflowListener {
 
 		@Override
 		public void childAdded(MutableWorkflow mwf, Job j) {
@@ -166,7 +171,7 @@ public final class DrecksAdapter {
 			if (mwf != DrecksAdapter.this.model.getRoot())
 				graph.refresh();
 		}
-		
+
 	}
 
 	protected final Model model;
@@ -183,22 +188,24 @@ public final class DrecksAdapter {
 		// the current workflow
 		if (model != null) {
 			graph = new Graph();
-			
-			workflowListener = new WorkflowListener();
-			model.getChildObservable().addObserver(new Observer<WorkflowChildEvent>() {
-				@Override
-				public void notify(WorkflowChildEvent event) {
-					event.doNotify(workflowListener);
-				}
-			});
-			model.getWorkflowObservable().addObserver(new Observer<WorkflowEvent>() {
-				@Override
-				public void notify(WorkflowEvent event) {
-					event.doNotify(workflowListener);
-				}
-			});
 
-			/*model.getMarkedElementsObservable().addObserver(
+			workflowListener = new WorkflowListener();
+			model.getChildObservable().addObserver(
+					new Observer<WorkflowChildEvent>() {
+						@Override
+						public void notify(WorkflowChildEvent event) {
+							event.doNotify(workflowListener);
+						}
+					});
+			model.getWorkflowObservable().addObserver(
+					new Observer<WorkflowEvent>() {
+						@Override
+						public void notify(WorkflowEvent event) {
+							event.doNotify(workflowListener);
+						}
+					});
+
+			model.getMarkedElementsObservable().addObserver(
 					new Observer<Model>() {
 						@Override
 						public void notify(Model model) {
@@ -212,7 +219,6 @@ public final class DrecksAdapter {
 							highlightCells(markedCells);
 						}
 					});
-					*/
 		} else {
 			workflowListener = null;
 			// adapter is responsible for palette graph component,
@@ -281,7 +287,6 @@ public final class DrecksAdapter {
 		}
 	}
 
-	/*
 	private List<mxICell> calculateInverseCellList(Object cell,
 			List<mxICell> cells) {
 
@@ -316,13 +321,11 @@ public final class DrecksAdapter {
 
 		return inverseList;
 	}
-	*/
 
 	public mxGraph getGraph() {
 		return graph;
 	}
 
-	/*
 	private void highlightCells(List<mxICell> cells) {
 		for (mxICell cell : cells) {
 			if (cell.isVertex()) {
@@ -336,7 +339,6 @@ public final class DrecksAdapter {
 		}
 		graph.refresh();
 	}
-	*/
 
 	public void modifyChild(MutableWorkflow hwf, Job job) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
@@ -455,44 +457,16 @@ public final class DrecksAdapter {
 		}
 	}
 
-	/*
 	private List<mxICell> transformElementsToCells(
-			List<SingleObjectSelection> elements) {
+			final List<SingleObjectSelection> elements) {
 		List<mxICell> cellList = new ArrayList<mxICell>();
-		mxICell rootCell = translation.get(model.getRoot());
-
 		List<mxICell> activeInputPorts = new ArrayList<mxICell>();
 
-		for (SingleObjectSelection element : elements) {
-			mxICell wfcell = null;
-			// ((Adapter) rootCell.getValue()).dereference(
-			//		element.path.listIterator(), rootCell);
-			if (wfcell != null) {
-				WorkflowAdapter adapter = (WorkflowAdapter) wfcell.getValue();
-				mxICell cell = null;
-				if (element instanceof JobSelection) {
-					cell = adapter.getChild(element.address);
-
-					// retrieve port cells of highlighted cells
-					for (int i = 0; i < cell.getChildCount(); i++) {
-						if (cell.getChildAt(i).getValue() instanceof PortAdapter) {
-
-							// save input ports temporarily to check later
-							// if they are used in the current workflow instance
-							if (((PortAdapter) cell.getChildAt(i).getValue()).input) {
-								activeInputPorts.add(cell.getChildAt(i));
-							} else {
-								// add output ports of marked jobs immediately
-								// to list of cells that will be highlighted
-								cellList.add(cell.getChildAt(i));
-							}
-						}
-					}
-				} else {
-					cell = adapter.getConnection(element.address);
-				}
-				cellList.add(cell);
-			}
+		for (SingleObjectSelection e : elements) {
+			// XXX nested Workflows are not supported by this code
+			MutableWorkflow hwf = model.getRoot();
+			mxICell c = ((WorkflowAdapter) translation.get(hwf).getValue()).getChild(e.address);
+			cellList.add(c);
 		}
 
 		// check all suspected active input ports by looking for an edge cell
@@ -510,10 +484,8 @@ public final class DrecksAdapter {
 			}
 
 		}
-
 		return cellList;
 	}
-	
 
 	private void unhighlightCells(List<mxICell> cells) {
 
@@ -526,11 +498,10 @@ public final class DrecksAdapter {
 				// TODO fix style resetting to usual style
 				String st = mxStyleUtils.removeStylename(cell.getStyle(),
 						"highlightededge");
-				System.out.println(st);
+//				System.out.println(st);
 				cell.setStyle(st);
 			}
 		}
 		graph.refresh();
 	}
-	*/
 }

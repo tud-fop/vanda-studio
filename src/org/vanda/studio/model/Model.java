@@ -16,6 +16,7 @@ import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
+import org.vanda.studio.util.UnificationException;
 import org.vanda.studio.util.TokenSource.Token;
 
 public final class Model implements WorkflowChildListener {
@@ -167,7 +168,13 @@ public final class Model implements WorkflowChildListener {
 
 	public void checkWorkflow() throws Exception {
 		frozen = hwf.freeze();
-		frozen.typeCheck();
+		markedElements.clear();
+		try {
+			frozen.typeCheck();
+		} catch (UnificationException e) {
+			markedElements.add(new ConnectionSelection(hwf, e.getAddress()));
+		}
+		markedElementsObservable.notify(this);
 		unfolded = frozen.unfold();
 		workflowCheckObservable.notify(this);
 	}
