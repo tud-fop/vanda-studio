@@ -224,13 +224,27 @@ public class WindowSystemImpl implements WindowSystem {
 	 */
 	@Override
 	public void addContentWindow(Icon i, JComponent c, Action a) {
-		int ix = contentPane.indexOfComponent(c);
-		if (ix >= 0) {
-			contentPane.setTitleAt(ix, c.getName());
+		int maxLength = 21;
+		String name;
+		if (c.getName().length() <= maxLength) {
+			name = c.getName();
 		} else {
-			contentPane.add(c);
-			contentPane.setTabComponentAt(contentPane.getTabCount() - 1,
-					new ButtonTabComponent(contentPane, a));
+			name = c.getName().substring(0, (maxLength - 3) / 2)
+					+ "..."
+					+ c.getName().substring(
+							c.getName().length() - (maxLength - 3) / 2 - 1);
+		}
+		int ix = contentPane.indexOfComponent(c);
+
+		if (ix >= 0) {
+			contentPane.setToolTipTextAt(ix, c.getName());
+			contentPane.setTitleAt(ix, name);
+		} else {
+			contentPane.add(name, c);
+			int idx = contentPane.getTabCount() - 1;
+			contentPane.setTabComponentAt(idx, new ButtonTabComponent(
+					contentPane, a));
+			contentPane.setToolTipTextAt(idx, c.getName());
 		}
 	}
 
@@ -253,7 +267,8 @@ public class WindowSystemImpl implements WindowSystem {
 		if (!tcs.contains(c)) {
 			int idx = 0;
 			String name = c.getName();
-			while (idx < tcs.size() && name.compareTo(tcs.get(idx).getName()) > 0)
+			while (idx < tcs.size()
+					&& name.compareTo(tcs.get(idx).getName()) > 0)
 				idx++;
 			tcs.add(idx, c);
 			if (contentPane.getSelectedComponent() == window) {
