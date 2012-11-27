@@ -356,110 +356,111 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		public BerkeleyTreePreview(String value) {
 			try {
 				scan = new Scanner(new FileInputStream(value));
+				trees = new ArrayList<Tuple<String, Tree>>();
+				setLayout(new BorderLayout());
+				bMore = new JButton(new AbstractAction("more") {
+
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						more();
+					}
+				});
+				jTree = new TreeView(new Tree("", null));
+				lTrees = new JList();
+				lTrees.addListSelectionListener(new ListSelectionListener() {
+					@Override
+					public void valueChanged(ListSelectionEvent e) {
+						Tuple<String, Tree> tpl = (Tuple<String, Tree>) lTrees
+								.getSelectedValue();
+						jTree.setTree(tpl.t);
+						sTree.revalidate();
+					}
+				});
+				lTrees.setCellRenderer(new ListCellRenderer() {
+
+					@Override
+					public Component getListCellRendererComponent(JList list,
+							Object value, int index, boolean isSelected,
+							boolean cellHasFocus) {
+						Tuple<String, Tree> tpl = (Tuple<String, Tree>) value;
+						DefaultListCellRenderer df = new DefaultListCellRenderer();
+						JLabel lbl = (JLabel) df.getListCellRendererComponent(
+								lTrees, tpl.t, index, isSelected, cellHasFocus);
+						lbl.setText("<html><b>" + tpl.t.yield() + "</b><br><i>"
+								+ tpl.s + "</i></html>");
+						return lbl;
+					}
+				});
+
+				bZoomIn = new JButton(new AbstractAction("+") {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						jTree.zoomIn();
+						sTree.revalidate();
+					}
+				});
+				bZoomN = new JButton(new AbstractAction("O") {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						jTree.zoomReset();
+						sTree.revalidate();
+					}
+				});
+				bZoomOut = new JButton(new AbstractAction("-") {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						jTree.zoomOut();
+						sTree.revalidate();
+					}
+				});
+
+				JPanel pan = new JPanel(new BorderLayout());
+				pan.add(new JScrollPane(lTrees), BorderLayout.CENTER);
+				pan.add(bMore, BorderLayout.SOUTH);
+				JPanel panR = new JPanel(new GridBagLayout());
+				GridBagConstraints gbc = new GridBagConstraints();
+				gbc.fill = GridBagConstraints.BOTH;
+				gbc.gridx = 0;
+				gbc.gridy = 0;
+				gbc.weightx = 1;
+				gbc.weighty = 1;
+				gbc.gridheight = 2;
+				sTree = new JScrollPane(jTree);
+				DragScrollListener dsl = new DragScrollListener(jTree, sTree);
+				jTree.addMouseMotionListener(dsl);
+				jTree.addMouseListener(dsl);
+				jTree.addMouseWheelListener(dsl);
+				panR.add(sTree, gbc);
+
+				gbc.fill = GridBagConstraints.NONE;
+				gbc.anchor = GridBagConstraints.SOUTH;
+				gbc.weightx = 0;
+				gbc.weighty = 0;
+				gbc.gridy = 1;
+				gbc.gridx = 1;
+				gbc.gridheight = 1;
+				panR.add(bZoomOut, gbc);
+
+				gbc.gridx = 2;
+				panR.add(bZoomN, gbc);
+
+				gbc.gridx = 3;
+				panR.add(bZoomIn, gbc);
+
+				JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pan,
+						panR);
+				add(split, BorderLayout.CENTER);
+
+				more();
 			} catch (FileNotFoundException e1) {
-				// ignore
+				add(new JLabel("File does not exist."));
 			}
-			trees = new ArrayList<Tuple<String, Tree>>();
-			setLayout(new BorderLayout());
-			bMore = new JButton(new AbstractAction("more") {
-
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					more();
-				}
-			});
-			jTree = new TreeView(new Tree("", null));
-			lTrees = new JList();
-			lTrees.addListSelectionListener(new ListSelectionListener() {
-				@Override
-				public void valueChanged(ListSelectionEvent e) {
-					Tuple<String, Tree> tpl = (Tuple<String, Tree>) lTrees
-							.getSelectedValue();
-					jTree.setTree(tpl.t);
-					sTree.revalidate();
-				}
-			});
-			lTrees.setCellRenderer(new ListCellRenderer() {
-
-				@Override
-				public Component getListCellRendererComponent(JList list,
-						Object value, int index, boolean isSelected,
-						boolean cellHasFocus) {
-					Tuple<String, Tree> tpl = (Tuple<String, Tree>) value;
-					DefaultListCellRenderer df = new DefaultListCellRenderer();
-					JLabel lbl = (JLabel) df.getListCellRendererComponent(
-							lTrees, tpl.t, index, isSelected, cellHasFocus);
-					lbl.setText("<html><b>" + tpl.t.yield() + "</b><br><i>"
-							+ tpl.s + "</i></html>");
-					return lbl;
-				}
-			});
-
-			bZoomIn = new JButton(new AbstractAction("+") {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					jTree.zoomIn();
-					sTree.revalidate();
-				}
-			});
-			bZoomN = new JButton(new AbstractAction("O") {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					jTree.zoomReset();
-					sTree.revalidate();
-				}
-			});
-			bZoomOut = new JButton(new AbstractAction("-") {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					jTree.zoomOut();
-					sTree.revalidate();
-				}
-			});
-
-			JPanel pan = new JPanel(new BorderLayout());
-			pan.add(new JScrollPane(lTrees), BorderLayout.CENTER);
-			pan.add(bMore, BorderLayout.SOUTH);
-			JPanel panR = new JPanel(new GridBagLayout());
-			GridBagConstraints gbc = new GridBagConstraints();
-			gbc.fill = GridBagConstraints.BOTH;
-			gbc.gridx = 0;
-			gbc.gridy = 0;
-			gbc.weightx = 1;
-			gbc.weighty = 1;
-			gbc.gridheight = 2;
-			sTree = new JScrollPane(jTree);
-			DragScrollListener dsl = new DragScrollListener(jTree, sTree);
-			jTree.addMouseMotionListener(dsl);
-			jTree.addMouseListener(dsl);
-			jTree.addMouseWheelListener(dsl);
-			panR.add(sTree, gbc);
-
-			gbc.fill = GridBagConstraints.NONE;
-			gbc.anchor = GridBagConstraints.SOUTH;
-			gbc.weightx = 0;
-			gbc.weighty = 0;
-			gbc.gridy = 1;
-			gbc.gridx = 1;
-			gbc.gridheight = 1;
-			panR.add(bZoomOut, gbc);
-
-			gbc.gridx = 2;
-			panR.add(bZoomN, gbc);
-
-			gbc.gridx = 3;
-			panR.add(bZoomIn, gbc);
-
-			JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pan,
-					panR);
-			add(split, BorderLayout.CENTER);
-
-			more();
+			
 		}
 
 		public void more() {

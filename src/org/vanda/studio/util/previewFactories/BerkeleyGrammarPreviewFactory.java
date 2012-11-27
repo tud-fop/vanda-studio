@@ -40,23 +40,18 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 			gbc.weighty = 0;
 			gbc.gridx = 0;
 			gbc.gridy = 0;
-
-			bMore = new JButton(new AbstractAction("more") {
-
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					more();
-
-				}
-			});
-
 			try {
 				fs = new Scanner(new FileInputStream(value + ".prev"));
+				bMore = new JButton(new AbstractAction("more") {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						more();
+
+					}
+				});
 				more();
 			} catch (FileNotFoundException e) {
 				add(new JLabel("Preview does not exist."));
