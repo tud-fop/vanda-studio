@@ -3,20 +3,25 @@
  */
 package org.vanda.studio.modules.algorithms;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
+import org.vanda.studio.model.elements.ShellTool;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.previewFactories.BerkeleyGrammarPreviewFactory;
 import org.vanda.studio.util.previewFactories.BerkeleyTreePreviewFactory;
 import org.vanda.studio.util.previewFactories.MonospacePreviewFactory;
@@ -959,6 +964,57 @@ public class AlgorithmsModule implements Module {
 			// lr.addItem(new HaskellLinker(app));
 			// lr.addItem(IdentityLinker.getInstance());
 			// app.getLinkerMetaRepository().addRepository(lr);
+
+		}
+
+		public void loadFromFile(File file) {
+			SimpleRepository<Tool> tr = new SimpleRepository<Tool>(null);
+			try {
+				Scanner sc = new Scanner(file);
+				while (sc.hasNextLine()) {
+					String line = sc.nextLine();
+					String id = "";
+					String name = "";
+					String description = "";
+					String version = "";
+					String category = "";
+					String contact = "";
+					List<Port> inPorts = new ArrayList<Port>();
+					List<Port> outPorts = new ArrayList<Port>();
+					if (line.startsWith("#")) {
+						String line1 = line.substring(1).trim();
+						if (name == "")
+							name = line1;
+						else if (line1.toLowerCase().startsWith("version:"))
+							version = line1.substring(8).trim();
+						else if (line1.toLowerCase().startsWith("contact:"))
+							contact = line1.substring(8).trim();
+						else if (line1.toLowerCase().startsWith("category:"))
+							category = line1.substring(9).trim();
+						else if (line1.toLowerCase().startsWith("in")) {
+							String[] arr = line.substring(3).trim().split("::");
+							inPorts.add(new Port(arr[0].trim(),
+									new CompositeType(arr[1].trim())));
+						} else if (line1.toLowerCase().startsWith("out")) {
+							String[] arr = line.substring(4).trim().split("::");
+							outPorts.add(new Port(arr[0].trim(),
+									new CompositeType(arr[1].trim())));
+						} else if (description != null && line1 == "")
+							description = null;
+						else
+							description = line1;
+					} else if (line.matches(".*().*{")) {
+						id = line.trim().split(" ")[0];
+						Tool t = new ShellTool(id, name, category, version,
+								contact, description, inPorts, outPorts);
+						tr.addItem(t);
+					}
+				}
+			} catch (FileNotFoundException e) {
+				app.sendMessage(new ExceptionMessage(new Exception("Tool file "
+						+ file.getAbsolutePath() + " can not be loaded.")));
+			}
+			app.getToolMetaRepository().addRepository(tr);
 
 		}
 	}
