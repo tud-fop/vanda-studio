@@ -24,8 +24,8 @@ base () {
 	echo -e "#!/bin/bash\n" > ~/.vanda/vandarc
 	echo "DATAPATH=$HOME/.vanda/input" >> ~/.vanda/vandarc
 	echo "OUTPATH=$HOME/.vanda/output" >> ~/.vanda/vandarc
-	echo -e "FUNCFILE=$HOME/.vanda/functions.bash\n" >> ~/.vanda/vandarc
-	echo -e "source \"$HOME/.vanda/functions.bash\"\n" >> ~/.vanda/vandarc
+	echo -e "FUNCDIR=$HOME/.vanda/functions\n" >> ~/.vanda/vandarc
+	echo -e "for f in \"\$FUNCDIR/\"; do\n\tsource \$f;\ndone\n" >> ~/.vanda/vandarc
 	echo "Done."
 }
 

@@ -16,6 +16,7 @@ import java.util.UUID;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.MetaRepository;
 import org.vanda.studio.app.PreviewFactory;
+import org.vanda.studio.app.SemanticsModule;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
@@ -51,6 +52,7 @@ public final class ApplicationImpl implements Application {
 	protected final HashSet<Type> types;
 	protected final Observer<Tool> typeObserver;
 	protected final Properties properties;
+	protected SemanticsModule semantics;
 	
 	protected static String PROPERTIES_FILE = System.getProperty("user.home") + "/.vanda/studio.conf";
 
@@ -181,9 +183,11 @@ public final class ApplicationImpl implements Application {
 	// 	return profileRepository;
 	// }
 
+	// XXX this should be done by the semanticsModule of choice
 	@Override
 	public MetaRepository<Tool> getToolMetaRepository() {
-		return toolRepository;
+		return semantics.getTools();
+//		return toolRepository;
 	}
 
 	@Override
@@ -262,4 +266,11 @@ public final class ApplicationImpl implements Application {
 		}
 
 	 */
+
+	@Override
+	public void setSemanticsModule(SemanticsModule mod) {
+		semantics = mod;
+		for (Tool t : mod.getTools().getRepository().getItems())
+			typeObserver.notify(t);
+	}
 }

@@ -21,6 +21,7 @@ public class ShellTool extends Tool {
 			String contact, String description, List<Port> inPorts,
 			List<Port> outPorts) {
 		super();
+		System.out.println("id: " + id);
 		this.id = id;
 		this.name = name;
 		this.category = category;

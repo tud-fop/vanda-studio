@@ -109,6 +109,8 @@ public interface Application {
 	 */
 	void registerPreviewFactory(Type type, PreviewFactory pf);
 	
+	void setSemanticsModule(SemanticsModule mod);
+	
 	/**
 	 */
 	void sendMessage(Message m);
