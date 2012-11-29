@@ -13,12 +13,13 @@
 
 [medium]
 . file format for workflows (JSON?)
-. improve propagation of unification errors (red edge in workflow)
-  . only red vertex by now
-  . strange error with SinkTool
 . show preview even if not all edges are connected
+. OpenDialog should show Metainformation
 + show less lines in DictionaryShowSteps (show first, last, some in between)
 + show PennTreeString in list of Trees in PennTreePreview
++ improve propagation of unification errors (red edge in workflow)
+  + only red vertex by now
+  + strange error with SinkTool
 
 [low]
 . open EMDictionaryShowSteps in own window
@@ -27,8 +28,8 @@
   . WorkflowEditor gets Tools directly from SemanticsModule
   . Parser for nested Types/composite Types/Typevariables
 . Previewer should care about finding files
-. Previews in a Module
 . Types know if there is a file in background
++ Previews in a Module
 + shorten file names in tabs (EMDictionaryShowSteps, Tooltip with complete name)
 + drag PennTree with, zoom with wheel
 + CLI start for workflows

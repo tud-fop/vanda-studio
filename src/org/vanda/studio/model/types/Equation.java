@@ -2,6 +2,7 @@ package org.vanda.studio.model.types;
 
 import java.util.Map;
 
+import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
 public final class Equation {
@@ -44,7 +45,7 @@ public final class Equation {
 		return (lhs instanceof TypeVariable);
 	}
 
-	public void decompose(Map<Equation, Token> t, Token addr) {
+	public void decompose(Map<Equation, Pair<Token, Integer>> t, Pair<Token, Integer> addr) {
 		CompositeType l = (CompositeType) lhs;
 		CompositeType r = (CompositeType) rhs;
 		for (int i = 0; i < l.children.size(); i++) {
@@ -66,13 +67,13 @@ public final class Equation {
 			return false;
 	}
 
-	public void flip(Map<Equation, Token> t, Token addr) {
+	public void flip(Map<Equation, Pair<Token, Integer>> t, Pair<Token, Integer> addr) {
 		t.put(new Equation(rhs, lhs), addr);
 	}
 
-	public void substitute(Map<Equation, Token> source1,
-			Map<Equation, Token> source2, Map<Equation, Token> target1,
-			Map<Equation, Token> target2, Token addr) {
+	public void substitute(Map<Equation, Pair<Token, Integer>> source1,
+			Map<Equation, Pair<Token, Integer>> source2, Map<Equation, Pair<Token, Integer>> target1,
+			Map<Equation, Pair<Token, Integer>> target2, Pair<Token, Integer> addr) {
 		Token var = ((TypeVariable) lhs).variable;
 		for (Equation e : source1.keySet())
 			target1.put(

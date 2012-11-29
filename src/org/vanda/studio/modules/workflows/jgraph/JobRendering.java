@@ -57,12 +57,12 @@ public class JobRendering {
 		}
 
 		style = new HashMap<String, Object>();
-		style.put(mxConstants.STYLE_STROKECOLOR, "#FF0000");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#0099FF");
 		style.put(mxConstants.STYLE_STROKEWIDTH, "3");
 		stylesheet.putCellStyle("highlighted", style);
 
 		style = new HashMap<String, Object>(stylesheet.getDefaultEdgeStyle());
-		style.put(mxConstants.STYLE_STROKECOLOR, "#0099FF");
+		style.put(mxConstants.STYLE_STROKECOLOR, "#FF0000");
 		style.put(mxConstants.STYLE_STROKEWIDTH, "3");
 		stylesheet.putCellStyle("highlightededge", style);
 

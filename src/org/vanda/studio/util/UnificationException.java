@@ -8,14 +8,14 @@ public final class UnificationException extends Exception {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Token addr;
+	private Pair<Token, Integer> addr;
 
-	public UnificationException(Token addr) {
-		super("Unification failed @ " + addr.intValue());
+	public UnificationException(Pair<Token, Integer> addr) {
+		super("Unification failed @ " + addr.fst.intValue());
 		this.addr = addr;
 	}
 
-	public Token getAddress() {
+	public Pair<Token, Integer> getAddress() {
 		return addr;
 	}
 

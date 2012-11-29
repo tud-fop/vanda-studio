@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.vanda.studio.model.Model;
+import org.vanda.studio.model.Model.ConnectionSelection;
 import org.vanda.studio.model.Model.SingleObjectSelection;
 import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Connection;
@@ -465,8 +466,10 @@ public final class DrecksAdapter {
 		for (SingleObjectSelection e : elements) {
 			// XXX nested Workflows are not supported by this code
 			MutableWorkflow hwf = model.getRoot();
-			mxICell c = ((WorkflowAdapter) translation.get(hwf).getValue()).getChild(e.address);
-			cellList.add(c);
+			if (e instanceof ConnectionSelection){
+				mxICell c = ((WorkflowAdapter) translation.get(hwf).getValue()).getConnection(e.address);
+				cellList.add(c);
+			}
 		}
 
 		// check all suspected active input ports by looking for an edge cell

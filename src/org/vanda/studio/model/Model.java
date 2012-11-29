@@ -24,11 +24,10 @@ public final class Model implements WorkflowChildListener {
 	public static interface SelectionVisitor {
 		void visitWorkflow(MutableWorkflow wf);
 
-		void visitConnection(Token address,
-				MutableWorkflow wf, Connection cc);
+		void visitConnection(Token address, MutableWorkflow wf, Connection cc);
 
 		void visitJob(Token address, MutableWorkflow wf, Job j);
-		
+
 		void visitVariable(Token variable, MutableWorkflow wf);
 	}
 
@@ -72,7 +71,8 @@ public final class Model implements WorkflowChildListener {
 
 		@Override
 		public void visit(SelectionVisitor v) {
-			v.visitConnection(address, workflow, workflow.getConnection(address));
+			v.visitConnection(address, workflow,
+					workflow.getConnection(address));
 		}
 	}
 
@@ -172,17 +172,26 @@ public final class Model implements WorkflowChildListener {
 		try {
 			frozen.typeCheck();
 		} catch (UnificationException e) {
-			markedElements.add(new ConnectionSelection(hwf, e.getAddress()));
+			for (Connection c : hwf.getConnections()) {
+				if ((c.target.equals(e.getAddress().fst) && c.targetPort == e
+						.getAddress().snd)
+						|| (c.source.equals(e.getAddress().fst) && c.sourcePort == e
+								.getAddress().snd)) {
+					markedElements.add(new ConnectionSelection(hwf, c.address));
+				}
+
+			}
+
 		}
 		markedElementsObservable.notify(this);
 		unfolded = frozen.unfold();
 		workflowCheckObservable.notify(this);
 	}
-	
+
 	public Observable<WorkflowChildEvent> getChildObservable() {
 		return childObservable;
 	}
-	
+
 	public Observable<WorkflowEvent> getWorkflowObservable() {
 		return workflowObservable;
 	}

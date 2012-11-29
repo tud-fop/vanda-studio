@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
 import org.vanda.studio.util.UnificationException;
@@ -31,7 +32,7 @@ public final class Types {
 		Equation eq = new Equation(t1
 				.rename(rename1), t2.rename(rename2));
 		try {
-			Map<Equation, Token> m = new HashMap<Equation, Token>();
+			Map<Equation, Pair<Token, Integer>> m = new HashMap<Equation, Pair<Token, Integer>>();
 			m.put(eq, null);
 			unify(m);
 			return true;
@@ -48,14 +49,14 @@ public final class Types {
 	 * @throws Exception
 	 *             if there is no mgu
 	 */
-	public static void unify(Map<Equation, Token> s) throws Exception {
-		Map<Equation, Token> t = new HashMap<Equation, Token>(s);
+	public static void unify(Map<Equation, Pair<Token, Integer>> s) throws Exception {
+		Map<Equation, Pair<Token, Integer>> t = new HashMap<Equation, Pair<Token, Integer>>(s);
 		s.clear();
 		Iterator<Equation> it = t.keySet().iterator();
 		while (it.hasNext()) {
 			// System.out.println(t);
 			Equation e = it.next();
-			Token addr = t.get(e);
+			Pair<Token, Integer> addr = t.get(e);
 			t.remove(e);
 			// System.out.println(e);
 			if (e.canDecompose()) {
@@ -73,8 +74,8 @@ public final class Types {
 				// System.out.println("substitute");
 				if (e.failsOccursCheck())
 					throw new Exception("Occurs check fail");
-				HashMap<Equation, Token> s1 = new HashMap<Equation, Token>(s);
-				HashMap<Equation, Token> t1 = new HashMap<Equation, Token>(t);
+				HashMap<Equation, Pair<Token, Integer>> s1 = new HashMap<Equation, Pair<Token, Integer>>(s);
+				HashMap<Equation, Pair<Token, Integer>> t1 = new HashMap<Equation, Pair<Token, Integer>>(t);
 				s.clear();
 				t.clear();
 				e.substitute(t1, s1, t, s, addr);

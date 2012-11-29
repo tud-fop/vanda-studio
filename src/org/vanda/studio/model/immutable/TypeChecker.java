@@ -9,11 +9,12 @@ import org.vanda.studio.model.types.Equation;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.TypeVariable;
 import org.vanda.studio.model.types.Types;
+import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
 
 final class TypeChecker {
-	private final Map<Equation, Token> eqs;
+	private final Map<Equation, Pair<Token, Integer>> eqs;
 	private final TokenSource variableSource;
 	private final TokenSource freshSource;
 	private final Token fragmentTypeToken;
@@ -23,7 +24,7 @@ final class TypeChecker {
 
 	public TypeChecker(TokenSource variableSource)
 			throws CloneNotSupportedException {
-		eqs = new HashMap<Equation, Token>();
+		eqs = new HashMap<Equation, Pair<Token, Integer>>();
 		this.variableSource = variableSource;
 		freshSource = variableSource.clone();
 		fragmentTypeToken = freshSource.makeToken();
@@ -64,13 +65,13 @@ final class TypeChecker {
 					Equation eq = new Equation(new TypeVariable(
 							ji.inputs.get(i)), in.get(i).getType()
 							.rename(rename));
-					eqs.put(eq, ji.inputs.get(i));
+					eqs.put(eq, new Pair<Token, Integer>(ji.address, i));
 				}
 			}
 			for (int i = 0; i < ou.size(); i++) {
 				Equation eq = new Equation(new TypeVariable(ji.outputs.get(i)),
 						ou.get(i).getType().rename(rename));
-				eqs.put(eq, ji.outputs.get(i));
+				eqs.put(eq, new Pair<Token, Integer>(ji.address, i));
 			}
 		}
 	}
