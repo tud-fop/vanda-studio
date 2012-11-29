@@ -16,10 +16,10 @@ import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.common.SimpleRepository;
+import org.vanda.studio.modules.previews.BerkeleyGrammarPreviewFactory;
+import org.vanda.studio.modules.previews.BerkeleyTreePreviewFactory;
+import org.vanda.studio.modules.previews.MonospacePreviewFactory;
 import org.vanda.studio.util.Action;
-import org.vanda.studio.util.previewFactories.BerkeleyGrammarPreviewFactory;
-import org.vanda.studio.util.previewFactories.BerkeleyTreePreviewFactory;
-import org.vanda.studio.util.previewFactories.MonospacePreviewFactory;
 
 /**
  * @author buechse
@@ -29,12 +29,6 @@ public class AlgorithmsModule implements Module {
 
 	@Override
 	public Object createInstance(Application a) {
-		PreviewFactory pf = new BerkeleyTreePreviewFactory();
-		PreviewFactory pf2 = new BerkeleyGrammarPreviewFactory();
-		PreviewFactory pf3 = new MonospacePreviewFactory();
-		a.registerPreviewFactory(new CompositeType("Penn Tree Corpus"), pf);
-		a.registerPreviewFactory(new CompositeType("BerkeleyGrammar.sm6"), pf2);
-		a.registerPreviewFactory(new CompositeType("Dictionary"), pf3);
 		return new WorkflowModuleInstance(a);
 	}
 

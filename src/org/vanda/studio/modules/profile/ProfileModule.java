@@ -108,7 +108,6 @@ public class ProfileModule implements Module {
 		}
 
 		public void loadFromFile(File file) {
-			System.out.println("Loading: " + file.getAbsolutePath());
 			SimpleRepository<Tool> r = new SimpleRepository<Tool>(null);
 			Scanner sc = null;
 			try {
@@ -126,7 +125,6 @@ public class ProfileModule implements Module {
 					String line = sc.nextLine();
 					if (line.startsWith("#")) {
 						String line1 = line.substring(1).trim();
-						System.out.println(line1);
 						if (!nameFound) {
 							name = line1;
 							nameFound = true;

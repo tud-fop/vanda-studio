@@ -22,7 +22,12 @@
 
 [low]
 . open EMDictionaryShowSteps in own window
-. store Algorithms in external file
++ store Algorithms in external file
+  + previews broken
+  . WorkflowEditor gets Tools directly from SemanticsModule
+  . Parser for nested Types/composite Types/Typevariables
+. Previewer should care about finding files
+. Previews in a Module
 . Types know if there is a file in background
 + shorten file names in tabs (EMDictionaryShowSteps, Tooltip with complete name)
 + drag PennTree with, zoom with wheel

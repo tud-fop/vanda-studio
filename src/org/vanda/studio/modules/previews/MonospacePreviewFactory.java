@@ -1,4 +1,4 @@
-package org.vanda.studio.util.previewFactories;
+package org.vanda.studio.modules.previews;
 
 import java.awt.Font;
 import java.io.BufferedReader;

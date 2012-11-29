@@ -79,9 +79,11 @@ public final class Launcher implements Runnable {
 		}
 
 		Application app = new ApplicationImpl();
-		Module[] ms = { new org.vanda.studio.modules.messages.MessageModule(),
-//				new org.vanda.studio.modules.algorithms.AlgorithmsModule(),
+		Module[] ms = {
+				new org.vanda.studio.modules.messages.MessageModule(),
+				// new org.vanda.studio.modules.algorithms.AlgorithmsModule(),
 				new org.vanda.studio.modules.profile.ProfileModule(),
+				new org.vanda.studio.modules.previews.PreviewsModule(),
 				new org.vanda.studio.modules.dictionaries.DictionaryModule(),
 				// new org.vanda.studio.modules.wrtgs.WrtgModule(),
 				// new org.vanda.studio.modules.terms.TermModule(),
@@ -122,7 +124,9 @@ public final class Launcher implements Runnable {
 
 	/**
 	 * executes a workflow without loading the GUI
-	 * @param fileName workflow to be executed
+	 * 
+	 * @param fileName
+	 *            workflow to be executed
 	 */
 	public static void runWorkflow(String fileName) {
 		Application app = new ApplicationImpl(false);
