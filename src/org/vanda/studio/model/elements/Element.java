@@ -1,6 +1,7 @@
 package org.vanda.studio.model.elements;
 
 import java.util.List;
+import java.util.Set;
 
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.HasActions;
@@ -33,4 +34,6 @@ public interface Element extends RepositoryItem, HasActions, Cloneable {
 	public Observable<ElementEvent> getObservable();
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);
+
+	public Set<String> getImports();
 }

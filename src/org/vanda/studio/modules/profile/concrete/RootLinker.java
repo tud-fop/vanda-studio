@@ -97,9 +97,9 @@ public class RootLinker implements FragmentLinker {
 		// source $MYPATH/shorten.sh
 
 		for (String imp0rt : imports) {
-			sb.append("source $BASEPATH/");
+			sb.append("source ");
 			sb.append(imp0rt);
-			sb.append(".sh\n");
+			sb.append("\n");
 		}
 
 		sb.append('\n');

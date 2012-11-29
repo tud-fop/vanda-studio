@@ -5,8 +5,10 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.MetaRepository;
@@ -108,6 +110,8 @@ public class ProfileModule implements Module {
 		}
 
 		public void loadFromFile(File file) {
+			Set<String> imports = new HashSet<String>();
+			imports.add(file.getAbsolutePath());
 			SimpleRepository<Tool> r = new SimpleRepository<Tool>(null);
 			Scanner sc = null;
 			try {
@@ -160,7 +164,7 @@ public class ProfileModule implements Module {
 							Tool t = new ShellTool(new String(id), new String(
 									name), new String(category), new String(
 									version), new String(contact), new String(
-									description), in, out);
+									description), in, out, imports);
 							r.addItem(t);
 							nameFound = false;
 						}

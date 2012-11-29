@@ -2,6 +2,7 @@ package org.vanda.studio.model.elements;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
@@ -92,4 +93,8 @@ public final class OutputPort implements Element {
 		return null;
 	}
 
+	@Override
+	public Set<String> getImports() {
+		return Collections.emptySet();
+	}
 }

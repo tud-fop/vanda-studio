@@ -20,6 +20,7 @@ public class PreviewsModule implements Module {
 		a.registerPreviewFactory(new CompositeType("BerkeleyGrammar.sm6"), pf2);
 		PreviewFactory pf3 = new MonospacePreviewFactory();
 		a.registerPreviewFactory(new CompositeType("Dictionary"), pf3);
+		a.registerPreviewFactory(new CompositeType("Alignments"), pf3);
 		return null;
 	}
 

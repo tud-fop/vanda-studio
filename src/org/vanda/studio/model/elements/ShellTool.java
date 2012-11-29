@@ -1,6 +1,8 @@
 package org.vanda.studio.model.elements;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
@@ -16,10 +18,11 @@ public class ShellTool extends Tool {
 	private String description;
 	private List<Port> inPorts;
 	private List<Port> outPorts;
-	
+	private Set<String> imports;
+
 	public ShellTool(String id, String name, String category, String version,
 			String contact, String description, List<Port> inPorts,
-			List<Port> outPorts) {
+			List<Port> outPorts, Set<String> imports) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -29,6 +32,7 @@ public class ShellTool extends Tool {
 		this.description = description;
 		this.inPorts = inPorts;
 		this.outPorts = outPorts;
+		this.imports = new HashSet<String>(imports);
 	}
 
 	@Override
@@ -83,6 +87,11 @@ public class ShellTool extends Tool {
 
 	@Override
 	public void appendActions(List<Action> as) {
+	}
+
+	@Override
+	public Set<String> getImports() {
+		return imports;
 	}
 
 }

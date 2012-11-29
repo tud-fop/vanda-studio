@@ -10,6 +10,7 @@
 + semantics preview should update properly
 + NullPointerException in BerkeleyGrammar.sm6 preview
 + IndexOutOfBoundException in BerkeleyParser (empty lines)
++ imports do not work
 
 [medium]
 . file format for workflows (JSON?)

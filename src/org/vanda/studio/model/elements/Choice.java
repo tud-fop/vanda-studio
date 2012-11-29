@@ -1,6 +1,8 @@
 package org.vanda.studio.model.elements;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
@@ -111,6 +113,11 @@ public final class Choice implements Element {
 	@Override
 	public Observable<ElementEvent> getObservable() {
 		return observable;
+	}
+
+	@Override
+	public Set<String> getImports() {
+		return Collections.emptySet();
 	}
 
 }

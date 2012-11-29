@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.vanda.studio.model.elements.Element;
 import org.vanda.studio.model.elements.Literal;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
@@ -16,6 +17,7 @@ import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.modules.profile.model.FragmentCompiler;
 import org.vanda.studio.util.TokenSource.Token;
+
 
 public class ShellCompiler implements FragmentCompiler {
 
@@ -29,6 +31,7 @@ public class ShellCompiler implements FragmentCompiler {
 			ArrayList<String> fragments) {
 		StringBuilder sb = new StringBuilder();
 		HashSet<String> dependencies = new HashSet<String>();
+		Set<String> im = new HashSet<String>();
 		sb.append("function ");
 		sb.append(Fragment.normalize(name));
 		sb.append(" {\n");
@@ -73,14 +76,30 @@ public class ShellCompiler implements FragmentCompiler {
 						break; // <------------------------------#############
 					}
 				}
-			} else if (ji.job instanceof AtomicImmutableJob
-					&& ((AtomicImmutableJob) ji.job).getElement() instanceof Literal) {
-				Literal lit = (Literal) ((AtomicImmutableJob) ji.job)
-						.getElement();
-				appendVariable(name, ji.outputs.get(0), sb);
-				sb.append("=\"");
-				sb.append(lit.getValue());
-				sb.append('"');
+			} else if (ji.job instanceof AtomicImmutableJob) {
+				if (((AtomicImmutableJob) ji.job).getElement() instanceof Literal) {
+					Literal lit = (Literal) ((AtomicImmutableJob) ji.job).getElement();
+					appendVariable(name, ji.outputs.get(0), sb);
+					sb.append("=\"");
+					sb.append(lit.getValue());
+					sb.append('"');
+				} else {
+					Element e = ((AtomicImmutableJob) ji.job).getElement();
+					im.addAll(e.getImports());
+					String frag = fragments.get(i);
+					assert (frag != null);
+					sb.append(Fragment.normalize(frag));
+					for (int j = 0; j < ji.inputs.size(); j++) {
+						sb.append(" \"$");
+						appendVariable(name, ji.inputs.get(j), sb);
+						sb.append('"');
+					}
+					for (int j = 0; j < ji.outputs.size(); j++) {
+						sb.append(' ');
+						appendVariable(name, ji.outputs.get(j), sb);
+					}
+					dependencies.add(frag);
+				}
 			} else {
 				String frag = fragments.get(i);
 				assert (frag != null);
@@ -100,7 +119,6 @@ public class ShellCompiler implements FragmentCompiler {
 			i++;
 		}
 		sb.append("}\n\n");
-		Set<String> im = Collections.emptySet();
 		return new Fragment(name, sb.toString(), dependencies, im);
 	}
 
