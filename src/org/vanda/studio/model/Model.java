@@ -178,6 +178,7 @@ public final class Model implements WorkflowChildListener {
 						|| (c.source.equals(e.getAddress().fst) && c.sourcePort == e
 								.getAddress().snd)) {
 					markedElements.add(new ConnectionSelection(hwf, c.address));
+					break;
 				}
 
 			}
