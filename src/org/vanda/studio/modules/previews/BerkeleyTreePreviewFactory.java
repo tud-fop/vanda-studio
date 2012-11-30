@@ -47,6 +47,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.core.DefaultPreviewFactory;
+import org.vanda.studio.util.Pair;
 
 public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
@@ -100,17 +101,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		}
 	}
 
-	public class Tuple<S, T> {
-		public S s;
-		public T t;
-
-		public Tuple(S s, T t) {
-			this.s = s;
-			this.t = t;
-		}
-	}
-
-	public Tuple<String, Tree> parseTree(String string) {
+	public Pair<String, Tree> parseTree(String string) {
 		if (string.startsWith(" ")) {
 			// remove whitespaces at the beginning
 			return parseTree(string.substring(1));
@@ -118,7 +109,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			// generate leaves (base case)
 			String xt = string.substring(string.indexOf(')'));
 			String label = string.substring(0, string.indexOf(')'));
-			return new Tuple<String, Tree>(xt, new Tree(label));
+			return new Pair<String, Tree>(xt, new Tree(label));
 		} else {
 			// recursion case
 			String[] xs = string.substring(1).replaceFirst(" ", "#").split("#");
@@ -126,11 +117,11 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			List<Tree> children = new ArrayList<Tree>();
 			String xt = xs[1];
 			while (!xt.startsWith(")")) {
-				Tuple<String, Tree> tpl = parseTree(xt);
-				children.add(tpl.t);
-				xt = tpl.s;
+				Pair<String, Tree> tpl = parseTree(xt);
+				children.add(tpl.snd);
+				xt = tpl.fst;
 			}
-			return new Tuple<String, Tree>(xt.substring(1), new Tree(label,
+			return new Pair<String, Tree>(xt.substring(1), new Tree(label,
 					children.toArray(new Tree[0])));
 		}
 	}
@@ -224,7 +215,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 		public TreeView(String berkeleyString) {
 			this(parseTree(berkeleyString.substring(2,
-					berkeleyString.length() - 2)).t);
+					berkeleyString.length() - 2)).snd);
 		}
 
 		public TreeView(Tree t) {
@@ -235,7 +226,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		}
 
 		public void setTree(String s) {
-			setTree(parseTree(s.substring(2, s.length() - 2)).t);
+			setTree(parseTree(s.substring(2, s.length() - 2)).snd);
 		}
 
 		public void setTree(Tree t) {
@@ -344,7 +335,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private List<Tuple<String, Tree>> trees;
+		private List<Pair<String, Tree>> trees;
 		private JList lTrees;
 		private TreeView jTree;
 		private JScrollPane sTree;
@@ -356,7 +347,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		public BerkeleyTreePreview(String value) {
 			try {
 				scan = new Scanner(new FileInputStream(value));
-				trees = new ArrayList<Tuple<String, Tree>>();
+				trees = new ArrayList<Pair<String, Tree>>();
 				setLayout(new BorderLayout());
 				bMore = new JButton(new AbstractAction("more") {
 
@@ -375,9 +366,9 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				lTrees.addListSelectionListener(new ListSelectionListener() {
 					@Override
 					public void valueChanged(ListSelectionEvent e) {
-						Tuple<String, Tree> tpl = (Tuple<String, Tree>) lTrees
+						Pair<String, Tree> tpl = (Pair<String, Tree>) lTrees
 								.getSelectedValue();
-						jTree.setTree(tpl.t);
+						jTree.setTree(tpl.snd);
 						sTree.revalidate();
 					}
 				});
@@ -387,12 +378,12 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 					public Component getListCellRendererComponent(JList list,
 							Object value, int index, boolean isSelected,
 							boolean cellHasFocus) {
-						Tuple<String, Tree> tpl = (Tuple<String, Tree>) value;
+						Pair<String, Tree> tpl = (Pair<String, Tree>) value;
 						DefaultListCellRenderer df = new DefaultListCellRenderer();
 						JLabel lbl = (JLabel) df.getListCellRendererComponent(
-								lTrees, tpl.t, index, isSelected, cellHasFocus);
-						lbl.setText("<html><b>" + tpl.t.yield() + "</b><br><i>"
-								+ tpl.s + "</i></html>");
+								lTrees, tpl.snd, index, isSelected, cellHasFocus);
+						lbl.setText("<html><b>" + tpl.snd.yield() + "</b><br><i>"
+								+ tpl.fst + "</i></html>");
 						return lbl;
 					}
 				});
@@ -468,8 +459,8 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			String line;
 			while (i < SIZE & scan.hasNextLine()) {
 				line = scan.nextLine();
-				trees.add(new Tuple<String, Tree>(line, parseTree(line
-						.substring(2, line.length() - 2)).t));
+				trees.add(new Pair<String, Tree>(line, parseTree(line
+						.substring(2, line.length() - 2)).snd));
 				i++;
 			}
 			if (!scan.hasNextLine())
