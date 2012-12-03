@@ -478,7 +478,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 	}
 
 	public void openEditor(String value) {
-		// TODO Auto-generated method stub
+		
 
 	}
 

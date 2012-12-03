@@ -12,7 +12,7 @@ import java.io.PrintWriter;
 public class RCChecker {
 	private static String basePath = System.getProperty("user.home") + "/.vanda/";
 	private static String rcPath = basePath + "vandarc";
-	private static String funcPath = basePath + "functions.bash";
+	private static String funcPath = basePath + "functions";
 	private static String inPath = basePath + "input";
 	private static String outPath = basePath + "output";
 	
@@ -56,8 +56,7 @@ public class RCChecker {
 		
 		File func = new File(funcPath);
 		if (!func.exists()){
-			String cp = System.getProperty("java.class.path").split(":")[0];
-			if (!localCopy(cp + "/../shared/scripts/functions.bash", funcPath))
+			if (!func.mkdirs())
 				return false;
 		}
 		

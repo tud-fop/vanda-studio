@@ -1,5 +1,8 @@
 #!/bin/bash
 
+GIZADIR="$HOME/.vanda/bin/giza"
+IRSTLMDIR="$HOME/.vanda/bin/irstlm"
+
 setup () {
 	base
 	berkeleyParser
@@ -7,6 +10,7 @@ setup () {
 	remEmptyLines
 	toParallelCorpus
 	giza
+	irstlm
 	moses
 	ghkm
 	emDictionary
@@ -20,7 +24,7 @@ base () {
 	mkdir -p ~/.vanda/bin
 	mkdir -p ~/.vanda/output
 	mkdir -p ~/.vanda/input
-	cp functions.bash ~/.vanda/.
+	cp -r functions ~/.vanda/.
 	echo -e "#!/bin/bash\n" > ~/.vanda/vandarc
 	echo "DATAPATH=$HOME/.vanda/input" >> ~/.vanda/vandarc
 	echo "OUTPATH=$HOME/.vanda/output" >> ~/.vanda/vandarc
@@ -78,13 +82,27 @@ giza () {
 	echo "Done."
 }
 
+irstlm () {
+	echo "Installing IRSTLM..."
+	svn co https://irstlm.svn.sourceforge.net/svnroot/irstlm irstlm
+	cd irstlm/trunk/
+	sh regenerate-makefiles.sh
+	./configure --prefix="$IRSTLMDIR"
+	make
+	mkdir "$IRSTLMDIR"
+	make install
+	cd ../..
+	echo "IRSTLM=$HOME/.vanda/bin/irstlm/bin/" >> ~/.vanda/vandarc
+	echo "Done."
+}
+
 moses () {
 	echo "Installing moses..."
 	git clone git://github.com/moses-smt/mosesdecoder.git
 	cd mosesdecoder
-	./bjam --with-giza=~/.vanda/bin/giza
+	./bjam --with-giza="$GIZADIR"
 	cd ..
-	mv mosesdecoder ~/.vanda/bin/mosesdecoder
+	mv -f mosesdecoder ~/.vanda/bin/mosesdecoder
 	echo "MOSES=$HOME/.vanda/bin/mosesdecoder" >> ~/.vanda/vandarc
 	echo "Done."
 }
