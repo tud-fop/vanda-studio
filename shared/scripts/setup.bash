@@ -2,6 +2,7 @@
 
 GIZADIR="$HOME/.vanda/bin/giza"
 IRSTLMDIR="$HOME/.vanda/bin/irstlm"
+RANDLMDIR="$HOME/.vanda/bin/randlm"
 
 setup () {
 	base
@@ -11,6 +12,7 @@ setup () {
 	toParallelCorpus
 	giza
 	irstlm
+#	randlm
 	moses
 	ghkm
 	emDictionary
@@ -89,10 +91,24 @@ irstlm () {
 	sh regenerate-makefiles.sh
 	./configure --prefix="$IRSTLMDIR"
 	make
-	mkdir "$IRSTLMDIR"
+	mkdir -p "$IRSTLMDIR"
 	make install
 	cd ../..
-	echo "IRSTLM=$HOME/.vanda/bin/irstlm/bin/" >> ~/.vanda/vandarc
+	echo "IRSTLM=$IRSTLMDIR/bin/" >> ~/.vanda/vandarc
+	echo "Done."
+}
+
+randlm () {
+	echo "Installing RANDLM..."
+	svn co https://randlm.svn.sourceforge.net/svnroot/randlm randlm
+	cd randlm/trunk
+	./autogen.sh
+	mkdir -p "$RANDLMDIR"
+	./configure --prefix="$RANDLMDIR"
+	make
+	make install
+	cd ../..
+	echo "RANDLM=$RANDLMDIR/bin/" >> ~/.vanda/vandarc
 	echo "Done."
 }
 
