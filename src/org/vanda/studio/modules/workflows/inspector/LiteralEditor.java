@@ -85,25 +85,12 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 							.replaceFirst(prefix, "");
 					value.setText(choice);
 					l.setValue(choice);
+					app.setProperty("inputPath", fc.getSelectedFile()
+							.getParent());
 				}
 			}
 		};
 		final JButton bValue = new JButton(aValue);
-
-		// final JPanel valueBox = new JPanel();
-		// valueBox.setLayout(new BorderLayout());
-		// valueBox.add(value, BorderLayout.CENTER);
-		// valueBox.add(bValue, BorderLayout.EAST);
-
-		// final JComboBox valueBox = new JComboBox();
-		// valueBox.setEditable(true);
-		// valueBox.setSelectedItem(l.getValue());
-		// valueBox.addActionListener(new ActionListener() {
-		// @Override
-		// public void actionPerformed(ActionEvent e) {
-		// l.setValue(valueBox.getSelectedItem().toString());
-		// }
-		// });
 
 		JPanel editor = new JPanel();
 		GroupLayout layout = new GroupLayout(editor);
