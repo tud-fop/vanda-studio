@@ -75,7 +75,7 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String prefix = app.getProperty("inputPath");
-				File f = new File(prefix);
+				File f = new File(app.getProperty("lastInputPath"));
 				FileSystemView rfsv = new RestrictedFileSystemView(f);
 				JFileChooser fc = new JFileChooser(rfsv);
 				int returnVal = fc.showOpenDialog(null);
@@ -85,7 +85,7 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 							.replaceFirst(prefix, "");
 					value.setText(choice);
 					l.setValue(choice);
-					app.setProperty("inputPath", fc.getSelectedFile()
+					app.setProperty("lastInputPath", fc.getSelectedFile()
 							.getParent());
 				}
 			}

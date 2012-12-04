@@ -24,6 +24,7 @@ import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -477,9 +478,21 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			return (new DefaultPreviewFactory(null)).createPreview(value);
 	}
 
-	public void openEditor(String value) {
-		
+	public void openEditor(final String value) {
+		Thread t = new Thread(new Runnable() {
 
+			@Override
+			public void run() {
+				try {
+					Runtime.getRuntime().exec("xdg-open " + value);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+
+		t.start();
 	}
 
 }

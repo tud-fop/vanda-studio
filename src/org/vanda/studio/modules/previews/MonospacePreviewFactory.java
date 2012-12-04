@@ -57,7 +57,6 @@ public class MonospacePreviewFactory implements PreviewFactory {
 			@Override
 			public void run() {
 				try {
-					System.out.println("xdg-open " + value);
 					Runtime.getRuntime().exec("xdg-open " + value);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -33,6 +34,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 
 		public BerkeleyGrammarPreview(String value) {
 			super();
+			System.out.println(value);
 			setLayout(new GridBagLayout());
 			gbc = new GridBagConstraints();
 			gbc.anchor = GridBagConstraints.WEST;
@@ -119,8 +121,21 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 	}
 
 	@Override
-	public void openEditor(String value) {
+	public void openEditor(final String value) {
+		Thread t = new Thread(new Runnable() {
 
+			@Override
+			public void run() {
+				try {
+					Runtime.getRuntime().exec("xdg-open " + value + ".prev");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+
+		t.start();
 	}
 
 }

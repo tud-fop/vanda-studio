@@ -165,6 +165,7 @@ public class ProfileImpl implements Profile, FragmentIO {
 	}
 	
 	public static String findFile(Application app, String value) {
+		System.out.println(app.getProperty("inputPath"));
 		if (value.startsWith("/"))
 			return value;
 		if (new File(app.getProperty("inputPath") + value).exists())
