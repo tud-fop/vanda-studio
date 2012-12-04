@@ -6,9 +6,9 @@ source "$FUNCDIR/util.bash"
 # Category: language model
 # IN English Corpus :: Sentence Corpus
 # IN n-gram length :: Integer
-# OUT Alignments :: n-grams
+# OUT ARPA n-grams :: ARPA
 #
-# computes n-gram probabilities
+# Computes n-gram probabilities.
 IRSTLM () {
 	echo "Running: IRSTLM..."
 	TMP="$OUTPATH/IRSTLM_TMP"
@@ -20,5 +20,21 @@ IRSTLM () {
 	"$IRSTLM/tlm" -tr="$TMP/train.www" -n="$2" -lm=wb -o="$out"
 	rm -rf "$TMP"
 	eval $3=\"$out\"
+	echo "Done."
+}
+
+# ARPA2Binary
+# Version: 2012-12-04
+# Contact: Tobias Denkinger@mailbox.tu-dresden.de
+# Category: language model
+# IN ARPA n-grams :: ARPA
+# OUT binary n-grams :: binary n-grams
+#
+# Converts iARPA to binary n-gram format.
+ARPA2Binary () {
+	echo "Running: ARPA2Binary..."
+	pathAndName "$1" f1 i1
+	out="$OUTPATH/ARPA2Binary($i1).0"
+	"$IRSTLM/compile-lm" "$f1" "$out"
 	echo "Done."
 }
