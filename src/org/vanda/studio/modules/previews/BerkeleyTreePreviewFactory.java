@@ -10,8 +10,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -135,7 +133,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		private final Point pp = new Point();
 		private final TreeView tv;
 		private final JScrollPane scr;
-		
+
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			if (e.getWheelRotation() < 0)
 				tv.zoomOut();
@@ -143,13 +141,13 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				tv.zoomIn();
 			scr.revalidate();
 		}
-		
-		public DragScrollListener(TreeView tv, JScrollPane scr){
+
+		public DragScrollListener(TreeView tv, JScrollPane scr) {
 			super();
 			this.tv = tv;
 			this.scr = scr;
 		}
-		
+
 		@Override
 		public void mouseDragged(MouseEvent e) {
 			final JComponent jc = (JComponent) e.getSource();
@@ -166,13 +164,19 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			JComponent jc = (JComponent) e.getSource();
-			Container c = jc.getParent();
-			if (c instanceof JViewport) {
-				jc.setCursor(hndCursor);
-				JViewport vport = (JViewport) c;
-				Point cp = SwingUtilities.convertPoint(jc, e.getPoint(), vport);
-				pp.setLocation(cp);
+			if (e.getButton() == MouseEvent.BUTTON2) {
+				tv.zoomReset();
+				scr.revalidate();
+			} else {
+				JComponent jc = (JComponent) e.getSource();
+				Container c = jc.getParent();
+				if (c instanceof JViewport) {
+					jc.setCursor(hndCursor);
+					JViewport vport = (JViewport) c;
+					Point cp = SwingUtilities.convertPoint(jc, e.getPoint(),
+							vport);
+					pp.setLocation(cp);
+				}
 			}
 		}
 
@@ -235,19 +239,22 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			repaint();
 		}
 
-		public void zoomIn() {
+		public TreeView zoomIn() {
 			zoomFactor *= Math.pow(2, 0.25);
 			repaint();
+			return this;
 		}
 
-		public void zoomOut() {
+		public TreeView zoomOut() {
 			zoomFactor *= Math.pow(2, -0.25);
 			repaint();
+			return this;
 		}
 
-		public void zoomReset() {
+		public TreeView zoomReset() {
 			zoomFactor = 1;
 			repaint();
+			return this;
 		}
 
 		@Override
@@ -340,7 +347,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		private JList lTrees;
 		private TreeView jTree;
 		private JScrollPane sTree;
-		private JButton bMore, bZoomIn, bZoomOut, bZoomN;
+		private JButton bMore;
 
 		private Scanner scan;
 		public static final int SIZE = 20;
@@ -382,77 +389,32 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 						Pair<String, Tree> tpl = (Pair<String, Tree>) value;
 						DefaultListCellRenderer df = new DefaultListCellRenderer();
 						JLabel lbl = (JLabel) df.getListCellRendererComponent(
-								lTrees, tpl.snd, index, isSelected, cellHasFocus);
-						lbl.setText("<html><b>" + tpl.snd.yield() + "</b><br><i>"
-								+ tpl.fst + "</i></html>");
+								lTrees, tpl.snd, index, isSelected,
+								cellHasFocus);
+						lbl.setText("<html><b>" + tpl.snd.yield()
+								+ "</b><br><i>" + tpl.fst + "</i></html>");
 						return lbl;
-					}
-				});
-
-				bZoomIn = new JButton(new AbstractAction("+") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						jTree.zoomIn();
-						sTree.revalidate();
-					}
-				});
-				bZoomN = new JButton(new AbstractAction("O") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						jTree.zoomReset();
-						sTree.revalidate();
-					}
-				});
-				bZoomOut = new JButton(new AbstractAction("-") {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						jTree.zoomOut();
-						sTree.revalidate();
 					}
 				});
 
 				JPanel pan = new JPanel(new BorderLayout());
 				pan.add(new JScrollPane(lTrees), BorderLayout.CENTER);
 				pan.add(bMore, BorderLayout.SOUTH);
-				JPanel panR = new JPanel(new GridBagLayout());
-				GridBagConstraints gbc = new GridBagConstraints();
-				gbc.fill = GridBagConstraints.BOTH;
-				gbc.gridx = 0;
-				gbc.gridy = 0;
-				gbc.weightx = 1;
-				gbc.weighty = 1;
-				gbc.gridheight = 2;
 				sTree = new JScrollPane(jTree);
 				DragScrollListener dsl = new DragScrollListener(jTree, sTree);
 				jTree.addMouseMotionListener(dsl);
 				jTree.addMouseListener(dsl);
 				jTree.addMouseWheelListener(dsl);
-				panR.add(sTree, gbc);
 
-				gbc.fill = GridBagConstraints.NONE;
-				gbc.anchor = GridBagConstraints.SOUTH;
-				gbc.weightx = 0;
-				gbc.weighty = 0;
-				gbc.gridy = 1;
-				gbc.gridx = 1;
-				gbc.gridheight = 1;
-				panR.add(bZoomOut, gbc);
-
-				gbc.gridx = 2;
-				panR.add(bZoomN, gbc);
-
-				gbc.gridx = 3;
-				panR.add(bZoomIn, gbc);
-
-				JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pan,
-						panR);
+				JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+						pan, sTree);
 				add(split, BorderLayout.CENTER);
 
 				more();
 			} catch (FileNotFoundException e1) {
 				add(new JLabel("File does not exist."));
 			}
-			
+
 		}
 
 		public void more() {
@@ -495,4 +457,25 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		t.start();
 	}
 
+	@Override
+	public JComponent createSmallPreview(String value) {
+		Scanner scan;
+		try {
+			scan = new Scanner(new FileInputStream(value));
+			String line = scan.nextLine();
+			scan.close();
+			TreeView jTree = new TreeView(parseTree(line.substring(2,
+					line.length() - 2)).snd);
+			JScrollPane sTree = new JScrollPane(jTree);
+			DragScrollListener dsl = new DragScrollListener(jTree, sTree);
+			jTree.addMouseMotionListener(dsl);
+			jTree.addMouseListener(dsl);
+			jTree.addMouseWheelListener(dsl);
+			sTree.setPreferredSize(new Dimension(200, 150));
+			jTree.zoomOut().zoomOut();
+			return sTree;
+		} catch (Exception e) {
+			return new JLabel("wrong format");
+		}
+	}
 }

@@ -68,5 +68,10 @@ public class MonospacePreviewFactory implements PreviewFactory {
 		t.start();
 	}
 
+	@Override
+	public JComponent createSmallPreview(String value) {
+		return createPreview(value);
+	}
+
 
 }

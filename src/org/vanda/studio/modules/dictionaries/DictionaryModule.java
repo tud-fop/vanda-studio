@@ -65,6 +65,11 @@ public class DictionaryModule implements Module {
 			}
 		}
 
+		@Override
+		public JComponent createSmallPreview(String absolutePath) {
+			return createPreview(absolutePath);
+		}
+
 	}
 
 	@Override

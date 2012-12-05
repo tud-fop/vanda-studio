@@ -74,4 +74,9 @@ public final class DefaultPreviewFactory implements PreviewFactory {
 		t.start();
 	}
 
+	@Override
+	public JComponent createSmallPreview(String absolutePath) {
+		return createPreview(absolutePath);
+	}
+
 }

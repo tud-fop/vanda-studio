@@ -31,9 +31,15 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 		private Scanner fs;
 		private JButton bMore;
 		private static final int SIZE = 20;
+		private int columns;
 
 		public BerkeleyGrammarPreview(String value) {
+			this(value, 5);
+		}
+		
+		public BerkeleyGrammarPreview(String value, int cols) {
 			super();
+			columns = cols;
 			System.out.println(value);
 			setLayout(new GridBagLayout());
 			gbc = new GridBagConstraints();
@@ -62,7 +68,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 
 		public Component add(Component c) {
 			super.add(c, gbc);
-			if (gbc.gridx == 4) {
+			if (gbc.gridx == columns - 1) {
 				gbc.gridx = 0;
 				gbc.gridy++;
 			} else {
@@ -136,6 +142,11 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 		});
 
 		t.start();
+	}
+
+	@Override
+	public JComponent createSmallPreview(String value) {
+		return new JScrollPane(new BerkeleyGrammarPreview(value, 1));
 	}
 
 }
