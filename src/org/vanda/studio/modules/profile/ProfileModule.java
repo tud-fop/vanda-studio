@@ -99,7 +99,7 @@ public class ProfileModule implements Module {
 				app.setProperty(TOOL_PATH_KEY, TOOL_PATH_DEFAULT);
 			}
 			for (File f : (new File(path)).listFiles()) {
-				if (f.isFile())
+				if (f.isFile() && f.getAbsolutePath().endsWith(".bash"))
 					loadFromFile(f);
 			}
 			app.setSemanticsModule(this);
