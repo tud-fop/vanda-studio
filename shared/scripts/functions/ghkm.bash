@@ -18,6 +18,4 @@ HyperGHKM () {
 	target="$OUTPATH/HyperGHKM($nAlign,$nEcorpus,$nFcorpus).0"
 	java -Xmx1g -Xms1g -cp "$GHKM/ghkm.jar:$GHKM/fastutil.jar" -XX:+UseCompressedOops edu.stanford.nlp.mt.syntax.ghkm.RuleExtractor -fCorpus "$fcorpus" -eParsedCorpus "$ecorpus" -align "$align" -joshuaFormat false > "$target"
 	eval $4=\"$target\"
-#	GHKM answers "Done." on its own
-#	echo "Done."
 }
