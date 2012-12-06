@@ -19,7 +19,6 @@ import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
-import org.vanda.studio.model.elements.ShellTool;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.modules.common.CompositeRepository;

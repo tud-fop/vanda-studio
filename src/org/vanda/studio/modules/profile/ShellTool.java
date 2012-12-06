@@ -1,9 +1,12 @@
-package org.vanda.studio.model.elements;
+package org.vanda.studio.modules.profile;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.vanda.studio.model.elements.Port;
+import org.vanda.studio.model.elements.RendererAssortment;
+import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
