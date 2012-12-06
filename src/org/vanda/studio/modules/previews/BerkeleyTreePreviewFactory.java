@@ -101,27 +101,32 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 	}
 
 	public Pair<String, Tree> parseTree(String string) {
-		if (string.startsWith(" ")) {
-			// remove whitespaces at the beginning
-			return parseTree(string.substring(1));
-		} else if (!string.startsWith("(")) {
-			// generate leaves (base case)
-			String xt = string.substring(string.indexOf(')'));
-			String label = string.substring(0, string.indexOf(')'));
-			return new Pair<String, Tree>(xt, new Tree(label));
-		} else {
-			// recursion case
-			String[] xs = string.substring(1).replaceFirst(" ", "#").split("#");
-			String label = xs[0];
-			List<Tree> children = new ArrayList<Tree>();
-			String xt = xs[1];
-			while (!xt.startsWith(")")) {
-				Pair<String, Tree> tpl = parseTree(xt);
-				children.add(tpl.snd);
-				xt = tpl.fst;
+		try {
+			if (string.startsWith(" ")) {
+				// remove whitespaces at the beginning
+				return parseTree(string.substring(1));
+			} else if (!string.startsWith("(")) {
+				// generate leaves (base case)
+				String xt = string.substring(string.indexOf(')'));
+				String label = string.substring(0, string.indexOf(')'));
+				return new Pair<String, Tree>(xt, new Tree(label));
+			} else {
+				// recursion case
+				String[] xs = string.substring(1).replaceFirst(" ", "#")
+						.split("#");
+				String label = xs[0];
+				List<Tree> children = new ArrayList<Tree>();
+				String xt = xs[1];
+				while (!xt.startsWith(")")) {
+					Pair<String, Tree> tpl = parseTree(xt);
+					children.add(tpl.snd);
+					xt = tpl.fst;
+				}
+				return new Pair<String, Tree>(xt.substring(1), new Tree(label,
+						children.toArray(new Tree[0])));
 			}
-			return new Pair<String, Tree>(xt.substring(1), new Tree(label,
-					children.toArray(new Tree[0])));
+		} catch (Exception e) {
+			return new Pair<String, Tree>(" [no parse] ", new Tree("[no parse]"));
 		}
 	}
 
