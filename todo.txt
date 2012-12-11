@@ -16,6 +16,7 @@
 . file format for workflows (JSON?)
 . show preview even if not all edges are connected
 . OpenDialog should show Metainformation
+. make PennTree parser more flexible
 + show less lines in DictionaryShowSteps (show first, last, some in between)
 + show PennTreeString in list of Trees in PennTreePreview
 + improve propagation of unification errors (red edge in workflow)

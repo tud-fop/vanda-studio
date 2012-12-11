@@ -59,8 +59,6 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 		public void propertyChange(PropertyChangeEvent evt) {
 			if (evt.getNewValue() instanceof File)
 				refresh((File) evt.getNewValue());
-			else
-				refresh(null);
 		}
 
 		public void refresh(File f) {
@@ -126,7 +124,8 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String prefix = app.getProperty("inputPath");
+				String prefix1 = app.getProperty("inputPath");
+				String prefix2 = app.getProperty("outputPath");
 				File f = new File(app.getProperty("lastInputPath"));
 				FileSystemView rfsv = new RestrictedFileSystemView(f);
 				JFileChooser fc = new JFileChooser(rfsv);
@@ -138,7 +137,7 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					String choice = fc.getSelectedFile().getAbsolutePath()
-							.replaceFirst(prefix, "");
+							.replaceFirst(prefix1, "").replaceFirst(prefix2, "");
 					value.setText(choice);
 					l.setValue(choice);
 					app.setProperty("lastInputPath", fc.getSelectedFile()
