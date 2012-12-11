@@ -28,7 +28,7 @@ IRSTLM () {
 # Contact: Tobias Denkinger@mailbox.tu-dresden.de
 # Category: language model
 # IN ARPA n-grams :: ARPA
-# OUT binary n-grams :: binary n-grams
+# OUT binary n-grams :: Binary n-grams
 #
 # Converts iARPA to binary n-gram format.
 ARPA2Binary () {

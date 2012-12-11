@@ -1,15 +1,23 @@
 package org.vanda.studio.modules.profile;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.elements.Tool;
+import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.model.types.Type;
+import org.vanda.studio.model.types.TypeVariable;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.TokenSource;
+
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.StringStack;
 
 public class ShellTool extends Tool {
 
@@ -97,4 +105,53 @@ public class ShellTool extends Tool {
 		return imports;
 	}
 
+	public static Type parseType(Map<String, Type> m, TokenSource ts, String s1) {
+		Stack<String> st = new StringStack();
+		int idx = 0;
+		String t = "";
+		while (idx < s1.length()) {
+			if ("()".contains(s1.substring(idx, idx + 1))) {
+				if (!t.equals(""))
+					st.add(0, String.copyValueOf(t.trim().toCharArray()));
+				st.add(0, s1.substring(idx, idx + 1));
+				t = "";
+			} else if (s1.substring(idx, idx + 1).equals(",")) {
+				st.add(0, String.copyValueOf(t.trim().toCharArray()));
+				t = "";
+			} else {
+				t += s1.substring(idx, idx + 1);
+			}
+			idx++;
+		}
+		if (!t.equals(""))
+			st.add(0, t.trim());
+		return parseType(m, ts, st);
+	}
+
+	public static Type parseType(Map<String, Type> m, TokenSource ts, Stack<String> st) {
+		String s = st.pop();
+		Type t;
+		List<Type> subTypes = new ArrayList<Type>();
+		if (!st.empty() && st.peek().equals("(")) {
+			st.pop();
+			while (!st.peek().equals(")")) {
+				Type t1 = parseType(m, ts, st);
+				subTypes.add(t1);
+			}
+			st.pop();
+			t = new CompositeType(s, subTypes);
+		} else {
+			if (Character.isLowerCase(s.charAt(0))) {
+				if (!m.containsKey(s)) {
+					t = new TypeVariable(ts.makeToken());
+					m.put(s, t);
+				} else {
+					t = m.get(s);
+				}
+			} else {
+				t = new CompositeType(s);
+			}
+		}
+		return t;
+	}
 }

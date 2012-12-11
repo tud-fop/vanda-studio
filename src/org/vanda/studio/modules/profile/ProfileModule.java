@@ -5,8 +5,10 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -21,6 +23,7 @@ import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.CompositeType;
+import org.vanda.studio.model.types.Type;
 import org.vanda.studio.modules.common.CompositeRepository;
 import org.vanda.studio.modules.common.ListRepository;
 import org.vanda.studio.modules.common.SimpleRepository;
@@ -34,6 +37,7 @@ import org.vanda.studio.modules.profile.model.Profiles;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.Observer;
+import org.vanda.studio.util.TokenSource;
 
 public class ProfileModule implements Module {
 
@@ -113,6 +117,8 @@ public class ProfileModule implements Module {
 			imports.add(file.getAbsolutePath());
 			SimpleRepository<Tool> r = new SimpleRepository<Tool>(null);
 			Scanner sc = null;
+			TokenSource ts = new TokenSource();
+			Map<String, Type> tVars = new HashMap<String, Type>();
 			try {
 				sc = new Scanner(file);
 				boolean nameFound = false;
@@ -140,13 +146,13 @@ public class ProfileModule implements Module {
 						else if (line1.toLowerCase().startsWith("in")) {
 							String[] arr = line1.substring(2).trim()
 									.split("::");
-							inPorts.add(new Port(arr[0].trim(),
-									new CompositeType(arr[1].trim())));
+							Type t = ShellTool.parseType(tVars, ts, arr[1].trim());
+							inPorts.add(new Port(arr[0].trim(), t));
 						} else if (line1.toLowerCase().startsWith("out")) {
 							String[] arr = line1.substring(3).trim()
 									.split("::");
-							outPorts.add(new Port(arr[0].trim(),
-									new CompositeType(arr[1].trim())));
+							Type t = ShellTool.parseType(tVars, ts, arr[1].trim());
+							outPorts.add(new Port(arr[0].trim(), t));
 						} else if (description != null && line1 == "")
 							description = null;
 						else
@@ -166,6 +172,8 @@ public class ProfileModule implements Module {
 									description), in, out, imports);
 							r.addItem(t);
 							nameFound = false;
+							ts = new TokenSource();
+							tVars.clear();
 						}
 					}
 				}
