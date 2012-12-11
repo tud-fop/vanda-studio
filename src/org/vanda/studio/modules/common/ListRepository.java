@@ -3,10 +3,11 @@
  */
 package org.vanda.studio.modules.common;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.vanda.studio.app.Repository;
+import org.vanda.studio.model.elements.RepositoryItem;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
@@ -15,12 +16,12 @@ import org.vanda.studio.util.Observer;
  * @author buechse
  *
  */
-public class ListRepository<T>
+public class ListRepository<T extends RepositoryItem>
 		implements Repository<T> {
 	MultiplexObserver<T> addObservable;
 	MultiplexObserver<T> removeObservable;
 	MultiplexObserver<T> modifyObservable;
-	ArrayList<T> items;
+	HashMap<String, T> items;
 
 	/**
 	 * @param l
@@ -30,17 +31,21 @@ public class ListRepository<T>
 		addObservable = new MultiplexObserver<T>();
 		modifyObservable = new MultiplexObserver<T>();
 		removeObservable = new MultiplexObserver<T>();
-		items = new ArrayList<T>();
+		items = new HashMap<String, T>();
 	}
 
 	public void addItem(T newitem) {
-		items.add(newitem);
-		addObservable.notify(newitem);
+		T item = items.remove(newitem.getId());
+		if (item != newitem)
+			removeObservable.notify(item);
+		items.put(newitem.getId(), newitem);
+		if (item != newitem)
+			addObservable.notify(newitem);
 	}
 
 	@Override
 	public boolean containsItem(String id) {
-		return false;
+		return items.containsKey(id);
 	}
 
 	@Override
@@ -60,12 +65,12 @@ public class ListRepository<T>
 
 	@Override
 	public T getItem(String id) {
-		return null;
+		return items.get(id);
 	}
 
 	@Override
 	public Collection<T> getItems() {
-		return items;
+		return items.values();
 	}
 
 	public Observer<T> getModifyObserver() {

@@ -22,6 +22,7 @@ import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 
 import org.vanda.studio.app.Application;
+import org.vanda.studio.app.SemanticsModule;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
@@ -61,11 +62,11 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	protected final Palette palette;
 	protected final JSplitPane mainpane;
 
-	public WorkflowEditorImpl(Application a, MutableWorkflow hwf) {
+	public WorkflowEditorImpl(Application a, MutableWorkflow hwf, SemanticsModule sm) {
 		app = a;
 		model = new Model(hwf);
 		renderer = new DrecksAdapter(model);
-		palette = new Palette(app);
+		palette = new Palette(app, sm);
 		palette.update();
 
 		component = new MyMxGraphComponent(renderer.getGraph());

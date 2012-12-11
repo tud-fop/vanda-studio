@@ -17,7 +17,6 @@ import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.immutable.JobInfo;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
-import org.vanda.studio.modules.common.LinkerUtil;
 import org.vanda.studio.modules.profile.concrete.RootLinker;
 import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.modules.profile.model.FragmentBase;
@@ -53,9 +52,11 @@ public class ProfileImpl implements Profile, FragmentIO {
 			fb = new FragmentBase() {
 				@Override
 				public Tool getConversionTool(Type from, Type to) {
+					return null;
+					/*
 					return LinkerUtil.getConversionTool(ProfileImpl.this.app
 							.getConverterToolMetaRepository().getRepository(),
-							from, to);
+							from, to);*/
 				}
 
 				@Override

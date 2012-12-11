@@ -18,6 +18,7 @@ import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
 import org.vanda.studio.model.Model.SelectionVisitor;
 import org.vanda.studio.model.Model.WorkflowSelection;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
@@ -202,6 +203,42 @@ public class InspectorTool implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe, Model m) {
 		return new Inspector(wfe, m);
+	}
+
+	@Override
+	public String getCategory() {
+		return "Workflow Inspection";
+	}
+
+	@Override
+	public String getContact() {
+		return "Matthias.Buechse@tu-dresden.de";
+	}
+
+	@Override
+	public String getDescription() {
+		return null;
+	}
+
+	@Override
+	public String getId() {
+		return "profile-inspector";
+	}
+
+	@Override
+	public String getName() {
+		return "Profile Semantics Inspector";
+	}
+
+	@Override
+	public String getVersion() {
+		return "2012-12-12";
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

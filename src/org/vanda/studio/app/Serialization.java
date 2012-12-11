@@ -43,8 +43,8 @@ public final class Serialization {
 	public static MutableWorkflow load(Application app, String pathToFile)
 			throws Exception {
 		try {
-			MutableWorkflow result = (MutableWorkflow) getXStream(app)
-					.fromXML(new File(pathToFile));
+			MutableWorkflow result = (MutableWorkflow) getXStream(app).fromXML(
+					new File(pathToFile));
 			result.rebind();
 			return result;
 		} catch (Exception e) {
@@ -65,8 +65,9 @@ public final class Serialization {
 			throw new Exception("An error occurred saving " + filename, e);
 		}
 	}
-	
-	private static class InternedIntegerConverter implements SingleValueConverter {
+
+	private static class InternedIntegerConverter implements
+			SingleValueConverter {
 
 		public InternedIntegerConverter() {
 		}
@@ -151,7 +152,9 @@ public final class Serialization {
 
 		@Override
 		public Object fromString(String str) {
-			return app.getToolMetaRepository().getRepository().getItem(str);
+			return app.getSemanticsModuleMetaRepository().getRepository()
+					.getItem("profile").getToolMetaRepository().getRepository()
+					.getItem(str);
 		}
 
 		@Override

@@ -379,6 +379,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				lTrees.addListSelectionListener(new ListSelectionListener() {
 					@Override
 					public void valueChanged(ListSelectionEvent e) {
+						@SuppressWarnings("unchecked")
 						Pair<String, Tree> tpl = (Pair<String, Tree>) lTrees
 								.getSelectedValue();
 						jTree.setTree(tpl.snd);
@@ -391,6 +392,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 					public Component getListCellRendererComponent(JList list,
 							Object value, int index, boolean isSelected,
 							boolean cellHasFocus) {
+						@SuppressWarnings("unchecked")
 						Pair<String, Tree> tpl = (Pair<String, Tree>) value;
 						DefaultListCellRenderer df = new DefaultListCellRenderer();
 						JLabel lbl = (JLabel) df.getListCellRendererComponent(

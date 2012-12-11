@@ -38,6 +38,7 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.profile.model.Fragment;
@@ -481,6 +482,41 @@ public class RunTool implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe, Model m) {
 		return new Tool(wfe, m, prof);
+	}
+
+	@Override
+	public String getCategory() {
+		return "Workflow Semantics";
+	}
+
+	@Override
+	public String getContact() {
+		return "Matthias.Buechse@tu-dresden.de";
+	}
+
+	@Override
+	public String getDescription() {
+		return "";
+	}
+
+	@Override
+	public String getId() {
+		return "profile-run";
+	}
+
+	@Override
+	public String getName() {
+		return "Run Tool";
+	}
+
+	@Override
+	public String getVersion() {
+		return "2012-12-12";
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		// TODO Auto-generated method stub
 	}
 
 }

@@ -16,8 +16,8 @@ import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
-import org.vanda.studio.util.UnificationException;
 import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.studio.util.UnificationException;
 
 public final class Model implements WorkflowChildListener {
 

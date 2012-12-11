@@ -16,7 +16,6 @@ import javax.swing.event.ListDataListener;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Repository;
 import org.vanda.studio.model.elements.RepositoryItem;
-import org.vanda.studio.modules.common.SimpleRepository;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
@@ -29,7 +28,7 @@ public final class ProfileManager {
 	private final MultiplexObserver<ProfileManager> closeObservable;
 	private JPanel contentPane;
 
-	public ProfileManager(Application app, SimpleRepository<Profile> repository) {
+	public ProfileManager(Application app, Repository<Profile> repository) {
 		this.app = app;
 		// this.repository = repository;
 		closeObservable = new MultiplexObserver<ProfileManager>();
