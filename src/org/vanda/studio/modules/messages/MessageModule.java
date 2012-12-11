@@ -84,8 +84,8 @@ public class MessageModule implements Module {
 							desel = idx1;		
 						}
 					
-						((Message) listModel.get(sel)).onSelect(app);
-						((Message) listModel.get(desel)).onDeselect(app);
+						// ((Message) listModel.get(sel)).onSelect(app);
+						// ((Message) listModel.get(desel)).onDeselect(app);
 					}
 				}
 
@@ -118,13 +118,13 @@ public class MessageModule implements Module {
 					return d;
 				}
 
-				@Override
+				// @Override
 				public void onSelect(Application app) {
 					// TODO Auto-generated method stub
 
 				}
 
-				@Override
+				// @Override
 				public void onDeselect(Application app) {
 					// TODO Auto-generated method stub
 

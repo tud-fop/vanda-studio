@@ -44,8 +44,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
-import org.vanda.studio.core.DefaultPreviewFactory;
 import org.vanda.studio.util.Pair;
 
 public class BerkeleyTreePreviewFactory implements PreviewFactory {
@@ -439,12 +439,19 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			revalidate();
 		}
 	}
+	
+	protected final Application app;
+	
+	public BerkeleyTreePreviewFactory(Application app) {
+		this.app = app;
+	}
 
 	public JComponent createPreview(String value) {
 		if ((new File(value)).exists())
 			return new BerkeleyTreePreview(value);
 		else
-			return (new DefaultPreviewFactory(null)).createPreview(value);
+			// TOBIAS!!! return (new DefaultPreviewFactory(null)).createPreview(value);
+			return app.getPreviewFactory(null).createPreview(value);
 	}
 
 	public void openEditor(final String value) {

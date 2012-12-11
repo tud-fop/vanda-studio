@@ -1,11 +1,11 @@
 package org.vanda.studio.util;
 
-import org.vanda.studio.app.Application;
-
 public interface Selectable {
 	
-	public void onSelect(Application app);
+	// TOBIAS!! wir können von util aus nicht app einbinden!
 	
-	public void onDeselect(Application app);
+	// public void onSelect(Application app);
+	
+	// public void onDeselect(Application app);
 	
 }
