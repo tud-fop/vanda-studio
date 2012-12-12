@@ -14,6 +14,7 @@ import org.vanda.studio.app.Serialization;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.modules.common.ListRepository;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
@@ -59,6 +60,41 @@ public class WorkflowModule implements Module {
 					wfe.addAction(a, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
 					return a;
 				}
+
+				@Override
+				public String getCategory() {
+					return "Workflow Serialization";
+				}
+
+				@Override
+				public String getContact() {
+					return "Matthias.Buechse@tu-dresden.de";
+				}
+
+				@Override
+				public String getDescription() {
+					return "Permits saving the workflow";
+				}
+
+				@Override
+				public String getId() {
+					return "serialize-tool";
+				}
+
+				@Override
+				public String getName() {
+					return "Serialization tool";
+				}
+
+				@Override
+				public String getVersion() {
+					return "2012-12-12";
+				}
+
+				@Override
+				public void visit(RepositoryItemVisitor v) {
+					
+				}
 			});
 			app.getToolFactoryMetaRepository().addRepository(toolFactories);
 
@@ -75,7 +111,7 @@ public class WorkflowModule implements Module {
 			@Override
 			public void invoke() {
 				MutableWorkflow mwf = new MutableWorkflow("Workflow");
-				new WorkflowEditorImpl(app, mwf);
+				new WorkflowEditorImpl(app, mwf, app.getSemanticsModuleMetaRepository().getRepository().getItem("profile"));
 			}
 		}
 
@@ -107,7 +143,7 @@ public class WorkflowModule implements Module {
 					MutableWorkflow hwf;
 					try {
 						hwf = Serialization.load(app, filePath);
-						new WorkflowEditorImpl(app, hwf);
+						new WorkflowEditorImpl(app, hwf, app.getSemanticsModuleMetaRepository().getRepository().getItem("profile"));
 					} catch (Exception e) {
 						app.sendMessage(new ExceptionMessage(e));
 					}

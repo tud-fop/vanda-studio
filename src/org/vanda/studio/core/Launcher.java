@@ -3,58 +3,16 @@
  */
 package org.vanda.studio.core;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.SwingUtilities;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.app.Serialization;
-import org.vanda.studio.app.ToolFactory;
-import org.vanda.studio.model.Model;
-import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.model.immutable.ImmutableWorkflow;
-import org.vanda.studio.modules.common.SimpleRepository;
-import org.vanda.studio.modules.profile.Profile;
-import org.vanda.studio.modules.profile.ProfileImpl;
-import org.vanda.studio.modules.profile.ProfilesImpl;
-import org.vanda.studio.modules.profile.concrete.HaskellCompiler;
-import org.vanda.studio.modules.profile.concrete.HaskellLinker;
-import org.vanda.studio.modules.profile.concrete.IdentityLinker;
-import org.vanda.studio.modules.profile.concrete.ShellCompiler;
-import org.vanda.studio.modules.profile.model.Fragment;
-import org.vanda.studio.modules.profile.model.FragmentCompiler;
-import org.vanda.studio.modules.profile.model.FragmentLinker;
-import org.vanda.studio.modules.profile.model.Profiles;
 import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.RCChecker;
 
 public final class Launcher implements Runnable {
-
-	private static class StreamGobbler extends Thread {
-		private final InputStream is;
-
-		public StreamGobbler(InputStream is) {
-			this.is = is;
-		}
-
-		public void run() {
-			InputStreamReader isr = new InputStreamReader(is);
-			BufferedReader br = new BufferedReader(isr);
-			String line = null;
-			try {
-				while ((line = br.readLine()) != null) {
-					System.out.println(line);
-				}
-			} catch (IOException e) {
-				// ignore
-			}
-		}
-	}
 
 	private Launcher() {
 		// utility class
@@ -88,7 +46,7 @@ public final class Launcher implements Runnable {
 				// new org.vanda.studio.modules.wrtgs.WrtgModule(),
 				// new org.vanda.studio.modules.terms.TermModule(),
 				new org.vanda.studio.modules.workflows.WorkflowModule() };
-		app.registerPreviewFactory(null, new DefaultPreviewFactory(app));
+		// app.registerPreviewFactory(null, new DefaultPreviewFactory(app));
 
 		ModuleManager moduleManager = new ModuleManager(app);
 		moduleManager.loadModules();
@@ -96,9 +54,10 @@ public final class Launcher implements Runnable {
 			moduleManager.loadModule(m);
 		moduleManager.initModules();
 
-		app.getToolMetaRepository().getRepository().refresh();
-		System.out.println(app.getToolMetaRepository().getRepository()
-				.getItems());
+		// outdated
+		// app.getToolMetaRepository().getRepository().refresh();
+		// System.out.println(app.getToolMetaRepository().getRepository()
+		//		.getItems());
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(app));
 		// throw new NullPointerException("brain is null");
 	}
@@ -138,6 +97,7 @@ public final class Launcher implements Runnable {
 				.loadModule(new org.vanda.studio.modules.algorithms.AlgorithmsModule());
 		moduleManager.initModules();
 
+		/** SCHROTT: Wieso copy&paste aus dem Profiles-Modul?
 		Profiles profiles = new ProfilesImpl();
 		SimpleRepository<FragmentCompiler> compilers = new SimpleRepository<FragmentCompiler>(
 				null);
@@ -179,6 +139,30 @@ public final class Launcher implements Runnable {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+	private static class StreamGobbler extends Thread {
+		private final InputStream is;
+
+		public StreamGobbler(InputStream is) {
+			this.is = is;
+		}
+
+		public void run() {
+			InputStreamReader isr = new InputStreamReader(is);
+			BufferedReader br = new BufferedReader(isr);
+			String line = null;
+			try {
+				while ((line = br.readLine()) != null) {
+					System.out.println(line);
+				}
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
+
+		
+		**/
 	}
 
 	public static class ExceptionHandler implements

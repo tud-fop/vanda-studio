@@ -39,17 +39,18 @@ public final class ApplicationImpl implements Application {
 
 	protected UIMode mode;
 	protected final ArrayList<UIMode> modes;
-	protected final CompositeRepository<Tool> converterToolRepository;
+	// outdated protected final CompositeRepository<Tool> converterToolRepository;
 	protected final MultiplexObserver<Message> messageObservable;
 	protected final MultiplexObserver<Application> modeObservable;
 	protected final CompositeRepository<Linker> linkerRepository;
 	// protected final CompositeRepository<Profile> profileRepository;
 	protected final HashMap<Type, PreviewFactory> previewFactories;
-	protected final CompositeRepository<Tool> toolRepository;
+	protected final CompositeRepository<SemanticsModule> semanticsModuleRepository;
 	protected final CompositeRepository<ToolFactory> toolFactoryRepository;
 	protected final MultiplexObserver<Application> shutdownObservable;
 	protected final WindowSystemImpl windowSystem;
 	protected final HashSet<Type> types;
+	protected final Observer<SemanticsModule> smObserver;
 	protected final Observer<Tool> typeObserver;
 	protected final Properties properties;
 	protected SemanticsModule semantics;
@@ -65,12 +66,12 @@ public final class ApplicationImpl implements Application {
 		addUIModes(modes);
 		messageObservable = new MultiplexObserver<Message>();
 		mode = modes.get(0);
-		converterToolRepository = new CompositeRepository<Tool>();
+		// converterToolRepository = new CompositeRepository<Tool>();
 		modeObservable = new MultiplexObserver<Application>();
 		linkerRepository = new CompositeRepository<Linker>();
 		// profileRepository = new CompositeRepository<Profile>();
 		previewFactories = new HashMap<Type, PreviewFactory>();
-		toolRepository = new CompositeRepository<Tool>();
+		semanticsModuleRepository = new CompositeRepository<SemanticsModule>();
 		toolFactoryRepository = new CompositeRepository<ToolFactory>();
 		shutdownObservable = new MultiplexObserver<Application>();
 		if (gui)
@@ -100,8 +101,18 @@ public final class ApplicationImpl implements Application {
 			
 		};
 		
-		converterToolRepository.getAddObservable().addObserver(typeObserver);
-		toolRepository.getAddObservable().addObserver(typeObserver);
+		smObserver = new Observer<SemanticsModule>() {
+
+			@Override
+			public void notify(SemanticsModule mod) {
+				for (Tool t : mod.getToolMetaRepository().getRepository().getItems())
+					typeObserver.notify(t);
+			}
+			
+		};
+		
+		// converterToolRepository.getAddObservable().addObserver(typeObserver);
+		semanticsModuleRepository.getAddObservable().addObserver(smObserver);
 	}
 
 	@Override
@@ -168,26 +179,22 @@ public final class ApplicationImpl implements Application {
 			});
 	}
 
+	/*
 	@Override
 	public MetaRepository<Tool> getConverterToolMetaRepository() {
 		return converterToolRepository;
 	}
+	*/
 
 	@Override
 	public MetaRepository<Linker> getLinkerMetaRepository() {
 		return linkerRepository;
 	}
 
-	// @Override
-	// public MetaRepository<Profile> getProfileMetaRepository() {
-	// 	return profileRepository;
-	// }
-
 	// XXX this should be done by the semanticsModule of choice
 	@Override
-	public MetaRepository<Tool> getToolMetaRepository() {
-		return semantics.getTools();
-//		return toolRepository;
+	public MetaRepository<SemanticsModule> getSemanticsModuleMetaRepository() {
+		return semanticsModuleRepository;
 	}
 
 	@Override
@@ -267,11 +274,4 @@ public final class ApplicationImpl implements Application {
 		}
 
 	 */
-
-	@Override
-	public void setSemanticsModule(SemanticsModule mod) {
-		semantics = mod;
-		for (Tool t : mod.getTools().getRepository().getItems())
-			typeObserver.notify(t);
-	}
 }

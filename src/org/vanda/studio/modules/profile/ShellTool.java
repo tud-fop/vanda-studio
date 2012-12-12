@@ -17,8 +17,6 @@ import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.TokenSource;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.StringStack;
-
 public class ShellTool extends Tool {
 
 	private String id;
@@ -106,7 +104,7 @@ public class ShellTool extends Tool {
 	}
 
 	public static Type parseType(Map<String, Type> m, TokenSource ts, String s1) {
-		Stack<String> st = new StringStack();
+		Stack<String> st = new Stack<String>();
 		int idx = 0;
 		String t = "";
 		while (idx < s1.length()) {

@@ -8,6 +8,7 @@ import javax.swing.JTextArea;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.util.Observer;
 
@@ -58,6 +59,41 @@ public class DebuggerTool implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe, Model m) {
 		return new Tool(wfe, m);
+	}
+
+	@Override
+	public String getCategory() {
+		return "Workflow Inspection";
+	}
+
+	@Override
+	public String getContact() {
+		return "Matthias.Buechse@tu-dresden.de";
+	}
+
+	@Override
+	public String getDescription() {
+		return "Shows the system of equations behind the workflow.";
+	}
+
+	@Override
+	public String getId() {
+		return "debugger-tool";
+	}
+
+	@Override
+	public String getName() {
+		return "Debugger Tool";
+	}
+
+	@Override
+	public String getVersion() {
+		return "2012-12-12";
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		
 	}
 
 }

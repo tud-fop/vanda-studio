@@ -29,7 +29,6 @@ import javax.swing.filechooser.FileSystemView;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
-import org.vanda.studio.core.DefaultPreviewFactory;
 import org.vanda.studio.model.elements.Literal;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.types.Type;

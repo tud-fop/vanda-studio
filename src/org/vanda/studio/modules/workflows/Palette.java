@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.vanda.studio.app.Application;
+import org.vanda.studio.app.SemanticsModule;
 import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Literal;
 import org.vanda.studio.model.elements.Tool;
@@ -45,6 +46,7 @@ public class Palette {
 	// }
 
 	protected final Application app;
+	protected SemanticsModule sm;
 	protected JXTaskPaneContainer taskPaneContainer;
 	protected JScrollPane paletteComponent;
 	protected mxGraphComponent searchGraph;
@@ -52,8 +54,9 @@ public class Palette {
 	protected JXTaskPane searchPane;
 	protected final ArrayList<Job> templates;
 
-	public Palette(Application app) {
+	public Palette(Application app, SemanticsModule sm) {
 		this.app = app;
+		this.sm = sm;
 		taskPaneContainer = new JXTaskPaneContainer();
 		paletteComponent = new JScrollPane();
 		templates = new ArrayList<Job>();
@@ -79,7 +82,7 @@ public class Palette {
 		});
 
 		// get all palette items
-		for (Tool t : app.getToolMetaRepository().getRepository().getItems())
+		for (Tool t : sm.getToolMetaRepository().getRepository().getItems())
 			templates.add(new AtomicJob(t));
 		for (Linker l : app.getLinkerMetaRepository().getRepository()
 				.getItems())

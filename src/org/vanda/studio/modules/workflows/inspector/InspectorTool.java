@@ -11,6 +11,7 @@ import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
 import org.vanda.studio.model.Model.WorkflowSelection;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.util.Observer;
 
 public class InspectorTool implements ToolFactory {
@@ -91,6 +92,41 @@ public class InspectorTool implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe, Model m) {
 		return new Inspector(wfe, m);
+	}
+
+	@Override
+	public String getCategory() {
+		return "Workflow Inspection";
+	}
+
+	@Override
+	public String getContact() {
+		return "Matthias.Buechse@tu-dresden.de";
+	}
+
+	@Override
+	public String getDescription() {
+		return "";
+	}
+
+	@Override
+	public String getId() {
+		return "syntax-inspector";
+	}
+
+	@Override
+	public String getName() {
+		return "Syntax Inspector";
+	}
+
+	@Override
+	public String getVersion() {
+		return "2012-12-12";
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		
 	}
 
 }

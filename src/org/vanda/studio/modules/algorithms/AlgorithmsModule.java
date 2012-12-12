@@ -8,17 +8,13 @@ import java.util.List;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RendererAssortment;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
-import org.vanda.studio.modules.common.SimpleRepository;
-import org.vanda.studio.modules.previews.BerkeleyGrammarPreviewFactory;
-import org.vanda.studio.modules.previews.BerkeleyTreePreviewFactory;
-import org.vanda.studio.modules.previews.MonospacePreviewFactory;
+import org.vanda.studio.modules.common.ListRepository;
 import org.vanda.studio.util.Action;
 
 /**
@@ -39,7 +35,7 @@ public class AlgorithmsModule implements Module {
 
 	protected static final class WorkflowModuleInstance {
 
-		private final Application app;
+		// private final Application app;
 
 		private static Type shellType = Types.shellType;
 
@@ -921,9 +917,9 @@ public class AlgorithmsModule implements Module {
 		 */
 
 		public WorkflowModuleInstance(Application a) {
-			app = a;
+			// app = a;
 
-			SimpleRepository<Tool> tr = new SimpleRepository<Tool>(null);
+			ListRepository<Tool> tr = new ListRepository<Tool>();
 
 			// tr.addItem(new Plain2Snt());
 			tr.addItem(new GIZA());
@@ -940,7 +936,7 @@ public class AlgorithmsModule implements Module {
 			// tr.addItem(new GetInputString());
 			// tr.addItem(new GetOutputString());
 			tr.addItem(new SinkTool());
-			app.getToolMetaRepository().addRepository(tr);
+			// outdated app.getToolMetaRepository().addRepository(tr);
 
 			// SimpleRepository<Tool> ctr = new SimpleRepository<Tool>(null);
 			// ctr.addItem(new LoadText());

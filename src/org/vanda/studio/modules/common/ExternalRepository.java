@@ -18,7 +18,7 @@ import org.vanda.studio.util.Util;
  * @author buechse
  *
  */
-public class SimpleRepository<T extends RepositoryItem>
+public class ExternalRepository<T extends RepositoryItem>
 		implements Repository<T> {
 	MultiplexObserver<T> addObservable;
 	MultiplexObserver<T> removeObservable;
@@ -30,7 +30,7 @@ public class SimpleRepository<T extends RepositoryItem>
 	 * @param l
 	 *            A <code>Loader</code>, may be <code>null</code>
 	 */
-	public SimpleRepository(Loader<T> l) {
+	public ExternalRepository(Loader<T> l) {
 		addObservable = new MultiplexObserver<T>();
 		modifyObservable = new MultiplexObserver<T>();
 		removeObservable = new MultiplexObserver<T>();

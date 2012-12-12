@@ -13,14 +13,15 @@ public class PreviewsModule implements Module {
 	}
 
 	@Override
-	public Object createInstance(Application a) {
-		PreviewFactory pf = new BerkeleyTreePreviewFactory();
-		a.registerPreviewFactory(new CompositeType("Penn Tree Corpus"), pf);
+	public Object createInstance(Application app) {
+		PreviewFactory pf = new BerkeleyTreePreviewFactory(app);
+		app.registerPreviewFactory(new CompositeType("Penn Tree Corpus"), pf);
 		PreviewFactory pf2 = new BerkeleyGrammarPreviewFactory();
-		a.registerPreviewFactory(new CompositeType("BerkeleyGrammar.sm6"), pf2);
-		PreviewFactory pf3 = new MonospacePreviewFactory();
-		a.registerPreviewFactory(new CompositeType("Dictionary"), pf3);
-		a.registerPreviewFactory(new CompositeType("Alignments"), pf3);
+		app.registerPreviewFactory(new CompositeType("BerkeleyGrammar.sm6"), pf2);
+		// PreviewFactory pf3 = new MonospacePreviewFactory();
+		// a.registerPreviewFactory(new CompositeType("Dictionary"), pf3);
+		// a.registerPreviewFactory(new CompositeType("Alignments"), pf3);
+		app.registerPreviewFactory(null, new MonospacePreviewFactory());
 		return null;
 	}
 

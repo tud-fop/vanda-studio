@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.vanda.studio.model.elements.Linker;
-import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.Message;
 import org.vanda.studio.util.Observable;
@@ -23,13 +22,14 @@ public interface Application {
 	 */
 	String createUniqueId();
 
-	/**
+	/* outdated
 	 * Returns the repository of converter tool repositories. Converter tools
 	 * may be used by some linkers to convert port types. A converter tool
 	 * must have exactly one input port and exactly one output port.
 	 * Modules should add or remove their own repositories here.
-	 */
+	 * 
 	MetaRepository<Tool> getConverterToolMetaRepository();
+	 */
 
 	/**
 	 * Returns the repository of linker repositories. Modules should add or
@@ -48,14 +48,14 @@ public interface Application {
 	Set<Type> getTypes();
 	
 	/**
-	 * Returns the repository of tool repositories. Modules should add or remove
-	 * their own repositories here.
+	 * Returns the repository of semantics module repositories. Modules should
+	 * add or remove their own repositories here.
 	 */
-	MetaRepository<Tool> getToolMetaRepository();
+	MetaRepository<SemanticsModule> getSemanticsModuleMetaRepository();
 	
 	/**
-	 * Returns the repository of tool factory repositories. Modules should add
-	 * or remove their own repositories here.
+	 * Returns the repository of tool factory repositories. Modules should
+	 * add or remove their own repositories here.
 	 */
 	MetaRepository<ToolFactory> getToolFactoryMetaRepository();
 	
@@ -108,8 +108,6 @@ public interface Application {
 	 * @param pf
 	 */
 	void registerPreviewFactory(Type type, PreviewFactory pf);
-	
-	void setSemanticsModule(SemanticsModule mod);
 	
 	/**
 	 */

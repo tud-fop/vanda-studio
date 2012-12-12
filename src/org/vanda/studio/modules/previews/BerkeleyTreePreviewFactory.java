@@ -44,8 +44,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
-import org.vanda.studio.core.DefaultPreviewFactory;
 import org.vanda.studio.util.Pair;
 
 public class BerkeleyTreePreviewFactory implements PreviewFactory {
@@ -379,6 +379,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				lTrees.addListSelectionListener(new ListSelectionListener() {
 					@Override
 					public void valueChanged(ListSelectionEvent e) {
+						@SuppressWarnings("unchecked")
 						Pair<String, Tree> tpl = (Pair<String, Tree>) lTrees
 								.getSelectedValue();
 						jTree.setTree(tpl.snd);
@@ -391,6 +392,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 					public Component getListCellRendererComponent(JList list,
 							Object value, int index, boolean isSelected,
 							boolean cellHasFocus) {
+						@SuppressWarnings("unchecked")
 						Pair<String, Tree> tpl = (Pair<String, Tree>) value;
 						DefaultListCellRenderer df = new DefaultListCellRenderer();
 						JLabel lbl = (JLabel) df.getListCellRendererComponent(
@@ -437,12 +439,19 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			revalidate();
 		}
 	}
+	
+	protected final Application app;
+	
+	public BerkeleyTreePreviewFactory(Application app) {
+		this.app = app;
+	}
 
 	public JComponent createPreview(String value) {
 		if ((new File(value)).exists())
 			return new BerkeleyTreePreview(value);
 		else
-			return (new DefaultPreviewFactory(null)).createPreview(value);
+			// TOBIAS!!! return (new DefaultPreviewFactory(null)).createPreview(value);
+			return app.getPreviewFactory(null).createPreview(value);
 	}
 
 	public void openEditor(final String value) {
