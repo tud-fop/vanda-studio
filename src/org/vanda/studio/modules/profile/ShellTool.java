@@ -15,6 +15,7 @@ import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.TypeVariable;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.util.Action;
+import org.vanda.studio.util.Lexer;
 import org.vanda.studio.util.TokenSource;
 
 public class ShellTool extends Tool {
@@ -104,25 +105,8 @@ public class ShellTool extends Tool {
 	}
 
 	public static Type parseType(Map<String, Type> m, TokenSource ts, String s1) {
-		Stack<String> st = new Stack<String>();
-		int idx = 0;
-		String t = "";
-		while (idx < s1.length()) {
-			if ("()".contains(s1.substring(idx, idx + 1))) {
-				if (!t.equals(""))
-					st.add(0, String.copyValueOf(t.trim().toCharArray()));
-				st.add(0, s1.substring(idx, idx + 1));
-				t = "";
-			} else if (s1.substring(idx, idx + 1).equals(",")) {
-				st.add(0, String.copyValueOf(t.trim().toCharArray()));
-				t = "";
-			} else {
-				t += s1.substring(idx, idx + 1);
-			}
-			idx++;
-		}
-		if (!t.equals(""))
-			st.add(0, t.trim());
+		Lexer lx = new Lexer("()", ",");
+		Stack<String> st = lx.lex(s1);
 		return parseType(m, ts, st);
 	}
 
