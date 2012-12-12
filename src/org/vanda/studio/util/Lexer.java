@@ -55,7 +55,8 @@ public class Lexer {
 				st.add(0, s1.substring(idx, idx + 1));
 				t = "";
 			} else if (droppedDividers.contains(s1.substring(idx, idx + 1))) {
-				st.add(0, String.copyValueOf(t.trim().toCharArray()));
+				if (!t.equals(""))
+					st.add(0, String.copyValueOf(t.trim().toCharArray()));
 				t = "";
 			} else {
 				t += s1.substring(idx, idx + 1);
