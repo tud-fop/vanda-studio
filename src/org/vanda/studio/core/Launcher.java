@@ -88,6 +88,7 @@ public final class Launcher implements Runnable {
 	 *            workflow to be executed
 	 */
 	public static void runWorkflow(String fileName) {
+		/** SCHROTT: Wieso copy&paste aus dem Profiles-Modul?
 		Application app = new ApplicationImpl(false);
 
 		// only load AlgorithmsModule, nothing else is needed
@@ -97,7 +98,6 @@ public final class Launcher implements Runnable {
 				.loadModule(new org.vanda.studio.modules.algorithms.AlgorithmsModule());
 		moduleManager.initModules();
 
-		/** SCHROTT: Wieso copy&paste aus dem Profiles-Modul?
 		Profiles profiles = new ProfilesImpl();
 		SimpleRepository<FragmentCompiler> compilers = new SimpleRepository<FragmentCompiler>(
 				null);

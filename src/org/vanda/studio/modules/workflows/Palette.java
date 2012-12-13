@@ -18,13 +18,10 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.SemanticsModule;
-import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Literal;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.hyper.AtomicJob;
-import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Job;
-import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.types.CompositeType;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 
@@ -84,10 +81,6 @@ public class Palette {
 		// get all palette items
 		for (Tool t : sm.getToolMetaRepository().getRepository().getItems())
 			templates.add(new AtomicJob(t));
-		for (Linker l : app.getLinkerMetaRepository().getRepository()
-				.getItems())
-			templates.add(new CompositeJob(l, new MutableWorkflow(
-					"inner workflow")));
 		// templates.add(new AtomicJob(new Choice()));
 		// templates.add(new AtomicJob(new InputPort()));
 		// templates.add(new AtomicJob(new OutputPort()));

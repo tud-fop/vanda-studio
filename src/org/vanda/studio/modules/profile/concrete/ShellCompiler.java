@@ -64,17 +64,6 @@ public class ShellCompiler implements FragmentCompiler {
 				sb.append("=\\\"$");
 				appendVariable(name, ji.inputs.get(0), sb);
 				sb.append("\\\"");
-			} else if (ji.job.isChoice()) {
-				for (int j = 0; j < ji.inputs.size(); j++) {
-					Token var = ji.inputs.get(j);
-					if (var != null) {
-						appendVariable(name, ji.outputs.get(0), sb);
-						sb.append("=\"$");
-						appendVariable(name, var, sb);
-						sb.append('"');
-						break; // <------------------------------#############
-					}
-				}
 			} else if (ji.job instanceof AtomicImmutableJob) {
 				if (((AtomicImmutableJob) ji.job).getElement() instanceof Literal) {
 					Literal lit = (Literal) ((AtomicImmutableJob) ji.job).getElement();

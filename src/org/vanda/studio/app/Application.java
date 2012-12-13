@@ -6,7 +6,6 @@ package org.vanda.studio.app;
 import java.util.Collection;
 import java.util.Set;
 
-import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.Message;
 import org.vanda.studio.util.Observable;
@@ -30,12 +29,6 @@ public interface Application {
 	 * 
 	MetaRepository<Tool> getConverterToolMetaRepository();
 	 */
-
-	/**
-	 * Returns the repository of linker repositories. Modules should add or
-	 * remove their own repositories here.
-	 */
-	MetaRepository<Linker> getLinkerMetaRepository();
 
 	/**
 	 * Returns the repository of profile repositories. Modules should add or

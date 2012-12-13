@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.vanda.studio.model.elements.Choice;
 import org.vanda.studio.model.elements.Element;
 import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.OutputPort;
@@ -26,18 +25,8 @@ public final class AtomicImmutableJob extends ImmutableJob {
 		return null;
 	}
 
-	@Override
-	public List<ImmutableJob> unfold() {
-		return null;
-	}
-
 	public Element getElement() {
 		return element;
-	}
-
-	@Override
-	public boolean isChoice() {
-		return element instanceof Choice;
 	}
 
 	@Override

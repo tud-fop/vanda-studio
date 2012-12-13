@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -12,7 +11,6 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
-import org.vanda.studio.model.immutable.CompositeImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.immutable.JobInfo;
 import org.vanda.studio.model.types.Type;
@@ -24,7 +22,6 @@ import org.vanda.studio.modules.profile.model.FragmentCompiler;
 import org.vanda.studio.modules.profile.model.FragmentIO;
 import org.vanda.studio.modules.profile.model.FragmentLinker;
 import org.vanda.studio.modules.profile.model.Profiles;
-import org.vanda.studio.util.TokenSource.Token;
 
 public class ProfileImpl implements Profile, FragmentIO {
 
@@ -77,34 +74,6 @@ public class ProfileImpl implements Profile, FragmentIO {
 			return result.name;
 		}
 
-		public String generateComposite(ImmutableWorkflow parent, JobInfo ji,
-				CompositeImmutableJob j) throws IOException {
-			Fragment result = map.get(j);
-			if (result == null) {
-				FragmentLinker fl = prof.getLinker(j.getLinker().getId());
-				assert (fl != null);
-				ImmutableWorkflow w = j.getWorkflow();
-				String inner = generateFragment(w);
-				List<Type> outerinput = new ArrayList<Type>();
-				List<Type> innerinput = new ArrayList<Type>();
-				List<Type> inneroutput = new ArrayList<Type>();
-				List<Type> outeroutput = new ArrayList<Type>();
-				for (Token var : ji.inputs)
-					outerinput.add(parent.getType(var));
-				for (Token var : ji.outputs)
-					outeroutput.add(parent.getType(var));
-				for (Token var : w.getInputPortVariables())
-					innerinput.add(w.getType(var));
-				for (Token var : w.getOutputPortVariables())
-					inneroutput.add(w.getType(var));
-				result = fl.link(inner, outerinput, innerinput, inneroutput,
-						outeroutput, fb, ProfileImpl.this);
-				map.put(j, result);
-				fragments.put(result.name, result);
-			}
-			return result.name;
-		}
-
 		public String generateFragment(ImmutableWorkflow w) throws IOException {
 			Fragment result = map.get(w);
 			if (result == null) {
@@ -119,10 +88,7 @@ public class ProfileImpl implements Profile, FragmentIO {
 					if (ji.job instanceof AtomicImmutableJob
 							&& ((AtomicImmutableJob) ji.job).getElement() instanceof Tool)
 						frags.add(generateAtomic((AtomicImmutableJob) ji.job));
-					else if (ji.job instanceof CompositeImmutableJob)
-						frags.add(generateComposite(w, ji,
-								(CompositeImmutableJob) ji.job));
-					else
+					else 
 						frags.add(null);
 				}
 				result = fc.compile(name, w, frags);

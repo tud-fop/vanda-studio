@@ -4,7 +4,6 @@ import java.util.Locale;
 
 import org.vanda.studio.model.Model;
 import org.vanda.studio.model.Model.SelectionVisitor;
-import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.hyper.Connection;
@@ -128,16 +127,6 @@ final class InspectorialVisitor extends RepositoryItemVisitor implements
 		sb.append("<p>");
 		j.getItem().visit(this);
 		sb.append("</html>");
-	}
-
-	@Override
-	public void visitLinker(Linker l) {
-		sb.append("<h2>LinkerInfo</h2><dl>");
-		sb.append("<dt>Fragment Type</dt><dd>");
-		sb.append(":: " + l.getFragmentType());
-		sb.append("</dd><dt>Inner Fragment Type</dt><dd>");
-		sb.append(":: " + l.getInnerFragmentType());
-		sb.append("</dd></dl>");
 	}
 
 	public String getInspection() {

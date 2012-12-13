@@ -1,24 +1,17 @@
 package org.vanda.studio.modules.profile;
 
-import java.util.Collection;
-
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.MetaRepository;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.app.SemanticsModule;
 import org.vanda.studio.app.ToolFactory;
-import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.modules.common.CompositeRepository;
 import org.vanda.studio.modules.common.ExternalRepository;
 import org.vanda.studio.modules.common.ListRepository;
-import org.vanda.studio.modules.profile.concrete.HaskellCompiler;
-import org.vanda.studio.modules.profile.concrete.HaskellLinker;
-import org.vanda.studio.modules.profile.concrete.IdentityLinker;
 import org.vanda.studio.modules.profile.concrete.ShellCompiler;
 import org.vanda.studio.modules.profile.model.FragmentCompiler;
-import org.vanda.studio.modules.profile.model.FragmentLinker;
 import org.vanda.studio.modules.profile.model.Profiles;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.Observer;
@@ -46,28 +39,13 @@ public class ProfileModule implements Module {
 		public static String TOOL_PATH_DEFAULT = System
 				.getProperty("user.home") + "/.vanda/functions/";
 
-		@SuppressWarnings("unused")
 		public ProfileModuleInstance(Application app) {
 			this.app = app;
 			profiles = new ProfilesImpl();
 			ListRepository<FragmentCompiler> compilers = new ListRepository<FragmentCompiler>();
-			compilers.addItem(new HaskellCompiler());
 			compilers.addItem(new ShellCompiler());
 			profiles.getFragmentCompilerMetaRepository().addRepository(
 					compilers);
-			ListRepository<FragmentLinker> linkers = new ListRepository<FragmentLinker>();
-			linkers.addItem(new IdentityLinker());
-			linkers.addItem(new HaskellLinker());
-			profiles.getFragmentLinkerMetaRepository().addRepository(linkers);
-			if (false) {
-				Collection<Linker> ls = app.getLinkerMetaRepository()
-						.getRepository().getItems();
-				for (Linker l : ls) {
-					FragmentLinker fl = profiles.getLinker(l.getId());
-					if (fl == null /* || !fl.check(l) */)
-						throw new RuntimeException();
-				}
-			}
 			repository = new ListRepository<Profile>();
 			repository.addItem(new ProfileImpl(app, profiles));
 			manager = null;

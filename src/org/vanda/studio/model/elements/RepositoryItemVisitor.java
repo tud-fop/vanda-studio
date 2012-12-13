@@ -2,15 +2,7 @@ package org.vanda.studio.model.elements;
 
 public abstract class RepositoryItemVisitor {
 
-	public void visitChoice(Choice c) {
-
-	}
-
 	public void visitInputPort(InputPort i) {
-
-	}
-
-	public void visitLinker(Linker l) {
 
 	}
 
