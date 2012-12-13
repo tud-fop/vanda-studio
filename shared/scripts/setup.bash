@@ -2,20 +2,20 @@
 source "setuprc"
 
 setup () {
-#	base
-#	berkeleyParser
-#	berkeleyTokenizer
-#	remEmptyLines
-#	toParallelCorpus
-#	giza
-#	irstlm
-#	randlm
+	base
+	berkeleyParser
+	berkeleyTokenizer
+	remEmptyLines
+	toParallelCorpus
+	giza
+	irstlm
+	randlm
 	xrstranslate
-#	moses
-#	ghkm
-#	emDictionary
-#	emDictionaryShow
-#	examples
+	moses
+	ghkm
+	emDictionary
+	emDictionaryShow
+	examples
 }
 
 base () {
