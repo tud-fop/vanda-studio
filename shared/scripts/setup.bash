@@ -1,23 +1,21 @@
 #!/bin/bash
-
-GIZADIR="$HOME/.vanda/bin/giza"
-IRSTLMDIR="$HOME/.vanda/bin/irstlm"
-RANDLMDIR="$HOME/.vanda/bin/randlm"
+source "setuprc"
 
 setup () {
-	base
-	berkeleyParser
-	berkeleyTokenizer
-	remEmptyLines
-	toParallelCorpus
-	giza
-	irstlm
+#	base
+#	berkeleyParser
+#	berkeleyTokenizer
+#	remEmptyLines
+#	toParallelCorpus
+#	giza
+#	irstlm
 #	randlm
-	moses
-	ghkm
-	emDictionary
-	emDictionaryShow
-	examples
+	xrstranslate
+#	moses
+#	ghkm
+#	emDictionary
+#	emDictionaryShow
+#	examples
 }
 
 base () {
@@ -31,7 +29,6 @@ base () {
 	echo "DATAPATH=$HOME/.vanda/input" >> ~/.vanda/vandarc
 	echo "OUTPATH=$HOME/.vanda/output" >> ~/.vanda/vandarc
 	echo -e "FUNCDIR=$HOME/.vanda/functions\n" >> ~/.vanda/vandarc
-	echo -e "for f in \"\$FUNCDIR/\"; do\n\tsource \$f;\ndone\n" >> ~/.vanda/vandarc
 	echo "Done."
 }
 
@@ -81,6 +78,20 @@ giza () {
 	rm -rf giza-pp*
 	echo "PLAIN2SNT=$HOME/.vanda/bin/giza/plain2snt.out" >> ~/.vanda/vandarc
 	echo "GIZA=$HOME/.vanda/bin/giza" >> ~/.vanda/vandarc
+	echo "Done."
+}
+
+xrstranslate () {
+	echo "Installing XRSTranslate..."
+	DIR=$(pwd)
+	cd ~/.vanda/bin
+	git clone $VANDADIR
+	cd vanda
+	runhaskell tools/Setup.hs configure --user
+	runhaskell tools/Setup.hs build
+	runhaskell tools/Setup.hs install --user
+	cd "$DIR"
+	echo "VANDADIR=$HOME/.vanda/bin/vanda" >> ~/.vanda/vandarc
 	echo "Done."
 }
 

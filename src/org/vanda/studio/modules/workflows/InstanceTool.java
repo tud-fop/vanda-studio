@@ -14,6 +14,7 @@ import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
 import org.vanda.studio.model.Model.SingleObjectSelection;
+import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.util.Observer;
@@ -123,6 +124,48 @@ public class InstanceTool implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe, Model m) {
 		return new Tool(wfe, m);
+	}
+
+	@Override
+	public String getCategory() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getContact() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDescription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getVersion() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void visit(RepositoryItemVisitor v) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

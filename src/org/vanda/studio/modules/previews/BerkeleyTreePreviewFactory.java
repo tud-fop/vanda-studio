@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Stack;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListCellRenderer;
@@ -46,6 +47,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
+import org.vanda.studio.util.Lexer;
 import org.vanda.studio.util.Pair;
 
 public class BerkeleyTreePreviewFactory implements PreviewFactory {
@@ -100,33 +102,33 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		}
 	}
 
-	public Pair<String, Tree> parseTree(String string) {
-		try {
-			if (string.startsWith(" ")) {
-				// remove whitespaces at the beginning
-				return parseTree(string.substring(1));
-			} else if (!string.startsWith("(")) {
-				// generate leaves (base case)
-				String xt = string.substring(string.indexOf(')'));
-				String label = string.substring(0, string.indexOf(')'));
-				return new Pair<String, Tree>(xt, new Tree(label));
-			} else {
-				// recursion case
-				String[] xs = string.substring(1).replaceFirst(" ", "#")
-						.split("#");
-				String label = xs[0];
-				List<Tree> children = new ArrayList<Tree>();
-				String xt = xs[1];
-				while (!xt.startsWith(")")) {
-					Pair<String, Tree> tpl = parseTree(xt);
-					children.add(tpl.snd);
-					xt = tpl.fst;
-				}
-				return new Pair<String, Tree>(xt.substring(1), new Tree(label,
-						children.toArray(new Tree[0])));
+	public Tree parseTree(String string) {
+		string = string.trim();
+		if (string.equals("(())") || string.equals("(no parse)"))
+			return new Tree("[no parse]");
+		if (string.startsWith("( (") && string.endsWith(") )"))
+			string = string.substring(1, string.length() - 1).trim();
+		Lexer lex = new Lexer("()", " ");
+		Stack<String> st = lex.lex(string);
+		Tree t = parseTree(st);
+		if (t.label.equals("ROOT"))
+			t = t.children[0];
+		return t;
+	}
+	
+	public Tree parseTree(Stack<String> st) {
+		if (st.peek().equals("(")) {
+			st.pop();
+			String head = st.pop();
+			List<Tree> subTrees = new ArrayList<Tree>();
+			while (!st.empty() && !st.peek().equals(")")){
+				subTrees.add(parseTree(st));
 			}
-		} catch (Exception e) {
-			return new Pair<String, Tree>(" [no parse] ", new Tree("[no parse]"));
+			if (!st.isEmpty())
+				st.pop();
+			return new Tree(head, subTrees.toArray(new Tree[0]));
+		} else {
+			return new Tree(st.pop());
 		}
 	}
 
@@ -223,20 +225,11 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		 */
 		private Map<Tree, Integer> seeds;
 
-		public TreeView(String berkeleyString) {
-			this(parseTree(berkeleyString.substring(2,
-					berkeleyString.length() - 2)).snd);
-		}
-
 		public TreeView(Tree t) {
 			super();
 			setBackground(Color.WHITE);
 			seeds = new HashMap<Tree, Integer>();
 			tree = t;
-		}
-
-		public void setTree(String s) {
-			setTree(parseTree(s.substring(2, s.length() - 2)).snd);
 		}
 
 		public void setTree(Tree t) {
@@ -429,8 +422,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			String line;
 			while (i < SIZE & scan.hasNextLine()) {
 				line = scan.nextLine();
-				trees.add(new Pair<String, Tree>(line, parseTree(line
-						.substring(2, line.length() - 2)).snd));
+				trees.add(new Pair<String, Tree>(line, parseTree(line)));
 				i++;
 			}
 			if (!scan.hasNextLine())
@@ -478,8 +470,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			scan = new Scanner(new FileInputStream(value));
 			String line = scan.nextLine();
 			scan.close();
-			TreeView jTree = new TreeView(parseTree(line.substring(2,
-					line.length() - 2)).snd);
+			TreeView jTree = new TreeView(parseTree(line));
 			JScrollPane sTree = new JScrollPane(jTree);
 			DragScrollListener dsl = new DragScrollListener(jTree, sTree);
 			jTree.addMouseMotionListener(dsl);
