@@ -31,11 +31,11 @@ plain2snt () {
 }
 
 findFile () {
-	if   [ -f "$1" ];
-	then eval $2=\"$1\"
-	else if   [ -f "$OUTPATH/$1" ];
-         then eval $2=\"$OUTPATH/$1\"
-	     else eval $2=\"$DATAPATH/$1\"
+	if   [ -f "$OUTPATH/$1" ];
+	then eval $2=\"$OUTPATH/$1\"
+	else if   [ -f "$DATAPATH/$1" ];
+         then eval $2=\"$DATAPATH/$1\"
+	     else eval $2=\"$1\"
 	     fi
 	fi
 }
