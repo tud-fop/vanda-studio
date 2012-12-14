@@ -8,7 +8,6 @@ import java.util.Map;
 import org.vanda.studio.model.Model;
 import org.vanda.studio.model.Model.ConnectionSelection;
 import org.vanda.studio.model.Model.SingleObjectSelection;
-import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
@@ -409,9 +408,6 @@ public final class DrecksAdapter {
 			cell = job.selectRenderer(JobRendering.getRendererAssortment())
 					.render(job, graph, parentCell);
 		}
-		// render recursively / recompute WorkflowAdapters
-		if (job instanceof CompositeJob)
-			render(cell, ((CompositeJob) job).getWorkflow());
 		return cell;
 	}
 

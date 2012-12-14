@@ -20,7 +20,6 @@ import org.vanda.studio.app.SemanticsModule;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
-import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.Type;
@@ -42,7 +41,6 @@ public final class ApplicationImpl implements Application {
 	// outdated protected final CompositeRepository<Tool> converterToolRepository;
 	protected final MultiplexObserver<Message> messageObservable;
 	protected final MultiplexObserver<Application> modeObservable;
-	protected final CompositeRepository<Linker> linkerRepository;
 	// protected final CompositeRepository<Profile> profileRepository;
 	protected final HashMap<Type, PreviewFactory> previewFactories;
 	protected final CompositeRepository<SemanticsModule> semanticsModuleRepository;
@@ -68,7 +66,6 @@ public final class ApplicationImpl implements Application {
 		mode = modes.get(0);
 		// converterToolRepository = new CompositeRepository<Tool>();
 		modeObservable = new MultiplexObserver<Application>();
-		linkerRepository = new CompositeRepository<Linker>();
 		// profileRepository = new CompositeRepository<Profile>();
 		previewFactories = new HashMap<Type, PreviewFactory>();
 		semanticsModuleRepository = new CompositeRepository<SemanticsModule>();
@@ -185,11 +182,6 @@ public final class ApplicationImpl implements Application {
 		return converterToolRepository;
 	}
 	*/
-
-	@Override
-	public MetaRepository<Linker> getLinkerMetaRepository() {
-		return linkerRepository;
-	}
 
 	// XXX this should be done by the semanticsModule of choice
 	@Override

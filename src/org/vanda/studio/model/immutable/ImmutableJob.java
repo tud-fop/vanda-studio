@@ -31,21 +31,12 @@ public abstract class ImmutableJob {
 
 	public abstract List<Port> getOutputPorts();
 
-	public abstract boolean isChoice();
-
 	public abstract boolean isInputPort();
 
 	public abstract boolean isOutputPort();
 	
 	public abstract void typeCheck() throws Exception;
 	
-	/**
-	 * Return null if unfold is identity (true for all AtomicImmutableJobs).
-	 * 
-	 * @return
-	 */
-	public abstract List<ImmutableJob> unfold();
-
 	public abstract void appendText(ArrayList<Token> inputs,
 			ArrayList<Token> outputs, StringBuilder lines,
 			StringBuilder sections);

@@ -72,7 +72,7 @@ public class MessageModule implements Module {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
 					if (!e.getValueIsAdjusting()) {
-						int idx1 = e.getFirstIndex();
+						/*int idx1 = e.getFirstIndex();
 						int idx2 = e.getLastIndex();
 
 						int sel, desel;
@@ -82,7 +82,7 @@ public class MessageModule implements Module {
 						} else {
 							sel = idx2;
 							desel = idx1;		
-						}
+						}*/
 					
 						// ((Message) listModel.get(sel)).onSelect(app);
 						// ((Message) listModel.get(desel)).onDeselect(app);
@@ -116,18 +116,6 @@ public class MessageModule implements Module {
 				@Override
 				public Date getDate() {
 					return d;
-				}
-
-				// @Override
-				public void onSelect(Application app) {
-					// TODO Auto-generated method stub
-
-				}
-
-				// @Override
-				public void onDeselect(Application app) {
-					// TODO Auto-generated method stub
-
 				}
 
 			});

@@ -1,13 +1,11 @@
 package org.vanda.studio.model.immutable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.vanda.studio.model.elements.IdentityLinker;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.model.types.Types;
@@ -60,31 +58,6 @@ public final class ImmutableWorkflow {
 		this.fragmentType = fragmentType;
 	}
 
-	public ImmutableWorkflow(String name, List<ImmutableWorkflow> unfolded) {
-		ArrayList<Token> empty = new ArrayList<Token>();
-
-		this.name = name;
-		variableSource = new TokenSource();
-		variableOrigins = new int[0];
-		children = new ArrayList<JobInfo>(unfolded.size());
-		deref = Collections.emptyMap();
-		types = null;
-		fragmentType = null;
-		inputPorts = Collections.emptyList();
-		outputPorts = inputPorts;
-		inputPortVariables = Collections.emptyList();
-		outputPortVariables = inputPortVariables;
-		for (int i = 0; i < unfolded.size(); i++) {
-			ImmutableWorkflow iwf = unfolded.get(i);
-			Token address = TokenSource.getToken(i);
-			if (fragmentType == null)
-				fragmentType = iwf.fragmentType;
-			children.add(new JobInfo(new CompositeImmutableJob(address,
-					IdentityLinker.getInstance(), iwf), address, empty, empty,
-					0));
-		}
-	}
-
 	public ImmutableWorkflow dereference(ListIterator<Token> path) {
 		assert (path != null);
 		if (path.hasNext()) {
@@ -135,16 +108,8 @@ public final class ImmutableWorkflow {
 	public boolean isSane() {
 		boolean result = true;
 		for (JobInfo ji : children) {
-			if (ji.job.isChoice()) {
-				// for CHOOSE nodes, at least one input has to be connected
-				boolean r = false;
-				for (Object o : ji.inputs)
-					r = r || (o != null);
-				result = result && r;
-			} else {
-				for (Object o : ji.inputs)
-					result = result && (o != null);
-			}
+			for (Object o : ji.inputs)
+				result = result && (o != null);
 		}
 		return result;
 	}
@@ -178,14 +143,6 @@ public final class ImmutableWorkflow {
 				outputPorts.add(new Port(oldOutputPorts.get(i).getIdentifier(),
 						Types.undefined));
 		// System.out.println(fragmentType);
-	}
-
-	public List<ImmutableWorkflow> unfold() {
-		// XXX this hack did not work, find another one
-		// if (variableOrigins.length == 0)
-		// return Collections.singletonList(this);
-		// else
-		return new Unfolder(this).unfold();
 	}
 
 	public void appendText(StringBuilder sections) {

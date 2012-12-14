@@ -3,7 +3,6 @@ package org.vanda.studio.modules.profile;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -134,16 +133,8 @@ public class InspectorTool implements ToolFactory {
 				public void notify(Object event) {
 					frozen = Inspector.this.m.getFrozen();
 					if (frozen.isSane()) {
-						List<ImmutableWorkflow> unfolded = Inspector.this.m
-								.getUnfolded();
-						if (unfolded != null && unfolded.size() != 0) {
-							// XXX here I only support looking at the first
-							// instance because the value of instances is not
-							// yet clear anyway
-							ImmutableWorkflow frozen = unfolded.get(0);
-							dfa = new DataflowAnalysis(frozen);
-							dfa.doIt(null, profiles);
-						}
+						dfa = new DataflowAnalysis(frozen);
+						dfa.doIt(null, profiles);
 					}
 
 					update();

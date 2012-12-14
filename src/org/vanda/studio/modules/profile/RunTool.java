@@ -39,7 +39,6 @@ import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
 import org.vanda.studio.model.Model;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
-import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.types.Types;
 import org.vanda.studio.modules.profile.model.Fragment;
 import org.vanda.studio.util.Action;
@@ -455,17 +454,13 @@ public class RunTool implements ToolFactory {
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
-			List<ImmutableWorkflow> unfolded = m.getUnfolded();
-			if (unfolded != null
-					&& unfolded.size() != 0
-					&& Types.canUnify(unfolded.get(0).getFragmentType(),
+			if (m.getFrozen() != null
+					&& Types.canUnify(m.getFrozen().getFragmentType(),
 							prof.getRootType())) {
 				// TODO this workflow metaprogramming resolution
 				// should be done in the model!
-				ImmutableWorkflow root = new ImmutableWorkflow(m.getRoot()
-						.getName(), unfolded);
 				try {
-					return prof.generate(root);
+					return prof.generate(m.getFrozen());
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}
@@ -474,7 +469,9 @@ public class RunTool implements ToolFactory {
 		}
 
 	}
+
 	private final Profile prof;
+
 	public RunTool(Profile prof) {
 		this.prof = prof;
 	}

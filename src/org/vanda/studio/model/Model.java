@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.vanda.studio.model.hyper.AtomicJob;
-import org.vanda.studio.model.hyper.CompositeJob;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.JobVisitor;
@@ -110,7 +109,6 @@ public final class Model implements WorkflowChildListener {
 
 	protected final MutableWorkflow hwf;
 	protected ImmutableWorkflow frozen;
-	protected List<ImmutableWorkflow> unfolded;
 	protected WorkflowSelection selection;
 	protected List<SingleObjectSelection> markedElements;
 	protected final MultiplexObserver<WorkflowChildEvent> childObservable;
@@ -134,20 +132,10 @@ public final class Model implements WorkflowChildListener {
 			public void visitAtomicJob(AtomicJob aj) {
 			}
 
-			@Override
-			public void visitCompositeJob(CompositeJob cj) {
-				bind(cj.getWorkflow());
-			}
-
 		};
 		unbindVisitor = new JobVisitor() {
 			@Override
 			public void visitAtomicJob(AtomicJob aj) {
-			}
-
-			@Override
-			public void visitCompositeJob(CompositeJob cj) {
-				unbind(cj.getWorkflow());
 			}
 
 		};
@@ -185,7 +173,6 @@ public final class Model implements WorkflowChildListener {
 
 		}
 		markedElementsObservable.notify(this);
-		unfolded = frozen.unfold();
 		workflowCheckObservable.notify(this);
 	}
 
@@ -223,10 +210,6 @@ public final class Model implements WorkflowChildListener {
 
 	public Observable<Model> getWorkflowCheckObservable() {
 		return workflowCheckObservable;
-	}
-
-	public List<ImmutableWorkflow> getUnfolded() {
-		return unfolded;
 	}
 
 	public void setSelection(WorkflowSelection selection) {

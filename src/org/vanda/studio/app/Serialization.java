@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 
-import org.vanda.studio.model.elements.Linker;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.hyper.MutableWorkflow;
 import org.vanda.studio.util.MultiplexObserver;
@@ -28,11 +27,9 @@ public final class Serialization {
 		if (xs == null) {
 			xs = new XStream();
 			xs.registerConverter(new InternedIntegerConverter());
-			xs.registerConverter(new LinkerConverter(app));
 			xs.registerConverter(new MultiplexObserverConverter());
 			xs.registerConverter(new ToolConverter(app));
 			xs.addImmutableType(TokenSource.Token.class);
-			xs.addImmutableType(Linker.class);
 			xs.addImmutableType(Tool.class);
 			xs.aliasPackage("ovsu", "org.vanda.studio.util");
 			xs.aliasPackage("ovsm", "org.vanda.studio.model");
@@ -87,33 +84,6 @@ public final class Serialization {
 		@Override
 		public String toString(Object obj) {
 			return obj.toString();
-		}
-
-	}
-
-	private static class LinkerConverter implements SingleValueConverter {
-
-		Application app;
-
-		public LinkerConverter(Application app) {
-			this.app = app;
-		}
-
-		@Override
-		public boolean canConvert(Class clazz) {
-			// activate this converter for all classes that
-			// implement the Linker interface
-			return Linker.class.isAssignableFrom(clazz);
-		}
-
-		@Override
-		public Object fromString(String str) {
-			return app.getLinkerMetaRepository().getRepository().getItem(str);
-		}
-
-		@Override
-		public String toString(Object obj) {
-			return ((Linker) obj).getId();
 		}
 
 	}
