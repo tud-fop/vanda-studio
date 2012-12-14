@@ -45,7 +45,8 @@ public class WorkflowModule implements Module {
 			app = a;
 
 			eefs = new ElementEditorFactories();
-			eefs.workflowFactories.add(new org.vanda.studio.modules.workflows.inspector.WorkflowEditor());
+			eefs.workflowFactories
+					.add(new org.vanda.studio.modules.workflows.inspector.WorkflowEditor());
 			eefs.literalFactories.add(new LiteralEditor());
 
 			ListRepository<ToolFactory> toolFactories = new ListRepository<ToolFactory>();
@@ -57,7 +58,8 @@ public class WorkflowModule implements Module {
 				@Override
 				public Object instantiate(WorkflowEditor wfe, Model m) {
 					Action a = new SaveWorkflowAction(m);
-					wfe.addAction(a, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
+					wfe.addAction(a, KeyStroke.getKeyStroke(KeyEvent.VK_S,
+							KeyEvent.CTRL_MASK));
 					return a;
 				}
 
@@ -93,13 +95,17 @@ public class WorkflowModule implements Module {
 
 				@Override
 				public void visit(RepositoryItemVisitor v) {
-					
+
 				}
 			});
+			
+			toolFactories.addItem(new WorkflowToPDFToolFactory(app));
 			app.getToolFactoryMetaRepository().addRepository(toolFactories);
 
-			app.getWindowSystem().addAction(null, new OpenWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
-			app.getWindowSystem().addAction(null, new NewWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
+			app.getWindowSystem().addAction(null, new OpenWorkflowAction(),
+					KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
+			app.getWindowSystem().addAction(null, new NewWorkflowAction(),
+					KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
 		}
 
 		protected class NewWorkflowAction implements Action {
@@ -111,7 +117,9 @@ public class WorkflowModule implements Module {
 			@Override
 			public void invoke() {
 				MutableWorkflow mwf = new MutableWorkflow("Workflow");
-				new WorkflowEditorImpl(app, mwf, app.getSemanticsModuleMetaRepository().getRepository().getItem("profile"));
+				new WorkflowEditorImpl(app, mwf, app
+						.getSemanticsModuleMetaRepository().getRepository()
+						.getItem("profile"));
 			}
 		}
 
@@ -138,12 +146,15 @@ public class WorkflowModule implements Module {
 				// once file choice is approved, load the chosen file
 				if (result == JFileChooser.APPROVE_OPTION) {
 					File chosenFile = chooser.getSelectedFile();
-					app.setProperty("lastDir", chosenFile.getParentFile().getAbsolutePath());
+					app.setProperty("lastDir", chosenFile.getParentFile()
+							.getAbsolutePath());
 					String filePath = chosenFile.getPath();
 					MutableWorkflow hwf;
 					try {
 						hwf = Serialization.load(app, filePath);
-						new WorkflowEditorImpl(app, hwf, app.getSemanticsModuleMetaRepository().getRepository().getItem("profile"));
+						new WorkflowEditorImpl(app, hwf, app
+								.getSemanticsModuleMetaRepository()
+								.getRepository().getItem("profile"));
 					} catch (Exception e) {
 						app.sendMessage(new ExceptionMessage(e));
 					}
@@ -207,7 +218,8 @@ public class WorkflowModule implements Module {
 				// once file choice is approved, save the chosen file
 				if (result == JFileChooser.APPROVE_OPTION) {
 					File chosenFile = chooser.getSelectedFile();
-					app.setProperty("lastDir", chosenFile.getParentFile().getAbsolutePath());
+					app.setProperty("lastDir", chosenFile.getParentFile()
+							.getAbsolutePath());
 					String filePath = chosenFile.getPath();
 					try {
 						Serialization.save(app, model.getRoot(), filePath);
@@ -217,6 +229,8 @@ public class WorkflowModule implements Module {
 				}
 			}
 		}
+
+		
 
 	}
 }
