@@ -100,8 +100,7 @@ public class InstanceTool implements ToolFactory {
 
 		public void highlightSelectedInstance() {
 			if (instanceList.getSelectedIndex() > 0) {
-				ImmutableWorkflow iwf = m.getUnfolded().get(
-						instanceList.getSelectedIndex() - 1);
+				ImmutableWorkflow iwf = m.getFrozen();
 				assert (iwf.toString().equals(instanceList.getSelectedValue()));
 				m.setMarkedElements(retrieveWorkflowElements(m.getRoot(), iwf,
 						new ArrayList<Token>()));
@@ -115,9 +114,8 @@ public class InstanceTool implements ToolFactory {
 			listmodel.clear();
 			instanceList.setModel(listmodel);
 			listmodel.add(0, "(all instances)");
-			for (ImmutableWorkflow iwf : model.getUnfolded()) {
-				listmodel.add(listmodel.getSize(), iwf.toString());
-			}
+			ImmutableWorkflow iwf = model.getFrozen();
+			listmodel.add(listmodel.getSize(), iwf.toString());
 		}
 	}
 
