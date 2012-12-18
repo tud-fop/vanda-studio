@@ -14,13 +14,13 @@
 -- Stability   :  unbekannt
 -- Portability :  portable
 --
--- This module computes 'Hypergraph' out of a 'Hypergraph' and a 'WSA'. 
+-- This module computes 'Hypergraph' out of a 'Hypergraph' and a 'WSA'.
 -- The resulting 'Hypergraph' will only recognize the given word.
 -- This implementation uses the Early and the Bar-Hille algorithm.
 
 -- The input 'Hypergraph' represents a synchronous contet-free grammar.
--- Variables in a production should start with 0. 
--- The list of nonterminals belonging to the variables is ordered by the index 
+-- Variables in a production should start with 0.
+-- The list of nonterminals belonging to the variables is ordered by the index
 -- of the variables.
 
 -- Left : nonterminals
@@ -38,27 +38,29 @@ import System.Environment ( getArgs )
 import Control.Applicative
 import Control.Arrow
 
-import Debug.Trace
-
-remEmptyLines :: FilePath -> FilePath -> FilePath -> FilePath -> IO()
-remEmptyLines file_en file_fn file_out_en file_out_fn
+remEmptyLines :: FilePath -> FilePath -> FilePath -> IO ()
+remEmptyLines file_en file_fn file_a
   = do
       en <- TIO.readFile file_en
       fn <- TIO.readFile file_fn
-      handle_e <- openFile (file_out_en) WriteMode
-      handle_f <- openFile (file_out_fn) WriteMode
-      let p (e,f) = not (TIO.null e) && not (TIO.null f)
-          xs = filter p $ zip (TIO.lines en) (TIO.lines fn)
+      a <- TIO.readFile file_a
+      handle_e <- openFile (file_en ++ ".nel") WriteMode
+      handle_f <- openFile (file_fn ++ ".nel") WriteMode
+      handle_a <- openFile (file_a ++ ".nel") WriteMode
+      let p (e, f, a) = TIO.length e > 6 && TIO.length f > 3 && TIO.length a > 6
+          xs = filter p $ zip3 (TIO.lines en) (TIO.lines fn) (TIO.lines a)
       sequence [ TIO.hPutStrLn handle_e e
                  >> TIO.hPutStrLn handle_f f
-               | (e,f) <- xs
+                 >> TIO.hPutStrLn handle_a a
+               | (e, f, a) <- xs
                ]
       hClose handle_e
       hClose handle_f
+      hClose handle_a
 
 main :: IO ()
-main = do 
+main = do
   args <- getArgs
   case args of
-    [eFile, fFile, eoFile, doFile] -> remEmptyLines eFile fFile eoFile doFile
+    [eFile, fFile, aFile] -> remEmptyLines eFile fFile aFile
 
