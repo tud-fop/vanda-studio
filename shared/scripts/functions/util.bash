@@ -30,6 +30,41 @@ plain2snt () {
 	echo "Done."
 }
 
+run () {
+	args=($@)
+	echo "Running: ${args[1]}..."
+
+	inNew="${args[2]}"
+	for (( i=3; i < $(( ${args[0]} + 2 )); i++ )); do
+		echo "Checking: ${args[$i]}"
+		if [[ "${args[i]}" -nt "$inNew" ]]; then
+			inNew="${args[$i]}"
+		fi
+	done
+	echo "inNew=$inNew"
+
+	outOld="${args[$((${args[0]} + 2))]}"
+	for (( i=$(( ${args[0]} + 2 )); i <= $#; i++ )); do
+		echo "Checking: ${args[$i]}"
+		if [[ "${args[$i]}" -ot "$inNew" ]]; then
+			outOld="${args[$i]}"
+		fi
+	done
+	echo "outOld=$outOld"
+
+	if [[ -f "$outOld" ]]; then
+		if [[ "$inNew" -nt "$outOld" ]]; then
+			${@:2}
+		else
+			echo "Up-to-date file(s) found, skipping."
+		fi
+	else
+		${@:2}
+	fi
+
+	echo "Done."
+}
+
 findFile () {
 	if   [ -f "$OUTPATH/$1" ];
 	then eval $2=\"$OUTPATH/$1\"
