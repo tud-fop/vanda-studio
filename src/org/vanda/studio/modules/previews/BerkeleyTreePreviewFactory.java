@@ -375,7 +375,8 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 						@SuppressWarnings("unchecked")
 						Pair<String, Tree> tpl = (Pair<String, Tree>) lTrees
 								.getSelectedValue();
-						jTree.setTree(tpl.snd);
+						if (tpl != null)
+							jTree.setTree(tpl.snd);
 						sTree.revalidate();
 					}
 				});
