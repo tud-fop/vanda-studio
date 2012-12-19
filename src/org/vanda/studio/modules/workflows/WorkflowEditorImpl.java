@@ -9,6 +9,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.print.PageFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +48,7 @@ import org.vanda.studio.util.Util;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.swing.mxGraphOutline;
 import com.mxgraph.swing.handler.mxGraphHandler;
 import com.mxgraph.swing.util.mxGraphTransferable;
 import com.mxgraph.view.mxCellState;
@@ -58,16 +60,19 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	protected final Application app;
 	protected final Model model;
 	protected final mxGraphComponent component;
+	protected final mxGraphOutline outline;
 	protected final DrecksAdapter renderer;
-	protected final Palette palette;
+	protected JComponent palette;
 	protected final JSplitPane mainpane;
+	protected final SemanticsModule semanticsModule;
 
 	public WorkflowEditorImpl(Application a, MutableWorkflow hwf, SemanticsModule sm) {
 		app = a;
 		model = new Model(hwf);
+		semanticsModule = sm;
 		renderer = new DrecksAdapter(model);
-		palette = new Palette(app, sm);
-		palette.update();
+		// palette = new Palette(app, sm);
+		// palette.update();
 
 		component = new MyMxGraphComponent(renderer.getGraph());
 		// component.setDragEnabled(false);
@@ -75,8 +80,14 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 		component.getGraphControl().addMouseWheelListener(
 				new MouseZoomAdapter(app, component));
 		component.addKeyListener(new DelKeyListener());
+		component.getPageFormat().setOrientation(PageFormat.LANDSCAPE);
+		component.setPageVisible(true);
+		component.zoomActual();
+		// component.setPanning(true); // too complic: must press SHIFT+CONTROL
+		//(component.getGraph().getDefaultParent());
+		outline = new mxGraphOutline(component);
 		mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
-				palette.getComponent());
+				outline);
 		mainpane.setOneTouchExpandable(true);
 		mainpane.setResizeWeight(0.9);
 		mainpane.setDividerSize(6);
@@ -101,7 +112,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 
 		for (ToolFactory tf : app.getToolFactoryMetaRepository()
 				.getRepository().getItems())
-			tf.instantiate(this, model);
+			tf.instantiate(this);
 		app.getWindowSystem().addAction(mainpane, new ResetZoomAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK));
 		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction(),
@@ -566,5 +577,27 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 
 			}
 		}
+	}
+
+	@Override
+	public void setPalette(JComponent c) {
+		if (palette != c) {
+			if (palette != null)
+				removeToolWindow(palette);
+			palette = c;
+			if (palette != null)
+				addToolWindow(palette);
+			// mainpane.setRightComponent(c);
+		}
+	}
+
+	@Override
+	public Model getModel() {
+		return model;
+	}
+
+	@Override
+	public SemanticsModule getSemanticsModule() {
+		return semanticsModule;
 	}
 }

@@ -70,9 +70,9 @@ public class InspectorTool implements ToolFactory {
 
 		}
 
-		public Inspector(WorkflowEditor wfe, Model m) {
+		public Inspector(WorkflowEditor wfe) {
 			this.wfe = wfe;
-			this.m = m;
+			this.m = wfe.getModel(); // XXX better not cache this
 			fileName = new JLabel("Select a location or a connection.");
 			contentPane = new JPanel(new GridBagLayout());
 			@SuppressWarnings("serial")
@@ -192,8 +192,8 @@ public class InspectorTool implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model m) {
-		return new Inspector(wfe, m);
+	public Object instantiate(WorkflowEditor wfe) {
+		return new Inspector(wfe);
 	}
 
 	@Override

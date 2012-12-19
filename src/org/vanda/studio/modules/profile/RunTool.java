@@ -72,9 +72,9 @@ public class RunTool implements ToolFactory {
 
 		}
 
-		public Tool(WorkflowEditor wfe, Model m, Profile prof) {
+		public Tool(WorkflowEditor wfe, Profile prof) {
 			this.wfe = wfe;
-			this.m = m;
+			this.m = wfe.getModel(); // XXX better not cache this
 			app = wfe.getApplication();
 			this.prof = prof;
 			wfe.addAction(new GenerateAction(),
@@ -477,8 +477,8 @@ public class RunTool implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model m) {
-		return new Tool(wfe, m, prof);
+	public Object instantiate(WorkflowEditor wfe) {
+		return new Tool(wfe, prof);
 	}
 
 	@Override

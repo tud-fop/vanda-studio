@@ -17,9 +17,9 @@ public class DebuggerTool implements ToolFactory {
 		private final JTextArea debugger;
 		private final JScrollPane therealdebugger;
 
-		public Tool(WorkflowEditor wfe, Model m) {
+		public Tool(WorkflowEditor wfe) {
 			this.wfe = wfe;
-			this.m = m;
+			this.m = wfe.getModel(); // XXX better not cache this
 			debugger = new JTextArea();
 			this.m.getWorkflowCheckObservable().addObserver(
 					new Observer<Model>() {
@@ -47,8 +47,8 @@ public class DebuggerTool implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model m) {
-		return new Tool(wfe, m);
+	public Object instantiate(WorkflowEditor wfe) {
+		return new Tool(wfe);
 	}
 
 	@Override

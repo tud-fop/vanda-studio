@@ -188,6 +188,14 @@ public final class DrecksAdapter {
 		// the current workflow
 		if (model != null) {
 			graph = new Graph();
+			graph.setAutoOrigin(true);
+			/*
+			System.out.println(graph.getModel().getRoot());
+			System.out.println(((mxCell) graph.getModel().getRoot()).getChildAt(0));
+			System.out.println(graph.getDefaultParent());
+			((mxCell) graph.getModel().getRoot()).getChildAt(0).setStyle("algorithm");
+			((mxCell) graph.getModel().getRoot()).getChildAt(0).setGeometry(new mxGeometry(0, 0, 1000, 1000));
+			*/
 
 			workflowListener = new WorkflowListener();
 			model.getChildObservable().addObserver(

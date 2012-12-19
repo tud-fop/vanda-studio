@@ -14,7 +14,6 @@ import org.apache.fop.svg.PDFTranscoder;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
-import org.vanda.studio.model.Model;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.util.Action;
@@ -113,7 +112,7 @@ final class WorkflowToPDFToolFactory implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model m) {
+	public Object instantiate(WorkflowEditor wfe) {
 		Action a  = null;
 		if (wfe instanceof WorkflowEditorImpl)
 			a = new ExportWorkflowToPDFAction(((WorkflowEditorImpl) wfe).renderer);

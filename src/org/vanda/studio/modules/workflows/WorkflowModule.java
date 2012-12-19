@@ -52,12 +52,13 @@ public class WorkflowModule implements Module {
 			ListRepository<ToolFactory> toolFactories = new ListRepository<ToolFactory>();
 			// toolFactories.addItem(new DebuggerTool());
 			toolFactories.addItem(new InspectorTool(eefs));
+			toolFactories.addItem(new PaletteTool());
 			// toolFactories.addItem(new InstanceTool());
 			// toolFactories.add(new RunTool());
 			toolFactories.addItem(new ToolFactory() {
 				@Override
-				public Object instantiate(WorkflowEditor wfe, Model m) {
-					Action a = new SaveWorkflowAction(m);
+				public Object instantiate(WorkflowEditor wfe) {
+					Action a = new SaveWorkflowAction(wfe.getModel());
 					wfe.addAction(a, KeyStroke.getKeyStroke(KeyEvent.VK_S,
 							KeyEvent.CTRL_MASK));
 					return a;

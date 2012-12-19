@@ -27,9 +27,9 @@ public class InspectorTool implements ToolFactory {
 		private JComponent editor;
 		private WorkflowSelection ws;
 
-		public Inspector(WorkflowEditor wfe, Model m) {
+		public Inspector(WorkflowEditor wfe) {
 			this.wfe = wfe;
-			this.m = m;
+			this.m = wfe.getModel(); // XXX better not cache this
 			ws = null;
 			inspector = new JEditorPane("text/html", "");
 			inspector.setEditable(false);
@@ -90,8 +90,8 @@ public class InspectorTool implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model m) {
-		return new Inspector(wfe, m);
+	public Object instantiate(WorkflowEditor wfe) {
+		return new Inspector(wfe);
 	}
 
 	@Override
