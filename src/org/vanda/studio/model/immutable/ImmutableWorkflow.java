@@ -122,7 +122,7 @@ public final class ImmutableWorkflow {
 		for (JobInfo ji : children) {
 			ji.job.typeCheck();
 			ji.job.addFragmentTypeEquation(tc);
-			// XXX removed: handle ports (see older versions)
+			tc.addDataFlowEquations(ji);
 		}
 		tc.check();
 		types = tc.getTypes();
