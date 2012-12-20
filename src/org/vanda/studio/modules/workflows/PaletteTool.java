@@ -10,7 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
 import org.jdesktop.swingx.JXTaskPane;
@@ -50,15 +52,17 @@ public class PaletteTool implements ToolFactory {
 		protected mxGraphComponent searchGraph;
 		protected JXTaskPaneContainer taskPaneContainer;
 		protected JTextField textField;
-		protected JScrollPane paletteComponent;
+		protected JSplitPane paletteComponent;
+		protected JScrollPane scrollPane;
 		protected JXTaskPane searchPane;
 		protected final ArrayList<Job> templates;
 		
 		public Palette(WorkflowEditor wfe) {
 			this.wfe = wfe;
 			taskPaneContainer = new JXTaskPaneContainer();
-			paletteComponent = new JScrollPane();
+			scrollPane = new JScrollPane();
 			templates = new ArrayList<Job>();
+			paletteComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, new JPanel());
 			paletteComponent.setName("Palette");
 			update();
 			wfe.setPalette(paletteComponent);
@@ -118,7 +122,7 @@ public class PaletteTool implements ToolFactory {
 				taskPaneContainer.add(categoryPane);
 			}
 	
-			paletteComponent.getViewport().add(taskPaneContainer);
+			scrollPane.getViewport().add(taskPaneContainer);
 		}
 	
 		private void updateSearch(String text) {

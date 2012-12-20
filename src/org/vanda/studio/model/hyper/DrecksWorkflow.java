@@ -190,12 +190,16 @@ public class DrecksWorkflow {
 		if (topsort.size() == count) {
 			ArrayList<JobInfo> imch = new ArrayList<JobInfo>(topsort.size());
 			for (DJobInfo ji : topsort) {
+				boolean connected = true;
 				List<Port> ports = null;
 				ports = ji.job.getInputPorts();
 				ArrayList<Token> intoken = new ArrayList<Token>(ports.size());
 				for (int i = 0; i < ports.size(); i++) {
-					if (ports.get(i) != null)
-						intoken.add(ji.job.inputs.get(i));
+					if (ports.get(i) != null) {
+						Token t = ji.job.inputs.get(i);
+						intoken.add(t);
+						connected = connected && (t != null);
+					}
 				}
 				ports = ji.job.getOutputPorts();
 				ArrayList<Token> outtoken = new ArrayList<Token>(ports.size());
@@ -204,7 +208,7 @@ public class DrecksWorkflow {
 						outtoken.add(ji.job.outputs.get(i));
 				}
 				imch.add(new JobInfo(ji.job.freeze(), ji.job.address, intoken,
-						outtoken, ji.outCount));
+						outtoken, ji.outCount, connected));
 			}
 			List<Token> ports = null;
 			ports = inputPorts;

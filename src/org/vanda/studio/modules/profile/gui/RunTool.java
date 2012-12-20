@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.profile;
+package org.vanda.studio.modules.profile.gui;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -35,23 +35,24 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
-import org.vanda.studio.model.Model;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
+import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.types.Types;
-import org.vanda.studio.modules.profile.model.Fragment;
+import org.vanda.studio.modules.profile.fragments.Fragment;
+import org.vanda.studio.modules.profile.model.Generator;
+import org.vanda.studio.modules.profile.model.Model;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.ExceptionMessage;
 import org.vanda.studio.util.RCChecker;
 
-public class RunTool implements ToolFactory {
+public class RunTool implements SemanticsToolFactory {
 
 	private static final class Tool {
 		private final WorkflowEditor wfe;
-		private final Model m;
+		private final Model mm;
 		private final Application app;
-		private final Profile prof;
+		private final Generator prof;
 		// private Fragment frag;
 		private final List<Run> runs;
 		private final JTextPane tRuntool;
@@ -72,9 +73,9 @@ public class RunTool implements ToolFactory {
 
 		}
 
-		public Tool(WorkflowEditor wfe, Profile prof) {
+		public Tool(WorkflowEditor wfe, Model mm, Generator prof) {
 			this.wfe = wfe;
-			this.m = wfe.getModel(); // XXX better not cache this
+			this.mm = mm;
 			app = wfe.getApplication();
 			this.prof = prof;
 			wfe.addAction(new GenerateAction(),
@@ -347,7 +348,7 @@ public class RunTool implements ToolFactory {
 			public void doFinish() {
 				state = new StateDone();
 				try {
-					m.checkWorkflow();
+					wfe.getModel().checkWorkflow();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -450,17 +451,15 @@ public class RunTool implements ToolFactory {
 
 		private Fragment generate() {
 			try {
-				m.checkWorkflow();
+				wfe.getModel().checkWorkflow();
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
-			if (m.getFrozen() != null
-					&& Types.canUnify(m.getFrozen().getFragmentType(),
+			ImmutableWorkflow iwf = mm.getDataflowAnalysis().getWorkflow();
+			if (Types.canUnify(iwf.getFragmentType(),
 							prof.getRootType())) {
-				// TODO this workflow metaprogramming resolution
-				// should be done in the model!
 				try {
-					return prof.generate(m.getFrozen());
+					return prof.generate(mm.getDataflowAnalysis());
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}
@@ -470,15 +469,15 @@ public class RunTool implements ToolFactory {
 
 	}
 
-	private final Profile prof;
+	private final Generator prof;
 
-	public RunTool(Profile prof) {
+	public RunTool(Generator prof) {
 		this.prof = prof;
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe) {
-		return new Tool(wfe, prof);
+	public Object instantiate(WorkflowEditor wfe, Model model) {
+		return new Tool(wfe, model, prof);
 	}
 
 	@Override

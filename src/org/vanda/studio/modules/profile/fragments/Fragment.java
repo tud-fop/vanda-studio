@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.profile.model;
+package org.vanda.studio.modules.profile.fragments;
 
 import java.util.Collections;
 import java.util.Set;

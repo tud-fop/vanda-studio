@@ -40,7 +40,6 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 		public BerkeleyGrammarPreview(String value, int cols) {
 			super();
 			columns = cols;
-			System.out.println(value);
 			setLayout(new GridBagLayout());
 			gbc = new GridBagConstraints();
 			gbc.anchor = GridBagConstraints.WEST;

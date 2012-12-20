@@ -115,4 +115,12 @@ public interface Application {
 	 */
 	void shutdown();
 
+	/**
+	 * Return file name for a given resource name.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	String findFile(String value);
+
 }

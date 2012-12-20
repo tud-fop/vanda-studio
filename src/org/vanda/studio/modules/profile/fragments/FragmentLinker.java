@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.profile.model;
+package org.vanda.studio.modules.profile.fragments;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,5 +16,7 @@ public interface FragmentLinker extends RepositoryItem {
 	Fragment link(String name, List<Type> outerinput, List<Type> innerinput,
 			List<Type> inneroutput, List<Type> outeroutput, FragmentBase fb,
 			FragmentIO io) throws IOException;
+	
+	Type getInnerType();
 
 }

@@ -93,10 +93,8 @@ public class ToolLoader implements Loader<Tool> {
 						List<Port> out = new ArrayList<Port>();
 						out.addAll(outPorts);
 						outPorts.clear();
-						Tool t = new ShellTool(new String(id), new String(
-								name), new String(category), new String(
-								version), new String(contact), new String(
-								description), in, out, imports);
+						Tool t = new ShellTool(id, name, category, version,
+								contact, description, in, out, imports);
 						o.notify(t);
 						nameFound = false;
 						ts = new TokenSource();

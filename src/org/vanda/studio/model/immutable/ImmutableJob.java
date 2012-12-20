@@ -30,10 +30,6 @@ public abstract class ImmutableJob {
 	public abstract Type getFragmentType();
 
 	public abstract List<Port> getOutputPorts();
-
-	public abstract boolean isInputPort();
-
-	public abstract boolean isOutputPort();
 	
 	public abstract void typeCheck() throws Exception;
 	

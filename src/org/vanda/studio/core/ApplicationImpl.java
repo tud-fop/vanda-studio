@@ -3,6 +3,7 @@
  */
 package org.vanda.studio.core;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -120,6 +121,18 @@ public final class ApplicationImpl implements Application {
 	@Override
 	public String createUniqueId() {
 		return UUID.randomUUID().toString().toUpperCase();
+	}
+
+	@Override
+	public String findFile(String value) {
+		// System.out.println(getProperty("inputPath"));
+		if (value.startsWith("/"))
+			return value;
+		if (new File(getProperty("inputPath") + value).exists())
+			return getProperty("inputPath") + value;
+		if (new File(getProperty("outputPath") + value).exists())
+			return getProperty("outputPath") + value;
+		return value;
 	}
 
 	@Override

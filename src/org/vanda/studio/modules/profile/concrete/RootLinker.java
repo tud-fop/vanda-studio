@@ -11,10 +11,11 @@ import java.util.List;
 
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.types.Type;
-import org.vanda.studio.modules.profile.model.Fragment;
-import org.vanda.studio.modules.profile.model.FragmentBase;
-import org.vanda.studio.modules.profile.model.FragmentIO;
-import org.vanda.studio.modules.profile.model.FragmentLinker;
+import org.vanda.studio.model.types.Types;
+import org.vanda.studio.modules.profile.fragments.Fragment;
+import org.vanda.studio.modules.profile.fragments.FragmentBase;
+import org.vanda.studio.modules.profile.fragments.FragmentIO;
+import org.vanda.studio.modules.profile.fragments.FragmentLinker;
 
 public class RootLinker implements FragmentLinker {
 
@@ -129,6 +130,11 @@ public class RootLinker implements FragmentLinker {
 
 	@Override
 	public void visit(RepositoryItemVisitor v) {
+	}
+
+	@Override
+	public Type getInnerType() {
+		return Types.shellType;
 	}
 
 }

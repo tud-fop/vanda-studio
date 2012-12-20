@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.profile;
+package org.vanda.studio.modules.profile.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,30 +8,27 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.immutable.AtomicImmutableJob;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.immutable.JobInfo;
 import org.vanda.studio.model.types.Type;
-import org.vanda.studio.model.types.Types;
-import org.vanda.studio.modules.profile.concrete.RootLinker;
-import org.vanda.studio.modules.profile.model.Fragment;
-import org.vanda.studio.modules.profile.model.FragmentBase;
-import org.vanda.studio.modules.profile.model.FragmentCompiler;
-import org.vanda.studio.modules.profile.model.FragmentIO;
-import org.vanda.studio.modules.profile.model.FragmentLinker;
-import org.vanda.studio.modules.profile.model.Profiles;
+import org.vanda.studio.modules.profile.fragments.DataflowAnalysis;
+import org.vanda.studio.modules.profile.fragments.Fragment;
+import org.vanda.studio.modules.profile.fragments.FragmentBase;
+import org.vanda.studio.modules.profile.fragments.FragmentCompiler;
+import org.vanda.studio.modules.profile.fragments.FragmentIO;
+import org.vanda.studio.modules.profile.model.Generator;
+import org.vanda.studio.modules.profile.model.Profile;
 
-public class ProfileImpl implements Profile, FragmentIO {
+public class GeneratorImpl implements Generator, FragmentIO {
 
 	private final Application app;
-	private Profiles prof;
-	private FragmentLinker rootLinker;
+	private Profile prof;
 
 	// The Generator class encapsulates stuff that should not be kept around
 	// all the time, and resource acquisition is initialization, blah blah
-	protected class Generator {
+	protected class TheGenerator {
 
 		// private final FragmentIO io;
 		private final WeakHashMap<Object, Fragment> map;
@@ -40,7 +37,7 @@ public class ProfileImpl implements Profile, FragmentIO {
 		private final Map<String, Integer> uniqueMap;
 		private final Map<Object, String> uniqueStrings;
 
-		public Generator() {
+		public TheGenerator() {
 			// io = ProfileImpl.this;
 			uniqueMap = new HashMap<String, Integer>();
 			uniqueStrings = new HashMap<Object, String>();
@@ -51,9 +48,10 @@ public class ProfileImpl implements Profile, FragmentIO {
 				public Tool getConversionTool(Type from, Type to) {
 					return null;
 					/*
-					return LinkerUtil.getConversionTool(ProfileImpl.this.app
-							.getConverterToolMetaRepository().getRepository(),
-							from, to);*/
+					 * return LinkerUtil.getConversionTool(ProfileImpl.this.app
+					 * .getConverterToolMetaRepository().getRepository(), from,
+					 * to);
+					 */
 				}
 
 				@Override
@@ -74,7 +72,8 @@ public class ProfileImpl implements Profile, FragmentIO {
 			return result.name;
 		}
 
-		public String generateFragment(ImmutableWorkflow w) throws IOException {
+		public String generateFragment(DataflowAnalysis dfa) throws IOException {
+			ImmutableWorkflow w = dfa.getWorkflow();
 			Fragment result = map.get(w);
 			if (result == null) {
 				String name = makeUnique(w.getName(), w);
@@ -88,10 +87,10 @@ public class ProfileImpl implements Profile, FragmentIO {
 					if (ji.job instanceof AtomicImmutableJob
 							&& ((AtomicImmutableJob) ji.job).getElement() instanceof Tool)
 						frags.add(generateAtomic((AtomicImmutableJob) ji.job));
-					else 
+					else
 						frags.add(null);
 				}
-				result = fc.compile(name, w, frags);
+				result = fc.compile(name, dfa, frags, GeneratorImpl.this);
 				assert (result != null);
 				map.put(w, result);
 				this.fragments.put(result.name, result);
@@ -99,10 +98,10 @@ public class ProfileImpl implements Profile, FragmentIO {
 			return result.name;
 		}
 
-		public Fragment generate(ImmutableWorkflow iwf) throws IOException {
-			String root = generateFragment(iwf);
-			return rootLinker.link(root, null, null, null, null, fb,
-					ProfileImpl.this);
+		public Fragment generate(DataflowAnalysis dfa) throws IOException {
+			String root = generateFragment(dfa);
+			return prof.getRootLinker(getRootType()).link(root, null, null,
+					null, null, fb, GeneratorImpl.this);
 		}
 
 		public String makeUnique(String prefix, Object key) {
@@ -121,25 +120,13 @@ public class ProfileImpl implements Profile, FragmentIO {
 	}
 
 	@Override
-	public Fragment generate(ImmutableWorkflow iwf) throws IOException {
-		return new Generator().generate(iwf);
+	public Fragment generate(DataflowAnalysis dfa) throws IOException {
+		return new TheGenerator().generate(dfa);
 	}
 
-	public ProfileImpl(Application app, Profiles prof) {
+	public GeneratorImpl(Application app, Profile prof) {
 		this.app = app;
 		this.prof = prof;
-		rootLinker = new RootLinker();
-	}
-	
-	public static String findFile(Application app, String value) {
-		System.out.println(app.getProperty("inputPath"));
-		if (value.startsWith("/"))
-			return value;
-		if (new File(app.getProperty("inputPath") + value).exists())
-			return app.getProperty("inputPath") + value;
-		if (new File(app.getProperty("outputPath") + value).exists())
-			return app.getProperty("outputPath") + value;
-		return value;
 	}
 
 	@Override
@@ -150,43 +137,13 @@ public class ProfileImpl implements Profile, FragmentIO {
 	}
 
 	@Override
-	public String getCategory() {
-		return "profiles";
-	}
-
-	@Override
-	public String getContact() {
-		return "Matthias.Buechse@tu-dresden.de";
-	}
-
-	@Override
-	public String getDescription() {
-		return "Generates code using simple compositional fragments";
-	}
-
-	@Override
-	public String getId() {
-		return "fragment-profile";
-	}
-
-	@Override
-	public String getName() {
-		return "Fragment Profile";
+	public String findFile(String value) {
+		return app.findFile(value);
 	}
 
 	@Override
 	public Type getRootType() {
-		return Types.shellType;
-	}
-
-	@Override
-	public String getVersion() {
-		return "0.1";
-	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
-
+		return prof.getRootType();
 	}
 
 }

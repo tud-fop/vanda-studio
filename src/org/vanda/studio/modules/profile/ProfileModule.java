@@ -1,5 +1,6 @@
 package org.vanda.studio.modules.profile;
 
+
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.MetaRepository;
 import org.vanda.studio.app.Module;
@@ -10,9 +11,18 @@ import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.modules.common.CompositeRepository;
 import org.vanda.studio.modules.common.ExternalRepository;
 import org.vanda.studio.modules.common.ListRepository;
+import org.vanda.studio.modules.profile.concrete.RootLinker;
 import org.vanda.studio.modules.profile.concrete.ShellCompiler;
-import org.vanda.studio.modules.profile.model.FragmentCompiler;
-import org.vanda.studio.modules.profile.model.Profiles;
+import org.vanda.studio.modules.profile.fragments.FragmentCompiler;
+import org.vanda.studio.modules.profile.fragments.FragmentLinker;
+import org.vanda.studio.modules.profile.gui.InspectorTool;
+import org.vanda.studio.modules.profile.gui.ProfileManager;
+import org.vanda.studio.modules.profile.gui.RunTool;
+import org.vanda.studio.modules.profile.gui.SemanticsTool;
+import org.vanda.studio.modules.profile.gui.SemanticsToolFactory;
+import org.vanda.studio.modules.profile.impl.GeneratorImpl;
+import org.vanda.studio.modules.profile.impl.ProfileImpl;
+import org.vanda.studio.modules.profile.model.Profile;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.Observer;
 
@@ -31,7 +41,7 @@ public class ProfileModule implements Module {
 	private static final class ProfileModuleInstance implements SemanticsModule {
 		private final Application app;
 		private final ListRepository<Profile> repository;
-		private final Profiles profiles;
+		private final Profile profile;
 		private ProfileManager manager;
 		private final MetaRepository<Tool> tools;
 
@@ -41,19 +51,27 @@ public class ProfileModule implements Module {
 
 		public ProfileModuleInstance(Application app) {
 			this.app = app;
-			profiles = new ProfilesImpl();
+			profile = new ProfileImpl();
 			ListRepository<FragmentCompiler> compilers = new ListRepository<FragmentCompiler>();
 			compilers.addItem(new ShellCompiler());
-			profiles.getFragmentCompilerMetaRepository().addRepository(
+			profile.getFragmentCompilerMetaRepository().addRepository(
 					compilers);
+			ListRepository<FragmentLinker> linkers = new ListRepository<FragmentLinker>();
+			linkers.addItem(new RootLinker());
+			profile.getFragmentLinkerMetaRepository().addRepository(
+					linkers);
 			repository = new ListRepository<Profile>();
-			repository.addItem(new ProfileImpl(app, profiles));
+			repository.addItem(profile);
 			manager = null;
-			// app.getProfileMetaRepository().addRepository(repository);
+
+			ListRepository<SemanticsToolFactory> srep = new ListRepository<SemanticsToolFactory>();
+			srep.addItem(new RunTool(new GeneratorImpl(app, profile)));
+			srep.addItem(new InspectorTool());
 
 			ListRepository<ToolFactory> rep = new ListRepository<ToolFactory>();
-			rep.addItem(new RunTool(repository.getItem("fragment-profile")));
-			rep.addItem(new InspectorTool(profiles));
+			SemanticsTool stool = new SemanticsTool();
+			stool.getSemanticsToolFactoryMetaRepository().addRepository(srep);
+			rep.addItem(stool);
 			app.getToolFactoryMetaRepository().addRepository(rep);
 
 			String path = app.getProperty(TOOL_PATH_KEY);

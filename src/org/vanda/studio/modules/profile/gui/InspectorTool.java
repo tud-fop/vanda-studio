@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.profile;
+package org.vanda.studio.modules.profile.gui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -12,30 +12,25 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import org.vanda.studio.app.PreviewFactory;
-import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.WorkflowEditor;
-import org.vanda.studio.model.Model;
 import org.vanda.studio.model.Model.SelectionVisitor;
 import org.vanda.studio.model.Model.WorkflowSelection;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.hyper.Connection;
 import org.vanda.studio.model.hyper.Job;
 import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.model.immutable.ImmutableWorkflow;
 import org.vanda.studio.model.types.Type;
-import org.vanda.studio.modules.profile.model.Profiles;
+import org.vanda.studio.modules.profile.model.Model;
 import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.TokenSource.Token;
 
-public class InspectorTool implements ToolFactory {
+public class InspectorTool implements SemanticsToolFactory {
 
 	public final class Inspector {
 		private final WorkflowEditor wfe;
-		private final Model m;
+		private final Model mm;
 		private final JPanel contentPane;
 		private final JLabel fileName;
-		private ImmutableWorkflow frozen;
-		private DataflowAnalysis dfa;
 		private String value;
 		private PreviewFactory pf;
 		private GridBagConstraints gbc;
@@ -63,16 +58,16 @@ public class InspectorTool implements ToolFactory {
 
 			@Override
 			public void visitVariable(Token variable, MutableWorkflow wf) {
-				type = frozen.getType(variable);
-				value = dfa.getValue(variable);
+				type = mm.getDataflowAnalysis().getWorkflow().getType(variable);
+				value = mm.getDataflowAnalysis().getValue(variable);
 				// XXX no support for nested workflows because wf is ignored
 			}
 
 		}
 
-		public Inspector(WorkflowEditor wfe) {
+		public Inspector(WorkflowEditor wfe, Model mm) {
 			this.wfe = wfe;
-			this.m = wfe.getModel(); // XXX better not cache this
+			this.mm = mm;
 			fileName = new JLabel("Select a location or a connection.");
 			contentPane = new JPanel(new GridBagLayout());
 			@SuppressWarnings("serial")
@@ -81,12 +76,14 @@ public class InspectorTool implements ToolFactory {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (pf != null && value != null)
-						pf.openEditor(ProfileImpl.findFile(
-								Inspector.this.wfe.getApplication(), value));
+						pf.openEditor(Inspector.this.wfe.getApplication()
+								.findFile(value));
 				}
 			});
 
-			dummyPreview = new JLabel("<html><center>(select a location or a connection<br> for a quick preview)</center></html>", SwingConstants.CENTER);
+			dummyPreview = new JLabel(
+					"<html><center>(select a location or a connection<br> for a quick preview)</center></html>",
+					SwingConstants.CENTER);
 			preview = dummyPreview;
 
 			gbc = new GridBagConstraints();
@@ -117,8 +114,6 @@ public class InspectorTool implements ToolFactory {
 			contentPane.add(preview, gbc);
 
 			contentPane.setName("Semantics Inspector");
-			frozen = null;
-			dfa = null;
 			value = null;
 			pf = null;
 			this.wfe.addToolWindow(contentPane);
@@ -128,40 +123,28 @@ public class InspectorTool implements ToolFactory {
 					update();
 				}
 			};
-			Observer<Object> obs2 = new Observer<Object>() {
-				@Override
-				public void notify(Object event) {
-					frozen = Inspector.this.m.getFrozen();
-					if (frozen.isSane()) {
-						dfa = new DataflowAnalysis(frozen);
-						dfa.doIt(null, profiles);
-					}
-
-					update();
-				}
-			};
-			this.m.getSelectionChangeObservable().addObserver(obs);
-			this.m.getWorkflowCheckObservable().addObserver(obs2);
-			this.m.getWorkflowObservable().addObserver(obs);
-			this.m.getChildObservable().addObserver(obs);
+			wfe.getModel().getSelectionChangeObservable().addObserver(obs);
+			wfe.getModel().getWorkflowObservable().addObserver(obs);
+			wfe.getModel().getChildObservable().addObserver(obs);
+			mm.getDfaChangedObservable().addObserver(obs);
 			update();
 		}
 
 		public void update() {
-			WorkflowSelection ws = m.getSelection();
+			WorkflowSelection ws = wfe.getModel().getSelection();
 			if (ws == null)
-				ws = new WorkflowSelection(m.getRoot());
+				ws = new WorkflowSelection(wfe.getModel().getRoot());
 			// set inspector text
 			String newvalue = null;
 			JComponent newpreview = dummyPreview;
 			Type type = null;
-			if (frozen != null && dfa != null) {
+			// if (frozen != null && dfa != null) {
 				InspectorialVisitor visitor = new InspectorialVisitor();
 				if (ws != null) // <--- always true for now
 					ws.visit(visitor);
 				newvalue = visitor.value;
 				type = visitor.type;
-			}
+			// }
 			if (newvalue != value) {
 				value = newvalue;
 				if (type != null && value != null) {
@@ -169,8 +152,8 @@ public class InspectorTool implements ToolFactory {
 					// create preview
 					pf = wfe.getApplication().getPreviewFactory(type);
 					if (pf != null)
-						newpreview = pf.createPreview(ProfileImpl.findFile(
-								wfe.getApplication(), value));
+						newpreview = pf.createPreview(wfe.getApplication()
+								.findFile(value));
 				} else
 					fileName.setText("");
 			} else
@@ -185,15 +168,12 @@ public class InspectorTool implements ToolFactory {
 		}
 	}
 
-	private final Profiles profiles;
-
-	public InspectorTool(Profiles profiles) {
-		this.profiles = profiles;
+	public InspectorTool() {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe) {
-		return new Inspector(wfe);
+	public Object instantiate(WorkflowEditor wfe, Model model) {
+		return new Inspector(wfe, model);
 	}
 
 	@Override
@@ -229,7 +209,7 @@ public class InspectorTool implements ToolFactory {
 	@Override
 	public void visit(RepositoryItemVisitor v) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

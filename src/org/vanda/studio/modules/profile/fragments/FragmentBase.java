@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.profile.model;
+package org.vanda.studio.modules.profile.fragments;
 
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.types.Type;

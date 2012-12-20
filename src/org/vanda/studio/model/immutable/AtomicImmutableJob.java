@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.vanda.studio.model.elements.Element;
-import org.vanda.studio.model.elements.InputPort;
-import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.elements.Port;
 import org.vanda.studio.model.types.Type;
 import org.vanda.studio.util.TokenSource.Token;
@@ -32,24 +30,14 @@ public final class AtomicImmutableJob extends ImmutableJob {
 	@Override
 	public void appendText(ArrayList<Token> inputs, ArrayList<Token> outputs,
 			StringBuilder lines, StringBuilder sections) {
-		if (!(element instanceof OutputPort || element instanceof InputPort)) {
+		// if (!(element instanceof OutputPort || element instanceof InputPort)) {
 			lines.append("  ");
 			appendOutput(outputs, lines);
 			lines.append(" = ");
 			lines.append(element.getName());
 			appendInput(inputs, lines);
 			lines.append('\n');
-		}
-	}
-
-	@Override
-	public boolean isInputPort() {
-		return element instanceof InputPort;
-	}
-
-	@Override
-	public boolean isOutputPort() {
-		return element instanceof OutputPort;
+		// }
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.profile;
+package org.vanda.studio.modules.profile.gui;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -16,6 +16,7 @@ import javax.swing.event.ListDataListener;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Repository;
 import org.vanda.studio.model.elements.RepositoryItem;
+import org.vanda.studio.modules.profile.model.Profile;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;

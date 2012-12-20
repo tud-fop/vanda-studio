@@ -4,9 +4,7 @@ import javax.swing.JComponent;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.model.Model.SelectionVisitor;
-import org.vanda.studio.model.elements.InputPort;
 import org.vanda.studio.model.elements.Literal;
-import org.vanda.studio.model.elements.OutputPort;
 import org.vanda.studio.model.elements.RepositoryItemVisitor;
 import org.vanda.studio.model.elements.Tool;
 import org.vanda.studio.model.hyper.Connection;
@@ -41,21 +39,9 @@ final class EditorialVisitor implements SelectionVisitor {
 		j.getItem().visit(new RepositoryItemVisitor() {
 
 			@Override
-			public void visitInputPort(InputPort i) {
-				editor = eefs.inputPortFactories.createEditor(app, wf, address,
-						i);
-			}
-
-			@Override
 			public void visitLiteral(Literal l) {
 				editor = eefs.literalFactories
 						.createEditor(app, wf, address, l);
-			}
-
-			@Override
-			public void visitOutputPort(OutputPort o) {
-				editor = eefs.outputPortFactories.createEditor(app, wf,
-						address, o);
 			}
 
 			@Override

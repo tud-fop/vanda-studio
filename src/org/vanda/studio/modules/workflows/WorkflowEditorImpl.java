@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.workflows;
 
 import java.awt.Cursor;
+import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
@@ -21,6 +22,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.SemanticsModule;
@@ -53,13 +56,14 @@ import com.mxgraph.swing.handler.mxGraphHandler;
 import com.mxgraph.swing.util.mxGraphTransferable;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxGraphView;
 
 public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 		WorkflowChildListener {
 
 	protected final Application app;
 	protected final Model model;
-	protected final mxGraphComponent component;
+	protected final MyMxGraphComponent component;
 	protected final mxGraphOutline outline;
 	protected final DrecksAdapter renderer;
 	protected JComponent palette;
@@ -80,9 +84,22 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 		component.getGraphControl().addMouseWheelListener(
 				new MouseZoomAdapter(app, component));
 		component.addKeyListener(new DelKeyListener());
+		component.setPanning(true);
 		component.getPageFormat().setOrientation(PageFormat.LANDSCAPE);
 		component.setPageVisible(true);
+		component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		component.zoomActual();
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				component.getVerticalScrollBar().setValue((int) (component.getVerticalScrollBar().getMaximum()*0.35));
+				
+			}
+			
+		});
+		//component.getGraphControl().scrollRectToVisible(new Rectangle(133,1000,0,0));
 		// component.setPanning(true); // too complic: must press SHIFT+CONTROL
 		//(component.getGraph().getDefaultParent());
 		outline = new mxGraphOutline(component);
@@ -274,9 +291,9 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	 */
 	protected static class MouseZoomAdapter implements MouseWheelListener {
 		protected Application app;
-		protected mxGraphComponent component;
+		protected MyMxGraphComponent component;
 
-		public MouseZoomAdapter(Application app, mxGraphComponent component) {
+		public MouseZoomAdapter(Application app, MyMxGraphComponent component) {
 			this.app = app;
 			this.component = component;
 		}
@@ -284,20 +301,26 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
 
-			if (e.getWheelRotation() > 0) {
+			/*if (e.getWheelRotation() > 0) {
 				component.zoomOut();
 			} else {
 				component.zoomIn();
-			}
+			}*/
+			
+			Rectangle r = component.getViewport().getViewRect();
 
+			mxGraphView view = component.getGraph().getView();
 			// translate view to keep mouse point as fixpoint
-			double scaleAfter = component.getGraph().getView().getScale();
-			component
-					.getGraph()
-					.getView()
-					.scaleAndTranslate(scaleAfter,
-							-e.getX() * (1.0 - 1.0 / scaleAfter),
-							-e.getY() * (1.0 - 1.0 / scaleAfter));
+			//double scaleAfter = component.getGraph().getView().getScale();
+			double factor = e.getWheelRotation() > 0 ? 1/1.2 : 1.2;
+			double scale = (double) ((int) (view.getScale() * 100 * factor)) / 100;
+			// mxPoint p = view.getTranslate();
+			view.setScale(scale); /*AndTranslate(scale,
+							-e.getX() * (1.0 - 1.0 / scale),
+							-e.getY() * (1.0 - 1.0 / scale));*/
+			// double ooscale = 1/scale;
+			Rectangle rprime = new Rectangle((int) (r.x + e.getX()*(factor-1.0)), (int) (r.y + e.getY()*(factor - 1.0)), r.width, r.height);
+			component.getGraphControl().scrollRectToVisible(rprime);
 		}
 	}
 
@@ -468,6 +491,11 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 			setSwimlaneSelectionEnabled(false);
 			collapsedCells = new ArrayList<mxICell>();
 		}
+		
+		@Override
+		public void maintainScrollBar(boolean horizontal, double scale, boolean center) {
+			super.maintainScrollBar(horizontal, scale, center);
+		}
 
 		@Override
 		public boolean hitFoldingIcon(Object cell, int x, int y) {
@@ -501,6 +529,20 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 
 			return super.hitFoldingIcon(cell, x, y);
 		}
+	
+		@Override
+        /**
+         * Note: This is not used during drag and drop operations due to limitations
+         * of the underlying API. To enable this for move operations set dragEnabled
+         * to false.
+         *
+         * @param event
+         * @return Returns true if the given event is a panning event.
+         */
+		public boolean isPanningEvent(MouseEvent event) {
+			return (event != null) && !event.isShiftDown() && event.isControlDown();
+		}
+
 	}
 
 	private static class MyMxGraphHandler extends mxGraphHandler {
