@@ -13,14 +13,10 @@ source "$FUNCDIR/util.bash"
 # Trains a dictionary with a bilingual corpus.
 EMDictionary () {
 	echo "Running: EMDictionary..."
-	pathAndName "$1" f1 in1
-	pathAndName "$2" f2 in2
-	out="$OUTPATH/toParallelCorpus($in1,$in2)"
-	out1="$OUTPATH/EMDictionary($in1,$in2,$3).0"
-	out2="$OUTPATH/EMDictionary($in1,$in2,$3).1"
-	$TO_PARALLEL_CORPUS "$f1" "$f2" > "$out"
-	$EMDICTIONARY csvAndBest "$3" "$out" "$out2" > "$out1"
-	eval $4=\"$out1\"
-	eval $5=\"$out2\"
+	mkdir -p "$OUTPATH/EM_TEMP"
+	tmp="$OUTPATH/EM_TEMP/parallelCorpus"
+	$TO_PARALLEL_CORPUS "$1" "$2" > "$tmp"
+	$EMDICTIONARY csvAndBest "$3" "$tmp" "$5" > "$4"
+	rm -r "$OUTPATH/EM_TEMP"
 	echo "Done."
 }

@@ -8,6 +8,5 @@ source "$FUNCDIR/util.bash"
 #
 # Sink
 SinkTool () {
-	pathAndName "$1" f1 i1
-	echo "$i1"
+	echo "$1"
 }

@@ -15,14 +15,12 @@ GIZA () {
 	mkdir -p "$TMP"
 	i1new="corpus.en"
 	i2new="corpus.fr"
-	pathAndName "$1" f1 i1orig
-	pathAndName "$2" f2 i2orig
-	cp "$f1" "$TMP/$i1new"
-	cp "$f2" "$TMP/$i2new"
+	ln -s "$1" "$TMP/$i1new"
+	ln -s "$2" "$TMP/$i2new"
 	$MOSES/scripts/training/train-model.perl -root-dir "$TMP" --corpus "$TMP/corpus" --e fr --f en --last-step 3 --external-bin-dir="$GIZA"
-	out="$OUTPATH/GIZA($i1orig,$i2orig).0"
-	mv "$TMP/model/aligned.grow-diag-final" "$out"
-	rm -rf "$OUT"
-	eval $3=\"$out\"
+	mv "$TMP/model/aligned.grow-diag-final" "$3"
+	unlink "$TMP/$i1new"
+	unlink "$TMP/$i2new"
+	rm -r "$TMP"
 	echo "Done."
 }
