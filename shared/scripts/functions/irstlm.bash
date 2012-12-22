@@ -13,13 +13,10 @@ IRSTLM () {
 	echo "Running: IRSTLM..."
 	TMP="$OUTPATH/IRSTLM_TMP"
 	mkdir -p "$TMP"
-	pathAndName "$1" f1 i1
-	out="$OUTPATH/IRSTLM($i1,$2).0"
-	"$IRSTLM/add-start-end.sh" < "$f1" > "$TMP/train.txt"
+	"$IRSTLM/add-start-end.sh" < "$1" > "$TMP/train.txt"
 	"$IRSTLM/ngt" -i="$TMP/train.txt" -n="$2" -o="$TMP/train.www"
-	"$IRSTLM/tlm" -tr="$TMP/train.www" -n="$2" -lm=wb -o="$out"
+	"$IRSTLM/tlm" -tr="$TMP/train.www" -n="$2" -lm=wb -o="$3"
 	rm -rf "$TMP"
-	eval $3=\"$out\"
 	echo "Done."
 }
 
@@ -33,8 +30,6 @@ IRSTLM () {
 # Converts iARPA to binary n-gram format.
 ARPA2Binary () {
 	echo "Running: ARPA2Binary..."
-	pathAndName "$1" f1 i1
-	out="$OUTPATH/ARPA2Binary($i1).0"
-	"$IRSTLM/compile-lm" "$f1" "$out"
+	"$IRSTLM/compile-lm" "$1" "$2"
 	echo "Done."
 }
