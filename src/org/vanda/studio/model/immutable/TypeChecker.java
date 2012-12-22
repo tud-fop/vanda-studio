@@ -13,6 +13,7 @@ import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
 
+// XXX removed: handle linker (see older versions)
 final class TypeChecker {
 	private final Map<Equation, Pair<Token, Integer>> eqs;
 	private final TokenSource variableSource;
@@ -37,16 +38,6 @@ final class TypeChecker {
 		Map<Token, Token> rename = new HashMap<Token, Token>();
 		ft.freshMap(freshSource, rename);
 		eqs.put(new Equation(fragmentTypeVariable, ft.rename(rename)), null);
-	}
-
-	public void addLinkerEquation(Type oft, Type ift, Type iwft) {
-		Map<Token, Token> rename = new HashMap<Token, Token>();
-		Map<Token, Token> renm2 = new HashMap<Token, Token>();
-		oft.freshMap(freshSource, rename);
-		ift.freshMap(freshSource, rename);
-		iwft.freshMap(freshSource, renm2);
-		eqs.put(new Equation(fragmentTypeVariable, oft.rename(rename)), null);
-		eqs.put(new Equation(ift.rename(rename), iwft.rename(renm2)), null);
 	}
 
 	public void addDataFlowEquations(JobInfo ji) {
