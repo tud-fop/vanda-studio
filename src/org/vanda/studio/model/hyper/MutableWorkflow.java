@@ -15,13 +15,11 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 		JobListener {
 
 	public static interface WorkflowListener {
-		void inputPortAdded(MutableWorkflow mwf, int index);
-
-		void inputPortRemoved(MutableWorkflow mwf, int index);
-
-		void outputPortAdded(MutableWorkflow mwf, int index);
-
-		void outputPortRemoved(MutableWorkflow mwf, int index);
+		// removed: see older versions
+		// void inputPortAdded(MutableWorkflow mwf, int index);
+		// void inputPortRemoved(MutableWorkflow mwf, int index);
+		// void outputPortAdded(MutableWorkflow mwf, int index);
+		// void outputPortRemoved(MutableWorkflow mwf, int index);
 
 		void propertyChanged(MutableWorkflow mwf);
 	}
@@ -41,13 +39,11 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 
 		void connectionRemoved(MutableWorkflow mwf, Connection cc);
 
-		void inputPortAdded(MutableWorkflow mwf, Job j, int index);
-
-		void inputPortRemoved(MutableWorkflow mwf, Job j, int index);
-
-		void outputPortAdded(MutableWorkflow mwf, Job j, int index);
-
-		void outputPortRemoved(MutableWorkflow mwf, Job j, int index);
+		// removed: see older versions
+		// void inputPortAdded(MutableWorkflow mwf, Job j, int index);
+		// void inputPortRemoved(MutableWorkflow mwf, Job j, int index);
+		// void outputPortAdded(MutableWorkflow mwf, Job j, int index);
+		// void outputPortRemoved(MutableWorkflow mwf, Job j, int index);
 	}
 
 	public static interface WorkflowChildEvent {
@@ -270,64 +266,6 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 		for (DJobInfo ji : children)
 			if (ji != null)
 				ji.job.visit(v);
-	}
-
-	@Override
-	public void inputPortAdded(Job j, int index) {
-		DJobInfo ji = children.get(j.address.intValue());
-		if (index >= ji.job.inputs.size()) {
-			assert (index == ji.job.inputs.size());
-			ji.job.inputs.add(null);
-		} else
-			assert (ji.job.inputs.get(index) == null);
-		childObservable.notify(new Workflows.ChildInputPortAddedEvent(this, j,
-				index));
-	}
-
-	@Override
-	public void inputPortRemoved(Job j, int index) {
-		DJobInfo ji = children.get(j.address.intValue());
-		// remove connections to this port!
-		for (int i = 0; i < connections.size(); i++) {
-			DConnInfo ci = connections.get(i);
-			if (ci != null) {
-				if (ci.cc.target == j.address && ci.cc.targetPort == index)
-					removeConnection(ci.cc.address);
-			}
-		}
-		ji.job.inputs.set(index, null);
-		childObservable.notify(new Workflows.ChildInputPortRemovedEvent(this,
-				j, index));
-	}
-
-	@Override
-	public void outputPortAdded(Job j, int index) {
-		DJobInfo ji = children.get(j.address.intValue());
-		if (index >= ji.job.outputs.size()) {
-			assert (index == ji.job.outputs.size());
-			ji.job.outputs.add(null);
-		} else
-			assert (ji.job.outputs.get(index) == null);
-		ji.job.outputs.set(index, variableSource.makeToken());
-		childObservable.notify(new Workflows.ChildOutputPortAddedEvent(this, j,
-				index));
-	}
-
-	@Override
-	public void outputPortRemoved(Job j, int index) {
-		DJobInfo ji = children.get(j.address.intValue());
-		Token var = ji.job.outputs.set(index, null);
-		variableSource.recycleToken(var);
-		// remove connections from this port
-		for (int i = 0; i < connections.size(); i++) {
-			DConnInfo ci = connections.get(i);
-			if (ci != null) {
-				if (ci.cc.source == j.address && ci.cc.sourcePort == index)
-					removeConnection(ci.cc.address);
-			}
-		}
-		childObservable.notify(new Workflows.ChildOutputPortRemovedEvent(this,
-				j, index));
 	}
 
 	@Override

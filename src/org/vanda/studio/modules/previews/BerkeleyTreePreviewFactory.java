@@ -143,9 +143,9 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			if (e.getWheelRotation() < 0)
-				tv.zoomOut();
-			else if (e.getWheelRotation() > 0)
 				tv.zoomIn();
+			else if (e.getWheelRotation() > 0)
+				tv.zoomOut();
 			scr.revalidate();
 		}
 

@@ -16,10 +16,11 @@ import org.vanda.studio.util.TokenSource.Token;
 public abstract class Job implements HasActions, Cloneable {
 	
 	public static interface JobListener {
-		void inputPortAdded(Job j, int index);
-		void inputPortRemoved(Job j, int index);
-		void outputPortAdded(Job j, int index);
-		void outputPortRemoved(Job j, int index);
+		// removed: see older versions
+		// void inputPortAdded(Job j, int index);
+		// void inputPortRemoved(Job j, int index);
+		// void outputPortAdded(Job j, int index);
+		// void outputPortRemoved(Job j, int index);
 		void propertyChanged(Job j);		
 	}
 	

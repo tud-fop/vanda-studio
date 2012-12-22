@@ -2,6 +2,7 @@ package org.vanda.studio.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.vanda.studio.model.hyper.AtomicJob;
 import org.vanda.studio.model.hyper.Connection;
@@ -12,11 +13,13 @@ import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowChildEvent;
 import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowChildListener;
 import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowEvent;
 import org.vanda.studio.model.immutable.ImmutableWorkflow;
+import org.vanda.studio.model.immutable.TypeChecker.EqInfo;
+import org.vanda.studio.model.immutable.TypeCheckingException;
 import org.vanda.studio.util.MultiplexObserver;
 import org.vanda.studio.util.Observable;
 import org.vanda.studio.util.Observer;
+import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
-import org.vanda.studio.util.UnificationException;
 
 public final class Model implements WorkflowChildListener {
 
@@ -159,16 +162,22 @@ public final class Model implements WorkflowChildListener {
 		markedElements.clear();
 		try {
 			frozen.typeCheck();
-		} catch (UnificationException e) {
-			for (Connection c : hwf.getConnections()) {
-				if ((c.target.equals(e.getAddress().fst) && c.targetPort == e
-						.getAddress().snd)
-						|| (c.source.equals(e.getAddress().fst) && c.sourcePort == e
-								.getAddress().snd)) {
-					markedElements.add(new ConnectionSelection(hwf, c.address));
-					break;
-				}
+		} catch (TypeCheckingException e) {
+			List<Pair<String, Set<EqInfo>>> errors = e.getErrors();
+			for (Pair<String, Set<EqInfo>> error : errors) {
+				// TODO use new color in each iteration
+				Set<EqInfo> eqs = error.snd;
+				for (EqInfo eq : eqs) {
+					for (Connection c : hwf.getConnections()) {
+						if (c.target.equals(eq.address)
+								&& c.targetPort == eq.port) {
+							markedElements.add(new ConnectionSelection(hwf,
+									c.address));
+							break;
+						}
+					}
 
+				}
 			}
 
 		}
@@ -252,22 +261,6 @@ public final class Model implements WorkflowChildListener {
 	public void connectionRemoved(MutableWorkflow mwf, Connection cc) {
 		if (selection != null && selection.workflow == mwf)
 			setSelection(null);
-	}
-
-	@Override
-	public void inputPortAdded(MutableWorkflow mwf, Job j, int index) {
-	}
-
-	@Override
-	public void inputPortRemoved(MutableWorkflow mwf, Job j, int index) {
-	}
-
-	@Override
-	public void outputPortAdded(MutableWorkflow mwf, Job j, int index) {
-	}
-
-	@Override
-	public void outputPortRemoved(MutableWorkflow mwf, Job j, int index) {
 	}
 
 }

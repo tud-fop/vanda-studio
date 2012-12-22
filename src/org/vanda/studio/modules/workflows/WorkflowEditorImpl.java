@@ -41,6 +41,7 @@ import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowEvent;
 import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowListener;
 import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
+import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
 import org.vanda.studio.modules.workflows.jgraph.WorkflowAdapter;
 import org.vanda.studio.util.Action;
 import org.vanda.studio.util.ExceptionMessage;
@@ -70,7 +71,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	protected final JSplitPane mainpane;
 	protected final SemanticsModule semanticsModule;
 
-	public WorkflowEditorImpl(Application a, MutableWorkflow hwf, SemanticsModule sm) {
+	public WorkflowEditorImpl(Application a, MutableWorkflow hwf,
+			SemanticsModule sm) {
 		app = a;
 		model = new Model(hwf);
 		semanticsModule = sm;
@@ -87,21 +89,27 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 		component.setPanning(true);
 		component.getPageFormat().setOrientation(PageFormat.LANDSCAPE);
 		component.setPageVisible(true);
-		component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		component
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		component
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		component.zoomActual();
 		SwingUtilities.invokeLater(new Runnable() {
 
 			@Override
 			public void run() {
-				component.getVerticalScrollBar().setValue((int) (component.getVerticalScrollBar().getMaximum()*0.35));
-				
+				component.getVerticalScrollBar()
+						.setValue(
+								(int) (component.getVerticalScrollBar()
+										.getMaximum() * 0.35));
+
 			}
-			
+
 		});
-		//component.getGraphControl().scrollRectToVisible(new Rectangle(133,1000,0,0));
+		// component.getGraphControl().scrollRectToVisible(new
+		// Rectangle(133,1000,0,0));
 		// component.setPanning(true); // too complic: must press SHIFT+CONTROL
-		//(component.getGraph().getDefaultParent());
+		// (component.getGraph().getDefaultParent());
 		outline = new mxGraphOutline(component);
 		mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
 				outline);
@@ -228,8 +236,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 
 				// create connection specific context menu
 				if (value instanceof ConnectionAdapter) {
-					// menu = new PopupMenu(((Connection<?>) value).toString());
-					menu = new PopupMenu(cell.toString());
+					menu = new PopupMenu(((ConnectionAdapter) value).toString());
+					//menu = new PopupMenu(cell.toString());
 
 					@SuppressWarnings("serial")
 					JMenuItem item = new JMenuItem("Remove Connection") {
@@ -244,22 +252,20 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 					menu.add(item);
 				}
 
-				// TODO enable context menu for jobs
-				// // create node specific context menu
-				// if (value instanceof JobAdapter) {
-				// menu = new PopupMenu(((JobAdapter)value).getName());
-				//
-				// @SuppressWarnings("serial")
-				// JMenuItem item = new JMenuItem("Remove Job") {
-				// @Override
-				// public void fireActionPerformed(ActionEvent e) {
-				// removeSelectedCell();
-				// }
-				// };
-				// item.setAccelerator(KeyStroke.getKeyStroke(
-				// KeyEvent.VK_DELETE, 0));
-				// menu.add(item);
-				// }
+				// create node specific context menu
+				if (value instanceof JobAdapter) {
+					menu = new PopupMenu(((JobAdapter) value).getName());
+					@SuppressWarnings("serial")
+					JMenuItem item = new JMenuItem("Remove Job") {
+						@Override
+						public void fireActionPerformed(ActionEvent e) {
+							removeSelectedCell();
+						}
+					};
+					item.setAccelerator(KeyStroke.getKeyStroke(
+							KeyEvent.VK_DELETE, 0));
+					menu.add(item);
+				}
 
 				if (menu != null) {
 					if (value instanceof HasActions) {
@@ -300,26 +306,16 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
-
-			/*if (e.getWheelRotation() > 0) {
-				component.zoomOut();
-			} else {
-				component.zoomIn();
-			}*/
-			
 			Rectangle r = component.getViewport().getViewRect();
 
 			mxGraphView view = component.getGraph().getView();
 			// translate view to keep mouse point as fixpoint
-			//double scaleAfter = component.getGraph().getView().getScale();
-			double factor = e.getWheelRotation() > 0 ? 1/1.2 : 1.2;
+			double factor = e.getWheelRotation() > 0 ? 1 / 1.2 : 1.2;
 			double scale = (double) ((int) (view.getScale() * 100 * factor)) / 100;
-			// mxPoint p = view.getTranslate();
-			view.setScale(scale); /*AndTranslate(scale,
-							-e.getX() * (1.0 - 1.0 / scale),
-							-e.getY() * (1.0 - 1.0 / scale));*/
-			// double ooscale = 1/scale;
-			Rectangle rprime = new Rectangle((int) (r.x + e.getX()*(factor-1.0)), (int) (r.y + e.getY()*(factor - 1.0)), r.width, r.height);
+			view.setScale(scale);
+			Rectangle rprime = new Rectangle((int) (r.x + e.getX()
+					* (factor - 1.0)), (int) (r.y + e.getY() * (factor - 1.0)),
+					r.width, r.height);
 			component.getGraphControl().scrollRectToVisible(rprime);
 		}
 	}
@@ -404,22 +400,6 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	}
 
 	@Override
-	public void inputPortAdded(MutableWorkflow mwf, int index) {
-	}
-
-	@Override
-	public void inputPortRemoved(MutableWorkflow mwf, int index) {
-	}
-
-	@Override
-	public void outputPortAdded(MutableWorkflow mwf, int index) {
-	}
-
-	@Override
-	public void outputPortRemoved(MutableWorkflow mwf, int index) {
-	}
-
-	@Override
 	public void propertyChanged(MutableWorkflow mwf) {
 		if (mwf == model.getRoot()) {
 			mainpane.setName(mwf.getName());
@@ -460,22 +440,6 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 		recheck();
 	}
 
-	@Override
-	public void inputPortAdded(MutableWorkflow mwf, Job j, int index) {
-	}
-
-	@Override
-	public void inputPortRemoved(MutableWorkflow mwf, Job j, int index) {
-	}
-
-	@Override
-	public void outputPortAdded(MutableWorkflow mwf, Job j, int index) {
-	}
-
-	@Override
-	public void outputPortRemoved(MutableWorkflow mwf, Job j, int index) {
-	}
-
 	@SuppressWarnings("serial")
 	private static class MyMxGraphComponent extends mxGraphComponent {
 
@@ -490,11 +454,6 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 			// is always selected
 			setSwimlaneSelectionEnabled(false);
 			collapsedCells = new ArrayList<mxICell>();
-		}
-		
-		@Override
-		public void maintainScrollBar(boolean horizontal, double scale, boolean center) {
-			super.maintainScrollBar(horizontal, scale, center);
 		}
 
 		@Override
@@ -529,18 +488,19 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 
 			return super.hitFoldingIcon(cell, x, y);
 		}
-	
+
 		@Override
-        /**
-         * Note: This is not used during drag and drop operations due to limitations
-         * of the underlying API. To enable this for move operations set dragEnabled
-         * to false.
-         *
-         * @param event
-         * @return Returns true if the given event is a panning event.
-         */
+		/**
+		 * Note: This is not used during drag and drop operations due to limitations
+		 * of the underlying API. To enable this for move operations set dragEnabled
+		 * to false.
+		 *
+		 * @param event
+		 * @return Returns true if the given event is a panning event.
+		 */
 		public boolean isPanningEvent(MouseEvent event) {
-			return (event != null) && !event.isShiftDown() && event.isControlDown();
+			return (event != null) && !event.isShiftDown()
+					&& event.isControlDown();
 		}
 
 	}

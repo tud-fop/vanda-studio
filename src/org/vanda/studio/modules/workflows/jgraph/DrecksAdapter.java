@@ -130,42 +130,6 @@ public final class DrecksAdapter {
 		}
 
 		@Override
-		public void inputPortAdded(MutableWorkflow mwf, Job j, int index) {
-			childAddPort(true, mwf, j, index);
-		}
-
-		@Override
-		public void inputPortRemoved(MutableWorkflow mwf, Job j, int index) {
-			childRemovePort(true, mwf, j, index);
-		}
-
-		@Override
-		public void outputPortAdded(MutableWorkflow mwf, Job j, int index) {
-			childAddPort(false, mwf, j, index);
-		}
-
-		@Override
-		public void outputPortRemoved(MutableWorkflow mwf, Job j, int index) {
-			childRemovePort(false, mwf, j, index);
-		}
-
-		@Override
-		public void inputPortAdded(MutableWorkflow mwf, int index) {
-		}
-
-		@Override
-		public void inputPortRemoved(MutableWorkflow mwf, int index) {
-		}
-
-		@Override
-		public void outputPortAdded(MutableWorkflow mwf, int index) {
-		}
-
-		@Override
-		public void outputPortRemoved(MutableWorkflow mwf, int index) {
-		}
-
-		@Override
 		public void propertyChanged(MutableWorkflow mwf) {
 			// TODO improve
 			if (mwf != DrecksAdapter.this.model.getRoot())

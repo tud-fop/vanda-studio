@@ -104,16 +104,6 @@ public class AtomicJob extends Job implements ElementListener {
 	}
 
 	@Override
-	public void inputPortAdded(Element e, int index) {
-		observable.notify(new Jobs.InputPortAddedEvent(this, index));
-	}
-
-	@Override
-	public void inputPortRemoved(Element e, int index) {
-		observable.notify(new Jobs.InputPortRemovedEvent(this, index));
-	}
-
-	@Override
 	public void propertyChanged(Element e) {
 		observable.notify(new Jobs.PropertyChangedEvent(this));
 	}

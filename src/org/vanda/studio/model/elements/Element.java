@@ -10,8 +10,9 @@ import org.vanda.studio.util.Observable;
 public interface Element extends RepositoryItem, HasActions, Cloneable {
 	
 	public static interface ElementListener {
-		void inputPortAdded(Element e, int index);
-		void inputPortRemoved(Element e, int index);
+		// removed: see older versions
+		// void inputPortAdded(Element e, int index);
+		// void inputPortRemoved(Element e, int index);
 		void propertyChanged(Element e);
 	}
 	

@@ -1,26 +1,28 @@
 package org.vanda.studio.model.types;
 
 import java.util.List;
-import java.util.Map;
 
 import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource.Token;
 
-public final class Equation {
+public final class Equation<X> {
 
 	public final Type lhs;
 	public final Type rhs;
+	public final X ancillary;
 
-	public Equation(Type lhs, Type rhs) {
+	public Equation(Type lhs, Type rhs, X ancillary) {
 		this.lhs = lhs;
 		this.rhs = rhs;
+		this.ancillary = ancillary;
 	}
 
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof Equation) {
-			Equation o = (Equation) other;
-			return (lhs.equals(o.lhs) && rhs.equals(o.rhs));
+			Equation<?> o = (Equation<?>) other;
+			return (lhs.equals(o.lhs) && rhs.equals(o.rhs))
+					&& ancillary.equals(o.ancillary);
 		} else
 			return false;
 	}
@@ -46,12 +48,11 @@ public final class Equation {
 		return (lhs instanceof TypeVariable);
 	}
 
-	public void decompose(Map<Equation, Pair<Token, Integer>> t,
-			Pair<Token, Integer> addr) {
+	public void decompose(List<Equation<X>> t) {
 		Pair<String, List<Type>> ld = lhs.decompose();
 		Pair<String, List<Type>> rd = rhs.decompose();
 		for (int i = 0; i < ld.snd.size(); i++) {
-			t.put(new Equation(ld.snd.get(i), rd.snd.get(i)), addr);
+			t.add(new Equation<X>(ld.snd.get(i), rd.snd.get(i), ancillary));
 		}
 	}
 
@@ -65,20 +66,20 @@ public final class Equation {
 		return lhs.failsOccursCheck(rhs);
 	}
 
-	public void flip(Map<Equation, Pair<Token, Integer>> t,
-			Pair<Token, Integer> addr) {
-		t.put(new Equation(rhs, lhs), addr);
+	public void flip(List<Equation<X>> t) {
+		t.add(new Equation<X>(rhs, lhs, ancillary));
 	}
 
-	public Equation subst(Token var, Type type) {
-		return new Equation(lhs.subst(var, type), rhs.subst(var, type));
+	public Equation<X> subst(Token var, Type type, X anc) {
+		return new Equation<X>(lhs.subst(var, type), rhs.subst(var, type), anc);
 	}
 
-	public void substitute(Map<Equation, Pair<Token, Integer>> source,
-			Map<Equation, Pair<Token, Integer>> target) {
+	public void substitute(List<Equation<X>> source, List<Equation<X>> target,
+			MergeFunction<X> mf) {
 		Token var = ((TypeVariable) lhs).variable;
-		for (Equation e : source.keySet())
-			target.put(e.subst(var, rhs), source.get(e));
+		for (Equation<X> e : source)
+			target.add(e.subst(var, rhs,
+					mf == null ? null : mf.merge(ancillary, e.ancillary)));
 	}
 
 	@Override
