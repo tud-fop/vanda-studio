@@ -20,19 +20,20 @@ import org.vanda.studio.util.TokenSource;
 
 public class ShellTool extends Tool {
 
-	private String id;
-	private String name;
-	private String category;
-	private String version;
-	private String contact;
-	private String description;
-	private List<Port> inPorts;
-	private List<Port> outPorts;
-	private Set<String> imports;
+	private final String id;
+	private final String name;
+	private final String category;
+	private final String version;
+	private final String contact;
+	private final String description;
+	private final List<Port> inPorts;
+	private final List<Port> outPorts;
+	private final Set<String> imports;
+	private final RendererSelector rs;
 
 	public ShellTool(String id, String name, String category, String version,
 			String contact, String description, List<Port> inPorts,
-			List<Port> outPorts, Set<String> imports) {
+			List<Port> outPorts, Set<String> imports, RendererSelector rs) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -43,6 +44,7 @@ public class ShellTool extends Tool {
 		this.inPorts = inPorts;
 		this.outPorts = outPorts;
 		this.imports = new HashSet<String>(imports);
+		this.rs = rs;
 	}
 
 	@Override
@@ -62,7 +64,7 @@ public class ShellTool extends Tool {
 
 	@Override
 	public <R> R selectRenderer(RendererAssortment<R> ra) {
-		return ra.selectAlgorithmRenderer();
+		return rs.selectRenderer(ra);
 	}
 
 	@Override

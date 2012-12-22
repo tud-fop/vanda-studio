@@ -20,10 +20,10 @@ import org.vanda.studio.util.Observer;
 import org.vanda.studio.util.TokenSource;
 
 public class ToolLoader implements Loader<Tool> {
-	
+
 	protected final Application app;
 	protected final String path;
-	
+
 	public ToolLoader(Application app, String path) {
 		this.app = app;
 		this.path = path;
@@ -38,7 +38,6 @@ public class ToolLoader implements Loader<Tool> {
 		}
 
 	}
-
 
 	public void loadFromFile(File file, Observer<Tool> o) {
 		Set<String> imports = new HashSet<String>();
@@ -55,6 +54,7 @@ public class ToolLoader implements Loader<Tool> {
 			String version = "";
 			String category = "";
 			String contact = "";
+			RendererSelector rs = RendererSelectors.selectors[0];
 			List<Port> inPorts = new ArrayList<Port>();
 			List<Port> outPorts = new ArrayList<Port>();
 			while (sc.hasNextLine()) {
@@ -70,14 +70,19 @@ public class ToolLoader implements Loader<Tool> {
 						contact = line1.split(":")[1].trim();
 					else if (line1.toLowerCase().startsWith("category"))
 						category = line1.split(":")[1].trim();
-					else if (line1.toLowerCase().startsWith("in")) {
-						String[] arr = line1.substring(2).trim()
-								.split("::");
+					else if (line1.toLowerCase().startsWith("renderer")) {
+						String renderer = line1.split(":")[1].trim();
+						for (RendererSelector r : RendererSelectors.selectors)
+							if (r.getIdentifier().equals(renderer)) {
+								rs = r;
+								break;
+							}
+					} else if (line1.toLowerCase().startsWith("in")) {
+						String[] arr = line1.substring(2).trim().split("::");
 						Type t = ShellTool.parseType(tVars, ts, arr[1].trim());
 						inPorts.add(new Port(arr[0].trim(), t));
 					} else if (line1.toLowerCase().startsWith("out")) {
-						String[] arr = line1.substring(3).trim()
-								.split("::");
+						String[] arr = line1.substring(3).trim().split("::");
 						Type t = ShellTool.parseType(tVars, ts, arr[1].trim());
 						outPorts.add(new Port(arr[0].trim(), t));
 					} else if (description != null && line1 == "")
@@ -94,7 +99,7 @@ public class ToolLoader implements Loader<Tool> {
 						out.addAll(outPorts);
 						outPorts.clear();
 						Tool t = new ShellTool(id, name, category, version,
-								contact, description, in, out, imports);
+								contact, description, in, out, imports, rs);
 						o.notify(t);
 						nameFound = false;
 						ts = new TokenSource();
@@ -104,8 +109,8 @@ public class ToolLoader implements Loader<Tool> {
 			}
 		} catch (FileNotFoundException e) {
 			app.sendMessage(new ExceptionMessage(e));
-			//new ExceptionMessage(new Exception("Tool file "
-			//		+ file.getAbsolutePath() + " can not be loaded.")));
+			// new ExceptionMessage(new Exception("Tool file "
+			// + file.getAbsolutePath() + " can not be loaded.")));
 		} finally {
 			sc.close();
 		}
