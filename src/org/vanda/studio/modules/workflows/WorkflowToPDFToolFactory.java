@@ -28,10 +28,10 @@ final class WorkflowToPDFToolFactory implements ToolFactory {
 	
 	protected class ExportWorkflowToPDFAction implements Action {
 
-		private final DrecksAdapter workflow;
+		private final WorkflowEditor wfe;
 
-		public ExportWorkflowToPDFAction(DrecksAdapter wf) {
-			this.workflow = wf;
+		public ExportWorkflowToPDFAction(WorkflowEditor wfe) {
+			this.wfe = wfe;
 		}
 
 		@Override
@@ -49,7 +49,8 @@ final class WorkflowToPDFToolFactory implements ToolFactory {
 			if (result == JFileChooser.APPROVE_OPTION) {
 				File chosenFile = chooser.getSelectedFile();
 				try {
-					mxGraph graph = workflow.getGraph();
+					DrecksAdapter da = new DrecksAdapter(wfe.getModel());
+					mxGraph graph = da.getGraph();
 					Document svg = mxCellRenderer.createSvgDocument(graph,
 							null, 1, null, null);
 					String code = mxUtils.getPrettyXml(svg
@@ -113,9 +114,7 @@ final class WorkflowToPDFToolFactory implements ToolFactory {
 
 	@Override
 	public Object instantiate(WorkflowEditor wfe) {
-		Action a  = null;
-		if (wfe instanceof WorkflowEditorImpl)
-			a = new ExportWorkflowToPDFAction(((WorkflowEditorImpl) wfe).renderer);
+		Action a = new ExportWorkflowToPDFAction(wfe);
 		wfe.addAction(a, KeyStroke.getKeyStroke(KeyEvent.VK_P,
 				KeyEvent.CTRL_MASK));
 		return a;
