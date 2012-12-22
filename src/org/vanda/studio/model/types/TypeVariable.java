@@ -1,8 +1,10 @@
 package org.vanda.studio.model.types;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
 
@@ -13,11 +15,21 @@ public final class TypeVariable extends Type {
 	public TypeVariable(Token variable) {
 		this.variable = variable;
 	}
+
+	@Override
+	public boolean canDecompose() {
+		return false;
+	}
 	
 	@Override
 	public boolean contains(Token v) {
 		// use object identity because variables are assumed to be interned
 		return variable == v;
+	}
+
+	@Override
+	public Pair<String, List<Type>> decompose() {
+		return null;
 	}
 	
 	@Override
@@ -32,6 +44,11 @@ public final class TypeVariable extends Type {
 	@Override
 	public int hashCode() {
 		return variable.hashCode();
+	}
+
+	@Override
+	public boolean failsOccursCheck(Type rhs) {
+		return rhs.contains(variable);
 	}
 
 	@Override
@@ -50,7 +67,7 @@ public final class TypeVariable extends Type {
 	}
 
 	@Override
-	public Type substitute(Token variable, Type nt) {
+	public Type subst(Token variable, Type nt) {
 		if (variable == this.variable)
 			return nt;
 		else

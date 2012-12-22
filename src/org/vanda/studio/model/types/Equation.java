@@ -1,5 +1,6 @@
 package org.vanda.studio.model.types;
 
+import java.util.List;
 import java.util.Map;
 
 import org.vanda.studio.util.Pair;
@@ -30,7 +31,7 @@ public final class Equation {
 	}
 
 	public boolean canDecompose() {
-		return (lhs instanceof CompositeType && rhs instanceof CompositeType);
+		return (lhs.canDecompose() && rhs.canDecompose());
 	}
 
 	public boolean canEliminate() {
@@ -45,45 +46,39 @@ public final class Equation {
 		return (lhs instanceof TypeVariable);
 	}
 
-	public void decompose(Map<Equation, Pair<Token, Integer>> t, Pair<Token, Integer> addr) {
-		CompositeType l = (CompositeType) lhs;
-		CompositeType r = (CompositeType) rhs;
-		for (int i = 0; i < l.children.size(); i++) {
-			t.put(new Equation(l.children.get(i), r.children.get(i)), addr);
+	public void decompose(Map<Equation, Pair<Token, Integer>> t,
+			Pair<Token, Integer> addr) {
+		Pair<String, List<Type>> ld = lhs.decompose();
+		Pair<String, List<Type>> rd = rhs.decompose();
+		for (int i = 0; i < ld.snd.size(); i++) {
+			t.put(new Equation(ld.snd.get(i), rd.snd.get(i)), addr);
 		}
 	}
 
 	public boolean failsDecomposeCheck() {
-		return (!((CompositeType) lhs).constructor
-				.equals(((CompositeType) rhs).constructor))
-				|| ((CompositeType) lhs).children.size() != ((CompositeType) rhs).children
-						.size();
+		Pair<String, List<Type>> ld = lhs.decompose();
+		Pair<String, List<Type>> rd = rhs.decompose();
+		return !ld.fst.equals(rd.fst) || ld.snd.size() != rd.snd.size();
 	}
 
 	public boolean failsOccursCheck() {
-		if (lhs instanceof TypeVariable)
-			return rhs.contains(((TypeVariable) lhs).variable);
-		else
-			return false;
+		return lhs.failsOccursCheck(rhs);
 	}
 
-	public void flip(Map<Equation, Pair<Token, Integer>> t, Pair<Token, Integer> addr) {
+	public void flip(Map<Equation, Pair<Token, Integer>> t,
+			Pair<Token, Integer> addr) {
 		t.put(new Equation(rhs, lhs), addr);
 	}
 
-	public void substitute(Map<Equation, Pair<Token, Integer>> source1,
-			Map<Equation, Pair<Token, Integer>> source2, Map<Equation, Pair<Token, Integer>> target1,
-			Map<Equation, Pair<Token, Integer>> target2, Pair<Token, Integer> addr) {
+	public Equation subst(Token var, Type type) {
+		return new Equation(lhs.subst(var, type), rhs.subst(var, type));
+	}
+
+	public void substitute(Map<Equation, Pair<Token, Integer>> source,
+			Map<Equation, Pair<Token, Integer>> target) {
 		Token var = ((TypeVariable) lhs).variable;
-		for (Equation e : source1.keySet())
-			target1.put(
-					new Equation(e.lhs.substitute(var, rhs), e.rhs.substitute(
-							var, rhs)), source1.get(e));
-		for (Equation e : source2.keySet())
-			target2.put(
-					new Equation(e.lhs.substitute(var, rhs), e.rhs.substitute(
-							var, rhs)), source2.get(e));
-		target2.put(this, addr);
+		for (Equation e : source.keySet())
+			target.put(e.subst(var, rhs), source.get(e));
 	}
 
 	@Override

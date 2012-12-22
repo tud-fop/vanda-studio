@@ -7,6 +7,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.vanda.studio.util.Pair;
 import org.vanda.studio.util.TokenSource;
 import org.vanda.studio.util.TokenSource.Token;
 
@@ -27,6 +28,11 @@ public final class CompositeType extends Type {
 	}
 
 	@Override
+	public boolean canDecompose() {
+		return true;
+	}
+
+	@Override
 	public boolean contains(Token v) {
 		boolean c = false;
 		ListIterator<Type> i = children.listIterator();
@@ -34,6 +40,11 @@ public final class CompositeType extends Type {
 			c = /* c || */ i.next().contains(v);
 		}
 		return c;
+	}
+
+	@Override
+	public Pair<String, List<Type>> decompose() {
+		return new Pair<String, List<Type>>(constructor, children);
 	}
 
 	@Override
@@ -47,6 +58,11 @@ public final class CompositeType extends Type {
 			}
 		} else
 			return false;
+	}
+
+	@Override
+	public boolean failsOccursCheck(Type rhs) {
+		return false;
 	}
 
 	@Override
@@ -71,10 +87,10 @@ public final class CompositeType extends Type {
 	}
 
 	@Override
-	public Type substitute(Token variable, Type nt) {
+	public Type subst(Token variable, Type nt) {
 		List<Type> nc = new ArrayList<Type>(children.size());
 		for (Type c : children) {
-			nc.add(c.substitute(variable, nt));
+			nc.add(c.subst(variable, nt));
 		}
 		return new CompositeType(constructor, nc);
 	}

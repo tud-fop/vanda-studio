@@ -78,7 +78,9 @@ public final class Types {
 				HashMap<Equation, Pair<Token, Integer>> t1 = new HashMap<Equation, Pair<Token, Integer>>(t);
 				s.clear();
 				t.clear();
-				e.substitute(t1, s1, t, s, addr);
+				e.substitute(t1, t);
+				e.substitute(s1, s);
+				s.put(e, addr);
 				// System.out.println(s);
 			} else {
 				s.put(e, addr);
