@@ -1,9 +1,9 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import org.vanda.studio.model.Model;
-import org.vanda.studio.model.Model.ConnectionSelection;
-import org.vanda.studio.model.hyper.Connection;
-import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.Model.ConnectionSelection;
+import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.hyper.Connection;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;

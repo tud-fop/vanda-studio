@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.model.elements.Port;
-import org.vanda.studio.model.elements.RendererAssortment;
-import org.vanda.studio.model.hyper.Job;
-import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.elements.Port;
+import org.vanda.workflows.elements.RendererAssortment;
+import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;

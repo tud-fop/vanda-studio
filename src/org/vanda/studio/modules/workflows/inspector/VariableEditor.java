@@ -3,8 +3,8 @@ package org.vanda.studio.modules.workflows.inspector;
 import javax.swing.JComponent;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class VariableEditor implements ElementEditorFactory<MutableWorkflow> {
 

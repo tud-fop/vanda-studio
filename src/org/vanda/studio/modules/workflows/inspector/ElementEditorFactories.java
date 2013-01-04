@@ -1,9 +1,9 @@
 package org.vanda.studio.modules.workflows.inspector;
 
-import org.vanda.studio.model.elements.Literal;
-import org.vanda.studio.model.elements.Tool;
-import org.vanda.studio.model.hyper.Connection;
-import org.vanda.studio.model.hyper.MutableWorkflow;
+import org.vanda.workflows.elements.Literal;
+import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class ElementEditorFactories {
 	

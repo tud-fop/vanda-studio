@@ -9,8 +9,8 @@ import javax.swing.SwingUtilities;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.util.ExceptionMessage;
-import org.vanda.studio.util.RCChecker;
+import org.vanda.util.ExceptionMessage;
+import org.vanda.util.RCChecker;
 
 public final class Launcher implements Runnable {
 
@@ -39,12 +39,8 @@ public final class Launcher implements Runnable {
 		Application app = new ApplicationImpl();
 		Module[] ms = {
 				new org.vanda.studio.modules.messages.MessageModule(),
-				// new org.vanda.studio.modules.algorithms.AlgorithmsModule(),
-				new org.vanda.studio.modules.profile.ProfileModule(),
 				new org.vanda.studio.modules.previews.PreviewsModule(),
 				new org.vanda.studio.modules.dictionaries.DictionaryModule(),
-				// new org.vanda.studio.modules.wrtgs.WrtgModule(),
-				// new org.vanda.studio.modules.terms.TermModule(),
 				new org.vanda.studio.modules.workflows.WorkflowModule() };
 		// app.registerPreviewFactory(null, new DefaultPreviewFactory(app));
 

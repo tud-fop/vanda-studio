@@ -52,7 +52,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-import org.vanda.studio.util.Action;
+import org.vanda.util.Action;
 
 /**
  * Component to be used as tabComponent;

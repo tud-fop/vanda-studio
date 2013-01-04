@@ -7,7 +7,7 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
-import org.vanda.studio.util.Action;
+import org.vanda.util.Action;
 
 /**
  * Root node of the Vanda Studio Application Object Model.

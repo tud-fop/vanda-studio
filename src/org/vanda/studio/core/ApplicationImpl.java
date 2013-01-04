@@ -15,21 +15,20 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.app.MetaRepository;
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.app.SemanticsModule;
-import org.vanda.studio.app.ToolFactory;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
-import org.vanda.studio.model.elements.Port;
-import org.vanda.studio.model.elements.Tool;
-import org.vanda.studio.model.types.Type;
-import org.vanda.studio.modules.common.CompositeRepository;
-import org.vanda.studio.util.ExceptionMessage;
-import org.vanda.studio.util.Message;
-import org.vanda.studio.util.MultiplexObserver;
-import org.vanda.studio.util.Observable;
-import org.vanda.studio.util.Observer;
+import org.vanda.types.Type;
+import org.vanda.util.CompositeRepository;
+import org.vanda.util.ExceptionMessage;
+import org.vanda.util.Message;
+import org.vanda.util.MetaRepository;
+import org.vanda.util.MultiplexObserver;
+import org.vanda.util.Observable;
+import org.vanda.util.Observer;
+import org.vanda.workflows.elements.Port;
+import org.vanda.workflows.elements.Tool;
 
 /**
  * @author buechse
@@ -45,14 +44,12 @@ public final class ApplicationImpl implements Application {
 	// protected final CompositeRepository<Profile> profileRepository;
 	protected final HashMap<Type, PreviewFactory> previewFactories;
 	protected final CompositeRepository<SemanticsModule> semanticsModuleRepository;
-	protected final CompositeRepository<ToolFactory> toolFactoryRepository;
 	protected final MultiplexObserver<Application> shutdownObservable;
 	protected final WindowSystemImpl windowSystem;
 	protected final HashSet<Type> types;
 	protected final Observer<SemanticsModule> smObserver;
 	protected final Observer<Tool> typeObserver;
 	protected final Properties properties;
-	protected SemanticsModule semantics;
 	
 	protected static String PROPERTIES_FILE = System.getProperty("user.home") + "/.vanda/studio.conf";
 
@@ -70,7 +67,6 @@ public final class ApplicationImpl implements Application {
 		// profileRepository = new CompositeRepository<Profile>();
 		previewFactories = new HashMap<Type, PreviewFactory>();
 		semanticsModuleRepository = new CompositeRepository<SemanticsModule>();
-		toolFactoryRepository = new CompositeRepository<ToolFactory>();
 		shutdownObservable = new MultiplexObserver<Application>();
 		if (gui)
 			windowSystem = new WindowSystemImpl(this);
@@ -200,11 +196,6 @@ public final class ApplicationImpl implements Application {
 	@Override
 	public MetaRepository<SemanticsModule> getSemanticsModuleMetaRepository() {
 		return semanticsModuleRepository;
-	}
-
-	@Override
-	public MetaRepository<ToolFactory> getToolFactoryMetaRepository() {
-		return toolFactoryRepository;
 	}
 
 	@Override

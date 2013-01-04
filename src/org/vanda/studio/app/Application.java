@@ -6,9 +6,10 @@ package org.vanda.studio.app;
 import java.util.Collection;
 import java.util.Set;
 
-import org.vanda.studio.model.types.Type;
-import org.vanda.studio.util.Message;
-import org.vanda.studio.util.Observable;
+import org.vanda.types.Type;
+import org.vanda.util.Message;
+import org.vanda.util.MetaRepository;
+import org.vanda.util.Observable;
 
 /**
  * Root node of the Vanda Studio Application Object Model.
@@ -45,24 +46,6 @@ public interface Application {
 	 * add or remove their own repositories here.
 	 */
 	MetaRepository<SemanticsModule> getSemanticsModuleMetaRepository();
-	
-	/**
-	 * Returns the repository of tool factory repositories. Modules should
-	 * add or remove their own repositories here.
-	 */
-	MetaRepository<ToolFactory> getToolFactoryMetaRepository();
-	
-	/**
-	 * Returns an immutable combined view of the workflow repositories.
-	 *
-	Repository<WorkflowDescription> getWorkflowRepository();	
-
-	 **
-	 * Returns the repository of workflow repositories. Modules should add or
-	 * remove their own repositories here.
-	 * 
-	Repository<Repository<WorkflowDescription>> getWorkflowRR();
-	*/
 	
 	Observable<Message> getMessageObservable();
 

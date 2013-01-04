@@ -47,8 +47,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
-import org.vanda.studio.util.Lexer;
-import org.vanda.studio.util.Pair;
+import org.vanda.util.Lexer;
+import org.vanda.util.Pair;
 
 public class BerkeleyTreePreviewFactory implements PreviewFactory {
 

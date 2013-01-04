@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.util.Observer;
+import org.vanda.util.Observer;
 
 /**
  * The Module Manager is responsible for loading available Vanda Composer

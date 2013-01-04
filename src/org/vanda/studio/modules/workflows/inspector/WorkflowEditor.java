@@ -9,8 +9,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class WorkflowEditor implements ElementEditorFactory<MutableWorkflow> {
 

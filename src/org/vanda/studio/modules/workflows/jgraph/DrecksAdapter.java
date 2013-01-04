@@ -5,15 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.model.Model;
-import org.vanda.studio.model.Model.ConnectionSelection;
-import org.vanda.studio.model.Model.SingleObjectSelection;
-import org.vanda.studio.model.hyper.Connection;
-import org.vanda.studio.model.hyper.Job;
-import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowChildEvent;
-import org.vanda.studio.model.hyper.MutableWorkflow.WorkflowEvent;
-import org.vanda.studio.util.Observer;
+import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.Model.ConnectionSelection;
+import org.vanda.studio.modules.workflows.model.Model.SingleObjectSelection;
+import org.vanda.util.Observer;
+import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildEvent;
+import org.vanda.workflows.hyper.MutableWorkflow.WorkflowEvent;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;

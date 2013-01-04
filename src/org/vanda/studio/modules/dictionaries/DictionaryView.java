@@ -33,7 +33,7 @@ import javax.swing.table.TableColumn;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.dictionaries.Dictionary.MyDouble;
-import org.vanda.studio.util.Observer;
+import org.vanda.util.Observer;
 
 /**
  * The class DictView is a Swing Component for viewing the output of the EM

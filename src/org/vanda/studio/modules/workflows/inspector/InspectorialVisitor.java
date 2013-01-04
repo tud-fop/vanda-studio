@@ -2,18 +2,18 @@ package org.vanda.studio.modules.workflows.inspector;
 
 import java.util.Locale;
 
-import org.vanda.studio.model.Model;
-import org.vanda.studio.model.Model.SelectionVisitor;
-import org.vanda.studio.model.elements.Port;
-import org.vanda.studio.model.elements.RepositoryItemVisitor;
-import org.vanda.studio.model.hyper.Connection;
-import org.vanda.studio.model.hyper.Job;
-import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.model.immutable.ImmutableWorkflow;
-import org.vanda.studio.model.types.Type;
-import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
+import org.vanda.types.Type;
+import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.elements.Port;
+import org.vanda.workflows.elements.RepositoryItemVisitor;
+import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.immutable.ImmutableWorkflow;
 
-final class InspectorialVisitor extends RepositoryItemVisitor implements
+public final class InspectorialVisitor extends RepositoryItemVisitor implements
 		SelectionVisitor {
 
 	private final Model model;

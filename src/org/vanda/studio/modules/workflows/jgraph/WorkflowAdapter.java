@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.vanda.studio.model.Model;
-import org.vanda.studio.model.Model.WorkflowSelection;
-import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
+import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.hyper.MutableWorkflow;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;

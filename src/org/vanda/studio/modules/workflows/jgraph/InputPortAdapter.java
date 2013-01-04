@@ -1,6 +1,6 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import org.vanda.studio.model.hyper.Job;
+import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;

@@ -1,7 +1,8 @@
 package org.vanda.studio.app;
 
-import org.vanda.studio.model.elements.RepositoryItem;
-import org.vanda.studio.model.elements.Tool;
+import org.vanda.util.MetaRepository;
+import org.vanda.workflows.elements.RepositoryItem;
+import org.vanda.workflows.elements.Tool;
 
 public interface SemanticsModule extends RepositoryItem {
 	

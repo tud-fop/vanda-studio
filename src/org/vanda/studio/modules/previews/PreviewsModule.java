@@ -3,7 +3,7 @@ package org.vanda.studio.modules.previews;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.app.PreviewFactory;
-import org.vanda.studio.model.types.CompositeType;
+import org.vanda.types.CompositeType;
 
 public class PreviewsModule implements Module {
 

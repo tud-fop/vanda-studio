@@ -29,10 +29,10 @@ import javax.swing.filechooser.FileSystemView;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
-import org.vanda.studio.model.elements.Literal;
-import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.model.types.Type;
-import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.types.Type;
+import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.elements.Literal;
+import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class LiteralEditor implements ElementEditorFactory<Literal> {
 

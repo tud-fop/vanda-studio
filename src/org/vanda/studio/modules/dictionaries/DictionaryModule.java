@@ -13,8 +13,8 @@ import javax.swing.JEditorPane;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.studio.app.PreviewFactory;
-import org.vanda.studio.model.types.CompositeType;
-import org.vanda.studio.util.ExceptionMessage;
+import org.vanda.types.CompositeType;
+import org.vanda.util.ExceptionMessage;
 
 /**
  * @author buechse

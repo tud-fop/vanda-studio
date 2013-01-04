@@ -1,9 +1,9 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import org.vanda.studio.model.Model;
-import org.vanda.studio.model.Model.VariableSelection;
-import org.vanda.studio.model.hyper.Job;
-import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.Model.VariableSelection;
+import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;

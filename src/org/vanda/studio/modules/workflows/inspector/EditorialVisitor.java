@@ -3,16 +3,16 @@ package org.vanda.studio.modules.workflows.inspector;
 import javax.swing.JComponent;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.model.Model.SelectionVisitor;
-import org.vanda.studio.model.elements.Literal;
-import org.vanda.studio.model.elements.RepositoryItemVisitor;
-import org.vanda.studio.model.elements.Tool;
-import org.vanda.studio.model.hyper.Connection;
-import org.vanda.studio.model.hyper.Job;
-import org.vanda.studio.model.hyper.MutableWorkflow;
-import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
+import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.elements.Literal;
+import org.vanda.workflows.elements.RepositoryItemVisitor;
+import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.MutableWorkflow;
 
-final class EditorialVisitor implements SelectionVisitor {
+public final class EditorialVisitor implements SelectionVisitor {
 
 	private final Application app;
 	private final ElementEditorFactories eefs;

@@ -6,11 +6,11 @@ package org.vanda.studio.modules.common;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.vanda.studio.app.Repository;
-import org.vanda.studio.model.elements.RepositoryItem;
-import org.vanda.studio.util.MultiplexObserver;
-import org.vanda.studio.util.Observable;
-import org.vanda.studio.util.Observer;
+import org.vanda.util.MultiplexObserver;
+import org.vanda.util.Observable;
+import org.vanda.util.Observer;
+import org.vanda.util.Repository;
+import org.vanda.workflows.elements.RepositoryItem;
 
 /**
  * @author buechse

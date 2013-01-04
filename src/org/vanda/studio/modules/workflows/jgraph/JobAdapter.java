@@ -2,11 +2,11 @@ package org.vanda.studio.modules.workflows.jgraph;
 
 import java.util.Map;
 
-import org.vanda.studio.model.Model;
-import org.vanda.studio.model.Model.JobSelection;
-import org.vanda.studio.model.elements.Port;
-import org.vanda.studio.model.hyper.Job;
-import org.vanda.studio.util.TokenSource.Token;
+import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.Model.JobSelection;
+import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.elements.Port;
+import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
