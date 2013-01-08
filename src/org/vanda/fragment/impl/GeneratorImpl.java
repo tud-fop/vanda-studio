@@ -12,12 +12,12 @@ import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.FragmentBase;
 import org.vanda.fragment.model.FragmentCompiler;
 import org.vanda.fragment.model.FragmentIO;
+import org.vanda.fragment.model.FragmentTool;
 import org.vanda.fragment.model.Generator;
 import org.vanda.fragment.model.Profile;
 import org.vanda.studio.app.Application;
 import org.vanda.types.Type;
 import org.vanda.workflows.elements.Tool;
-import org.vanda.workflows.immutable.AtomicImmutableJob;
 import org.vanda.workflows.immutable.ImmutableWorkflow;
 import org.vanda.workflows.immutable.JobInfo;
 
@@ -45,28 +45,21 @@ public class GeneratorImpl implements Generator, FragmentIO {
 			fragments = new HashMap<String, Fragment>();
 			fb = new FragmentBase() {
 				@Override
-				public Tool getConversionTool(Type from, Type to) {
-					return null;
-					/*
-					 * return LinkerUtil.getConversionTool(ProfileImpl.this.app
-					 * .getConverterToolMetaRepository().getRepository(), from,
-					 * to);
-					 */
-				}
-
-				@Override
 				public Fragment getFragment(String name) {
 					return fragments.get(name);
 				}
 			};
 		}
 
-		public String generateAtomic(AtomicImmutableJob j) throws IOException {
-			assert (j.getElement() instanceof Tool);
-			Fragment result = map.get(j.getElement().getId());
+		public String generateAtomic(Tool t) throws IOException {
+			Fragment result = map.get(t.getId());
 			if (result == null) {
-				result = new Fragment(j.getElement().getId());
-				map.put(j.getElement(), result);
+				FragmentTool ft = prof.getFragmentToolMetaRepository()
+						.getRepository().getItem(t.getId());
+				assert (ft != null); // TODO this should be guaranteed via tool
+										// interfaces
+				result = new Fragment(t.getId(), ft.getImports());
+				map.put(t, result);
 				fragments.put(result.name, result);
 			}
 			return result.name;
@@ -84,9 +77,8 @@ public class GeneratorImpl implements Generator, FragmentIO {
 				ArrayList<String> frags = new ArrayList<String>(jobs.size());
 				for (int i = 0; i < jobs.size(); i++) {
 					JobInfo ji = jobs.get(i);
-					if (ji.job instanceof AtomicImmutableJob
-							&& ((AtomicImmutableJob) ji.job).getElement() instanceof Tool)
-						frags.add(generateAtomic((AtomicImmutableJob) ji.job));
+					if (ji.job.getElement() instanceof Tool)
+						frags.add(generateAtomic((Tool) ji.job.getElement()));
 					else
 						frags.add(null);
 				}

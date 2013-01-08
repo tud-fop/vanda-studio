@@ -17,7 +17,6 @@ import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 import org.w3c.dom.Document;
 
 import com.mxgraph.util.mxCellRenderer;
@@ -105,11 +104,6 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 	@Override
 	public String getVersion() {
 		return "2012-12-14";
-	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
-
 	}
 
 	@Override

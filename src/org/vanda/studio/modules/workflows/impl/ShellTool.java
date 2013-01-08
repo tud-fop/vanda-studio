@@ -1,4 +1,4 @@
-package org.vanda.fragment.bash;
+package org.vanda.studio.modules.workflows.impl;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -7,18 +7,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.vanda.fragment.bash.RendererSelector;
+import org.vanda.fragment.model.FragmentTool;
 import org.vanda.types.CompositeType;
 import org.vanda.types.Type;
 import org.vanda.types.TypeVariable;
 import org.vanda.types.Types;
-import org.vanda.util.Action;
 import org.vanda.util.Lexer;
 import org.vanda.util.TokenSource;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
 import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.elements.ToolInterface;
 
-public class ShellTool extends Tool {
+public class ShellTool extends Tool implements FragmentTool {
 
 	private final String id;
 	private final String name;
@@ -30,10 +32,12 @@ public class ShellTool extends Tool {
 	private final List<Port> outPorts;
 	private final Set<String> imports;
 	private final RendererSelector rs;
+	private final ToolInterface ti;
 
 	public ShellTool(String id, String name, String category, String version,
 			String contact, String description, List<Port> inPorts,
-			List<Port> outPorts, Set<String> imports, RendererSelector rs) {
+			List<Port> outPorts, Set<String> imports, RendererSelector rs,
+			ToolInterface ti) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -45,6 +49,7 @@ public class ShellTool extends Tool {
 		this.outPorts = outPorts;
 		this.imports = new HashSet<String>(imports);
 		this.rs = rs;
+		this.ti = ti;
 	}
 
 	@Override
@@ -98,10 +103,6 @@ public class ShellTool extends Tool {
 	}
 
 	@Override
-	public void appendActions(List<Action> as) {
-	}
-
-	@Override
 	public Set<String> getImports() {
 		return imports;
 	}
@@ -137,5 +138,10 @@ public class ShellTool extends Tool {
 			}
 		}
 		return t;
+	}
+
+	@Override
+	public ToolInterface getInterface() {
+		return ti;
 	}
 }

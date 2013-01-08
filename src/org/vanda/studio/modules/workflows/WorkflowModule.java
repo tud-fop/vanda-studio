@@ -19,6 +19,7 @@ import org.vanda.studio.app.Module;
 import org.vanda.studio.app.SemanticsModule;
 import org.vanda.studio.modules.common.ExternalRepository;
 import org.vanda.studio.modules.common.ListRepository;
+import org.vanda.studio.modules.workflows.impl.ShellTool;
 import org.vanda.studio.modules.workflows.impl.ToolLoader;
 import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
@@ -37,8 +38,9 @@ import org.vanda.util.CompositeRepository;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.MetaRepository;
 import org.vanda.util.Observer;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
+import org.vanda.util.Repository;
 import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.elements.ToolInterface;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.Serialization;
 
@@ -69,6 +71,7 @@ public class WorkflowModule implements Module {
 		public static String TOOL_PATH_DEFAULT = System
 				.getProperty("user.home") + "/.vanda/functions/";
 
+		@SuppressWarnings("unchecked")
 		public WorkflowModuleInstance(Application a) {
 			app = a;
 			profile = new ProfileImpl();
@@ -83,16 +86,62 @@ public class WorkflowModule implements Module {
 			repository.addItem(profile);
 			manager = null;
 
-			String path = app.getProperty(TOOL_PATH_KEY);
-			if (path == null) {
-				path = TOOL_PATH_DEFAULT;
-				app.setProperty(TOOL_PATH_KEY, TOOL_PATH_DEFAULT);
-			}
 			tools = new CompositeRepository<Tool>();
-			ExternalRepository<Tool> er = new ExternalRepository<Tool>(
-					new ToolLoader(app, path));
-			tools.addRepository(er);
-			er.refresh();
+			ToolInterface ti = new ToolInterface() {
+				ExternalRepository<ShellTool> er;
+
+				{
+					String path = app.getProperty(TOOL_PATH_KEY);
+					if (path == null) {
+						path = TOOL_PATH_DEFAULT;
+						app.setProperty(TOOL_PATH_KEY, TOOL_PATH_DEFAULT);
+					}
+					er = new ExternalRepository<ShellTool>(new ToolLoader(app,
+							path, this));
+
+				}
+
+				@Override
+				public String getCategory() {
+					return "Generic Tool Interface";
+				}
+
+				@Override
+				public String getContact() {
+					return "Matthias.Buechse@tu-dresden.de";
+				}
+
+				@Override
+				public String getDescription() {
+					return "This is a generic tool interface. It only exists "
+							+ "for a transition period until we have real tool "
+							+ "interfaces.";
+				}
+
+				@Override
+				public String getId() {
+					return "ak4711";
+				}
+
+				@Override
+				public String getName() {
+					return "Generic Tool Interface";
+				}
+
+				@Override
+				public String getVersion() {
+					return "2013-01-08";
+				}
+
+				@Override
+				public Repository<? extends Tool> getTools() {
+					return er;
+				}
+
+			};
+			profile.getFragmentToolMetaRepository().addRepository((Repository<ShellTool>) ti.getTools());
+			tools.addRepository(ti.getTools());
+			ti.getTools().refresh();
 
 			eefs = new ElementEditorFactories();
 			eefs.workflowFactories
@@ -131,9 +180,15 @@ public class WorkflowModule implements Module {
 			@Override
 			public void invoke() {
 				MutableWorkflow mwf = new MutableWorkflow("Workflow");
-				new WorkflowEditorImpl(app, toolFactories, mwf, /* app
-						.getSemanticsModuleMetaRepository().getRepository()
-						.getItem("profile")*/ WorkflowModuleInstance.this);
+				new WorkflowEditorImpl(app, toolFactories, mwf, /*
+																 * app .
+																 * getSemanticsModuleMetaRepository
+																 * (
+																 * ).getRepository
+																 * () .getItem(
+																 * "profile")
+																 */
+				WorkflowModuleInstance.this);
 			}
 		}
 
@@ -166,9 +221,10 @@ public class WorkflowModule implements Module {
 					MutableWorkflow hwf;
 					try {
 						SemanticsModule prof = WorkflowModuleInstance.this;
-						/* app
-								.getSemanticsModuleMetaRepository()
-								.getRepository().getItem("profile"); */
+						/*
+						 * app .getSemanticsModuleMetaRepository()
+						 * .getRepository().getItem("profile");
+						 */
 						Serialization ser = new Serialization(prof
 								.getToolMetaRepository().getRepository());
 						hwf = ser.load(filePath);
@@ -232,12 +288,6 @@ public class WorkflowModule implements Module {
 		@Override
 		public String getVersion() {
 			return "2012-12-12";
-		}
-
-		@Override
-		public void visit(RepositoryItemVisitor v) {
-			// TODO Auto-generated method stub
-
 		}
 
 	}

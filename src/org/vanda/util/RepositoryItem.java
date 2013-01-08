@@ -1,4 +1,4 @@
-package org.vanda.workflows.elements;
+package org.vanda.util;
 
 public interface RepositoryItem {
 
@@ -17,7 +17,5 @@ public interface RepositoryItem {
 	String getName();
 
 	String getVersion();
-	
-	void visit(RepositoryItemVisitor v);
 	
 }

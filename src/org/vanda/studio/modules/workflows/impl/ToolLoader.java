@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.vanda.fragment.bash.RendererSelector;
 import org.vanda.fragment.bash.RendererSelectors;
-import org.vanda.fragment.bash.ShellTool;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.common.Loader;
 import org.vanda.types.Type;
@@ -20,20 +19,22 @@ import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
 import org.vanda.util.TokenSource;
 import org.vanda.workflows.elements.Port;
-import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.elements.ToolInterface;
 
-public class ToolLoader implements Loader<Tool> {
+public class ToolLoader implements Loader<ShellTool> {
 
 	protected final Application app;
 	protected final String path;
+	protected final ToolInterface ti;
 
-	public ToolLoader(Application app, String path) {
+	public ToolLoader(Application app, String path, ToolInterface ti) {
 		this.app = app;
 		this.path = path;
+		this.ti = ti;
 	}
 
 	@Override
-	public void load(Observer<Tool> o) {
+	public void load(Observer<ShellTool> o) {
 		// TODO Auto-generated method stub
 		for (File f : (new File(path)).listFiles()) {
 			if (f.isFile() && f.getAbsolutePath().endsWith(".bash"))
@@ -42,7 +43,7 @@ public class ToolLoader implements Loader<Tool> {
 
 	}
 
-	public void loadFromFile(File file, Observer<Tool> o) {
+	public void loadFromFile(File file, Observer<ShellTool> o) {
 		Set<String> imports = new HashSet<String>();
 		imports.add(file.getAbsolutePath());
 		Scanner sc = null;
@@ -101,8 +102,8 @@ public class ToolLoader implements Loader<Tool> {
 						List<Port> out = new ArrayList<Port>();
 						out.addAll(outPorts);
 						outPorts.clear();
-						Tool t = new ShellTool(id, name, category, version,
-								contact, description, in, out, imports, rs);
+						ShellTool t = new ShellTool(id, name, category, version,
+								contact, description, in, out, imports, rs, ti);
 						o.notify(t);
 						nameFound = false;
 						ts = new TokenSource();

@@ -3,7 +3,6 @@ package org.vanda.workflows.immutable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.vanda.types.Type;
@@ -56,18 +55,6 @@ public final class ImmutableWorkflow {
 		}
 		this.types = types;
 		this.fragmentType = fragmentType;
-	}
-
-	public ImmutableWorkflow dereference(ListIterator<Token> path) {
-		assert (path != null);
-		if (path.hasNext()) {
-			ImmutableJob job = deref.get(path.next());
-			if (job != null)
-				return job.dereference(path);
-			else
-				return null;
-		} else
-			return this;
 	}
 
 	public ArrayList<JobInfo> getChildren() {

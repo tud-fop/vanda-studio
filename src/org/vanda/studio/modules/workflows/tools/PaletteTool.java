@@ -22,9 +22,7 @@ import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.CompositeType;
 import org.vanda.workflows.elements.Literal;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 import org.vanda.workflows.elements.Tool;
-import org.vanda.workflows.hyper.AtomicJob;
 import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxICell;
@@ -85,26 +83,26 @@ public class PaletteTool implements ToolFactory {
 	
 			// get all palette items
 			for (Tool t : wfe.getSemanticsModule().getToolMetaRepository().getRepository().getItems())
-				templates.add(new AtomicJob(t));
+				templates.add(new Job(t));
 			// templates.add(new AtomicJob(new Choice()));
 			// templates.add(new AtomicJob(new InputPort()));
 			// templates.add(new AtomicJob(new OutputPort()));
-			templates.add(new AtomicJob(
+			templates.add(new Job(
 					new Literal(new CompositeType("String"), "")));
 			Collections.sort(templates, new Comparator<Job>() {
 				@Override
 				public int compare(Job o1, Job o2) {
-					return o1.getItem().getName().compareTo(o2.getItem().getName());
+					return o1.getName().compareTo(o2.getName());
 				}
 			});
 	
 			// partition items into categories
 			Map<String, List<Job>> catMap = new HashMap<String, List<Job>>();
 			for (Job template : templates) {
-				List<Job> catList = catMap.get(template.getItem().getCategory());
+				List<Job> catList = catMap.get(template.getElement().getCategory());
 				if (catList == null) {
 					catList = new ArrayList<Job>();
-					catMap.put(template.getItem().getCategory(), catList);
+					catMap.put(template.getElement().getCategory(), catList);
 				}
 				catList.add(template);
 			}
@@ -138,7 +136,7 @@ public class PaletteTool implements ToolFactory {
 				List<Job> searchResults = new LinkedList<Job>();
 				text = text.toLowerCase();
 				for (Job template : templates) {
-					if (template.getItem().getName().toLowerCase().contains(text))
+					if (template.getName().toLowerCase().contains(text))
 						searchResults.add(template);
 				}
 	
@@ -204,11 +202,6 @@ public class PaletteTool implements ToolFactory {
 	@Override
 	public String getVersion() {
 		return "2012-12-19";
-	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
-		
 	}
 
 	@Override

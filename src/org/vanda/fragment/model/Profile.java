@@ -2,7 +2,7 @@ package org.vanda.fragment.model;
 
 import org.vanda.types.Type;
 import org.vanda.util.MetaRepository;
-import org.vanda.workflows.elements.RepositoryItem;
+import org.vanda.util.RepositoryItem;
 
 public interface Profile extends RepositoryItem {
 	
@@ -11,6 +11,8 @@ public interface Profile extends RepositoryItem {
 	MetaRepository<FragmentCompiler> getFragmentCompilerMetaRepository();
 	
 	MetaRepository<FragmentLinker> getFragmentLinkerMetaRepository();
+	
+	MetaRepository<FragmentTool> getFragmentToolMetaRepository();
 	
 	FragmentLinker getLinker(String id);
 	

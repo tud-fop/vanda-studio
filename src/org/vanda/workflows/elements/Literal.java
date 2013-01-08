@@ -2,11 +2,9 @@ package org.vanda.workflows.elements;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.vanda.types.Type;
 import org.vanda.types.Types;
-import org.vanda.util.Action;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
 
@@ -26,14 +24,25 @@ public final class Literal implements Element {
 		observable = new MultiplexObserver<ElementEvent>();
 	}
 
-	@Override
-	public void appendActions(List<Action> as) {
-
-	}
 	
 	@Override
 	public Element clone() {
 		return new Literal(port.getType(), value);
+	}
+
+	@Override
+	public String getCategory() {
+		return "basics";
+	}
+
+	@Override
+	public String getContact() {
+		return "Vanda Studio Team";
+	}
+
+	@Override
+	public String getDescription() {
+		return "";
 	}
 
 	@Override
@@ -57,28 +66,21 @@ public final class Literal implements Element {
 	}
 
 	@Override
+	public Observable<ElementEvent> getObservable() {
+		return observable;
+	}
+
+	@Override
 	public List<Port> getOutputPorts() {
 		return ports;
 	}
 
-	@Override
-	public <R> R selectRenderer(RendererAssortment<R> ra) {
-		return ra.selectLiteralRenderer();
+	public Type getType() {
+		return port.getType();
 	}
 
-	@Override
-	public String getCategory() {
-		return "basics";
-	}
-
-	@Override
-	public String getContact() {
-		return "Vanda Studio Team";
-	}
-
-	@Override
-	public String getDescription() {
-		return "";
+	public String getValue() {
+		return value;
 	}
 
 	@Override
@@ -86,8 +88,9 @@ public final class Literal implements Element {
 		return "n/a";
 	}
 
-	public Type getType() {
-		return port.getType();
+	@Override
+	public <R> R selectRenderer(RendererAssortment<R> ra) {
+		return ra.selectLiteralRenderer();
 	}
 
 	public void setType(Type type) {
@@ -95,10 +98,6 @@ public final class Literal implements Element {
 			port.setType(type);
 			observable.notify(new Elements.PropertyChangeEvent(this));
 		}
-	}
-
-	public String getValue() {
-		return value;
 	}
 
 	public void setValue(String value) {
@@ -109,17 +108,7 @@ public final class Literal implements Element {
 	}
 
 	@Override
-	public void visit(RepositoryItemVisitor v) {
+	public void visit(ElementVisitor v) {
 		v.visitLiteral(this);
-	}
-
-	@Override
-	public Observable<ElementEvent> getObservable() {
-		return observable;
-	}
-
-	@Override
-	public Set<String> getImports() {
-		return Collections.emptySet();
 	}
 }

@@ -19,7 +19,6 @@ import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
 import org.vanda.types.Type;
 import org.vanda.util.Observer;
 import org.vanda.util.TokenSource.Token;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 import org.vanda.workflows.hyper.Connection;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
@@ -204,12 +203,6 @@ public class InspectorTool implements SemanticsToolFactory {
 	@Override
 	public String getVersion() {
 		return "2012-12-12";
-	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

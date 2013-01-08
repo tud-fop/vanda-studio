@@ -20,7 +20,7 @@ import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
 import org.vanda.util.Observer;
 import org.vanda.util.Repository;
-import org.vanda.workflows.elements.RepositoryItem;
+import org.vanda.util.RepositoryItem;
 
 public final class ProfileManager {
 

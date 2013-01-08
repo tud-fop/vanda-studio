@@ -4,21 +4,23 @@ import java.util.Iterator;
 
 import org.vanda.fragment.model.FragmentCompiler;
 import org.vanda.fragment.model.FragmentLinker;
+import org.vanda.fragment.model.FragmentTool;
 import org.vanda.fragment.model.Profile;
 import org.vanda.types.Type;
 import org.vanda.types.Types;
 import org.vanda.util.CompositeRepository;
 import org.vanda.util.MetaRepository;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 
 public final class ProfileImpl implements Profile {
 
 	private final MetaRepository<FragmentCompiler> fragmentCompilers;
 	private final MetaRepository<FragmentLinker> fragmentLinkers;
+	private final MetaRepository<FragmentTool> fragmentTools;
 
 	public ProfileImpl() {
 		fragmentCompilers = new CompositeRepository<FragmentCompiler>();
 		fragmentLinkers = new CompositeRepository<FragmentLinker>();
+		fragmentTools = new CompositeRepository<FragmentTool>();
 	}
 
 	@Override
@@ -29,6 +31,11 @@ public final class ProfileImpl implements Profile {
 	@Override
 	public MetaRepository<FragmentLinker> getFragmentLinkerMetaRepository() {
 		return fragmentLinkers;
+	}
+
+	@Override
+	public MetaRepository<FragmentTool> getFragmentToolMetaRepository() {
+		return fragmentTools;
 	}
 
 	@Override
@@ -97,11 +104,6 @@ public final class ProfileImpl implements Profile {
 	@Override
 	public String getVersion() {
 		return "0.1";
-	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
-
 	}
 
 }

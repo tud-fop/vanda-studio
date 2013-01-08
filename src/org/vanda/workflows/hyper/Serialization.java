@@ -37,8 +37,10 @@ public final class Serialization {
 		xs.registerConverter(new ToolConverter(tr));
 		xs.addImmutableType(TokenSource.Token.class);
 		xs.addImmutableType(Tool.class);
+		xs.alias("ovsm.hyper.AtomicJob", Job.class);
 		xs.aliasPackage("ovsu", "org.vanda.util");
-		xs.aliasPackage("org.vanda.studio.modules.profile", "org.vanda.fragment.bash");
+		xs.aliasPackage("org.vanda.studio.modules.profile",
+				"org.vanda.studio.modules.workflows.impl");
 		xs.aliasPackage("ovsm.types", "org.vanda.types");
 		xs.aliasPackage("ovsm", "org.vanda.workflows");
 		return xs;

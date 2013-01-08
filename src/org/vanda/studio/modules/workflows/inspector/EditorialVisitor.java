@@ -5,8 +5,8 @@ import javax.swing.JComponent;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
 import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Connection;
 import org.vanda.workflows.hyper.Job;
@@ -36,7 +36,7 @@ public final class EditorialVisitor implements SelectionVisitor {
 	@Override
 	public void visitJob(final Token address, final MutableWorkflow wf,
 			final Job j) {
-		j.getItem().visit(new RepositoryItemVisitor() {
+		j.visit(new ElementVisitor() {
 
 			@Override
 			public void visitLiteral(Literal l) {

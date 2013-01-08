@@ -2,7 +2,6 @@ package org.vanda.workflows.hyper;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
@@ -184,6 +183,7 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 		}
 	}
 
+	/*
 	public MutableWorkflow dereference(ListIterator<Token> address) {
 		assert (address != null);
 		if (address.hasNext()) {
@@ -195,6 +195,7 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 		} else
 			return this;
 	}
+	*/
 
 	public List<Connection> getConnections() {
 		// only for putting existing HyperGraphs into the GUI
@@ -260,12 +261,6 @@ public final class MutableWorkflow extends DrecksWorkflow implements Cloneable,
 				ji.job.rebind();
 				bind(ji.job);
 			}
-	}
-
-	public void visitAll(JobVisitor v) {
-		for (DJobInfo ji : children)
-			if (ji != null)
-				ji.job.visit(v);
 	}
 
 	@Override

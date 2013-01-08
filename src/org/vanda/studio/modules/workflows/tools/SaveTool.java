@@ -12,7 +12,6 @@ import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 import org.vanda.workflows.hyper.Serialization;
 
 public final class SaveTool implements ToolFactory {
@@ -53,12 +52,6 @@ public final class SaveTool implements ToolFactory {
 	public String getVersion() {
 		return "2012-12-12";
 	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
-
-	}
-
 
 	protected class SaveWorkflowAction implements Action {
 

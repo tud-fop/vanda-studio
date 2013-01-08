@@ -12,9 +12,9 @@ import org.vanda.types.Type;
 
 public class Port {
 
-	String identifier;
+	private final String identifier;
 
-	Type type;
+	private Type type;
 
 	public Port(String identifier, Type type) {
 		if (identifier == null)

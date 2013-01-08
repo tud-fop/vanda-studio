@@ -8,7 +8,6 @@ import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.CompositeRepository;
 import org.vanda.util.MetaRepository;
 import org.vanda.util.Repository;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 
 public class SemanticsTool implements ToolFactory {
 	
@@ -68,11 +67,6 @@ public class SemanticsTool implements ToolFactory {
 	@Override
 	public String getVersion() {
 		return "2012-12-20";
-	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
-
 	}
 
 	@Override

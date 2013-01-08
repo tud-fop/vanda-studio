@@ -2,18 +2,24 @@ package org.vanda.workflows.hyper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.vanda.types.Type;
-import org.vanda.util.HasActions;
+import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
+import org.vanda.util.Observer;
 import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.elements.Element;
+import org.vanda.workflows.elements.Element.ElementListener;
+import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
-import org.vanda.workflows.elements.RepositoryItem;
+import org.vanda.workflows.elements.Element.ElementEvent;
 import org.vanda.workflows.immutable.ImmutableJob;
 
-public abstract class Job implements HasActions, Cloneable {
+public final class Job implements Cloneable, ElementListener {
+	public static interface JobEvent {
+		void doNotify(JobListener jl);
+	}
 	
 	public static interface JobListener {
 		// removed: see older versions
@@ -24,35 +30,68 @@ public abstract class Job implements HasActions, Cloneable {
 		void propertyChanged(Job j);		
 	}
 	
-	public static interface JobEvent {
-		void doNotify(JobListener jl);
-	}
-	
-	public final ArrayList<Token> inputs = new ArrayList<Token>();
-	
-	public final ArrayList<Token> outputs = new ArrayList<Token>();
-	
 	protected Token address;
-
+	private final Element element;
+	private final MultiplexObserver<JobEvent> observable;
+	public final ArrayList<Token> inputs = new ArrayList<Token>();
+	public final ArrayList<Token> outputs = new ArrayList<Token>();
 	protected final double[] dimensions = new double[4];
 	
+	public Job(Element element) {
+		address = null;
+		this.element = element;
+		if (element.getObservable() != null)
+			observable = new MultiplexObserver<JobEvent>();
+		else
+			observable = null;
+		rebind();
+	}
+	
 	@Override
-	public abstract Job clone() throws CloneNotSupportedException;
+	public Job clone() throws CloneNotSupportedException {
+		return new Job(element.clone());
+	}
 
-	public abstract MutableWorkflow dereference(ListIterator<Token> address);
+	public ImmutableJob freeze() {
+		return new ImmutableJob(address, getElement());
+	}
+
+	public Token getAddress() {
+		return address;
+	}
+
+	public Element getElement() {
+		return element;
+	}
+
+	public Type getFragmentType() {
+		return getElement().getFragmentType();
+	}
 
 	public double getHeight() {
 		return dimensions[3];
 	}
 
-	public abstract List<Port> getInputPorts();
+	public List<Port> getInputPorts() {
+		return getElement().getInputPorts();
+	}
 	
-	public abstract Observable<JobEvent> getObservable();
+	public String getName() {
+		return element.getName();
+	}
 
-	public abstract List<Port> getOutputPorts();
+	public Observable<JobEvent> getObservable() {
+		return observable;
+	}
+
+	// public MutableWorkflow dereference(ListIterator<Token> address) {
+	// 	return null;
+	// }
 	
-	public abstract Type getFragmentType();
-
+	public List<Port> getOutputPorts() {
+		return getElement().getOutputPorts();
+	}
+	
 	public double getWidth() {
 		return dimensions[2];
 	}
@@ -65,27 +104,35 @@ public abstract class Job implements HasActions, Cloneable {
 		return dimensions[1];
 	}
 
-	public abstract ImmutableJob freeze() throws Exception;
+	public void propertyChanged(Element e) {
+		observable.notify(new Jobs.PropertyChangedEvent(this));
+	}
 
-	public abstract <R> R selectRenderer(RendererAssortment<R> ra);
+	/**
+	 *  call this after deserialization
+	 */
+	public void rebind() {
+		if (observable != null)
+			getElement().getObservable().addObserver(new Observer<ElementEvent>() {
+				@Override
+				public void notify(ElementEvent event) {
+					event.doNotify(Job.this);
+				}
+			});
+	}
+	
+	public <R> R selectRenderer(RendererAssortment<R> ra) {
+		return getElement().selectRenderer(ra);
+	}
 
 	/** { x, y, width, height } */
 	public void setDimensions(double[] d) {
 		assert(d.length == 4);
 		System.arraycopy(d, 0, dimensions, 0, 4);
 	}
-
-	public Token getAddress() {
-		return address;
+	
+	public void visit(ElementVisitor v) {
+		getElement().visit(v);
 	}
-	
-	public abstract RepositoryItem getItem();
-	
-	/**
-	 *  call this after deserialization
-	 */
-	public abstract void rebind();
-	
-	public abstract void visit(JobVisitor v);
 
 }

@@ -6,14 +6,14 @@ import org.vanda.studio.modules.workflows.model.Model;
 import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
 import org.vanda.types.Type;
 import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Port;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 import org.vanda.workflows.hyper.Connection;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.immutable.ImmutableWorkflow;
 
-public final class InspectorialVisitor extends RepositoryItemVisitor implements
+public final class InspectorialVisitor extends ElementVisitor implements
 		SelectionVisitor {
 
 	private final Model model;
@@ -75,11 +75,11 @@ public final class InspectorialVisitor extends RepositoryItemVisitor implements
 		Job tjob = wf.getChild(cc.target);
 		sb.append("<html><h1>Connection</h1><dl>");
 		sb.append("<dt>Source</dt><dd>");
-		sb.append(sjob.getItem().getName());
+		sb.append(sjob.getElement().getName());
 		sb.append("</dd><dt>Source Port</dt><dd>");
 		sb.append(sjob.getOutputPorts().get(cc.sourcePort).getIdentifier());
 		sb.append("</dd><dt>Target</dt><dd>");
-		sb.append(tjob.getItem().getName());
+		sb.append(tjob.getElement().getName());
 		sb.append("</dd><dt>Target Port</dt><dd>");
 		sb.append(tjob.getInputPorts().get(cc.targetPort).getIdentifier());
 		sb.append("</dd><dt>Variable</dt><dd>x");
@@ -95,11 +95,11 @@ public final class InspectorialVisitor extends RepositoryItemVisitor implements
 	@Override
 	public void visitJob(Token address, MutableWorkflow wf, Job j) {
 		sb.append("<html><h1>");
-		sb.append(j.getItem().getName());
+		sb.append(j.getElement().getName());
 		sb.append("</h1><dl><dt>Contact</dt><dd>");
-		sb.append(j.getItem().getContact());
+		sb.append(j.getElement().getContact());
 		sb.append("</dd><dt>Category</dt><dd>");
-		sb.append(j.getItem().getCategory());
+		sb.append(j.getElement().getCategory());
 		sb.append("</dd></dl>");
 		sb.append("<h2>Ports</h2><table width=\"400px\"><tr>"
 				+ "<th>Input Ports</th>");
@@ -123,9 +123,9 @@ public final class InspectorialVisitor extends RepositoryItemVisitor implements
 		sb.append("</ul></td></tr></table>");
 		sb.append("<h2>Description</h2>");
 		// sb.append("<p>");
-		sb.append(j.getItem().getDescription());
+		sb.append(j.getElement().getDescription());
 		sb.append("<p>");
-		j.getItem().visit(this);
+		j.getElement().visit(this);
 		sb.append("</html>");
 	}
 
