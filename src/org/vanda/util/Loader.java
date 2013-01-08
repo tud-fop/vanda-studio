@@ -1,6 +1,5 @@
-package org.vanda.studio.modules.common;
+package org.vanda.util;
 
-import org.vanda.util.Observer;
 
 public interface Loader<T> {
 	/** scans for items and notifies caller per item */

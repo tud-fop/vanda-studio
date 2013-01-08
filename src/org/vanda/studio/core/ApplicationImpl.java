@@ -16,7 +16,6 @@ import java.util.UUID;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
-import org.vanda.studio.app.SemanticsModule;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.types.Type;
@@ -29,6 +28,7 @@ import org.vanda.util.Observable;
 import org.vanda.util.Observer;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.elements.ToolInterface;
 
 /**
  * @author buechse
@@ -43,11 +43,11 @@ public final class ApplicationImpl implements Application {
 	protected final MultiplexObserver<Application> modeObservable;
 	// protected final CompositeRepository<Profile> profileRepository;
 	protected final HashMap<Type, PreviewFactory> previewFactories;
-	protected final CompositeRepository<SemanticsModule> semanticsModuleRepository;
+	protected final CompositeRepository<ToolInterface> toolInterfaceRepository;
 	protected final MultiplexObserver<Application> shutdownObservable;
 	protected final WindowSystemImpl windowSystem;
 	protected final HashSet<Type> types;
-	protected final Observer<SemanticsModule> smObserver;
+	protected final Observer<ToolInterface> tiObserver;
 	protected final Observer<Tool> typeObserver;
 	protected final Properties properties;
 	
@@ -66,7 +66,7 @@ public final class ApplicationImpl implements Application {
 		modeObservable = new MultiplexObserver<Application>();
 		// profileRepository = new CompositeRepository<Profile>();
 		previewFactories = new HashMap<Type, PreviewFactory>();
-		semanticsModuleRepository = new CompositeRepository<SemanticsModule>();
+		toolInterfaceRepository = new CompositeRepository<ToolInterface>();
 		shutdownObservable = new MultiplexObserver<Application>();
 		if (gui)
 			windowSystem = new WindowSystemImpl(this);
@@ -95,18 +95,18 @@ public final class ApplicationImpl implements Application {
 			
 		};
 		
-		smObserver = new Observer<SemanticsModule>() {
+		tiObserver = new Observer<ToolInterface>() {
 
 			@Override
-			public void notify(SemanticsModule mod) {
-				for (Tool t : mod.getToolMetaRepository().getRepository().getItems())
+			public void notify(ToolInterface ti) {
+				for (Tool t : ti.getTools().getItems())
 					typeObserver.notify(t);
 			}
 			
 		};
 		
 		// converterToolRepository.getAddObservable().addObserver(typeObserver);
-		semanticsModuleRepository.getAddObservable().addObserver(smObserver);
+		toolInterfaceRepository.getAddObservable().addObserver(tiObserver);
 	}
 
 	@Override
@@ -192,10 +192,9 @@ public final class ApplicationImpl implements Application {
 	}
 	*/
 
-	// XXX this should be done by the semanticsModule of choice
 	@Override
-	public MetaRepository<SemanticsModule> getSemanticsModuleMetaRepository() {
-		return semanticsModuleRepository;
+	public MetaRepository<ToolInterface> getToolInterfaceMetaRepository() {
+		return toolInterfaceRepository;
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.CompositeType;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.elements.ToolInterface;
 import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxICell;
@@ -44,7 +45,7 @@ public class PaletteTool implements ToolFactory {
 
 	// protected final Application app;
 	// protected SemanticsModule sm;
-	
+
 	public static class Palette {
 		protected final WorkflowEditor wfe;
 		protected mxGraphComponent searchGraph;
@@ -54,18 +55,19 @@ public class PaletteTool implements ToolFactory {
 		protected JScrollPane scrollPane;
 		protected JXTaskPane searchPane;
 		protected final ArrayList<Job> templates;
-		
+
 		public Palette(WorkflowEditor wfe) {
 			this.wfe = wfe;
 			taskPaneContainer = new JXTaskPaneContainer();
 			scrollPane = new JScrollPane();
 			templates = new ArrayList<Job>();
-			paletteComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, new JPanel());
+			paletteComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+					scrollPane, new JPanel());
 			paletteComponent.setName("Palette");
 			update();
 			wfe.setPalette(paletteComponent);
 		}
-	
+
 		public void update() {
 			textField = new JTextField();
 			searchPane = new JXTaskPane("Search");
@@ -73,40 +75,44 @@ public class PaletteTool implements ToolFactory {
 			if (searchGraph != null)
 				searchPane.add(searchGraph);
 			taskPaneContainer.add(searchPane);
-			
+
 			textField.addKeyListener(new KeyAdapter() {
 				@Override
 				public void keyReleased(KeyEvent e) {
 					updateSearch(textField.getText());
 				}
 			});
-	
+
 			// get all palette items
-			for (Tool t : wfe.getSemanticsModule().getToolMetaRepository().getRepository().getItems())
-				templates.add(new Job(t));
+			for (ToolInterface ti : wfe.getApplication()
+					.getToolInterfaceMetaRepository().getRepository()
+					.getItems())
+				for (Tool t : ti.getTools().getItems())
+					templates.add(new Job(t));
 			// templates.add(new AtomicJob(new Choice()));
 			// templates.add(new AtomicJob(new InputPort()));
 			// templates.add(new AtomicJob(new OutputPort()));
-			templates.add(new Job(
-					new Literal(new CompositeType("String"), "")));
+			templates
+					.add(new Job(new Literal(new CompositeType("String"), "")));
 			Collections.sort(templates, new Comparator<Job>() {
 				@Override
 				public int compare(Job o1, Job o2) {
 					return o1.getName().compareTo(o2.getName());
 				}
 			});
-	
+
 			// partition items into categories
 			Map<String, List<Job>> catMap = new HashMap<String, List<Job>>();
 			for (Job template : templates) {
-				List<Job> catList = catMap.get(template.getElement().getCategory());
+				List<Job> catList = catMap.get(template.getElement()
+						.getCategory());
 				if (catList == null) {
 					catList = new ArrayList<Job>();
 					catMap.put(template.getElement().getCategory(), catList);
 				}
 				catList.add(template);
 			}
-	
+
 			// create a new TaskPane for every category and fill it with
 			// an mxGraphComponent that contains all tools of this category
 			List<String> categories = new ArrayList<String>();
@@ -114,23 +120,24 @@ public class PaletteTool implements ToolFactory {
 			Collections.sort(categories);
 			for (String category : categories) {
 				JXTaskPane categoryPane = new JXTaskPane(category);
-				mxGraphComponent graphComp = renderTemplates(catMap.get(category));
+				mxGraphComponent graphComp = renderTemplates(catMap
+						.get(category));
 				categoryPane.add(graphComp);
 				categoryPane.setCollapsed(true);
 				taskPaneContainer.add(categoryPane);
 			}
-	
+
 			scrollPane.getViewport().add(taskPaneContainer);
 		}
-	
+
 		private void updateSearch(String text) {
-	
+
 			// remove previous results
 			if (searchGraph != null) {
 				searchPane.remove(searchGraph);
 				searchGraph = null;
 			}
-	
+
 			// find all items that contain the search string
 			if (!text.isEmpty()) {
 				List<Job> searchResults = new LinkedList<Job>();
@@ -139,7 +146,7 @@ public class PaletteTool implements ToolFactory {
 					if (template.getName().toLowerCase().contains(text))
 						searchResults.add(template);
 				}
-	
+
 				// create graph with search results and add it to display
 				if (!searchResults.isEmpty()) {
 					searchGraph = renderTemplates(searchResults);
@@ -149,7 +156,7 @@ public class PaletteTool implements ToolFactory {
 			searchPane.revalidate(); // in particular if searchResults.isEmpty()
 			searchPane.setCollapsed(false);
 		}
-	
+
 	}
 
 	protected static mxGraphComponent renderTemplates(List<Job> ts) {

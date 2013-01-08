@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows.impl;
+package org.vanda.fragment.bash;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.vanda.fragment.bash.RendererSelector;
 import org.vanda.fragment.model.FragmentTool;
 import org.vanda.types.CompositeType;
 import org.vanda.types.Type;

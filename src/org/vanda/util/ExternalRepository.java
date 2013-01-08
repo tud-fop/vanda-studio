@@ -1,18 +1,12 @@
 /**
  * 
  */
-package org.vanda.studio.modules.common;
+package org.vanda.util;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.vanda.util.MultiplexObserver;
-import org.vanda.util.Observable;
-import org.vanda.util.Observer;
-import org.vanda.util.Repository;
-import org.vanda.util.RepositoryItem;
-import org.vanda.util.Util;
 
 /**
  * @author buechse

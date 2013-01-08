@@ -9,6 +9,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.vanda.fragment.bash.RootLinker;
 import org.vanda.fragment.bash.ShellCompiler;
+import org.vanda.fragment.bash.ShellTool;
+import org.vanda.fragment.bash.ToolLoader;
 import org.vanda.fragment.impl.GeneratorImpl;
 import org.vanda.fragment.impl.ProfileImpl;
 import org.vanda.fragment.model.FragmentCompiler;
@@ -16,11 +18,6 @@ import org.vanda.fragment.model.FragmentLinker;
 import org.vanda.fragment.model.Profile;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.app.SemanticsModule;
-import org.vanda.studio.modules.common.ExternalRepository;
-import org.vanda.studio.modules.common.ListRepository;
-import org.vanda.studio.modules.workflows.impl.ShellTool;
-import org.vanda.studio.modules.workflows.impl.ToolLoader;
 import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.inspector.LiteralEditor;
@@ -34,9 +31,9 @@ import org.vanda.studio.modules.workflows.tools.PaletteTool;
 import org.vanda.studio.modules.workflows.tools.SaveTool;
 import org.vanda.studio.modules.workflows.tools.WorkflowToPDFToolFactory;
 import org.vanda.util.Action;
-import org.vanda.util.CompositeRepository;
 import org.vanda.util.ExceptionMessage;
-import org.vanda.util.MetaRepository;
+import org.vanda.util.ExternalRepository;
+import org.vanda.util.ListRepository;
 import org.vanda.util.Observer;
 import org.vanda.util.Repository;
 import org.vanda.workflows.elements.Tool;
@@ -56,15 +53,13 @@ public class WorkflowModule implements Module {
 		return "Workflows"; // Module for Vanda Studio";
 	}
 
-	protected static final class WorkflowModuleInstance implements
-			SemanticsModule {
+	protected static final class WorkflowModuleInstance {
 
 		private final Application app;
 		private final ElementEditorFactories eefs;
 		private final ListRepository<Profile> repository;
 		private final Profile profile;
 		private ProfileManager manager;
-		private final MetaRepository<Tool> tools;
 		private final ListRepository<ToolFactory> toolFactories;
 
 		public static String TOOL_PATH_KEY = "profileToolPath";
@@ -86,7 +81,6 @@ public class WorkflowModule implements Module {
 			repository.addItem(profile);
 			manager = null;
 
-			tools = new CompositeRepository<Tool>();
 			ToolInterface ti = new ToolInterface() {
 				ExternalRepository<ShellTool> er;
 
@@ -96,8 +90,8 @@ public class WorkflowModule implements Module {
 						path = TOOL_PATH_DEFAULT;
 						app.setProperty(TOOL_PATH_KEY, TOOL_PATH_DEFAULT);
 					}
-					er = new ExternalRepository<ShellTool>(new ToolLoader(app,
-							path, this));
+					er = new ExternalRepository<ShellTool>(new ToolLoader(path,
+							this));
 
 				}
 
@@ -139,9 +133,13 @@ public class WorkflowModule implements Module {
 				}
 
 			};
-			profile.getFragmentToolMetaRepository().addRepository((Repository<ShellTool>) ti.getTools());
-			tools.addRepository(ti.getTools());
+			profile.getFragmentToolMetaRepository().addRepository(
+					(Repository<ShellTool>) ti.getTools());
 			ti.getTools().refresh();
+
+			ListRepository<ToolInterface> tir = new ListRepository<ToolInterface>();
+			tir.addItem(ti);
+			app.getToolInterfaceMetaRepository().addRepository(tir);
 
 			eefs = new ElementEditorFactories();
 			eefs.workflowFactories
@@ -167,10 +165,6 @@ public class WorkflowModule implements Module {
 					KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
 		}
 
-		public MetaRepository<Tool> getToolMetaRepository() {
-			return tools;
-		}
-
 		protected class NewWorkflowAction implements Action {
 			@Override
 			public String getName() {
@@ -180,15 +174,9 @@ public class WorkflowModule implements Module {
 			@Override
 			public void invoke() {
 				MutableWorkflow mwf = new MutableWorkflow("Workflow");
-				new WorkflowEditorImpl(app, toolFactories, mwf, /*
-																 * app .
-																 * getSemanticsModuleMetaRepository
-																 * (
-																 * ).getRepository
-																 * () .getItem(
-																 * "profile")
-																 */
-				WorkflowModuleInstance.this);
+				new WorkflowEditorImpl(app, toolFactories, mwf);
+				// something will hold a reference to it since it will be in the
+				// GUI
 			}
 		}
 
@@ -220,15 +208,15 @@ public class WorkflowModule implements Module {
 					String filePath = chosenFile.getPath();
 					MutableWorkflow hwf;
 					try {
-						SemanticsModule prof = WorkflowModuleInstance.this;
 						/*
 						 * app .getSemanticsModuleMetaRepository()
 						 * .getRepository().getItem("profile");
 						 */
-						Serialization ser = new Serialization(prof
-								.getToolMetaRepository().getRepository());
+						Serialization ser = new Serialization(app
+								.getToolInterfaceMetaRepository()
+								.getRepository());
 						hwf = ser.load(filePath);
-						new WorkflowEditorImpl(app, toolFactories, hwf, prof);
+						new WorkflowEditorImpl(app, toolFactories, hwf);
 					} catch (Exception e) {
 						app.sendMessage(new ExceptionMessage(e));
 					}
@@ -259,36 +247,36 @@ public class WorkflowModule implements Module {
 				manager = null;
 			}
 		}
-
-		@Override
-		public String getName() {
-			return "Profile Semantics";
-		}
-
-		@Override
-		public String getCategory() {
-			return "Profile Semantics";
-		}
-
-		@Override
-		public String getContact() {
-			return "Matthias.Buechse@tu-dresden.de";
-		}
-
-		@Override
-		public String getDescription() {
-			return "Semantics module based on fragment profiles";
-		}
-
-		@Override
-		public String getId() {
-			return "profile";
-		}
-
-		@Override
-		public String getVersion() {
-			return "2012-12-12";
-		}
+		//
+		// @Override
+		// public String getName() {
+		// return "Profile Semantics";
+		// }
+		//
+		// @Override
+		// public String getCategory() {
+		// return "Profile Semantics";
+		// }
+		//
+		// @Override
+		// public String getContact() {
+		// return "Matthias.Buechse@tu-dresden.de";
+		// }
+		//
+		// @Override
+		// public String getDescription() {
+		// return "Semantics module based on fragment profiles";
+		// }
+		//
+		// @Override
+		// public String getId() {
+		// return "profile";
+		// }
+		//
+		// @Override
+		// public String getVersion() {
+		// return "2012-12-12";
+		// }
 
 	}
 }
