@@ -4,7 +4,7 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-05-16
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: translation
-# IN Rules :: GHKM Hypergraph
+# IN Rules :: GHKM Rules
 # IN Corpus :: Sentence Corpus
 # OUT Tree Corpus :: Penn Tree Corpus
 #
