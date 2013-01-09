@@ -7,7 +7,7 @@ source "$FUNCDIR/util.bash"
 # IN Alignments :: Alignments
 # IN Tree Corpus :: Penn Tree Corpus
 # IN Corpus :: Sentence Corpus
-# OUT Rules :: GHKM Rules
+# OUT Rules :: GHKM Hypergraph
 #
 # Extracts GHKM rules from a GIZA alignment, a corpus and a tree corpus
 GHKM () {
