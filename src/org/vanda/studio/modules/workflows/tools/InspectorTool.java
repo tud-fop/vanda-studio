@@ -15,7 +15,6 @@ import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
 import org.vanda.util.Observer;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 
 public class InspectorTool implements ToolFactory {
 
@@ -125,11 +124,6 @@ public class InspectorTool implements ToolFactory {
 	@Override
 	public String getVersion() {
 		return "2012-12-12";
-	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
-		
 	}
 
 }

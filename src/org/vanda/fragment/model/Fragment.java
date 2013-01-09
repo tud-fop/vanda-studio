@@ -22,6 +22,13 @@ public class Fragment {
 		this.imports = Collections.emptySet();
 	}
 	
+	public Fragment(String name, Set<String> imports) {
+		this.name = name;
+		this.text = "";
+		this.dependencies = Collections.emptySet();
+		this.imports = imports;
+	}
+	
 	public Fragment(String name, String text, Set<String> dependencies, Set<String> imports) {
 		this.name = name;
 		this.text = text;

@@ -43,7 +43,6 @@ import org.vanda.types.Types;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.RCChecker;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 import org.vanda.workflows.immutable.ImmutableWorkflow;
 
 public class RunTool implements SemanticsToolFactory {
@@ -508,11 +507,6 @@ public class RunTool implements SemanticsToolFactory {
 	@Override
 	public String getVersion() {
 		return "2012-12-12";
-	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
-		// TODO Auto-generated method stub
 	}
 
 }

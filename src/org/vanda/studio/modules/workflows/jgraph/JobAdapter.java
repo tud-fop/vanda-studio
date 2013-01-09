@@ -30,7 +30,7 @@ public class JobAdapter implements Adapter, Cloneable {
 
 	@Override
 	public String getName() {
-		return job.getItem().getName();
+		return job.getElement().getName();
 	}
 
 	@Override

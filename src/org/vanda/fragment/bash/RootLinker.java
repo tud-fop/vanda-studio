@@ -15,7 +15,6 @@ import org.vanda.fragment.model.FragmentIO;
 import org.vanda.fragment.model.FragmentLinker;
 import org.vanda.types.Type;
 import org.vanda.types.Types;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 
 public class RootLinker implements FragmentLinker {
 
@@ -126,10 +125,6 @@ public class RootLinker implements FragmentLinker {
 		fw.close();
 		f.setExecutable(true);
 		return new Fragment(name);
-	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
 	}
 
 	@Override

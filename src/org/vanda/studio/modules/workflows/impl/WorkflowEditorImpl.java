@@ -26,7 +26,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.app.SemanticsModule;
 import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
@@ -70,14 +69,11 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	protected final DrecksAdapter renderer;
 	protected JComponent palette;
 	protected final JSplitPane mainpane;
-	protected final SemanticsModule semanticsModule;
 
 	public WorkflowEditorImpl(Application a,
-			Repository<ToolFactory> toolFactories, MutableWorkflow hwf,
-			SemanticsModule sm) {
+			Repository<ToolFactory> toolFactories, MutableWorkflow hwf) {
 		app = a;
 		model = new Model(hwf);
-		semanticsModule = sm;
 		renderer = new DrecksAdapter(model);
 		// palette = new Palette(app, sm);
 		// palette.update();
@@ -597,10 +593,5 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	@Override
 	public Model getModel() {
 		return model;
-	}
-
-	@Override
-	public SemanticsModule getSemanticsModule() {
-		return semanticsModule;
 	}
 }

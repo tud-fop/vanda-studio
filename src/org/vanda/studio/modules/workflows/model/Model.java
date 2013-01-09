@@ -9,10 +9,8 @@ import org.vanda.util.Observable;
 import org.vanda.util.Observer;
 import org.vanda.util.Pair;
 import org.vanda.util.TokenSource.Token;
-import org.vanda.workflows.hyper.AtomicJob;
 import org.vanda.workflows.hyper.Connection;
 import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.JobVisitor;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildEvent;
 import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildListener;
@@ -119,8 +117,6 @@ public final class Model implements WorkflowChildListener {
 	protected final MultiplexObserver<Model> selectionChangeObservable;
 	protected final MultiplexObserver<Model> markedElementsObservable;
 	protected final MultiplexObserver<Model> workflowCheckObservable;
-	protected final JobVisitor bindVisitor;
-	protected final JobVisitor unbindVisitor;
 
 	public Model(MutableWorkflow hwf) {
 		this.hwf = hwf;
@@ -130,18 +126,6 @@ public final class Model implements WorkflowChildListener {
 		selectionChangeObservable = new MultiplexObserver<Model>();
 		markedElementsObservable = new MultiplexObserver<Model>();
 		workflowCheckObservable = new MultiplexObserver<Model>();
-		bindVisitor = new JobVisitor() {
-			@Override
-			public void visitAtomicJob(AtomicJob aj) {
-			}
-
-		};
-		unbindVisitor = new JobVisitor() {
-			@Override
-			public void visitAtomicJob(AtomicJob aj) {
-			}
-
-		};
 		childObservable.addObserver(new Observer<WorkflowChildEvent>() {
 			@Override
 			public void notify(WorkflowChildEvent event) {
@@ -154,7 +138,6 @@ public final class Model implements WorkflowChildListener {
 	private void bind(MutableWorkflow wf) {
 		wf.getObservable().addObserver(workflowObservable);
 		wf.getChildObservable().addObserver(childObservable);
-		wf.visitAll(bindVisitor);
 	}
 
 	public void checkWorkflow() throws Exception {
@@ -234,12 +217,10 @@ public final class Model implements WorkflowChildListener {
 	public void unbind(MutableWorkflow wf) {
 		wf.getObservable().removeObserver(workflowObservable);
 		wf.getChildObservable().removeObserver(childObservable);
-		wf.visitAll(unbindVisitor);
 	}
 
 	@Override
 	public void childAdded(MutableWorkflow mwf, Job j) {
-		j.visit(bindVisitor);
 	}
 
 	@Override
@@ -248,7 +229,6 @@ public final class Model implements WorkflowChildListener {
 
 	@Override
 	public void childRemoved(MutableWorkflow mwf, Job j) {
-		j.visit(unbindVisitor);
 		if (selection != null && selection.workflow == mwf)
 			setSelection(null);
 	}

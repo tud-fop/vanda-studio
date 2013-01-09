@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.vanda.types.Type;
-import org.vanda.workflows.elements.RepositoryItem;
+import org.vanda.util.RepositoryItem;
 
 public interface FragmentLinker extends RepositoryItem {
 

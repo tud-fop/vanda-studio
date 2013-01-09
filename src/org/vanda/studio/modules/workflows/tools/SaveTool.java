@@ -12,15 +12,14 @@ import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
-import org.vanda.workflows.elements.RepositoryItemVisitor;
 import org.vanda.workflows.hyper.Serialization;
 
 public final class SaveTool implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe) {
 		Action a = new SaveWorkflowAction(wfe);
-		wfe.addAction(a, KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				KeyEvent.CTRL_MASK));
+		wfe.addAction(a,
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
 		return a;
 	}
 
@@ -53,12 +52,6 @@ public final class SaveTool implements ToolFactory {
 	public String getVersion() {
 		return "2012-12-12";
 	}
-
-	@Override
-	public void visit(RepositoryItemVisitor v) {
-
-	}
-
 
 	protected class SaveWorkflowAction implements Action {
 
@@ -116,13 +109,12 @@ public final class SaveTool implements ToolFactory {
 			// once file choice is approved, save the chosen file
 			if (result == JFileChooser.APPROVE_OPTION) {
 				File chosenFile = chooser.getSelectedFile();
-				wfe.getApplication().setProperty("lastDir", chosenFile.getParentFile()
-						.getAbsolutePath());
+				wfe.getApplication().setProperty("lastDir",
+						chosenFile.getParentFile().getAbsolutePath());
 				String filePath = chosenFile.getPath();
 				try {
-					Serialization ser = new Serialization(wfe
-							.getSemanticsModule().getToolMetaRepository()
-							.getRepository());
+					Serialization ser = new Serialization(wfe.getApplication()
+							.getToolInterfaceMetaRepository().getRepository());
 					ser.save(wfe.getModel().getRoot(), filePath);
 				} catch (Exception e) {
 					wfe.getApplication().sendMessage(new ExceptionMessage(e));

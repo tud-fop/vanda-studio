@@ -2,40 +2,62 @@ package org.vanda.workflows.immutable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.vanda.types.Type;
 import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.elements.Element;
 import org.vanda.workflows.elements.Port;
 
-public abstract class ImmutableJob {
+public class ImmutableJob {
 	
 	protected final Token address;
+	private final Element element;
 	
-	public ImmutableJob(Token address) {
+	public ImmutableJob(Token address, Element element) {
 		this.address = address;
+		this.element = element;
 	}
 	
-	public abstract void addFragmentTypeEquation(TypeChecker tc);
+	public void addFragmentTypeEquation(TypeChecker tc) {
+		tc.addFragmentTypeEquation(element.getFragmentType());
+	}
 
-	public abstract ImmutableWorkflow dereference(ListIterator<Token> path);
-	
 	public final Token getAddress() {
 		return address;
 	}
+	
+	public Element getElement() {
+		return element;
+	}
 
-	public abstract List<Port> getInputPorts();
+	public List<Port> getInputPorts() {
+		return element.getInputPorts();
+	}
 	
-	public abstract Type getFragmentType();
+	public Type getFragmentType() {
+		return element.getFragmentType();
+	}
 
-	public abstract List<Port> getOutputPorts();
+	public List<Port> getOutputPorts() {
+		return element.getOutputPorts();
+	}
 	
-	public abstract void typeCheck() throws Exception;
+	public void typeCheck() throws Exception {
+		// do nothing
+	}
 	
-	public abstract void appendText(ArrayList<Token> inputs,
-			ArrayList<Token> outputs, StringBuilder lines,
-			StringBuilder sections);
+	public void appendText(ArrayList<Token> inputs, ArrayList<Token> outputs,
+			StringBuilder lines, StringBuilder sections) {
+		// if (!(element instanceof OutputPort || element instanceof InputPort)) {
+			lines.append("  ");
+			appendOutput(outputs, lines);
+			lines.append(" = ");
+			lines.append(element.getName());
+			appendInput(inputs, lines);
+			lines.append('\n');
+		// }
+	}
 	
 	public static void appendInput(List<Port> ports, Map<Port, Token> invars, StringBuilder lines) {
 		lines.append('(');

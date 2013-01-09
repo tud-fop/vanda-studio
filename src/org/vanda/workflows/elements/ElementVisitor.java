@@ -1,6 +1,7 @@
 package org.vanda.workflows.elements;
 
-public abstract class RepositoryItemVisitor {
+
+public abstract class ElementVisitor {
 
 	public void visitLiteral(Literal l) {
 

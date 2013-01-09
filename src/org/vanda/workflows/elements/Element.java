@@ -1,13 +1,12 @@
 package org.vanda.workflows.elements;
 
 import java.util.List;
-import java.util.Set;
 
 import org.vanda.types.Type;
-import org.vanda.util.HasActions;
 import org.vanda.util.Observable;
+import org.vanda.util.RepositoryItem;
 
-public interface Element extends RepositoryItem, HasActions, Cloneable {
+public interface Element extends RepositoryItem, Cloneable {
 	
 	public static interface ElementListener {
 		// removed: see older versions
@@ -36,5 +35,5 @@ public interface Element extends RepositoryItem, HasActions, Cloneable {
 
 	public abstract <R> R selectRenderer(RendererAssortment<R> ra);
 
-	public Set<String> getImports();
+	public void visit(ElementVisitor v);
 }

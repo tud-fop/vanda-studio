@@ -1,18 +1,12 @@
 /**
  * 
  */
-package org.vanda.studio.modules.common;
+package org.vanda.util;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.vanda.util.MultiplexObserver;
-import org.vanda.util.Observable;
-import org.vanda.util.Observer;
-import org.vanda.util.Repository;
-import org.vanda.util.Util;
-import org.vanda.workflows.elements.RepositoryItem;
 
 /**
  * @author buechse
@@ -90,6 +84,10 @@ public class ExternalRepository<T extends RepositoryItem>
 			Util.notifyAll(addObservable, r.getAdds());
 			Util.notifyAll(removeObservable, r.getRemoves());
 		}
+	}
+	
+	public void setLoader(Loader<T> l) {
+		loader = l;
 	}
 
 	protected static class RefreshHelper<T extends RepositoryItem>
