@@ -10,10 +10,13 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -35,6 +38,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -50,6 +54,7 @@ import org.vanda.studio.app.PreviewFactory;
 import org.vanda.util.Lexer;
 import org.vanda.util.Pair;
 
+@SuppressWarnings({ "unchecked", "serial", "rawtypes"})
 public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 	public class Tree {
@@ -115,13 +120,13 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			t = t.children[0];
 		return t;
 	}
-	
+
 	public Tree parseTree(Stack<String> st) {
 		if (st.peek().equals("(")) {
 			st.pop();
 			String head = st.pop();
 			List<Tree> subTrees = new ArrayList<Tree>();
-			while (!st.empty() && !st.peek().equals(")")){
+			while (!st.empty() && !st.peek().equals(")")) {
 				subTrees.add(parseTree(st));
 			}
 			if (!st.isEmpty())
@@ -343,9 +348,11 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		private static final long serialVersionUID = 1L;
 		private List<Pair<String, Tree>> trees;
 		private JList lTrees;
+		private JLayeredPane jZoomPane;
+		private JPanel jHUDPanel;
 		private TreeView jTree;
 		private JScrollPane sTree;
-		private JButton bMore;
+		private JButton bMore, bZoomIn, bZoomReset, bZoomOut;
 
 		private Scanner scan;
 		public static final int SIZE = 20;
@@ -367,17 +374,68 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 						more();
 					}
 				});
+
 				jTree = new TreeView(new Tree("", null));
+				sTree = new JScrollPane(jTree);
+				DragScrollListener dsl = new DragScrollListener(jTree, sTree);
+				jTree.addMouseMotionListener(dsl);
+				jTree.addMouseListener(dsl);
+				jTree.addMouseWheelListener(dsl);
+
+				jHUDPanel = new JPanel();
+				jHUDPanel.setOpaque(false);
+				jHUDPanel.setLayout(new GridLayout(3, 1));
+				bZoomIn = new JButton(new AbstractAction("+") {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						jTree.zoomIn();
+						sTree.revalidate();
+					}
+				});
+				bZoomIn.setContentAreaFilled(false);
+				bZoomIn.setFocusPainted(false);
+				Font f = new Font(bZoomIn.getFont().getName(),
+						Font.BOLD, (int) (bZoomIn.getFont().getSize() * 1.4));
+				bZoomIn.setFont(f);
+
+				bZoomReset = new JButton(new AbstractAction("O") {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						jTree.zoomReset();
+						sTree.revalidate();
+					}
+				});
+				bZoomReset.setContentAreaFilled(false);
+				bZoomReset.setFocusPainted(false);
+				bZoomReset.setFont(f);
+
+				bZoomOut = new JButton(new AbstractAction("\u2012") {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						jTree.zoomOut();
+						sTree.revalidate();
+					}
+				});
+				bZoomOut.setContentAreaFilled(false);
+				bZoomOut.setFocusPainted(false);
+				bZoomOut.setFont(f);
+
+				jHUDPanel.add(bZoomIn);
+				jHUDPanel.add(bZoomReset);
+				jHUDPanel.add(bZoomOut);
+
 				lTrees = new JList();
 				lTrees.addListSelectionListener(new ListSelectionListener() {
 					@Override
 					public void valueChanged(ListSelectionEvent e) {
-						@SuppressWarnings("unchecked")
 						Pair<String, Tree> tpl = (Pair<String, Tree>) lTrees
 								.getSelectedValue();
 						if (tpl != null)
 							jTree.setTree(tpl.snd);
-						sTree.revalidate();
+						jTree.revalidate();
 					}
 				});
 				lTrees.setCellRenderer(new ListCellRenderer() {
@@ -386,7 +444,6 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 					public Component getListCellRendererComponent(JList list,
 							Object value, int index, boolean isSelected,
 							boolean cellHasFocus) {
-						@SuppressWarnings("unchecked")
 						Pair<String, Tree> tpl = (Pair<String, Tree>) value;
 						DefaultListCellRenderer df = new DefaultListCellRenderer();
 						JLabel lbl = (JLabel) df.getListCellRendererComponent(
@@ -400,15 +457,66 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 				JPanel pan = new JPanel(new BorderLayout());
 				pan.add(new JScrollPane(lTrees), BorderLayout.CENTER);
-				pan.add(bMore, BorderLayout.SOUTH);
-				sTree = new JScrollPane(jTree);
-				DragScrollListener dsl = new DragScrollListener(jTree, sTree);
-				jTree.addMouseMotionListener(dsl);
-				jTree.addMouseListener(dsl);
-				jTree.addMouseWheelListener(dsl);
+
+				jZoomPane = new JLayeredPane();
+				jZoomPane.setLayout(null);
+				Rectangle b = jZoomPane.getBounds();
+				int pWidth = b.width;
+				int pHeight = b.height;
+				jZoomPane.setOpaque(false);
+				jZoomPane.add(sTree, JLayeredPane.DEFAULT_LAYER);
+				sTree.setBounds(0, 0, pWidth, pHeight);
+				jZoomPane.add(jHUDPanel, JLayeredPane.PALETTE_LAYER);
+				int pWidth1 = Math.max(
+						bZoomReset.getPreferredSize().width,
+						Math.max(bZoomIn.getPreferredSize().width,
+								bZoomOut.getPreferredSize().width));
+				int pHeight1 = bZoomIn.getPreferredSize().height
+						+ bZoomReset.getPreferredSize().height
+						+ bZoomOut.getPreferredSize().height;
+				jHUDPanel.setBounds(pWidth - pWidth1, pHeight - pHeight1, pWidth1, pHeight1);
+				jZoomPane.addComponentListener(new ComponentListener() {
+
+					@Override
+					public void componentShown(ComponentEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void componentResized(ComponentEvent e) {
+						Rectangle b = jZoomPane.getBounds();
+						
+						int pWidth = b.width;
+						int pHeight = b.height;
+						sTree.setBounds(0, 0, pWidth, pHeight);
+						int pWidth1 = Math.max(
+								bZoomReset.getPreferredSize().width,
+								Math.max(bZoomIn.getPreferredSize().width,
+										bZoomOut.getPreferredSize().width));
+						int pHeight1 = bZoomIn.getPreferredSize().height
+								+ bZoomReset.getPreferredSize().height
+								+ bZoomOut.getPreferredSize().height;
+						jHUDPanel.setBounds(0, 0, pWidth, pHeight);
+						jHUDPanel.setBounds(pWidth - pWidth1 - 20, pHeight - pHeight1 - 20, pWidth1, pHeight1);
+						sTree.revalidate();
+					}
+
+					@Override
+					public void componentMoved(ComponentEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void componentHidden(ComponentEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+				});
 
 				JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-						pan, sTree);
+						pan, jZoomPane);
 				add(split, BorderLayout.CENTER);
 
 				more();
@@ -432,9 +540,9 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			revalidate();
 		}
 	}
-	
+
 	protected final Application app;
-	
+
 	public BerkeleyTreePreviewFactory(Application app) {
 		this.app = app;
 	}
@@ -443,7 +551,6 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		if ((new File(value)).exists())
 			return new BerkeleyTreePreview(value);
 		else
-			// TOBIAS!!! return (new DefaultPreviewFactory(null)).createPreview(value);
 			return app.getPreviewFactory(null).createPreview(value);
 	}
 
