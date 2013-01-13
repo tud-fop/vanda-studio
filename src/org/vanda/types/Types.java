@@ -54,7 +54,7 @@ public final class Types {
 		LinkedList<Pair<String, X>> errors = new LinkedList<Pair<String, X>>();
 		s.clear();
 		while (!t.isEmpty()) {
-			// System.out.println(t);
+			// System.err.println(t);
 			Equation<X> e = t.poll();
 			// System.out.println(e);
 			if (e.canDecompose()) {
@@ -90,6 +90,8 @@ public final class Types {
 				s.add(e);
 			}
 		}
+		if (!errors.isEmpty())
+			System.err.println(errors);
 		return errors;
 	}
 

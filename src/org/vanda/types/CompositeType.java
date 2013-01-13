@@ -88,11 +88,19 @@ public final class CompositeType extends Type {
 
 	@Override
 	public Type subst(Token variable, Type nt) {
-		List<Type> nc = new ArrayList<Type>(children.size());
+		List<Type> ncs = new ArrayList<Type>(children.size());
+		boolean didsubst = false;
 		for (Type c : children) {
-			nc.add(c.subst(variable, nt));
+			Type nc = c.subst(variable, nt);
+			ncs.add(nc);
+			didsubst = nc != c || didsubst;
 		}
-		return new CompositeType(constructor, nc);
+		Type result;
+		if (didsubst)
+			result = new CompositeType(constructor, ncs);
+		else
+			result = this;
+		return result;
 	}
 	
 	@Override

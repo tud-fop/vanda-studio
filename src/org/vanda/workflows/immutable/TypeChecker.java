@@ -46,6 +46,11 @@ public final class TypeChecker {
 		public int hashCode() {
 			return address.hashCode() + port;
 		}
+		
+		@Override
+		public String toString() {
+			return Integer.toString(port) + "@" + address.toString();
+		}
 	}
 
 	public static class EqInfoMerge implements MergeFunction<Set<EqInfo>> {
@@ -88,8 +93,8 @@ public final class TypeChecker {
 	public void addFragmentTypeEquation(Type ft) {
 		Map<Token, Token> rename = new HashMap<Token, Token>();
 		ft.freshMap(freshSource, rename);
-		eqs.add(new Equation<Set<EqInfo>>(fragmentTypeVariable, ft
-				.rename(rename), null));
+		// eqs.add(new Equation<Set<EqInfo>>(fragmentTypeVariable, ft
+		// 		.rename(rename), null));
 	}
 
 	public void addDataFlowEquations(JobInfo ji) {

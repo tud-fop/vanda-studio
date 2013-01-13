@@ -71,7 +71,14 @@ public final class Equation<X> {
 	}
 
 	public Equation<X> subst(Token var, Type type, X anc) {
-		return new Equation<X>(lhs.subst(var, type), rhs.subst(var, type), anc);
+		Type newlhs = lhs.subst(var, type);
+		Type newrhs = rhs.subst(var, type);
+		Equation<X> result = null;
+		if (lhs != newlhs || rhs != newrhs)
+			result = new Equation<X>(newlhs, newrhs, anc);
+		else
+			result = this;
+		return result;
 	}
 
 	public void substitute(List<Equation<X>> source, List<Equation<X>> target,
@@ -84,6 +91,14 @@ public final class Equation<X> {
 
 	@Override
 	public String toString() {
-		return lhs.toString() + " / " + rhs.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append(lhs);
+		sb.append(" / ");
+		sb.append(rhs);
+		if (ancillary != null) {
+			sb.append(" # ");
+			sb.append(ancillary);
+		}
+		return sb.toString();
 	}
 }
