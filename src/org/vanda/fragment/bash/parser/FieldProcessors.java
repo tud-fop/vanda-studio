@@ -1,10 +1,10 @@
 package org.vanda.fragment.bash.parser;
 
-import org.vanda.fragment.bash.RendererSelector;
-import org.vanda.fragment.bash.RendererSelectors;
 import org.vanda.fragment.bash.ShellTool;
 import org.vanda.types.Type;
 import org.vanda.workflows.elements.Port;
+import org.vanda.workflows.toolinterfaces.RendererSelector;
+import org.vanda.workflows.toolinterfaces.RendererSelectors;
 
 public class FieldProcessors {
 

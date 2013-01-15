@@ -18,6 +18,7 @@ import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.elements.ToolInterface;
+import org.vanda.workflows.toolinterfaces.RendererSelector;
 
 public class ShellTool extends Tool implements FragmentTool {
 
