@@ -1,7 +1,6 @@
 package org.vanda.workflows.toolinterfaces;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 import org.vanda.util.Loader;
 import org.vanda.util.Observer;
@@ -21,9 +20,10 @@ public class ToolInterfaceLoader implements Loader<ToolInterface> {
 		try {
 			p.init(new File(file));
 			p.process();
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			System.err.println("Tool interface file " + file
 					+ " can not be loaded.");
+			e.printStackTrace();
 			// app.sendMessage(new ExceptionMessage(e));
 			// new ExceptionMessage(new Exception("Tool file "
 			// + file.getAbsolutePath() + " can not be loaded.")));
