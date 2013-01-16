@@ -8,6 +8,8 @@ public abstract class Tool implements Element {
 		return this;
 	}
 	
+	public abstract String getStatus();
+	
 	public abstract ToolInterface getInterface();
 	
 	@Override

@@ -67,7 +67,9 @@ public class ElementHandlers {
 
 		@Override
 		public ElementHandler handleChild(String namespace, String name) {
-			if ("toolinterfaces".equals(name))
+			if ("root".equals(name))
+				return this; // XXX a little hacky: it permits nested root
+			if ("toolinterface".equals(name))
 				return tiHandler.createToolInterfacesHandler(p);
 			else
 				throw p.fail(null);
@@ -118,7 +120,7 @@ public class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessors.process(name, value, tib);
+				FieldProcessors.processRepositoryItemField(name, value, tib);
 			}
 
 			@Override
@@ -134,13 +136,14 @@ public class ElementHandlers {
 
 			@Override
 			public void endElement(String namespace, String name) {
+				// TODO sanity checks
+				p.notify(tib.build());
 			}
 
 			@Override
 			public void handleText(String text) {
 				// ignore
 			}
-
 		}
 	}
 
@@ -184,7 +187,8 @@ public class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessors.process(name, value, tb);
+				FieldProcessors.processRepositoryItemField(name, value, tb);
+				FieldProcessors.processToolField(name, value, tb);
 			}
 
 			@Override
@@ -203,16 +207,16 @@ public class ElementHandlers {
 			@Override
 			public void endElement(String namespace, String name) {
 				// TODO sanity checks
-				tib.tools.add(tb);
+				if ("".equals(tb.status))
+					tib.tools.add(tb);
+				// only add stable tools (status=="")
 			}
 
 			@Override
 			public void handleText(String text) {
 				// ignore
 			}
-
 		}
-
 	}
 
 	private static class InHandlerFactory implements PortHandlerFactory {
@@ -241,7 +245,7 @@ public class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessors.process(name, value, tb, pb);
+				FieldProcessors.processPortField(name, value, tb, pb);
 			}
 
 			@Override
@@ -258,9 +262,7 @@ public class ElementHandlers {
 			public void handleText(String text) {
 				// ignore
 			}
-
 		}
-
 	}
 
 	private static class OutHandlerFactory implements PortHandlerFactory {
@@ -289,7 +291,7 @@ public class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessors.process(name, value, tb, pb);
+				FieldProcessors.processPortField(name, value, tb, pb);
 			}
 
 			@Override
@@ -308,9 +310,7 @@ public class ElementHandlers {
 			public void handleText(String text) {
 				// ignore
 			}
-
 		}
-
 	}
 
 	private static class DescriptionHandlerFactoryImpl implements
@@ -354,7 +354,6 @@ public class ElementHandlers {
 			public void handleText(String text) {
 				b.description.append(text);
 			}
-
 		}
 	}
 }

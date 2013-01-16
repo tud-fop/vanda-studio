@@ -13,6 +13,7 @@ import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.elements.ToolInterface;
 import org.vanda.workflows.toolinterfaces.RendererSelector;
 
+// TODO this is going to go
 public class ShellTool extends Tool implements FragmentTool {
 
 	private final String id;
@@ -103,5 +104,10 @@ public class ShellTool extends Tool implements FragmentTool {
 	@Override
 	public ToolInterface getInterface() {
 		return ti;
+	}
+
+	@Override
+	public String getStatus() {
+		return "";
 	}
 }

@@ -15,6 +15,8 @@ public class ToolBuilder extends RepositoryItemBuilder {
 	RendererSelector rs;
 	List<Port> inPorts;
 	List<Port> outPorts;
+	Type fragmentType;
+	String status;
 	ToolInterface ti;
 	TokenSource ts;
 	Map<String, Type> tVars;
@@ -26,6 +28,8 @@ public class ToolBuilder extends RepositoryItemBuilder {
 	public void reset() {
 		super.reset();
 		rs = RendererSelectors.selectors[0];
+		fragmentType = null;
+		status = "";
 		inPorts = new ArrayList<Port>();
 		outPorts = new ArrayList<Port>();
 		ts = new TokenSource();
@@ -34,7 +38,8 @@ public class ToolBuilder extends RepositoryItemBuilder {
 
 	public Tool build() {
 		return new StaticTool(id, name, category, version, contact,
-				description.toString(), inPorts, outPorts, rs, ti);
+				description.toString(), inPorts, outPorts, rs, fragmentType,
+				status, ti);
 	}
 
 }

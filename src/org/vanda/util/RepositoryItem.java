@@ -4,7 +4,7 @@ public interface RepositoryItem {
 
 	/**
 	 * The category is used like a path in a file system. The separator is a
-	 * period.
+	 * double colon.
 	 */
 	String getCategory();
 

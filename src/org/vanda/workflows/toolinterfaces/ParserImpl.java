@@ -75,16 +75,16 @@ public class ParserImpl implements Parser {
 					if (!stack.isEmpty())
 						fail(null);
 					current = rootHandler;
-					stack.push(current);
+					// stack.push(current);
 					current.startElement(null, null);
 				} else if (eventType == XmlPullParser.START_TAG) {
 					if (current == null || stack.size() < 1)
 						fail(null);
+					stack.push(current);
 					current = current.handleChild(xp.getNamespace(),
 							xp.getName());
 					if (current == null)
 						fail(null);
-					stack.push(current);
 					current.startElement(xp.getNamespace(), xp.getName());
 					int c = xp.getAttributeCount();
 					for (int i = 0; i < c; i++)
@@ -100,6 +100,8 @@ public class ParserImpl implements Parser {
 						fail(null);
 					current.handleText(xp.getText());
 				}
+				//System.out.println(stack);
+				//System.out.println(current);
 				eventType = xp.next();
 			}
 			if (current == null || stack.size() != 1)

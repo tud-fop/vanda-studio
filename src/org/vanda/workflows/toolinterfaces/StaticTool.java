@@ -18,11 +18,14 @@ final class StaticTool extends Tool {
 	private final RendererSelector rs;
 	private final List<Port> inPorts;
 	private final List<Port> outPorts;
+	private final String status;
+	private final Type fragmentType;
 	private final ToolInterface ti;
-
+	
 	public StaticTool(String id, String name, String category, String version,
 			String contact, String description, List<Port> inPorts,
-			List<Port> outPorts, RendererSelector rs, ToolInterface ti) {
+			List<Port> outPorts, RendererSelector rs, Type fragmentType,
+			String status, ToolInterface ti) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -32,13 +35,14 @@ final class StaticTool extends Tool {
 		this.rs = rs;
 		this.inPorts = inPorts;
 		this.outPorts = outPorts;
+		this.fragmentType = fragmentType;
+		this.status = status;
 		this.ti = ti;
 	}
 
 	@Override
 	public Type getFragmentType() {
-		// TODO Auto-generated method stub
-		return null;
+		return fragmentType;
 	}
 
 	@Override
@@ -89,6 +93,11 @@ final class StaticTool extends Tool {
 	@Override
 	public ToolInterface getInterface() {
 		return ti;
+	}
+
+	@Override
+	public String getStatus() {
+		return status;
 	}
 
 }

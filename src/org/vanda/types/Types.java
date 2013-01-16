@@ -1,6 +1,7 @@
 package org.vanda.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -101,6 +102,10 @@ public final class Types {
 	public static Type parseType(Map<String, Type> m, TokenSource ts, String s1) {
 		Lexer lx = new Lexer("()", ",");
 		Stack<String> st = lx.lex(s1);
+		if (m == null)
+			m = Collections.emptyMap();
+		if (ts == null)
+			ts = new TokenSource();
 		return parseType(m, ts, st);
 	}
 
@@ -134,7 +139,7 @@ public final class Types {
 
 	public static final Type genericType = new TypeVariable(
 			TokenSource.getToken(0));
-	public static final Type haskellType = new CompositeType("haskell");
-	public static final Type shellType = new CompositeType("shell");
-	public static final Type undefined = new CompositeType("bottom");
+	public static final Type haskellType = new CompositeType("Haskell");
+	public static final Type shellType = new CompositeType("Shell");
+	public static final Type undefined = new CompositeType("Bottom");
 }
