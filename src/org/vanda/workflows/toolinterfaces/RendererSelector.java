@@ -1,4 +1,4 @@
-package org.vanda.fragment.bash;
+package org.vanda.workflows.toolinterfaces;
 
 import org.vanda.workflows.elements.RendererAssortment;
 

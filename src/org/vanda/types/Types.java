@@ -1,10 +1,14 @@
 package org.vanda.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
+import org.vanda.util.Lexer;
 import org.vanda.util.Pair;
 import org.vanda.util.TokenSource;
 import org.vanda.util.TokenSource.Token;
@@ -95,9 +99,47 @@ public final class Types {
 		return errors;
 	}
 
+	public static Type parseType(Map<String, Type> m, TokenSource ts, String s1) {
+		Lexer lx = new Lexer("()", ",");
+		Stack<String> st = lx.lex(s1);
+		if (m == null)
+			m = Collections.emptyMap();
+		if (ts == null)
+			ts = new TokenSource();
+		return parseType(m, ts, st);
+	}
+
+	public static Type parseType(Map<String, Type> m, TokenSource ts,
+			Stack<String> st) {
+		String s = st.pop();
+		Type t;
+		List<Type> subTypes = new ArrayList<Type>();
+		if (!st.empty() && st.peek().equals("(")) {
+			st.pop();
+			while (!st.peek().equals(")")) {
+				Type t1 = parseType(m, ts, st);
+				subTypes.add(t1);
+			}
+			st.pop();
+			t = new CompositeType(s, subTypes);
+		} else {
+			if (Character.isLowerCase(s.charAt(0))) {
+				if (!m.containsKey(s)) {
+					t = new TypeVariable(ts.makeToken());
+					m.put(s, t);
+				} else {
+					t = m.get(s);
+				}
+			} else {
+				t = new CompositeType(s);
+			}
+		}
+		return t;
+	}
+
 	public static final Type genericType = new TypeVariable(
 			TokenSource.getToken(0));
-	public static final Type haskellType = new CompositeType("haskell");
-	public static final Type shellType = new CompositeType("shell");
-	public static final Type undefined = new CompositeType("bottom");
+	public static final Type haskellType = new CompositeType("Haskell");
+	public static final Type shellType = new CompositeType("Shell");
+	public static final Type undefined = new CompositeType("Bottom");
 }

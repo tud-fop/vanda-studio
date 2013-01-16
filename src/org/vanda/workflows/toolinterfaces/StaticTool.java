@@ -1,54 +1,48 @@
-package org.vanda.fragment.bash;
+package org.vanda.workflows.toolinterfaces;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.vanda.fragment.model.FragmentTool;
 import org.vanda.types.Type;
-import org.vanda.types.Types;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.elements.ToolInterface;
-import org.vanda.workflows.toolinterfaces.RendererSelector;
 
-// TODO this is going to go
-public class ShellTool extends Tool implements FragmentTool {
-
+final class StaticTool extends Tool {
 	private final String id;
 	private final String name;
-	private final String category;
-	private final String version;
-	private final String contact;
 	private final String description;
+	private final String version;
+	private final String category;
+	private final String contact;
+	private final RendererSelector rs;
 	private final List<Port> inPorts;
 	private final List<Port> outPorts;
-	private final Set<String> imports;
-	private final RendererSelector rs;
+	private final String status;
+	private final Type fragmentType;
 	private final ToolInterface ti;
-
-	public ShellTool(String id, String name, String category, String version,
+	
+	public StaticTool(String id, String name, String category, String version,
 			String contact, String description, List<Port> inPorts,
-			List<Port> outPorts, Set<String> imports, RendererSelector rs,
-			ToolInterface ti) {
-		super();
+			List<Port> outPorts, RendererSelector rs, Type fragmentType,
+			String status, ToolInterface ti) {
 		this.id = id;
 		this.name = name;
-		this.category = category;
-		this.version = version;
-		this.contact = contact;
 		this.description = description;
+		this.version = version;
+		this.category = category;
+		this.contact = contact;
+		this.rs = rs;
 		this.inPorts = inPorts;
 		this.outPorts = outPorts;
-		this.imports = new HashSet<String>(imports);
-		this.rs = rs;
+		this.fragmentType = fragmentType;
+		this.status = status;
 		this.ti = ti;
 	}
 
 	@Override
 	public Type getFragmentType() {
-		return Types.shellType;
+		return fragmentType;
 	}
 
 	@Override
@@ -97,17 +91,13 @@ public class ShellTool extends Tool implements FragmentTool {
 	}
 
 	@Override
-	public Set<String> getImports() {
-		return imports;
-	}
-
-	@Override
 	public ToolInterface getInterface() {
 		return ti;
 	}
 
 	@Override
 	public String getStatus() {
-		return "";
+		return status;
 	}
+
 }

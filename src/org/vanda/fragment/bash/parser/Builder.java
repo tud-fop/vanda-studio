@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.vanda.fragment.bash.RendererSelector;
-import org.vanda.fragment.bash.RendererSelectors;
 import org.vanda.fragment.bash.ShellTool;
 import org.vanda.types.Type;
 import org.vanda.util.TokenSource;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.ToolInterface;
+import org.vanda.workflows.toolinterfaces.RendererSelector;
+import org.vanda.workflows.toolinterfaces.RendererSelectors;
 
 /**
  * Classical builder (pattern) for ShellTool.
@@ -57,6 +57,5 @@ public final class Builder {
 	public ShellTool build() {
 		return new ShellTool(id, name, category, version, contact,
 				description.toString(), inPorts, outPorts, imports, rs, ti);
-
 	}
 }

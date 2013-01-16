@@ -218,6 +218,9 @@ public final class ApplicationImpl implements Application {
 			if (key.equals("inputPath"))
 				setProperty(key, System.getProperty("user.home")
 						+ "/" + ".vanda/input/");
+			if (key.equals("toolsPath"))
+				setProperty(key, System.getProperty("user.home")
+						+ "/" + ".vanda/interfaces/");
 			if (key.equals("lastInputPath"))
 				setProperty(key, System.getProperty("user.home")
 						+ "/" + ".vanda/input/");

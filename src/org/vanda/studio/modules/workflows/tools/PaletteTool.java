@@ -87,8 +87,10 @@ public class PaletteTool implements ToolFactory {
 			for (ToolInterface ti : wfe.getApplication()
 					.getToolInterfaceMetaRepository().getRepository()
 					.getItems())
-				for (Tool t : ti.getTools().getItems())
-					templates.add(new Job(t));
+				for (Tool t : ti.getTools().getItems()) {
+					// if ("".equals(t.getStatus()))
+						templates.add(new Job(t));
+				}
 			// templates.add(new AtomicJob(new Choice()));
 			// templates.add(new AtomicJob(new InputPort()));
 			// templates.add(new AtomicJob(new OutputPort()));
