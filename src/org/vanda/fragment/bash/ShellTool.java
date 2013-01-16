@@ -1,19 +1,12 @@
 package org.vanda.fragment.bash;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.vanda.fragment.model.FragmentTool;
-import org.vanda.types.CompositeType;
 import org.vanda.types.Type;
-import org.vanda.types.TypeVariable;
 import org.vanda.types.Types;
-import org.vanda.util.Lexer;
-import org.vanda.util.TokenSource;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
 import org.vanda.workflows.elements.Tool;
@@ -105,39 +98,6 @@ public class ShellTool extends Tool implements FragmentTool {
 	@Override
 	public Set<String> getImports() {
 		return imports;
-	}
-
-	public static Type parseType(Map<String, Type> m, TokenSource ts, String s1) {
-		Lexer lx = new Lexer("()", ",");
-		Stack<String> st = lx.lex(s1);
-		return parseType(m, ts, st);
-	}
-
-	public static Type parseType(Map<String, Type> m, TokenSource ts, Stack<String> st) {
-		String s = st.pop();
-		Type t;
-		List<Type> subTypes = new ArrayList<Type>();
-		if (!st.empty() && st.peek().equals("(")) {
-			st.pop();
-			while (!st.peek().equals(")")) {
-				Type t1 = parseType(m, ts, st);
-				subTypes.add(t1);
-			}
-			st.pop();
-			t = new CompositeType(s, subTypes);
-		} else {
-			if (Character.isLowerCase(s.charAt(0))) {
-				if (!m.containsKey(s)) {
-					t = new TypeVariable(ts.makeToken());
-					m.put(s, t);
-				} else {
-					t = m.get(s);
-				}
-			} else {
-				t = new CompositeType(s);
-			}
-		}
-		return t;
 	}
 
 	@Override

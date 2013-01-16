@@ -5,6 +5,7 @@ import java.io.File;
 import org.vanda.util.Loader;
 import org.vanda.util.Observer;
 import org.vanda.workflows.elements.ToolInterface;
+import org.vanda.workflows.toolinterfaces.ElementHandlers.DescriptionHandlerFactory;
 
 public class ToolInterfaceLoader implements Loader<ToolInterface> {
 
@@ -17,6 +18,15 @@ public class ToolInterfaceLoader implements Loader<ToolInterface> {
 	@Override
 	public void load(Observer<ToolInterface> o) {
 		ParserImpl p = new ParserImpl(o);
+		// do the whole dependency injection thing
+		DescriptionHandlerFactory dhf = ElementHandlers
+				.createDescriptionHandlerFactory();
+		p.setRootState(ElementHandlers.createRootHandler(p, ElementHandlers
+				.createToolInterfacesHandlerFactory(ElementHandlers
+						.createToolHandlerFactory(
+								ElementHandlers.createInPortHandlerFactory(),
+								ElementHandlers.createOutPortHandlerFactory(),
+								dhf), dhf)));
 		try {
 			p.init(new File(file));
 			p.process();
