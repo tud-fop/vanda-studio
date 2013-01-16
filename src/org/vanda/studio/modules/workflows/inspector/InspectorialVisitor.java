@@ -8,7 +8,7 @@ import org.vanda.types.Type;
 import org.vanda.util.TokenSource.Token;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Port;
-import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.immutable.ImmutableWorkflow;
@@ -63,21 +63,21 @@ public final class InspectorialVisitor extends ElementVisitor implements
 	}
 
 	@Override
-	public void visitConnection(Token address, MutableWorkflow wf, Connection cc) {
-		Token variable = wf.getVariable(address);
+	public void visitConnection(Token address, MutableWorkflow wf, ConnectionKey cc) {
+		Token variable = wf.getConnectionValue(cc);
 		ImmutableWorkflow iwf = null;
 		Type type = null;
 		if (model.getFrozen() != null)
 			iwf = model.getFrozen(); // XXX .dereference(path.listIterator());
 		if (iwf != null)
 			type = iwf.getType(variable);
-		Job sjob = wf.getChild(cc.source);
+		// Job sjob = wf.getChild(cc.source);
 		Job tjob = wf.getChild(cc.target);
 		sb.append("<html><h1>Connection</h1><dl>");
-		sb.append("<dt>Source</dt><dd>");
-		sb.append(sjob.getElement().getName());
-		sb.append("</dd><dt>Source Port</dt><dd>");
-		sb.append(sjob.getOutputPorts().get(cc.sourcePort).getIdentifier());
+		// sb.append("<dt>Source</dt><dd>");
+		// sb.append(sjob.getElement().getName());
+		// sb.append("</dd><dt>Source Port</dt><dd>");
+		// sb.append(sjob.getOutputPorts().get(cc.sourcePort).getIdentifier());
 		sb.append("</dd><dt>Target</dt><dd>");
 		sb.append(tjob.getElement().getName());
 		sb.append("</dd><dt>Target Port</dt><dd>");

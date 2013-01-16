@@ -8,7 +8,7 @@ import org.vanda.util.TokenSource.Token;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
-import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
@@ -29,7 +29,7 @@ public final class EditorialVisitor implements SelectionVisitor {
 	}
 
 	@Override
-	public void visitConnection(Token address, MutableWorkflow wf, Connection cc) {
+	public void visitConnection(Token address, MutableWorkflow wf, ConnectionKey cc) {
 		editor = eefs.connectionFactories.createEditor(app, wf, address, cc);
 	}
 

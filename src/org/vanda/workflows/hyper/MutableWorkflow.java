@@ -2,9 +2,11 @@ package org.vanda.workflows.hyper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
@@ -19,20 +21,9 @@ import org.vanda.workflows.immutable.JobInfo;
 
 public final class MutableWorkflow implements Cloneable, JobListener {
 
-	protected static final class DConnInfo {
-		public final Token variable;
-		public final Connection cc; // somewhat redundant
-
-		public DConnInfo(Token variable, Connection cc) {
-			this.variable = variable;
-			this.cc = cc;
-		}
-	}
-
 	protected static final class DJobInfo {
 		public final Job job;
 		public int inputsBlocked;
-		public int outCount;
 		public int topSortInputsBlocked;
 		public Token portNumber = null;
 
@@ -49,7 +40,6 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 				Token t = parent.variableSource.makeToken();
 				job.outputs.add(t);
 			}
-			outCount = 0;
 			topSortInputsBlocked = 0;
 		}
 
@@ -57,7 +47,6 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 			// only apply this when the whole hyperworkflow is copied
 			job = ji.job.clone();
 			inputsBlocked = ji.inputsBlocked;
-			outCount = ji.outCount;
 			topSortInputsBlocked = ji.topSortInputsBlocked;
 		}
 
@@ -65,13 +54,12 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 
 	protected final TokenSource variableSource;
 	protected final TokenSource childAddressSource;
-	protected final TokenSource connectionAddressSource;
+	// protected final TokenSource connectionAddressSource;
 	protected final TokenSource inputPortSource;
 	protected final TokenSource outputPortSource;
 	protected final ArrayList<DJobInfo> children;
 	// protected final Map<Token, Pair<TokenValue<F>, List<TokenValue<F>>>>
 	// connections;
-	protected final ArrayList<DConnInfo> connections;
 	protected final ArrayList<Token> inputPorts;
 	protected final ArrayList<Token> outputPorts;
 	protected String name;
@@ -80,10 +68,9 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 		super();
 		this.name = name;
 		children = new ArrayList<DJobInfo>();
-		connections = new ArrayList<DConnInfo>();
 		variableSource = new TokenSource();
 		childAddressSource = new TokenSource();
-		connectionAddressSource = new TokenSource();
+		// connectionAddressSource = new TokenSource();
 		inputPortSource = new TokenSource();
 		outputPortSource = new TokenSource();
 		inputPorts = new ArrayList<Token>();
@@ -105,10 +92,10 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 			else
 				children.add(new DJobInfo(ji));
 		}
-		connections = new ArrayList<DConnInfo>(hyperWorkflow.connections);
 		variableSource = hyperWorkflow.variableSource.clone();
 		childAddressSource = hyperWorkflow.childAddressSource.clone();
-		connectionAddressSource = hyperWorkflow.connectionAddressSource.clone();
+		// connectionAddressSource =
+		// hyperWorkflow.connectionAddressSource.clone();
 		inputPortSource = hyperWorkflow.inputPortSource.clone();
 		outputPortSource = hyperWorkflow.outputPortSource.clone();
 		inputPorts = new ArrayList<Token>(hyperWorkflow.inputPorts);
@@ -170,29 +157,49 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 
 	public ImmutableWorkflow freeze() throws Exception {
 		// Two steps. Step 1: topological sort
-		// XXX potential optimization: compute forward star
-		int count = 0;
-		LinkedList<DJobInfo> workingset = new LinkedList<DJobInfo>();
+		// compute source job for each variable
+		Map<Token, DJobInfo> varSource = new HashMap<Token, DJobInfo>();
 		for (DJobInfo ji : children) {
 			if (ji != null) {
+				for (Token t : ji.job.outputs)
+					varSource.put(t, ji);
+			}
+		}
+		// compute initial working set (jobs without inputs)
+		// also, compute forward array: for each job which job can be reached
+		Map<DJobInfo, LinkedList<DJobInfo>> forwA = new HashMap<DJobInfo, LinkedList<DJobInfo>>();
+		LinkedList<DJobInfo> workingset = new LinkedList<DJobInfo>();
+		int count = 0;
+		for (DJobInfo ji : children) {
+			if (ji != null) {
+				for (Token t : ji.job.inputs) {
+					if (t != null) {
+						DJobInfo key = varSource.get(t);
+						LinkedList<DJobInfo> ll = forwA.get(key);
+						if (ll == null) {
+							ll = new LinkedList<DJobInfo>();
+							forwA.put(key, ll);
+						}
+						ll.add(ji);
+					}
+				}
 				ji.topSortInputsBlocked = ji.inputsBlocked;
 				if (ji.topSortInputsBlocked == 0)
 					workingset.add(ji);
 				count++;
 			}
 		}
+		// topological sort
 		ArrayList<DJobInfo> topsort = new ArrayList<DJobInfo>(count);
 		while (!workingset.isEmpty()) {
 			DJobInfo ji = workingset.pop();
 			topsort.add(ji);
-			for (Token tok : ji.job.outputs)
-				for (DConnInfo ci : connections) {
-					if (ci != null && ci.variable == tok) {
-						DJobInfo ji2 = children.get(ci.cc.target.intValue());
-						ji2.topSortInputsBlocked--;
-						if (ji2.topSortInputsBlocked == 0)
-							workingset.add(ji2);
-					}
+			LinkedList<DJobInfo> ll = forwA.get(ji);
+			if (ll != null)
+				for (DJobInfo ji2 : ll) {
+					ji2.topSortInputsBlocked--;
+					if (ji2.topSortInputsBlocked == 0)
+						workingset.add(ji2);
 				}
 		}
 		// Step 2: actual freeze
@@ -217,7 +224,7 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 						outtoken.add(ji.job.outputs.get(i));
 				}
 				imch.add(new JobInfo(ji.job.freeze(), ji.job.address, intoken,
-						outtoken, ji.outCount, connected));
+						outtoken, connected));
 			}
 			List<Token> ports = null;
 			ports = inputPorts;
@@ -269,9 +276,9 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 
 		void childRemoved(MutableWorkflow mwf, Job j);
 
-		void connectionAdded(MutableWorkflow mwf, Connection cc);
+		void connectionAdded(MutableWorkflow mwf, ConnectionKey cc);
 
-		void connectionRemoved(MutableWorkflow mwf, Connection cc);
+		void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc);
 
 		// removed: see older versions
 		// void inputPortAdded(MutableWorkflow mwf, Job j, int index);
@@ -318,28 +325,17 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 		return job.address;
 	}
 
-	public Token addConnection(Connection cc) {
-		assert (cc.address == null);
-		DJobInfo sji = children.get(cc.source.intValue());
+	public void addConnection(ConnectionKey cc, Token variable) {
 		DJobInfo tji = children.get(cc.target.intValue());
-		assert (sji.job.getOutputPorts().get(cc.sourcePort) != null);
 		assert (tji.job.getInputPorts().get(cc.targetPort) != null);
-		if (tji.job.inputs.get(cc.targetPort) != null)
-			throw new RuntimeException("!!!"); // FIXME better exception
-		Token tok = sji.job.outputs.get(cc.sourcePort);
-		DConnInfo ci = new DConnInfo(tok, cc);
-		cc.address = connectionAddressSource.makeToken();
-		tji.job.inputs.set(cc.targetPort, tok);
-		tji.inputsBlocked++;
-		if (cc.address.intValue() < connections.size())
-			connections.set(cc.address.intValue(), ci);
-		else {
-			assert (cc.address.intValue() == connections.size());
-			connections.add(ci);
+		Token old = tji.job.inputs.get(cc.targetPort);
+		if (old != variable) {
+			if (old != null)
+				throw new RuntimeException("!!!"); // FIXME better exception
+			tji.job.inputs.set(cc.targetPort, variable);
+			tji.inputsBlocked++;
+			childObservable.notify(new Workflows.ConnectionAddedEvent(this, cc));
 		}
-		sji.outCount++;
-		childObservable.notify(new Workflows.ConnectionAddedEvent(this, cc));
-		return cc.address;
 	}
 
 	public Observable<WorkflowEvent> getObservable() {
@@ -350,19 +346,23 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 		return childObservable;
 	}
 
-	public Token getVariable(Token source, int sourcePort) {
-		DJobInfo ji = children.get(source.intValue());
-		if (ji != null && 0 <= sourcePort && sourcePort < ji.job.outputs.size()) {
-			return ji.job.outputs.get(sourcePort);
-		} else
-			return null;
+	public Token getConnectionValue(ConnectionKey cc) {
+		return children.get(cc.target.intValue()).job.inputs.get(cc.targetPort);
 	}
 
-	public Token getVariable(Token address) {
-		DConnInfo ci = connections.get(address.intValue());
-		if (ci != null)
-			return ci.variable;
-		else
+	public ConnectionKey getConnectionSource(ConnectionKey cc) {
+		Token variable = getConnectionValue(cc);
+		if (variable != null) {
+			for (DJobInfo ji : children) {
+				if (ji != null) {
+					for (int i = 0; i < ji.job.outputs.size(); i++)
+						if (ji.job.outputs.get(i) == variable) {
+							return new ConnectionKey(ji.job.address, i);
+						}
+				}
+			}
+			return null;
+		} else
 			return null;
 	}
 
@@ -371,13 +371,6 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 		if (ji == null)
 			return;
 		// XXX removed: handle ports (see older versions)
-		for (int i = 0; i < connections.size(); i++) {
-			DConnInfo ci = connections.get(i);
-			if (ci != null) {
-				if (ci.cc.source == address || ci.cc.target == address)
-					removeConnection(ci.cc.address);
-			}
-		}
 		for (int i = 0; i < ji.job.outputs.size(); i++) {
 			variableSource.recycleToken(ji.job.outputs.get(i));
 		}
@@ -388,36 +381,25 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 		childAddressSource.recycleToken(address);
 	}
 
-	public void removeConnection(Token address) {
-		DConnInfo ci = connections.get(address.intValue());
-		if (ci != null) {
-			DJobInfo sji = children.get(ci.cc.source.intValue());
-			DJobInfo tji = children.get(ci.cc.target.intValue());
-			// assert (sji.outputs.get(sourcePort) == tji.inputs.get(ci.port));
-			tji.job.inputs.set(ci.cc.targetPort, null);
+	public void removeConnection(ConnectionKey cc) {
+		DJobInfo tji = children.get(cc.target.intValue());
+		// assert (sji.outputs.get(sourcePort) == tji.inputs.get(ci.port));
+		Token old = tji.job.inputs.get(cc.targetPort);
+		if (old != null) {
+			tji.job.inputs.set(cc.targetPort, null);
 			tji.inputsBlocked--;
-			sji.outCount--;
-			connections.set(address.intValue(), null);
-			childObservable.notify(new Workflows.ConnectionRemovedEvent(this,
-					ci.cc));
-			ci.cc.address = null;
-			connectionAddressSource.recycleToken(address);
+			childObservable.notify(new Workflows.ConnectionRemovedEvent(this, cc));
 		}
 	}
 
-	/*
-	 * public MutableWorkflow dereference(ListIterator<Token> address) { assert
-	 * (address != null); if (address.hasNext()) { DJobInfo ji =
-	 * children.get(address.next().intValue()); if (ji != null) return
-	 * ji.job.dereference(address); else return null; } else return this; }
-	 */
-
-	public List<Connection> getConnections() {
-		// only for putting existing HyperGraphs into the GUI
-		LinkedList<Connection> conn = new LinkedList<Connection>();
-		for (DConnInfo ci : connections) {
-			if (ci != null)
-				conn.add(ci.cc);
+	public List<ConnectionKey> getConnections() {
+		// only for putting existing hypergraphs into the GUI
+		LinkedList<ConnectionKey> conn = new LinkedList<ConnectionKey>();
+		for (DJobInfo ji : children) {
+			if (ji != null)
+				for (int i = 0; i < ji.job.inputs.size(); i++)
+					if (ji.job.inputs.get(i) != null)
+						conn.add(new ConnectionKey(ji.job.address, i));
 		}
 		return conn;
 	}
@@ -426,14 +408,6 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 		DJobInfo ji = children.get(address.intValue());
 		if (ji != null)
 			return ji.job;
-		else
-			return null;
-	}
-
-	public Connection getConnection(Token address) {
-		DConnInfo ci = connections.get(address.intValue());
-		if (ci != null)
-			return ci.cc;
 		else
 			return null;
 	}

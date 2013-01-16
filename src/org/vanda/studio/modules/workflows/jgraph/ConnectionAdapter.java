@@ -2,20 +2,21 @@ package org.vanda.studio.modules.workflows.jgraph;
 
 import org.vanda.studio.modules.workflows.model.Model;
 import org.vanda.studio.modules.workflows.model.Model.ConnectionSelection;
-import org.vanda.util.TokenSource.Token;
-import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.ConnectionKey;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.view.mxGraph;
 
 public class ConnectionAdapter implements Adapter {
-	public Connection cc;
+	public ConnectionKey cc;
 
-	public ConnectionAdapter(Connection cc) {
+	// public Token variable;
+
+	public ConnectionAdapter(ConnectionKey cc) {
 		this.cc = cc;
 	}
-	
+
 	@Override
 	public ConnectionAdapter clone() {
 		return new ConnectionAdapter(cc);
@@ -30,9 +31,8 @@ public class ConnectionAdapter implements Adapter {
 	public void onRemove(mxICell parent) {
 		if (cc != null) {
 			WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
-			Token address = cc.address;
-			if (address != null && wa.removeConnection(address) != null)
-				wa.workflow.removeConnection(address);
+			if (wa.removeConnection(cc) != null)
+				wa.workflow.removeConnection(cc);
 		}
 	}
 
@@ -42,14 +42,13 @@ public class ConnectionAdapter implements Adapter {
 		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(parent);
 		if (cc != null) {
 			// a previously loaded connection is updated, don't change anything
-			Token address = cc.address;
-			if (wa.getConnection(address) == null) {
-				wa.setConnection(address, cell);
+			if (wa.getConnection(cc) == null) {
+				wa.setConnection(cc, cell);
 				// propagate value change to selection listeners
 				if (graph.getSelectionCell() == cell)
 					graph.setSelectionCell(cell);
 			}
-			assert (wa.getConnection(address) == cell);
+			assert (wa.getConnection(cc) == cell);
 		} else {
 			// a new connection has been inserted by the user via GUI
 			Object source = model.getTerminal(cell, true);
@@ -66,15 +65,15 @@ public class ConnectionAdapter implements Adapter {
 						&& tval instanceof PortAdapter
 						&& sparval instanceof JobAdapter && tparval instanceof JobAdapter);
 
-				Connection cc = new Connection(
-						((JobAdapter) sparval).job.getAddress(),
-						((PortAdapter) sval).port,
+				ConnectionKey cc = new ConnectionKey(
 						((JobAdapter) tparval).job.getAddress(),
 						((PortAdapter) tval).port);
 				wa.putInter(cc, cell);
 				cell.setValue(new ConnectionAdapter(cc));
 				if (wa.workflow != null)
-					wa.workflow.addConnection(cc);
+					wa.workflow.addConnection(cc,
+							((JobAdapter) sparval).job.outputs
+									.get(((PortAdapter) sval).port));
 			}
 		}
 	}
@@ -82,7 +81,7 @@ public class ConnectionAdapter implements Adapter {
 	@Override
 	public void setSelection(Model m) {
 		if (cc != null)
-			m.setSelection(new ConnectionSelection(m.getRoot(), cc.address));
+			m.setSelection(new ConnectionSelection(m.getRoot(), cc));
 		else
 			m.setSelection(null);
 		// TODO no nesting support here because of m.getRoot()
@@ -91,12 +90,12 @@ public class ConnectionAdapter implements Adapter {
 	@Override
 	public void register(mxICell parent, mxICell cell) {
 		WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
-		wa.setConnection(cc.address, cell);
+		wa.setConnection(cc, cell);
 	}
 
 	@Override
 	public boolean inModel() {
-		return cc != null && cc.address != null;
+		return cc != null; // FIXME ???? && cc.address != null;
 	}
 
 	@Override

@@ -41,7 +41,7 @@ import org.vanda.util.HasActions;
 import org.vanda.util.Observer;
 import org.vanda.util.Repository;
 import org.vanda.util.Util;
-import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildEvent;
@@ -428,12 +428,12 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	}
 
 	@Override
-	public void connectionAdded(MutableWorkflow mwf, Connection cc) {
+	public void connectionAdded(MutableWorkflow mwf, ConnectionKey cc) {
 		recheck();
 	}
 
 	@Override
-	public void connectionRemoved(MutableWorkflow mwf, Connection cc) {
+	public void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc) {
 		recheck();
 	}
 

@@ -9,7 +9,7 @@ import org.vanda.studio.modules.workflows.model.Model;
 import org.vanda.studio.modules.workflows.model.Model.ConnectionSelection;
 import org.vanda.studio.modules.workflows.model.Model.SingleObjectSelection;
 import org.vanda.util.Observer;
-import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildEvent;
@@ -120,12 +120,12 @@ public final class DrecksAdapter {
 		}
 
 		@Override
-		public void connectionAdded(MutableWorkflow mwf, Connection cc) {
+		public void connectionAdded(MutableWorkflow mwf, ConnectionKey cc) {
 			renderConnection(mwf, cc);
 		}
 
 		@Override
-		public void connectionRemoved(MutableWorkflow mwf, Connection cc) {
+		public void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc) {
 			removeConnection(mwf, cc);
 		}
 
@@ -154,12 +154,15 @@ public final class DrecksAdapter {
 			graph = new Graph();
 			graph.setAutoOrigin(true);
 			/*
-			System.out.println(graph.getModel().getRoot());
-			System.out.println(((mxCell) graph.getModel().getRoot()).getChildAt(0));
-			System.out.println(graph.getDefaultParent());
-			((mxCell) graph.getModel().getRoot()).getChildAt(0).setStyle("algorithm");
-			((mxCell) graph.getModel().getRoot()).getChildAt(0).setGeometry(new mxGeometry(0, 0, 1000, 1000));
-			*/
+			 * System.out.println(graph.getModel().getRoot());
+			 * System.out.println(((mxCell)
+			 * graph.getModel().getRoot()).getChildAt(0));
+			 * System.out.println(graph.getDefaultParent()); ((mxCell)
+			 * graph.getModel().getRoot()).getChildAt(0).setStyle("algorithm");
+			 * ((mxCell)
+			 * graph.getModel().getRoot()).getChildAt(0).setGeometry(new
+			 * mxGeometry(0, 0, 1000, 1000));
+			 */
 
 			workflowListener = new WorkflowListener();
 			model.getChildObservable().addObserver(
@@ -340,9 +343,9 @@ public final class DrecksAdapter {
 			graph.removeCells(new Object[] { cell });
 	}
 
-	public void removeConnection(MutableWorkflow hwf, Connection cc) {
+	public void removeConnection(MutableWorkflow hwf, ConnectionKey cc) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
-		mxICell cell = wa.getConnection(cc.address);
+		mxICell cell = wa.getConnection(cc);
 		if (cell != null)
 			graph.removeCells(new Object[] { cell });
 	}
@@ -362,7 +365,7 @@ public final class DrecksAdapter {
 			if (hwf != null) {
 				for (Job job : hwf.getChildren())
 					renderChild(hwf, job);
-				for (Connection cc : hwf.getConnections())
+				for (ConnectionKey cc : hwf.getConnections())
 					renderConnection(hwf, cc);
 			}
 		}
@@ -383,15 +386,16 @@ public final class DrecksAdapter {
 		return cell;
 	}
 
-	public <F> void renderConnection(MutableWorkflow parent, Connection cc) {
+	public <F> void renderConnection(MutableWorkflow parent, ConnectionKey cc) {
 		mxICell parentCell = translation.get(parent);
 		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
 
 		mxICell cell = wa.removeInter(cc);
 		if (cell != null) {
-			wa.setConnection(cc.address, cell);
-		} else if (wa.getConnection(cc.address) == null) {
-			mxICell source = wa.getChild(cc.source);
+			wa.setConnection(cc, cell);
+		} else if (wa.getConnection(cc) == null) {
+			ConnectionKey scc = parent.getConnectionSource(cc);
+			mxICell source = wa.getChild(scc.target);
 			mxICell target = wa.getChild(cc.target);
 
 			if (source != null && target != null) {
@@ -404,7 +408,7 @@ public final class DrecksAdapter {
 						Object value = cl.getValue();
 						if (value instanceof PortAdapter
 								&& !((PortAdapter) value).input
-								&& ((PortAdapter) value).port == cc.sourcePort)
+								&& ((PortAdapter) value).port == scc.targetPort)
 							scell = cl;
 					}
 					for (int i = 0; i < target.getChildCount(); i++) {
@@ -434,8 +438,9 @@ public final class DrecksAdapter {
 		for (SingleObjectSelection e : elements) {
 			// XXX nested Workflows are not supported by this code
 			MutableWorkflow hwf = model.getRoot();
-			if (e instanceof ConnectionSelection){
-				mxICell c = ((WorkflowAdapter) translation.get(hwf).getValue()).getConnection(e.address);
+			if (e instanceof ConnectionSelection) {
+				mxICell c = ((WorkflowAdapter) translation.get(hwf).getValue())
+						.getConnection(((ConnectionSelection) e).cc);
 				cellList.add(c);
 			}
 		}
@@ -469,7 +474,7 @@ public final class DrecksAdapter {
 				// TODO fix style resetting to usual style
 				String st = mxStyleUtils.removeStylename(cell.getStyle(),
 						"highlightededge");
-//				System.out.println(st);
+				// System.out.println(st);
 				cell.setStyle(st);
 			}
 		}
