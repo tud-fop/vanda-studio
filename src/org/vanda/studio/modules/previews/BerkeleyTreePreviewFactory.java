@@ -41,10 +41,12 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -54,7 +56,7 @@ import org.vanda.studio.app.PreviewFactory;
 import org.vanda.util.Lexer;
 import org.vanda.util.Pair;
 
-@SuppressWarnings({ "unchecked", "serial", "rawtypes"})
+@SuppressWarnings({ "unchecked", "serial", "rawtypes" })
 public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 	public class Tree {
@@ -395,8 +397,8 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				});
 				bZoomIn.setContentAreaFilled(false);
 				bZoomIn.setFocusPainted(false);
-				Font f = new Font(bZoomIn.getFont().getName(),
-						Font.BOLD, (int) (bZoomIn.getFont().getSize() * 1.4));
+				Font f = new Font(bZoomIn.getFont().getName(), Font.BOLD,
+						(int) (bZoomIn.getFont().getSize() * 1.4));
 				bZoomIn.setFont(f);
 
 				bZoomReset = new JButton(new AbstractAction("O") {
@@ -474,7 +476,8 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				int pHeight1 = bZoomIn.getPreferredSize().height
 						+ bZoomReset.getPreferredSize().height
 						+ bZoomOut.getPreferredSize().height;
-				jHUDPanel.setBounds(pWidth - pWidth1, pHeight - pHeight1, pWidth1, pHeight1);
+				jHUDPanel.setBounds(pWidth - pWidth1, pHeight - pHeight1,
+						pWidth1, pHeight1);
 				jZoomPane.addComponentListener(new ComponentListener() {
 
 					@Override
@@ -486,19 +489,20 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 					@Override
 					public void componentResized(ComponentEvent e) {
 						Rectangle b = jZoomPane.getBounds();
-						
+
 						int pWidth = b.width;
 						int pHeight = b.height;
 						sTree.setBounds(0, 0, pWidth, pHeight);
 						int pWidth1 = Math.max(
-								bZoomReset.getPreferredSize().width,
-								Math.max(bZoomIn.getPreferredSize().width,
+								bZoomReset.getPreferredSize().width, Math.max(
+										bZoomIn.getPreferredSize().width,
 										bZoomOut.getPreferredSize().width));
 						int pHeight1 = bZoomIn.getPreferredSize().height
 								+ bZoomReset.getPreferredSize().height
 								+ bZoomOut.getPreferredSize().height;
 						jHUDPanel.setBounds(0, 0, pWidth, pHeight);
-						jHUDPanel.setBounds(pWidth - pWidth1 - 20, pHeight - pHeight1 - 20, pWidth1, pHeight1);
+						jHUDPanel.setBounds(pWidth - pWidth1 - 20, pHeight
+								- pHeight1 - 20, pWidth1, pHeight1);
 						sTree.revalidate();
 					}
 
