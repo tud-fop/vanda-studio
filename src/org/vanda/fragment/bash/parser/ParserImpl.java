@@ -7,25 +7,24 @@ import java.util.Scanner;
 
 import org.vanda.fragment.bash.ShellTool;
 import org.vanda.util.Observer;
-import org.vanda.workflows.elements.ToolInterface;
 
 public final class ParserImpl implements Parser {
 
-	Builder b;
-	Scanner sc;
-	ParserState st;
-	Observer<? super ShellTool> o;
-	FieldProcessor[] fieldProcessors = { new FieldProcessors.Version(),
+	private final Builder b;
+	private Scanner sc;
+	private ParserState st;
+	private final Observer<? super ShellTool> o;
+	private final FieldProcessor[] fieldProcessors = { new FieldProcessors.Version(),
 			new FieldProcessors.Contact(), new FieldProcessors.Category(),
 			new FieldProcessors.Renderer(), new FieldProcessors.InPort(),
 			new FieldProcessors.OutPort() };
-	ParserState stHandleName = new ParserStates.HandleName(this);
-	ParserState stHandleFields = new ParserStates.HandleFields(this);
-	ParserState stHandleDescription = new ParserStates.HandleDescription(this);
-	ParserState stHandleFunction = new ParserStates.HandleFunction(this);
+	private final ParserState stHandleName = new ParserStates.HandleName(this);
+	private final ParserState stHandleFields = new ParserStates.HandleFields(this);
+	private final ParserState stHandleDescription = new ParserStates.HandleDescription(this);
+	private final ParserState stHandleFunction = new ParserStates.HandleFunction(this);
 
-	public ParserImpl(ToolInterface ti, Observer<? super ShellTool> o) {
-		b = new Builder(ti);
+	public ParserImpl(Observer<? super ShellTool> o) {
+		b = new Builder();
 		this.o = o;
 	}
 

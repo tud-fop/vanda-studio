@@ -1,24 +1,30 @@
 package org.vanda.workflows.toolinterfaces;
 
-public class ElementHandlers {
+import org.vanda.workflows.elements.Tool;
+import org.vanda.xml.ElementHandler;
+import org.vanda.xml.Parser;
+
+public final class ElementHandlers {
 
 	public interface DescriptionHandlerFactory {
-		ElementHandler createHandler(Parser p, RepositoryItemBuilder tb);
+		ElementHandler createHandler(Parser<Tool> p,
+				RepositoryItemBuilder tb);
 	}
 
 	public interface PortHandlerFactory {
-		ElementHandler createPortHandler(Parser p, ToolBuilder tb);
+		ElementHandler createPortHandler(Parser<Tool> p, ToolBuilder tb);
 	}
 
 	public interface ToolHandlerFactory {
-		ElementHandler createToolHandler(Parser p, ToolInterfaceBuilder tib);
+		ElementHandler createToolHandler(Parser<Tool> p,
+				ToolInterfaceBuilder tib);
 	}
 
 	public interface ToolInterfacesHandlerFactory {
-		ElementHandler createToolInterfacesHandler(Parser p);
+		ElementHandler createToolInterfacesHandler(Parser<Tool> p);
 	}
 
-	public static ElementHandler createRootHandler(Parser p,
+	public static ElementHandler createRootHandler(Parser<Tool> p,
 			ToolInterfacesHandlerFactory tih) {
 		return new RootHandler(p, tih);
 	}
@@ -47,10 +53,11 @@ public class ElementHandlers {
 	}
 
 	private static class RootHandler implements ElementHandler {
-		private final Parser p;
+		private final Parser<Tool> p;
 		private final ToolInterfacesHandlerFactory tiHandler;
 
-		public RootHandler(Parser p, ToolInterfacesHandlerFactory tih) {
+		public RootHandler(Parser<Tool> p,
+				ToolInterfacesHandlerFactory tih) {
 			this.p = p;
 			tiHandler = tih;
 		}
@@ -98,16 +105,17 @@ public class ElementHandlers {
 		}
 
 		@Override
-		public ElementHandler createToolInterfacesHandler(Parser p) {
+		public ElementHandler createToolInterfacesHandler(
+				Parser<Tool> p) {
 			return new ToolInterfacesHandler(p);
 		}
 
 		public class ToolInterfacesHandler implements ElementHandler {
-			private final Parser p;
+			private final Parser<Tool> p;
 			private final ToolInterfaceBuilder tib;
 			private boolean desc = false;
 
-			public ToolInterfacesHandler(Parser p) {
+			public ToolInterfacesHandler(Parser<Tool> p) {
 				this.p = p;
 				tib = new ToolInterfaceBuilder();
 				desc = false;
@@ -120,7 +128,7 @@ public class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessors.processRepositoryItemField(name, value, tib);
+				FieldProcessing.processRepositoryItemField(name, value, tib);
 			}
 
 			@Override
@@ -137,7 +145,8 @@ public class ElementHandlers {
 			@Override
 			public void endElement(String namespace, String name) {
 				// TODO sanity checks
-				p.notify(tib.build());
+				for (Tool t : tib.build())
+					p.notify(t);
 			}
 
 			@Override
@@ -162,18 +171,18 @@ public class ElementHandlers {
 		}
 
 		@Override
-		public ElementHandler createToolHandler(Parser p,
+		public ElementHandler createToolHandler(Parser<Tool> p,
 				ToolInterfaceBuilder tib) {
 			return new ToolHandler(p, tib);
 		}
 
 		public class ToolHandler implements ElementHandler {
 			private boolean desc = false;
-			private final Parser p;
+			private final Parser<Tool> p;
 			private final ToolInterfaceBuilder tib;
 			private final ToolBuilder tb;
 
-			public ToolHandler(Parser p, ToolInterfaceBuilder tib) {
+			public ToolHandler(Parser<Tool> p, ToolInterfaceBuilder tib) {
 				this.p = p;
 				this.tib = tib;
 				tb = new ToolBuilder();
@@ -187,8 +196,8 @@ public class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessors.processRepositoryItemField(name, value, tb);
-				FieldProcessors.processToolField(name, value, tb);
+				FieldProcessing.processRepositoryItemField(name, value, tb);
+				FieldProcessing.processToolField(name, value, tb);
 			}
 
 			@Override
@@ -222,19 +231,18 @@ public class ElementHandlers {
 	private static class InHandlerFactory implements PortHandlerFactory {
 
 		@Override
-		public ElementHandler createPortHandler(Parser p, ToolBuilder tb) {
+		public ElementHandler createPortHandler(Parser<Tool> p,
+				ToolBuilder tb) {
 			return new InHandler(p, tb);
 		}
 
 		public static class InHandler implements ElementHandler {
-			private final Parser p;
-			private final ToolBuilder tb;
+			private final Parser<Tool> p;
 			private final PortBuilder pb;
 
-			public InHandler(Parser p, ToolBuilder tb) {
+			public InHandler(Parser<Tool> p, ToolBuilder tb) {
 				this.p = p;
-				this.tb = tb;
-				pb = new PortBuilder();
+				pb = new PortBuilder(tb);
 			}
 
 			@Override
@@ -245,7 +253,7 @@ public class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessors.processPortField(name, value, tb, pb);
+				FieldProcessing.processPortField(name, value, pb);
 			}
 
 			@Override
@@ -255,7 +263,7 @@ public class ElementHandlers {
 
 			@Override
 			public void endElement(String namespace, String name) {
-				tb.inPorts.add(pb.build());
+				pb.parent.inPorts.add(pb.build());
 			}
 
 			@Override
@@ -268,19 +276,18 @@ public class ElementHandlers {
 	private static class OutHandlerFactory implements PortHandlerFactory {
 
 		@Override
-		public ElementHandler createPortHandler(Parser p, ToolBuilder tb) {
+		public ElementHandler createPortHandler(Parser<Tool> p,
+				ToolBuilder tb) {
 			return new OutHandler(p, tb);
 		}
 
 		public static class OutHandler implements ElementHandler {
-			private final Parser p;
-			private final ToolBuilder tb;
+			private final Parser<Tool> p;
 			private final PortBuilder pb;
 
-			public OutHandler(Parser p, ToolBuilder tb) {
+			public OutHandler(Parser<Tool> p, ToolBuilder tb) {
 				this.p = p;
-				this.tb = tb;
-				pb = new PortBuilder();
+				pb = new PortBuilder(tb);
 			}
 
 			@Override
@@ -291,7 +298,7 @@ public class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessors.processPortField(name, value, tb, pb);
+				FieldProcessing.processPortField(name, value, pb);
 			}
 
 			@Override
@@ -303,7 +310,7 @@ public class ElementHandlers {
 			public void endElement(String namespace, String name) {
 				if ("".equals(pb.name) || pb.type == null)
 					p.fail(null);
-				tb.outPorts.add(pb.build());
+				pb.parent.outPorts.add(pb.build());
 			}
 
 			@Override
@@ -317,15 +324,17 @@ public class ElementHandlers {
 			DescriptionHandlerFactory {
 
 		@Override
-		public ElementHandler createHandler(Parser p, RepositoryItemBuilder b) {
+		public ElementHandler createHandler(Parser<Tool> p,
+				RepositoryItemBuilder b) {
 			return new DescriptionHandler(p, b);
 		}
 
 		public static class DescriptionHandler implements ElementHandler {
-			private final Parser p;
+			private final Parser<Tool> p;
 			private final RepositoryItemBuilder b;
 
-			public DescriptionHandler(Parser p, RepositoryItemBuilder b) {
+			public DescriptionHandler(Parser<Tool> p,
+					RepositoryItemBuilder b) {
 				this.p = p;
 				this.b = b;
 			}

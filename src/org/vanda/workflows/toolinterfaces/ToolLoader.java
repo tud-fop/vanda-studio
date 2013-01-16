@@ -4,22 +4,22 @@ import java.io.File;
 
 import org.vanda.util.Loader;
 import org.vanda.util.Observer;
-import org.vanda.workflows.elements.ToolInterface;
-import org.vanda.workflows.toolinterfaces.ElementHandlers.DescriptionHandlerFactory;
+import org.vanda.workflows.elements.Tool;
+import org.vanda.xml.ParserImpl;
 
-public class ToolInterfaceLoader implements Loader<ToolInterface> {
+public class ToolLoader implements Loader<Tool> {
 
-	private final String file;
+	private final String path;
 
-	public ToolInterfaceLoader(String file) {
-		this.file = file;
+	public ToolLoader(String file) {
+		this.path = file;
 	}
 
-	@Override
-	public void load(Observer<ToolInterface> o) {
-		ParserImpl p = new ParserImpl(o);
+	private static ParserImpl<Tool> createParser(
+			Observer<Tool> o) {
+		ParserImpl<Tool> p = new ParserImpl<Tool>(o);
 		// do the whole dependency injection thing
-		DescriptionHandlerFactory dhf = ElementHandlers
+		ElementHandlers.DescriptionHandlerFactory dhf = ElementHandlers
 				.createDescriptionHandlerFactory();
 		p.setRootState(ElementHandlers.createRootHandler(p, ElementHandlers
 				.createToolInterfacesHandlerFactory(ElementHandlers
@@ -27,11 +27,17 @@ public class ToolInterfaceLoader implements Loader<ToolInterface> {
 								ElementHandlers.createInPortHandlerFactory(),
 								ElementHandlers.createOutPortHandlerFactory(),
 								dhf), dhf)));
+		return p;
+	}
+
+	@Override
+	public void load(Observer<Tool> o) {
+		ParserImpl<Tool> p = createParser(o);
 		try {
-			p.init(new File(file));
+			p.init(new File(path));
 			p.process();
 		} catch (Exception e) {
-			System.err.println("Tool interface file " + file
+			System.err.println("Tool interface file " + path
 					+ " can not be loaded.");
 			e.printStackTrace();
 			// app.sendMessage(new ExceptionMessage(e));

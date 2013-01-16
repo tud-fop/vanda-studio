@@ -10,7 +10,6 @@ import org.vanda.fragment.bash.ShellTool;
 import org.vanda.types.Type;
 import org.vanda.util.TokenSource;
 import org.vanda.workflows.elements.Port;
-import org.vanda.workflows.elements.ToolInterface;
 import org.vanda.workflows.toolinterfaces.RendererSelector;
 import org.vanda.workflows.toolinterfaces.RendererSelectors;
 
@@ -18,7 +17,7 @@ import org.vanda.workflows.toolinterfaces.RendererSelectors;
  * Classical builder (pattern) for ShellTool.
  * 
  * @author mbue
- *
+ * 
  */
 public final class Builder {
 	Set<String> imports;
@@ -31,12 +30,10 @@ public final class Builder {
 	RendererSelector rs;
 	List<Port> inPorts;
 	List<Port> outPorts;
-	ToolInterface ti;
 	TokenSource ts;
 	Map<String, Type> tVars;
 
-	public Builder(ToolInterface ti) {
-		this.ti = ti;
+	public Builder() {
 		reset();
 	}
 
@@ -56,6 +53,6 @@ public final class Builder {
 
 	public ShellTool build() {
 		return new ShellTool(id, name, category, version, contact,
-				description.toString(), inPorts, outPorts, imports, rs, ti);
+				description.toString(), imports);
 	}
 }

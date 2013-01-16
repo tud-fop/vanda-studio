@@ -84,10 +84,6 @@ public final class Job implements Cloneable, ElementListener {
 		return observable;
 	}
 
-	// public MutableWorkflow dereference(ListIterator<Token> address) {
-	// 	return null;
-	// }
-	
 	public List<Port> getOutputPorts() {
 		return getElement().getOutputPorts();
 	}

@@ -6,16 +6,13 @@ import java.io.FileNotFoundException;
 import org.vanda.fragment.bash.parser.ParserImpl;
 import org.vanda.util.Loader;
 import org.vanda.util.Observer;
-import org.vanda.workflows.elements.ToolInterface;
 
 public class ToolLoader implements Loader<ShellTool> {
 
 	protected final String path;
-	protected final ToolInterface ti;
 
-	public ToolLoader(String path, ToolInterface ti) {
+	public ToolLoader(String path) {
 		this.path = path;
-		this.ti = ti;
 	}
 
 	@Override
@@ -28,7 +25,7 @@ public class ToolLoader implements Loader<ShellTool> {
 	}
 
 	public void loadFromFile(File file, Observer<ShellTool> o) {
-		ParserImpl loader = new ParserImpl(ti, o);
+		ParserImpl loader = new ParserImpl(o);
 		try {
 			loader.init(file);
 			loader.process();
