@@ -51,7 +51,7 @@ public class ToolLoader implements Loader<Tool> {
 	@Override
 	public void load(Observer<Tool> o) {
 		for (File f : (new File(path)).listFiles())
-			if (f.isFile() && f.getAbsolutePath().endsWith(".xml"))
+			if (f.isFile() && f.getAbsolutePath().toLowerCase().endsWith(".xml"))
 				loadFile(o, f);
 	}
 
