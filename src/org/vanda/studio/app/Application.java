@@ -10,7 +10,7 @@ import org.vanda.types.Type;
 import org.vanda.util.Message;
 import org.vanda.util.MetaRepository;
 import org.vanda.util.Observable;
-import org.vanda.workflows.elements.ToolInterface;
+import org.vanda.workflows.elements.Tool;
 
 /**
  * Root node of the Vanda Studio Application Object Model.
@@ -46,7 +46,7 @@ public interface Application {
 	 * Returns the repository of tool interface repositories. Modules should
 	 * add or remove their own repositories here.
 	 */
-	MetaRepository<ToolInterface> getToolInterfaceMetaRepository();
+	MetaRepository<Tool> getToolMetaRepository();
 	
 	Observable<Message> getMessageObservable();
 

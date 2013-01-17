@@ -28,7 +28,6 @@ import org.vanda.util.Observable;
 import org.vanda.util.Observer;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.Tool;
-import org.vanda.workflows.elements.ToolInterface;
 
 /**
  * @author buechse
@@ -43,11 +42,11 @@ public final class ApplicationImpl implements Application {
 	protected final MultiplexObserver<Application> modeObservable;
 	// protected final CompositeRepository<Profile> profileRepository;
 	protected final HashMap<Type, PreviewFactory> previewFactories;
-	protected final CompositeRepository<ToolInterface> toolInterfaceRepository;
+	protected final CompositeRepository<Tool> toolRepository;
 	protected final MultiplexObserver<Application> shutdownObservable;
 	protected final WindowSystemImpl windowSystem;
 	protected final HashSet<Type> types;
-	protected final Observer<ToolInterface> tiObserver;
+	// protected final Observer<ToolInterface> tiObserver;
 	protected final Observer<Tool> typeObserver;
 	protected final Properties properties;
 	
@@ -66,7 +65,7 @@ public final class ApplicationImpl implements Application {
 		modeObservable = new MultiplexObserver<Application>();
 		// profileRepository = new CompositeRepository<Profile>();
 		previewFactories = new HashMap<Type, PreviewFactory>();
-		toolInterfaceRepository = new CompositeRepository<ToolInterface>();
+		toolRepository = new CompositeRepository<Tool>();
 		shutdownObservable = new MultiplexObserver<Application>();
 		if (gui)
 			windowSystem = new WindowSystemImpl(this);
@@ -95,6 +94,7 @@ public final class ApplicationImpl implements Application {
 			
 		};
 		
+		/*
 		tiObserver = new Observer<ToolInterface>() {
 
 			@Override
@@ -104,9 +104,10 @@ public final class ApplicationImpl implements Application {
 			}
 			
 		};
+		*/
 		
 		// converterToolRepository.getAddObservable().addObserver(typeObserver);
-		toolInterfaceRepository.getAddObservable().addObserver(tiObserver);
+		toolRepository.getAddObservable().addObserver(typeObserver);
 	}
 
 	@Override
@@ -193,8 +194,8 @@ public final class ApplicationImpl implements Application {
 	*/
 
 	@Override
-	public MetaRepository<ToolInterface> getToolInterfaceMetaRepository() {
-		return toolInterfaceRepository;
+	public MetaRepository<Tool> getToolMetaRepository() {
+		return toolRepository;
 	}
 
 	@Override

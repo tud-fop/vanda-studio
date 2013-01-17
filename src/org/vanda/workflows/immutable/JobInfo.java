@@ -9,7 +9,6 @@ public final class JobInfo {
 	public final Token address;
 	public final ArrayList<Token> inputs;
 	public final ArrayList<Token> outputs;
-	public final int outCount;
 	public final boolean connected;
 
 	/**
@@ -20,14 +19,12 @@ public final class JobInfo {
 	 * @param outputs
 	 * @param outCount
 	 */
-	public JobInfo(ImmutableJob job, Token address,
-			ArrayList<Token> inputs, ArrayList<Token> outputs, int outCount,
-			boolean connected) {
+	public JobInfo(ImmutableJob job, Token address, ArrayList<Token> inputs,
+			ArrayList<Token> outputs, boolean connected) {
 		this.job = job;
 		this.address = address;
 		this.inputs = inputs;
 		this.outputs = outputs;
-		this.outCount = outCount;
 		this.connected = connected;
 
 	}

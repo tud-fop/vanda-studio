@@ -83,4 +83,28 @@
 			<out name="forest" type="Forest???" />
 		</tool>
 	</toolinterface>
+
+	<toolinterface
+		id="SinkTool"
+		name="Sink"
+		version="2013-01-16"
+		contact="Matthias.Buechse@tu-dresden.de"
+		category="">
+		
+		<description>Sink</description>
+		
+		<tool
+			type="Shell"
+			id="SinkTool"
+			name="Sink"
+			version="2013-01-16"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="basics">
+			
+			<description>Sink</description>
+			
+			<in name="in" type="t0" />
+		</tool>
+	</toolinterface>
+
 </root>

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.vanda.studio.modules.workflows.model.Model;
 import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
 import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 import com.mxgraph.model.mxICell;
@@ -15,13 +16,13 @@ import com.mxgraph.view.mxGraph;
 public class WorkflowAdapter implements Adapter {
 	public final MutableWorkflow workflow;
 	public final ArrayList<mxICell> children;
-	public final ArrayList<mxICell> connections;
+	public final Map<ConnectionKey, mxICell> connections;
 	public final Map<Object, mxICell> inter;
 	
 	public WorkflowAdapter(MutableWorkflow workflow) {
 		this.workflow = workflow;
 		children = new ArrayList<mxICell>();
-		connections = new ArrayList<mxICell>();
+		connections = new HashMap<ConnectionKey, mxICell>();
 		inter = new HashMap<Object, mxICell>();
 	}
 	
@@ -39,12 +40,8 @@ public class WorkflowAdapter implements Adapter {
 			return null;
 	}
 	
-	public mxICell getConnection(Token address) {
-		int i = address.intValue();
-		if (i < connections.size())
-			return connections.get(i);
-		else
-			return null;
+	public mxICell getConnection(ConnectionKey cc) {
+		return connections.get(cc);
 	}
 	
 	public void putInter(Object j, mxICell c) {
@@ -61,14 +58,8 @@ public class WorkflowAdapter implements Adapter {
 			return null;
 	}
 	
-	public mxICell removeConnection(Token address) {
-		int i = address.intValue();
-		if (i < connections.size()) {
-			mxICell result = connections.get(i);
-			connections.set(i, null);
-			return result;
-		} else
-			return null;
+	public mxICell removeConnection(ConnectionKey cc) {
+		return connections.remove(cc);
 	}
 	
 	public mxICell removeInter(Object j) {
@@ -81,10 +72,8 @@ public class WorkflowAdapter implements Adapter {
 		children.set(address.intValue(), cell);
 	}
 	
-	public void setConnection(Token address, mxICell cell) {
-		while (connections.size() <= address.intValue())
-			connections.add(null);
-		connections.set(address.intValue(), cell);
+	public void setConnection(ConnectionKey cc, mxICell cell) {
+		connections.put(cc, cell);
 	}
 
 	@Override

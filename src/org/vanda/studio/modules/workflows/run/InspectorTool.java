@@ -19,7 +19,7 @@ import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
 import org.vanda.types.Type;
 import org.vanda.util.Observer;
 import org.vanda.util.TokenSource.Token;
-import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
@@ -47,8 +47,8 @@ public class InspectorTool implements SemanticsToolFactory {
 
 			@Override
 			public void visitConnection(Token address, MutableWorkflow wf,
-					Connection cc) {
-				visitVariable(wf.getVariable(address), wf);
+					ConnectionKey cc) {
+				visitVariable(wf.getConnectionValue(cc), wf);
 			}
 
 			@Override

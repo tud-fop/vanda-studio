@@ -52,9 +52,9 @@ public class Workflows {
 	
 	public static class ConnectionAddedEvent implements MutableWorkflow.WorkflowChildEvent {
 		private final MutableWorkflow mwf;
-		private final Connection cc;
+		private final ConnectionKey cc;
 		
-		public ConnectionAddedEvent(MutableWorkflow mwf, Connection cc) {
+		public ConnectionAddedEvent(MutableWorkflow mwf, ConnectionKey cc) {
 			this.mwf = mwf;
 			this.cc = cc;
 		}
@@ -67,9 +67,9 @@ public class Workflows {
 	
 	public static class ConnectionRemovedEvent implements MutableWorkflow.WorkflowChildEvent {
 		private final MutableWorkflow mwf;
-		private final Connection cc;
+		private final ConnectionKey cc;
 		
-		public ConnectionRemovedEvent(MutableWorkflow mwf, Connection cc) {
+		public ConnectionRemovedEvent(MutableWorkflow mwf, ConnectionKey cc) {
 			this.mwf = mwf;
 			this.cc = cc;
 		}

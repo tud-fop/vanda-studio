@@ -41,12 +41,10 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -56,7 +54,7 @@ import org.vanda.studio.app.PreviewFactory;
 import org.vanda.util.Lexer;
 import org.vanda.util.Pair;
 
-@SuppressWarnings({ "unchecked", "serial", "rawtypes" })
+@SuppressWarnings({ "unchecked", "serial" })
 public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 	public class Tree {

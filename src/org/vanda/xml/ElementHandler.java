@@ -1,4 +1,4 @@
-package org.vanda.workflows.toolinterfaces;
+package org.vanda.xml;
 
 public interface ElementHandler {
 	void startElement(String namespace, String name);

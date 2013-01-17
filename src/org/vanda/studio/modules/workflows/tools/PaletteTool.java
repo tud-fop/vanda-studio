@@ -23,7 +23,6 @@ import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.CompositeType;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
-import org.vanda.workflows.elements.ToolInterface;
 import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxICell;
@@ -84,13 +83,12 @@ public class PaletteTool implements ToolFactory {
 			});
 
 			// get all palette items
-			for (ToolInterface ti : wfe.getApplication()
-					.getToolInterfaceMetaRepository().getRepository()
-					.getItems())
-				for (Tool t : ti.getTools().getItems()) {
-					// if ("".equals(t.getStatus()))
-						templates.add(new Job(t));
-				}
+			for (Tool t : wfe.getApplication()
+					.getToolMetaRepository().getRepository()
+					.getItems()) {
+				// if ("".equals(t.getStatus()))
+					templates.add(new Job(t));
+			}
 			// templates.add(new AtomicJob(new Choice()));
 			// templates.add(new AtomicJob(new InputPort()));
 			// templates.add(new AtomicJob(new OutputPort()));

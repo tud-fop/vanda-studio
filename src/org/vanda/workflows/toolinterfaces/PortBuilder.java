@@ -5,8 +5,14 @@ import org.vanda.workflows.elements.Port;
 
 public class PortBuilder {
 
+	final ToolBuilder parent;
+	
 	String name;
 	Type type;
+	
+	PortBuilder(ToolBuilder parent) {
+		this.parent = parent;
+	}
 	
 	public void reset() {
 		name = "";

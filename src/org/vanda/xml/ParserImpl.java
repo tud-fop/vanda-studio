@@ -1,4 +1,4 @@
-package org.vanda.workflows.toolinterfaces;
+package org.vanda.xml;
 
 import java.io.File;
 import java.io.FileReader;
@@ -6,27 +6,22 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 import org.vanda.util.Observer;
-import org.vanda.workflows.elements.ToolInterface;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-public class ParserImpl implements Parser {
+public class ParserImpl<T> implements Parser<T> {
 
-	private final Observer<ToolInterface> o;
-	private ToolBuilder tb;
-	private ToolInterfaceBuilder tib;
+	private final Observer<T> o;
 	private XmlPullParser xp;
 	private FileReader reader;
 	private ElementHandler rootHandler;
 
-	public ParserImpl(Observer<ToolInterface> o) {
+	public ParserImpl(Observer<T> o) {
 		this.o = o;
-		tb = new ToolBuilder();
-		tib = new ToolInterfaceBuilder();
 	}
 
-	public void setRootState(ElementHandler rootState) {
-		this.rootHandler = rootState;
+	public void setRootState(ElementHandler rootHandler) {
+		this.rootHandler = rootHandler;
 	}
 
 	public void init(File file) throws Exception {
@@ -48,8 +43,6 @@ public class ParserImpl implements Parser {
 		}
 		reader = new FileReader(file);
 		xp.setInput(reader);
-		tb.reset();
-		tib.reset();
 	}
 
 	public void done() {
@@ -115,7 +108,7 @@ public class ParserImpl implements Parser {
 	}
 
 	@Override
-	public void notify(ToolInterface ti) {
+	public void notify(T ti) {
 		o.notify(ti);
 	}
 

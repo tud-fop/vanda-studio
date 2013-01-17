@@ -9,7 +9,6 @@ import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Repository;
 import org.vanda.util.TokenSource;
 import org.vanda.workflows.elements.Tool;
-import org.vanda.workflows.elements.ToolInterface;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
@@ -24,24 +23,24 @@ public final class Serialization {
 
 	private final XStream xs;
 
-	public Serialization(Repository<ToolInterface> tir) {
+	public Serialization(Repository<Tool> tr) {
 		// app
 		// .getSemanticsModuleMetaRepository().getRepository()
 		// .getItem("profile").getToolMetaRepository().getRepository()
-		xs = createXStream(tir);
+		xs = createXStream(tr);
 	}
 
-	private XStream createXStream(Repository<ToolInterface> tir) {
+	private XStream createXStream(Repository<Tool> tr) {
 		XStream xs = new XStream();
 		xs.registerConverter(new InternedIntegerConverter());
 		xs.registerConverter(new MultiplexObserverConverter());
-		xs.registerConverter(new ToolConverter(tir));
+		xs.registerConverter(new ToolConverter(tr));
 		xs.addImmutableType(TokenSource.Token.class);
 		xs.addImmutableType(Tool.class);
 		xs.alias("ovsm.hyper.AtomicJob", Job.class);
 		xs.aliasPackage("ovsu", "org.vanda.util");
-		xs.aliasPackage("org.vanda.studio.modules.profile",
-				"org.vanda.fragment.bash");
+		xs.alias("org.vanda.studio.modules.profile.ShellTool",
+				Tool.class);
 		xs.aliasPackage("ovsm.types", "org.vanda.types");
 		xs.aliasPackage("ovsm", "org.vanda.workflows");
 		return xs;
@@ -115,10 +114,10 @@ public final class Serialization {
 	}
 
 	private static class ToolConverter implements SingleValueConverter {
-		Repository<ToolInterface> tir;
+		Repository<Tool> tr;
 
-		public ToolConverter(Repository<ToolInterface> tir) {
-			this.tir = tir;
+		public ToolConverter(Repository<Tool> tr) {
+			this.tr = tr;
 		}
 
 		@Override
@@ -130,17 +129,13 @@ public final class Serialization {
 
 		@Override
 		public Object fromString(String str) {
-			String[] xxx = str.split(":");
-			if (xxx.length == 1)
-				return tir.getItem("ak4711").getTools().getItem(str); // XXX
-			else
-				return tir.getItem(xxx[0]).getTools().getItem(xxx[1]);
+			return tr.getItem(str);
 		}
 
 		@Override
 		public String toString(Object obj) {
 			Tool t = (Tool) obj;
-			return t.getInterface().getId() + ":" + t.getId();
+			return t.getId();
 		}
 	}
 

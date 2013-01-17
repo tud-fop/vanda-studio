@@ -21,5 +21,4 @@ public abstract class Tool implements Element {
 	public void visit(ElementVisitor v) {
 		v.visitTool(this);
 	}
-
 }

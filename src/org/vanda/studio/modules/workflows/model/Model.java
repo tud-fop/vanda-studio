@@ -9,7 +9,7 @@ import org.vanda.util.Observable;
 import org.vanda.util.Observer;
 import org.vanda.util.Pair;
 import org.vanda.util.TokenSource.Token;
-import org.vanda.workflows.hyper.Connection;
+import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildEvent;
@@ -17,14 +17,13 @@ import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildListener;
 import org.vanda.workflows.hyper.MutableWorkflow.WorkflowEvent;
 import org.vanda.workflows.immutable.ImmutableWorkflow;
 import org.vanda.workflows.immutable.TypeCheckingException;
-import org.vanda.workflows.immutable.TypeChecker.EqInfo;
 
 public final class Model implements WorkflowChildListener {
 
 	public static interface SelectionVisitor {
 		void visitWorkflow(MutableWorkflow wf);
 
-		void visitConnection(Token address, MutableWorkflow wf, Connection cc);
+		void visitConnection(Token address, MutableWorkflow wf, ConnectionKey cc);
 
 		void visitJob(Token address, MutableWorkflow wf, Job j);
 
@@ -45,11 +44,8 @@ public final class Model implements WorkflowChildListener {
 
 	public abstract static class SingleObjectSelection extends
 			WorkflowSelection {
-		public final Token address;
-
-		public SingleObjectSelection(MutableWorkflow workflow, Token address) {
+		public SingleObjectSelection(MutableWorkflow workflow) {
 			super(workflow);
-			this.address = address;
 		}
 
 		@Override
@@ -59,26 +55,30 @@ public final class Model implements WorkflowChildListener {
 	}
 
 	public static class ConnectionSelection extends SingleObjectSelection {
+		public final ConnectionKey cc;
 
-		public ConnectionSelection(MutableWorkflow workflow, Token address) {
-			super(workflow, address);
+		public ConnectionSelection(MutableWorkflow workflow, ConnectionKey cc) {
+			super(workflow);
+			this.cc = cc;
 		}
 
 		@Override
 		public void remove() {
-			workflow.removeConnection(address);
+			workflow.removeConnection(cc);
 		}
 
 		@Override
 		public void visit(SelectionVisitor v) {
-			v.visitConnection(address, workflow,
-					workflow.getConnection(address));
+			v.visitConnection(null, workflow, cc);
 		}
 	}
 
 	public static class JobSelection extends SingleObjectSelection {
+		public final Token address;
+
 		public JobSelection(MutableWorkflow workflow, Token address) {
-			super(workflow, address);
+			super(workflow);
+			this.address = address;
 		}
 
 		@Override
@@ -93,8 +93,11 @@ public final class Model implements WorkflowChildListener {
 	}
 
 	public static class VariableSelection extends SingleObjectSelection {
+		public final Token variable;
+		
 		public VariableSelection(MutableWorkflow workflow, Token variable) {
-			super(workflow, variable);
+			super(workflow);
+			this.variable = variable;
 		}
 
 		@Override
@@ -104,7 +107,7 @@ public final class Model implements WorkflowChildListener {
 
 		@Override
 		public void visit(SelectionVisitor v) {
-			v.visitVariable(address, workflow);
+			v.visitVariable(variable, workflow);
 		}
 	}
 
@@ -146,11 +149,13 @@ public final class Model implements WorkflowChildListener {
 		try {
 			frozen.typeCheck();
 		} catch (TypeCheckingException e) {
-			List<Pair<String, Set<EqInfo>>> errors = e.getErrors();
-			for (Pair<String, Set<EqInfo>> error : errors) {
+			List<Pair<String, Set<ConnectionKey>>> errors = e.getErrors();
+			for (Pair<String, Set<ConnectionKey>> error : errors) {
 				// TODO use new color in each iteration
-				Set<EqInfo> eqs = error.snd;
-				for (EqInfo eq : eqs) {
+				Set<ConnectionKey> eqs = error.snd;
+				for (ConnectionKey eq : eqs) {
+					markedElements.add(new ConnectionSelection(hwf, eq));
+					/*
 					for (Connection c : hwf.getConnections()) {
 						if (c.target.equals(eq.address)
 								&& c.targetPort == eq.port) {
@@ -159,7 +164,7 @@ public final class Model implements WorkflowChildListener {
 							break;
 						}
 					}
-
+					*/
 				}
 			}
 
@@ -234,11 +239,11 @@ public final class Model implements WorkflowChildListener {
 	}
 
 	@Override
-	public void connectionAdded(MutableWorkflow mwf, Connection cc) {
+	public void connectionAdded(MutableWorkflow mwf, ConnectionKey cc) {
 	}
 
 	@Override
-	public void connectionRemoved(MutableWorkflow mwf, Connection cc) {
+	public void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc) {
 		if (selection != null && selection.workflow == mwf)
 			setSelection(null);
 	}

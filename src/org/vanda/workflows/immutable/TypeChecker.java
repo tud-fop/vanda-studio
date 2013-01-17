@@ -17,52 +17,23 @@ import org.vanda.util.Pair;
 import org.vanda.util.TokenSource;
 import org.vanda.util.TokenSource.Token;
 import org.vanda.workflows.elements.Port;
+import org.vanda.workflows.hyper.ConnectionKey;
 
 // XXX removed: handle linker (see older versions)
 public final class TypeChecker {
 
-	// use this to store target port information
-	// implements equals and hashCode to make it usable for sets
-	public static class EqInfo {
-		public final Token address;
-		public final int port;
-
-		public EqInfo(Token address, int port) {
-			this.address = address;
-			this.port = port;
-		}
+	public static class EqInfoMerge implements
+			MergeFunction<Set<ConnectionKey>> {
 
 		@Override
-		public boolean equals(Object other) {
-			if (other instanceof EqInfo) {
-				// address is assumed to be interned, so compare by reference
-				return ((EqInfo) other).address == address
-						&& ((EqInfo) other).port == port;
-			} else
-				return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return address.hashCode() + port;
-		}
-		
-		@Override
-		public String toString() {
-			return Integer.toString(port) + "@" + address.toString();
-		}
-	}
-
-	public static class EqInfoMerge implements MergeFunction<Set<EqInfo>> {
-
-		@Override
-		public Set<EqInfo> merge(Set<EqInfo> x1, Set<EqInfo> x2) {
+		public Set<ConnectionKey> merge(Set<ConnectionKey> x1,
+				Set<ConnectionKey> x2) {
 			if (x1 == null)
 				return x2;
 			else if (x2 == null)
 				return x1;
 			else {
-				Set<EqInfo> result = new HashSet<EqInfo>();
+				Set<ConnectionKey> result = new HashSet<ConnectionKey>();
 				result.addAll(x1);
 				result.addAll(x2);
 				return result;
@@ -71,7 +42,7 @@ public final class TypeChecker {
 
 	}
 
-	private final List<Equation<Set<EqInfo>>> eqs;
+	private final List<Equation<Set<ConnectionKey>>> eqs;
 	private final TokenSource variableSource;
 	private final TokenSource freshSource;
 	private final Token fragmentTypeToken;
@@ -81,7 +52,7 @@ public final class TypeChecker {
 
 	public TypeChecker(TokenSource variableSource)
 			throws CloneNotSupportedException {
-		eqs = new LinkedList<Equation<Set<EqInfo>>>();
+		eqs = new LinkedList<Equation<Set<ConnectionKey>>>();
 		this.variableSource = variableSource;
 		freshSource = variableSource.clone();
 		fragmentTypeToken = freshSource.makeToken();
@@ -94,7 +65,7 @@ public final class TypeChecker {
 		Map<Token, Token> rename = new HashMap<Token, Token>();
 		ft.freshMap(freshSource, rename);
 		// eqs.add(new Equation<Set<EqInfo>>(fragmentTypeVariable, ft
-		// 		.rename(rename), null));
+		// .rename(rename), null));
 	}
 
 	public void addDataFlowEquations(JobInfo ji) {
@@ -110,15 +81,16 @@ public final class TypeChecker {
 				p.getType().freshMap(freshSource, rename);
 			for (int i = 0; i < in.size(); i++) {
 				if (ji.inputs.get(i) != null) {
-					Equation<Set<EqInfo>> eq = new Equation<Set<EqInfo>>(
+					Equation<Set<ConnectionKey>> eq = new Equation<Set<ConnectionKey>>(
 							new TypeVariable(ji.inputs.get(i)), in.get(i)
 									.getType().rename(rename),
-							Collections.singleton(new EqInfo(ji.address, i)));
+							Collections.singleton(new ConnectionKey(ji.address,
+									i)));
 					eqs.add(eq);
 				}
 			}
 			for (int i = 0; i < ou.size(); i++) {
-				Equation<Set<EqInfo>> eq = new Equation<Set<EqInfo>>(
+				Equation<Set<ConnectionKey>> eq = new Equation<Set<ConnectionKey>>(
 						new TypeVariable(ji.outputs.get(i)), ou.get(i)
 								.getType().rename(rename), null);
 				eqs.add(eq);
@@ -127,7 +99,7 @@ public final class TypeChecker {
 	}
 
 	public void check() throws Exception {
-		List<Pair<String, Set<EqInfo>>> errors = Types.unify(eqs,
+		List<Pair<String, Set<ConnectionKey>>> errors = Types.unify(eqs,
 				new EqInfoMerge());
 		if (errors.isEmpty()) {
 			types = new Type[variableSource.getMaxToken()];

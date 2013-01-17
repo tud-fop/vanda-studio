@@ -114,7 +114,7 @@ public final class SaveTool implements ToolFactory {
 				String filePath = chosenFile.getPath();
 				try {
 					Serialization ser = new Serialization(wfe.getApplication()
-							.getToolInterfaceMetaRepository().getRepository());
+							.getToolMetaRepository().getRepository());
 					ser.save(wfe.getModel().getRoot(), filePath);
 				} catch (Exception e) {
 					wfe.getApplication().sendMessage(new ExceptionMessage(e));

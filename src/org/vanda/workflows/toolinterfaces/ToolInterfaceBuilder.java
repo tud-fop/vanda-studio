@@ -1,10 +1,9 @@
 package org.vanda.workflows.toolinterfaces;
 
 import java.util.LinkedList;
+import java.util.List;
 
-import org.vanda.util.ListRepository;
 import org.vanda.workflows.elements.Tool;
-import org.vanda.workflows.elements.ToolInterface;
 
 class ToolInterfaceBuilder extends RepositoryItemBuilder {
 
@@ -19,13 +18,13 @@ class ToolInterfaceBuilder extends RepositoryItemBuilder {
 		tools = new LinkedList<ToolBuilder>();
 	}
 
-	public ToolInterface build() {
-		StaticToolInterface result = new StaticToolInterface(id, name,
+	public List<Tool> build() {
+		LinkedList<Tool> result = new LinkedList<Tool>();
+		StaticToolInterface ti = new StaticToolInterface(id, name,
 				description.toString(), version, category, contact);
-		ListRepository<Tool> lr = result.getRepository();
 		for (ToolBuilder tb : tools) {
-			tb.ti = result;
-			lr.addItem(tb.build());
+			tb.ti = ti;
+			result.add(tb.build());
 		}
 		return result;
 	}

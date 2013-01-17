@@ -35,9 +35,6 @@ import org.vanda.util.ExceptionMessage;
 import org.vanda.util.ExternalRepository;
 import org.vanda.util.ListRepository;
 import org.vanda.util.Observer;
-import org.vanda.util.Repository;
-import org.vanda.workflows.elements.Tool;
-import org.vanda.workflows.elements.ToolInterface;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.Serialization;
 
@@ -66,7 +63,6 @@ public class WorkflowModule implements Module {
 		public static String TOOL_PATH_DEFAULT = System
 				.getProperty("user.home") + "/.vanda/functions/";
 
-		@SuppressWarnings("unchecked")
 		public WorkflowModuleInstance(Application a) {
 			app = a;
 			profile = new ProfileImpl();
@@ -81,65 +77,15 @@ public class WorkflowModule implements Module {
 			repository.addItem(profile);
 			manager = null;
 
-			ToolInterface ti = new ToolInterface() {
-				ExternalRepository<ShellTool> er;
-
-				{
-					String path = app.getProperty(TOOL_PATH_KEY);
-					if (path == null) {
-						path = TOOL_PATH_DEFAULT;
-						app.setProperty(TOOL_PATH_KEY, TOOL_PATH_DEFAULT);
-					}
-					er = new ExternalRepository<ShellTool>(new ToolLoader(path,
-							this));
-
-				}
-
-				@Override
-				public String getCategory() {
-					return "Generic Tool Interface";
-				}
-
-				@Override
-				public String getContact() {
-					return "Matthias.Buechse@tu-dresden.de";
-				}
-
-				@Override
-				public String getDescription() {
-					return "This is a generic tool interface. It only exists "
-							+ "for a transition period until we have real tool "
-							+ "interfaces.";
-				}
-
-				@Override
-				public String getId() {
-					return "ak4711";
-				}
-
-				@Override
-				public String getName() {
-					return "Generic Tool Interface";
-				}
-
-				@Override
-				public String getVersion() {
-					return "2013-01-08";
-				}
-
-				@Override
-				public Repository<? extends Tool> getTools() {
-					return er;
-				}
-
-			};
-			profile.getFragmentToolMetaRepository().addRepository(
-					(Repository<ShellTool>) ti.getTools());
-			ti.getTools().refresh();
-
-			ListRepository<ToolInterface> tir = new ListRepository<ToolInterface>();
-			tir.addItem(ti);
-			app.getToolInterfaceMetaRepository().addRepository(tir);
+			ExternalRepository<ShellTool> er;
+			String path = app.getProperty(TOOL_PATH_KEY);
+			if (path == null) {
+				path = TOOL_PATH_DEFAULT;
+				app.setProperty(TOOL_PATH_KEY, TOOL_PATH_DEFAULT);
+			}
+			er = new ExternalRepository<ShellTool>(new ToolLoader(path));
+			profile.getFragmentToolMetaRepository().addRepository(er);
+			er.refresh();
 
 			eefs = new ElementEditorFactories();
 			eefs.workflowFactories
@@ -213,7 +159,7 @@ public class WorkflowModule implements Module {
 						 * .getRepository().getItem("profile");
 						 */
 						Serialization ser = new Serialization(app
-								.getToolInterfaceMetaRepository()
+								.getToolMetaRepository()
 								.getRepository());
 						hwf = ser.load(filePath);
 						new WorkflowEditorImpl(app, toolFactories, hwf);
