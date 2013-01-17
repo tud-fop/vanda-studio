@@ -15,7 +15,7 @@ public class PreviewsModule implements Module {
 	@Override
 	public Object createInstance(Application app) {
 		PreviewFactory pf = new BerkeleyTreePreviewFactory(app);
-		app.registerPreviewFactory(new CompositeType("Penn Tree Corpus"), pf);
+		app.registerPreviewFactory(new CompositeType("PennTreeCorpus"), pf);
 		PreviewFactory pf2 = new BerkeleyGrammarPreviewFactory();
 		app.registerPreviewFactory(new CompositeType("BerkeleyGrammar.sm6"), pf2);
 		// PreviewFactory pf3 = new MonospacePreviewFactory();
