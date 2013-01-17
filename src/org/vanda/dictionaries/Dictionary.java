@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.dictionaries;
+package org.vanda.dictionaries;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

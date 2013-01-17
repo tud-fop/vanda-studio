@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.dictionaries;
+package org.vanda.dictionaries;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -31,9 +31,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.vanda.studio.app.Application;
-import org.vanda.studio.modules.dictionaries.Dictionary.MyDouble;
-import org.vanda.util.Observer;
+import org.vanda.dictionaries.Dictionary.MyDouble;
 
 /**
  * The class DictView is a Swing Component for viewing the output of the EM
@@ -162,7 +160,7 @@ public class DictionaryView extends JPanel {
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			Component comp = originalRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			if (comp instanceof JLabel) {
-				float size = app.getUIMode().isLargeContent() ? beamerFontSize : normalFontSize;
+				float size = isLargeContent ? beamerFontSize : normalFontSize;
 				setFontSize((JComponent) comp, size);
 				((JLabel) comp).setHorizontalAlignment(JLabel.CENTER);
 			}
@@ -202,7 +200,7 @@ public class DictionaryView extends JPanel {
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			if (comp instanceof JLabel) {
-				float size = app.getUIMode().isLargeContent() ? beamerFontSize : normalFontSize;
+				float size = isLargeContent ? beamerFontSize : normalFontSize;
 				setFontSize((JComponent) comp, size);
 				((JLabel) comp).setHorizontalAlignment(JLabel.RIGHT);
 				((JLabel) comp).setForeground(Color.BLACK);
@@ -234,7 +232,20 @@ public class DictionaryView extends JPanel {
 	 */
 	private static final long serialVersionUID = -6905098977481942840L;
 
-	private Application app;
+	/**
+	 * Support for beamer/tablet mode
+	 */
+	private boolean isLargeContent;
+	
+	/**
+	 * Support for beamer/tablet mode
+	 */
+	private boolean isLargeUI;
+	
+	/**
+	 * Support for beamer/tablet mode: defer UI update
+	 */
+	private int update;
 	
 	/**
 	 * The internal data model containing all data that are read from the input file.
@@ -310,11 +321,10 @@ public class DictionaryView extends JPanel {
 	 * @param a The application.
 	 * @param d The dictionary.
 	 */
-	public DictionaryView(Application a, Dictionary d) {
+	public DictionaryView(Dictionary d) {
 		boolean isEnglish = true;
 		
-		this.app = a;
-		this.model = d; //new Dictionary(fileName, separator);
+		model = d; //new Dictionary(fileName, separator);
 
 		table = new JTable(new MyTableModel());
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -424,22 +434,41 @@ public class DictionaryView extends JPanel {
 				adjustCellEntryLabel();
 			}
 		});
-		
-		app.getUIModeObservable().addObserver(
-			new Observer<Application>() {
-				{
-					notify(null);
-				}
-				
-				@Override
-				public void notify(Application a) {
-					readjustFontSize();
-					computeCellSizes();
-					bestText.setText(constructBestString());
-					cellEntryLabel.setText("");
-				}
-			});
 	}
+	
+	public void setLargeContent(boolean value) {
+		if (value != isLargeContent) {
+			beginUpdate();
+			isLargeContent = value;
+			endUpdate();
+		}
+	}
+	
+	public void setLargeUI(boolean value) {
+		if (value != isLargeUI) {
+			beginUpdate();
+			isLargeUI = value;
+			endUpdate();
+		}
+	}
+	
+	public void beginUpdate() {
+		update++;
+	}
+	
+	public void endUpdate() {
+		update--;
+		if (update == 0)
+			adjustUI();
+	}
+
+	private void adjustUI() {
+		readjustFontSize();
+		computeCellSizes();
+		bestText.setText(constructBestString());
+		cellEntryLabel.setText("");
+	}
+
 
 	/**
 	 * An auxiliary function that appends a single hexadecimal digit to a string.
@@ -514,10 +543,10 @@ public class DictionaryView extends JPanel {
 			String currentString = model.getWordNames()[i];
 				
 			str.append("<h3>");
-			if (app.getUIMode().isLargeContent())
+			if (isLargeContent)
 				str.append("<font size=+2>");
 			str.append(currentString);
-			if (app.getUIMode().isLargeContent())
+			if (isLargeContent)
 				str.append("</font>");
 			str.append("</h3><<blockquote>");
 			
@@ -536,7 +565,7 @@ public class DictionaryView extends JPanel {
 			for (TranslationItem it : transList) {
 				str.append("<font color=#");
 				appendGreyColor(str, (char) ((1 - it.getProbability().getDouble()) * 200));
-				if (app.getUIMode().isLargeContent())
+				if (isLargeContent)
 					str.append(" size=+2");
 				str.append(">" + it.getTransWord() + " (" + it.getProbability().toString() + ")</font><br>");
 			}
@@ -562,7 +591,7 @@ public class DictionaryView extends JPanel {
 	 * Is used for readjusting the font sizes of all components in the view.
 	 */
 	private void readjustFontSize() {
-		float size = app.getUIMode().isLargeUI() ? beamerFontSize : normalFontSize;
+		float size = isLargeUI ? beamerFontSize : normalFontSize;
 		setVisible(false);
 		setFontSize(radioButton1, size);
 		setFontSize(radioButton2, size);
