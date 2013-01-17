@@ -29,12 +29,12 @@ public class ToolLoader implements Loader<Tool> {
 								dhf), dhf)));
 		return p;
 	}
-
-	@Override
-	public void load(Observer<Tool> o) {
+	
+	public void loadFile(Observer<Tool> o, File f) {
+		System.out.println("Processing: " + f.getAbsolutePath());
 		ParserImpl<Tool> p = createParser(o);
 		try {
-			p.init(new File(path));
+			p.init(f);
 			p.process();
 		} catch (Exception e) {
 			System.err.println("Tool interface file " + path
@@ -46,6 +46,13 @@ public class ToolLoader implements Loader<Tool> {
 		} finally {
 			p.done();
 		}
+	}
+
+	@Override
+	public void load(Observer<Tool> o) {
+		for (File f : (new File(path)).listFiles())
+			if (f.isFile() && f.getAbsolutePath().endsWith(".xml"))
+				loadFile(o, f);
 	}
 
 }

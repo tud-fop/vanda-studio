@@ -16,7 +16,7 @@ public class ToolsModule implements Module {
 	@Override
 	public Object createInstance(Application a) {
 		ExternalRepository<Tool> er = new ExternalRepository<Tool>(
-				new ToolLoader(a.getProperty("toolsPath") + "test.xml"));
+				new ToolLoader(a.getProperty("toolsPath")));
 		er.refresh();
 		a.getToolMetaRepository().addRepository(er);
 		return er;
