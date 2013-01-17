@@ -10,7 +10,7 @@ source "$FUNCDIR/util.bash"
 # OUT French Corpus without empty lines :: t2
 #
 # Removes empty lines from parallel corpora and alignments.
-remEmptyLines () {
+remEmptyLines2 () {
 	echo "Running: remEmptyLines..."
 	$REM_EMPTY_LINES "$1" "$2" "$1"
 	mv "${1}.nel" "$3"

@@ -1,0 +1,24 @@
+<root>
+	<toolinterface
+		id="SinkTool"
+		name="Sink"
+		version="2013-01-16"
+		contact="Matthias.Buechse@tu-dresden.de"
+		category="basics">
+		
+		<description>Contains basic tools.</description>
+		
+		<tool
+			type="Shell"
+			id="SinkTool"
+			name="Sink"
+			version="2013-01-16"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="basics">
+			
+			<description><![CDATA[Sink tool]]>.</description>
+			
+			<in name="in" type="t0" />
+		</tool>
+	</toolinterface>
+</root>
