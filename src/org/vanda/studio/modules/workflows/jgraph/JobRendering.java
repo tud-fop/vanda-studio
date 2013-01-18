@@ -244,8 +244,8 @@ public class JobRendering {
 					geo.setRelative(true);
 
 					Token address = null;
-					if (hj.outputs.size() > 0) {
-						address = hj.outputs.get(i);
+					if (hj.outputs != null) {
+						address = hj.outputs[i];
 					}
 					mxCell loc = g.createCell(new LocationAdapter(i, address),
 							geo, "location");

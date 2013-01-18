@@ -1,6 +1,5 @@
 package org.vanda.workflows.hyper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.vanda.types.Type;
@@ -33,8 +32,8 @@ public final class Job implements Cloneable, ElementListener {
 	protected Token address;
 	private final Element element;
 	private final MultiplexObserver<JobEvent> observable;
-	public final ArrayList<Token> inputs = new ArrayList<Token>();
-	public final ArrayList<Token> outputs = new ArrayList<Token>();
+	protected Token[] inputs = null;
+	public Token[] outputs = null;
 	protected final double[] dimensions = new double[4];
 	
 	public Job(Element element) {
@@ -98,6 +97,13 @@ public final class Job implements Cloneable, ElementListener {
 
 	public double getY() {
 		return dimensions[1];
+	}
+	
+	public void insert(Token address) {
+		assert (this.address == null);
+		this.address = address;
+		inputs = new Token[getInputPorts().size()];
+		outputs = new Token[getOutputPorts().size()];
 	}
 
 	public void propertyChanged(Element e) {

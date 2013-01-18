@@ -71,9 +71,9 @@ public class ConnectionAdapter implements Adapter {
 				wa.putInter(cc, cell);
 				cell.setValue(new ConnectionAdapter(cc));
 				if (wa.workflow != null)
-					wa.workflow.addConnection(cc,
-							((JobAdapter) sparval).job.outputs
-									.get(((PortAdapter) sval).port));
+					wa.workflow.addConnection(cc, wa.workflow.getVariable(
+							((JobAdapter) sparval).job,
+							((PortAdapter) sval).port));
 			}
 		}
 	}

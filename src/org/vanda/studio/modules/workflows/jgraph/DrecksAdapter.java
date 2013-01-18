@@ -15,7 +15,6 @@ import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildEvent;
 import org.vanda.workflows.hyper.MutableWorkflow.WorkflowEvent;
 
-import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
@@ -25,7 +24,6 @@ import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
-import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
@@ -218,48 +216,6 @@ public final class DrecksAdapter {
 			render(null, model.getRoot());
 		else
 			render(null, null);
-	}
-
-	protected void childAddPort(boolean input, MutableWorkflow mwf, Job job,
-			Integer port) {
-		mxICell parent = translation.get(mwf);
-		WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
-		mxICell cell = wa.getChild(job.getAddress());
-		mxGeometry geo = null;
-		// TODO this code is a quasi duplicate from JobRendering
-		if (input) {
-			geo = new mxGeometry(0, 0, JobRendering.PORT_DIAMETER,
-					JobRendering.PORT_DIAMETER);
-			geo.setOffset(new mxPoint(-JobRendering.PORT_DIAMETER,
-					-JobRendering.PORT_RADIUS));
-		} else {
-			geo = new mxGeometry(1, 0, JobRendering.PORT_DIAMETER,
-					JobRendering.PORT_DIAMETER);
-			geo.setOffset(new mxPoint(0, -JobRendering.PORT_RADIUS));
-		}
-		geo.setRelative(true);
-
-		mxCell portCell = new mxCell(new PortAdapter(input, port), geo,
-				"inport");
-		portCell.setVertex(true);
-
-		graph.addCell(portCell, cell);
-	}
-
-	protected void childRemovePort(boolean input, MutableWorkflow mwf, Job job,
-			Integer port) {
-		mxICell parent = translation.get(mwf);
-		WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
-		mxICell cell = wa.getChild(job.getAddress());
-		for (int i = 0; i < cell.getChildCount(); i++) {
-			mxICell ch = cell.getChildAt(i);
-			if (ch.getValue() instanceof PortAdapter
-					&& ((PortAdapter) ch.getValue()).input == input
-					&& ((PortAdapter) ch.getValue()).port == port) {
-				graph.removeCells(new mxICell[] { ch });
-				break; // -------------------------------------- #############
-			}
-		}
 	}
 
 	private List<mxICell> calculateInverseCellList(Object cell,

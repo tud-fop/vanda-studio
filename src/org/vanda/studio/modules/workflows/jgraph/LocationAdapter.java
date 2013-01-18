@@ -59,7 +59,7 @@ public class LocationAdapter implements Adapter, Cloneable {
 	}
 	
 	public void updateLocation(Job job) {
-		address = job.outputs.get(index);
+		address = job.outputs[index];
 		// System.err.println(address.intValue());
 	}
 
