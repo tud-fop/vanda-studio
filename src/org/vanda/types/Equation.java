@@ -3,7 +3,6 @@ package org.vanda.types;
 import java.util.List;
 
 import org.vanda.util.Pair;
-import org.vanda.util.TokenSource.Token;
 
 public final class Equation<X> {
 
@@ -70,7 +69,7 @@ public final class Equation<X> {
 		t.add(new Equation<X>(rhs, lhs, ancillary));
 	}
 
-	public Equation<X> subst(Token var, Type type, X anc) {
+	public Equation<X> subst(Object var, Type type, X anc) {
 		Type newlhs = lhs.subst(var, type);
 		Type newrhs = rhs.subst(var, type);
 		Equation<X> result = null;
@@ -83,7 +82,7 @@ public final class Equation<X> {
 
 	public void substitute(List<Equation<X>> source, List<Equation<X>> target,
 			MergeFunction<X> mf) {
-		Token var = ((TypeVariable) lhs).variable;
+		Object var = ((TypeVariable) lhs).variable;
 		for (Equation<X> e : source)
 			target.add(e.subst(var, rhs,
 					mf == null ? null : mf.merge(ancillary, e.ancillary)));

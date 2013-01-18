@@ -7,7 +7,6 @@ import java.util.ListIterator;
 import javax.swing.JComponent;
 
 import org.vanda.studio.app.Application;
-import org.vanda.util.TokenSource.Token;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class CompositeFactory<T> implements ElementEditorFactory<T> {
@@ -22,12 +21,11 @@ public class CompositeFactory<T> implements ElementEditorFactory<T> {
 	}
 
 	@Override
-	public JComponent createEditor(Application app, MutableWorkflow wf,
-			Token address, T object) {
+	public JComponent createEditor(Application app, MutableWorkflow wf, T object) {
 		JComponent result = null;
 		ListIterator<ElementEditorFactory<? super T>> li = list.listIterator();
 		while (result == null && li.hasNext())
-			result = li.next().createEditor(app, wf, address, object);
+			result = li.next().createEditor(app, wf, object);
 		return result;
 	}
 }

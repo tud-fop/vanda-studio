@@ -2,47 +2,52 @@ package org.vanda.workflows.hyper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
+import java.util.WeakHashMap;
 
+import org.vanda.types.Type;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
 import org.vanda.util.Observer;
-import org.vanda.util.TokenSource;
-import org.vanda.util.TokenSource.Token;
+import org.vanda.util.Util;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job.JobEvent;
 import org.vanda.workflows.hyper.Job.JobListener;
-import org.vanda.workflows.immutable.ImmutableWorkflow;
+import org.vanda.workflows.hyper.Workflows.*;
 
 public final class MutableWorkflow implements Cloneable, JobListener {
-	
-	protected final TokenSource variableSource;
-	protected final TokenSource childAddressSource;
-	// protected final TokenSource connectionAddressSource;
-	protected final TokenSource inputPortSource;
-	protected final TokenSource outputPortSource;
-	protected final ArrayList<Job> children;
-	// protected final Map<Token, Pair<TokenValue<F>, List<TokenValue<F>>>>
-	// connections;
-	protected final ArrayList<Token> inputPorts;
-	protected final ArrayList<Token> outputPorts;
-	protected String name;
+
+	private final MultiplexObserver<WorkflowEvent<MutableWorkflow>> observable;
+	private LinkedList<WorkflowEvent<MutableWorkflow>> events;
+	private final Observer<JobEvent> childObserver;
+	private final WeakHashMap<Location, ConnectionKey> varSources;
+	private final ArrayList<Job> children;
+	private String name;
+	private int update = 0;
+	private Map<Object, Type> types = Collections.emptyMap();
+	private Job[] sorted = null;
+	private Type fragmentType = null;
+
+	{
+		childObserver = new Observer<JobEvent>() {
+			@Override
+			public void notify(JobEvent event) {
+				event.doNotify(MutableWorkflow.this);
+			}
+		};
+		events = new LinkedList<Workflows.WorkflowEvent<MutableWorkflow>>();
+	}
 
 	public MutableWorkflow(String name) {
 		super();
 		this.name = name;
 		children = new ArrayList<Job>();
-		variableSource = new TokenSource();
-		childAddressSource = new TokenSource();
-		// connectionAddressSource = new TokenSource();
-		inputPortSource = new TokenSource();
-		outputPortSource = new TokenSource();
-		inputPorts = new ArrayList<Token>();
-		outputPorts = new ArrayList<Token>();
-		observable = new MultiplexObserver<MutableWorkflow.WorkflowEvent>();
-		childObservable = new MultiplexObserver<MutableWorkflow.WorkflowChildEvent>();
+		observable = new MultiplexObserver<WorkflowEvent<MutableWorkflow>>();
+		varSources = new WeakHashMap<Location, ConnectionKey>();
 	}
 
 	public MutableWorkflow(MutableWorkflow hyperWorkflow)
@@ -58,111 +63,20 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 			else
 				children.add(ji.clone());
 		}
-		variableSource = hyperWorkflow.variableSource.clone();
-		childAddressSource = hyperWorkflow.childAddressSource.clone();
-		// connectionAddressSource =
-		// hyperWorkflow.connectionAddressSource.clone();
-		inputPortSource = hyperWorkflow.inputPortSource.clone();
-		outputPortSource = hyperWorkflow.outputPortSource.clone();
-		inputPorts = new ArrayList<Token>(hyperWorkflow.inputPorts);
-		outputPorts = new ArrayList<Token>(hyperWorkflow.outputPorts);
 		observable = hyperWorkflow.observable.clone();
-		childObservable = hyperWorkflow.childObservable.clone();
+		varSources = new WeakHashMap<Location, ConnectionKey>(hyperWorkflow.varSources);
 	}
 
 	public Collection<Job> getChildren() {
-		ArrayList<Job> result = new ArrayList<Job>();
-		for (Job ji : children)
-			if (ji != null)
-				result.add(ji);
-		return result;
+		// better: return Collections.unmodifiableCollection(children);
+		return children;
 	}
 
-	/**
-	 * Looks for children that are InputPorts.
-	 * 
-	 * @return
-	 */
-	public List<Port> getInputPorts() {
-		ArrayList<Port> list = new ArrayList<Port>();
-		for (Token t : inputPorts)
-			if (t == null)
-				list.add(null);
-			else
-				list.add(children.get(t.intValue()).getOutputPorts().get(0));
-		/*
-		 * for (DJobInfo ji : children) if (ji != null && ji.job.isInputPort())
-		 * list.add(ji.job.getOutputPorts().get(0));
-		 */
-		return list;
-	}
-
-	/**
-	 * Looks for children that are OutputPorts.
-	 * 
-	 * @return
-	 */
-	public List<Port> getOutputPorts() {
-		ArrayList<Port> list = new ArrayList<Port>();
-		for (Token t : outputPorts)
-			if (t == null)
-				list.add(null);
-			else
-				list.add(children.get(t.intValue()).getInputPorts().get(0));
-		return list;
-	}
-
-	public ImmutableWorkflow freeze() throws Exception {
-		return new Freezer().freeze(this);
-	}
-
-	public static interface WorkflowListener {
-		// removed: see older versions
-		// void inputPortAdded(MutableWorkflow mwf, int index);
-		// void inputPortRemoved(MutableWorkflow mwf, int index);
-		// void outputPortAdded(MutableWorkflow mwf, int index);
-		// void outputPortRemoved(MutableWorkflow mwf, int index);
-
-		void propertyChanged(MutableWorkflow mwf);
-	}
-
-	public static interface WorkflowEvent {
-		void doNotify(WorkflowListener wl);
-	}
-
-	public static interface WorkflowChildListener {
-		void childAdded(MutableWorkflow mwf, Job j);
-
-		void childModified(MutableWorkflow mwf, Job j);
-
-		void childRemoved(MutableWorkflow mwf, Job j);
-
-		void connectionAdded(MutableWorkflow mwf, ConnectionKey cc);
-
-		void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc);
-
-		// removed: see older versions
-		// void inputPortAdded(MutableWorkflow mwf, Job j, int index);
-		// void inputPortRemoved(MutableWorkflow mwf, Job j, int index);
-		// void outputPortAdded(MutableWorkflow mwf, Job j, int index);
-		// void outputPortRemoved(MutableWorkflow mwf, Job j, int index);
-	}
-
-	public static interface WorkflowChildEvent {
-		void doNotify(WorkflowChildListener wcl);
-	}
-
-	private final MultiplexObserver<WorkflowEvent> observable;
-	private final MultiplexObserver<WorkflowChildEvent> childObservable;
-	private final Observer<JobEvent> childObserver;
-
-	{
-		childObserver = new Observer<JobEvent>() {
-			@Override
-			public void notify(JobEvent event) {
-				event.doNotify(MutableWorkflow.this);
-			}
-		};
+	public Job[] getTopSort() throws Exception {
+		TopSorter t = new TopSorter();
+		t.init(this);
+		t.proceed();
+		return t.getSorted();
 	}
 
 	@Override
@@ -170,93 +84,113 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 		return new MutableWorkflow(this);
 	}
 
-	public Token addChild(final Job job) {
-		assert (job.address == null);
-		job.insert(childAddressSource.makeToken());
-		for (int i = 0; i < job.getOutputPorts().size(); i++) {
-			Token t = variableSource.makeToken();
-			job.outputs[i] = t;
-		}
-		if (job.address.intValue() < children.size())
-			children.set(job.address.intValue(), job);
-		else {
-			assert (job.address.intValue() == children.size());
+	public void addChild(final Job job) {
+		assert (!job.isInserted());
+		beginUpdate();
+		try {
+			job.insert();
+			for (Port op : job.getOutputPorts()) {
+				Location var = new Location();
+				job.bindings.put(op, var);
+				varSources.put(var, new ConnectionKey(job, op));
+			}
 			children.add(job);
-		}
-		bind(job);
-		// XXX removed: handle ports (see older versions)
-		childObservable.notify(new Workflows.ChildAddedEvent(this, job));
-		return job.address;
-	}
-
-	public void addConnection(ConnectionKey cc, Token variable) {
-		Job tji = children.get(cc.target.intValue());
-		assert (tji.getInputPorts().get(cc.targetPort) != null);
-		Token old = tji.inputs[cc.targetPort];
-		if (old != variable) {
-			if (old != null)
-				throw new RuntimeException("!!!"); // FIXME better exception
-			tji.inputs[cc.targetPort] = variable;
-			// tji.inputsBlocked++;
-			childObservable.notify(new Workflows.ConnectionAddedEvent(this, cc));
+			bind(job);
+			events.add(new Workflows.ChildAddedEvent<MutableWorkflow>(this, job));
+		} finally {
+			endUpdate();
 		}
 	}
 
-	public Observable<WorkflowEvent> getObservable() {
+	public void addConnection(ConnectionKey cc, Location variable) {
+		beginUpdate();
+		try {
+			Location old = cc.target.bindings.put(cc.targetPort, variable);
+			if (old != variable) {
+				if (old != null)
+					throw new RuntimeException("!!!"); // FIXME better exception
+				events.add(new Workflows.ConnectionAddedEvent<MutableWorkflow>(
+						this, cc));
+			}
+		} finally {
+			endUpdate();
+		}
+	}
+
+	public void beginUpdate() {
+		update++;
+	}
+
+	public void endUpdate() {
+		update--;
+		if (update == 0) {
+			LinkedList<WorkflowEvent<MutableWorkflow>> ev = events;
+			events = new LinkedList<Workflows.WorkflowEvent<MutableWorkflow>>();
+			Util.notifyAll(observable, ev);
+			observable
+					.notify(new Workflows.UpdatedEvent<MutableWorkflow>(this));
+		}
+	}
+
+	public Observable<WorkflowEvent<MutableWorkflow>> getObservable() {
 		return observable;
 	}
 
-	public Observable<WorkflowChildEvent> getChildObservable() {
-		return childObservable;
-	}
-
-	public Token getConnectionValue(ConnectionKey cc) {
-		return children.get(cc.target.intValue()).inputs[cc.targetPort];
+	public Location getConnectionValue(ConnectionKey cc) {
+		return cc.target.bindings.get(cc.targetPort);
 	}
 
 	public ConnectionKey getConnectionSource(ConnectionKey cc) {
-		Token variable = getConnectionValue(cc);
-		if (variable != null) {
-			for (Job ji : children) {
-				if (ji != null) {
-					for (int i = 0; i < ji.outputs.length; i++)
-						if (ji.outputs[i] == variable) {
-							return new ConnectionKey(ji.address, i);
-						}
+		return getVariableSource(getConnectionValue(cc));
+	}
+
+	public ConnectionKey getVariableSource(Location variable) {
+		return varSources.get(variable);
+	}
+
+	public Type getFragmentType() {
+		return fragmentType;
+	}
+
+	public Job[] getSorted() {
+		return sorted;
+	}
+	
+	public Type getType(Object variable) {
+		return types.get(variable);
+	}
+
+	public void removeChild(Job ji) {
+		beginUpdate();
+		try {
+			if (children.remove(ji)) {
+				unbind(ji);
+				for (Port op : ji.getOutputPorts()) {
+					Location var = ji.bindings.get(op);
+					for (Job j2 : children)
+						for (Port ip : j2.getInputPorts())
+							if (j2.bindings.get(ip) == var)
+								removeConnection(new ConnectionKey(j2, ip));
+					varSources.remove(var);
 				}
+				ji.uninsert();
+				events.add(new Workflows.ChildRemovedEvent<MutableWorkflow>(
+						this, ji));
 			}
-			return null;
-		} else
-			return null;
-	}
-
-	public Token getVariable(Job job, int port) {
-		return job.outputs[port];
-	}
-
-	public void removeChild(Token address) {
-		final Job ji = children.get(address.intValue());
-		if (ji == null)
-			return;
-		// XXX removed: handle ports (see older versions)
-		for (int i = 0; i < ji.outputs.length; i++) {
-			variableSource.recycleToken(ji.outputs[i]);
+		} finally {
+			endUpdate();
 		}
-		unbind(ji);
-		children.set(ji.address.intValue(), null);
-		childObservable.notify(new Workflows.ChildRemovedEvent(this, ji));
-		ji.address = null;
-		childAddressSource.recycleToken(address);
 	}
 
 	public void removeConnection(ConnectionKey cc) {
-		Job tji = children.get(cc.target.intValue());
-		// assert (sji.outputs.get(sourcePort) == tji.inputs.get(ci.port));
-		Token old = tji.inputs[cc.targetPort];
-		if (old != null) {
-			tji.inputs[cc.targetPort] = null;
-			// tji.inputsBlocked--;
-			childObservable.notify(new Workflows.ConnectionRemovedEvent(this, cc));
+		beginUpdate();
+		try {
+			Location old = cc.target.bindings.remove(cc.targetPort);
+			if (old != null)
+				events.add(new Workflows.ConnectionRemovedEvent<MutableWorkflow>(
+						this, cc));
+		} finally {
+			endUpdate();
 		}
 	}
 
@@ -264,16 +198,11 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 		// only for putting existing hypergraphs into the GUI
 		LinkedList<ConnectionKey> conn = new LinkedList<ConnectionKey>();
 		for (Job ji : children) {
-			if (ji != null)
-				for (int i = 0; i < ji.inputs.length; i++)
-					if (ji.inputs[i] != null)
-						conn.add(new ConnectionKey(ji.address, i));
+			for (Port ip : ji.getInputPorts())
+				if (ji.bindings.containsKey(ip))
+					conn.add(new ConnectionKey(ji, ip));
 		}
 		return conn;
-	}
-
-	public Job getChild(Token address) {
-		return children.get(address.intValue());
 	}
 
 	public String getName() {
@@ -283,7 +212,9 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 	public void setName(String name) {
 		if (!name.equals(this.name)) {
 			this.name = name;
-			observable.notify(new Workflows.PropertyChangedEvent(this));
+			observable
+					.notify(new Workflows.PropertyChangedEvent<MutableWorkflow>(
+							this));
 		}
 	}
 
@@ -309,26 +240,27 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 	 * Call this after deserialization.
 	 */
 	public void rebind() {
-		for (Job ji : children)
-			if (ji != null) {
-				ji.rebind();
-				bind(ji);
-			}
+		for (Job ji : children) {
+			ji.rebind();
+			bind(ji);
+		}
 	}
 
 	@Override
 	public void propertyChanged(Job j) {
-		childObservable.notify(new Workflows.ChildModifiedEvent(this, j));
 	}
 
-	/*
-	 * public void setDimensions(HyperJob<V> hj, double[] d) { assert
-	 * (children.contains(hj));
-	 * 
-	 * if (d[0] != hj.dimensions[0] || d[1] != hj.dimensions[1] || d[2] !=
-	 * hj.dimensions[2] || d[3] != hj.dimensions[3]) { hj.setDimensions(d);
-	 * modifyObservable.notify(new Pair<HyperWorkflow<F, V>, HyperJob<V>>( this,
-	 * hj)); } }
-	 */
+	public void typeCheck() throws Exception {
+		TypeChecker tc = new TypeChecker();
+		for (Job ji : children) {
+			ji.typeCheck();
+			ji.addFragmentTypeEquation(tc);
+			tc.addDataFlowEquations(ji);
+		}
+		tc.check();
+		types = tc.getTypes();
+		fragmentType = tc.getFragmentType();
+		// System.out.println(fragmentType);
+	}
 
 }

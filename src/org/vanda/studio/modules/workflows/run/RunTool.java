@@ -35,6 +35,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import org.vanda.fragment.model.Fragment;
+import org.vanda.fragment.model.Fragments;
 import org.vanda.fragment.model.Generator;
 import org.vanda.fragment.model.Model;
 import org.vanda.studio.app.Application;
@@ -43,7 +44,7 @@ import org.vanda.types.Types;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.RCChecker;
-import org.vanda.workflows.immutable.ImmutableWorkflow;
+import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class RunTool implements SemanticsToolFactory {
 
@@ -228,7 +229,7 @@ public class RunTool implements SemanticsToolFactory {
 				try {
 					process = Runtime.getRuntime().exec(
 							RCChecker.getOutPath() + "/"
-									+ Fragment.normalize(f.name), null, null);
+									+ Fragments.normalize(f.getId()), null, null);
 
 				} catch (Exception e) {
 					app.sendMessage(new ExceptionMessage(e));
@@ -454,7 +455,7 @@ public class RunTool implements SemanticsToolFactory {
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
-			ImmutableWorkflow iwf = mm.getDataflowAnalysis().getWorkflow();
+			MutableWorkflow iwf = mm.getDataflowAnalysis().getWorkflow();
 			if (Types.canUnify(iwf.getFragmentType(),
 							prof.getRootType())) {
 				try {

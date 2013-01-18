@@ -44,10 +44,7 @@ import org.vanda.util.Util;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
-import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildEvent;
-import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildListener;
-import org.vanda.workflows.hyper.MutableWorkflow.WorkflowEvent;
-import org.vanda.workflows.hyper.MutableWorkflow.WorkflowListener;
+import org.vanda.workflows.hyper.Workflows.*;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
@@ -59,8 +56,7 @@ import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
 
-public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
-		WorkflowChildListener {
+public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<MutableWorkflow> {
 
 	protected final Application app;
 	protected final Model model;
@@ -140,22 +136,14 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
 
-		model.getChildObservable().addObserver(
-				new Observer<WorkflowChildEvent>() {
+		model.getRoot().getObservable().addObserver(
+				new Observer<WorkflowEvent<MutableWorkflow>>() {
 
 					@Override
-					public void notify(WorkflowChildEvent event) {
+					public void notify(WorkflowEvent<MutableWorkflow> event) {
 						event.doNotify(WorkflowEditorImpl.this);
 					}
 
-				});
-
-		model.getWorkflowObservable().addObserver(
-				new Observer<WorkflowEvent>() {
-					@Override
-					public void notify(WorkflowEvent event) {
-						event.doNotify(WorkflowEditorImpl.this);
-					}
 				});
 		recheck(); // XXX experimental
 	}
@@ -418,11 +406,6 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	}
 
 	@Override
-	public void childModified(MutableWorkflow mwf, Job j) {
-		recheck();
-	}
-
-	@Override
 	public void childRemoved(MutableWorkflow mwf, Job j) {
 		recheck();
 	}
@@ -593,5 +576,10 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener,
 	@Override
 	public Model getModel() {
 		return model;
+	}
+
+	@Override
+	public void updated(MutableWorkflow mwf) {
+		// FIXME FIXME FIXME
 	}
 }

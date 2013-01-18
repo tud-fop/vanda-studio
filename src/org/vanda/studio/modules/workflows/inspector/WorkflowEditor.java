@@ -9,14 +9,13 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.vanda.studio.app.Application;
-import org.vanda.util.TokenSource.Token;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class WorkflowEditor implements ElementEditorFactory<MutableWorkflow> {
 
 	@Override
 	public JComponent createEditor(Application app, MutableWorkflow wf,
-			Token address, final MutableWorkflow mwf) {
+			final MutableWorkflow mwf) {
 		final JLabel label = new JLabel("Name:");
 		final JTextField text = new JTextField(mwf.getName(), 20);
 		text.getDocument().addDocumentListener(new DocumentListener() {

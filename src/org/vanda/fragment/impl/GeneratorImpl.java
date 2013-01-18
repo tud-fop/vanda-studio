@@ -12,14 +12,13 @@ import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.FragmentBase;
 import org.vanda.fragment.model.FragmentCompiler;
 import org.vanda.fragment.model.FragmentIO;
-import org.vanda.fragment.model.FragmentTool;
 import org.vanda.fragment.model.Generator;
 import org.vanda.fragment.model.Profile;
 import org.vanda.studio.app.Application;
 import org.vanda.types.Type;
 import org.vanda.workflows.elements.Tool;
-import org.vanda.workflows.immutable.ImmutableWorkflow;
-import org.vanda.workflows.immutable.JobInfo;
+import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class GeneratorImpl implements Generator, FragmentIO {
 
@@ -51,43 +50,41 @@ public class GeneratorImpl implements Generator, FragmentIO {
 			};
 		}
 
-		public String generateAtomic(Tool t) throws IOException {
+		public Fragment generateAtomic(Tool t) throws IOException {
 			Fragment result = map.get(t.getId());
 			if (result == null) {
-				FragmentTool ft = prof.getFragmentToolMetaRepository()
-						.getRepository().getItem(t.getId());
-				assert (ft != null); // TODO this should be guaranteed via tool
-										// interfaces
-				result = new Fragment(t.getId(), ft.getImports());
+				result = prof.getFragmentToolMetaRepository().getRepository()
+						.getItem(t.getId());
+				assert (result != null);
+				// TODO this ^^ should be guaranteed via tool interfaces
 				map.put(t, result);
-				fragments.put(result.name, result);
+				fragments.put(result.getId(), result);
 			}
-			return result.name;
+			return result;
 		}
 
 		public String generateFragment(DataflowAnalysis dfa) throws IOException {
-			ImmutableWorkflow w = dfa.getWorkflow();
+			MutableWorkflow w = dfa.getWorkflow();
 			Fragment result = map.get(w);
 			if (result == null) {
 				String name = makeUnique(w.getName(), w);
 				assert (w.getFragmentType() != null);
 				FragmentCompiler fc = prof.getCompiler(w.getFragmentType());
 				assert (fc != null);
-				ArrayList<JobInfo> jobs = w.getChildren();
-				ArrayList<String> frags = new ArrayList<String>(jobs.size());
-				for (int i = 0; i < jobs.size(); i++) {
-					JobInfo ji = jobs.get(i);
-					if (ji.job.getElement() instanceof Tool)
-						frags.add(generateAtomic((Tool) ji.job.getElement()));
+				Job[] jobs = w.getSorted();
+				ArrayList<Fragment> frags = new ArrayList<Fragment>(jobs.length);
+				for (Job ji : jobs) {
+					if (ji.getElement() instanceof Tool)
+						frags.add(generateAtomic((Tool) ji.getElement()));
 					else
 						frags.add(null);
 				}
 				result = fc.compile(name, dfa, frags, GeneratorImpl.this);
 				assert (result != null);
 				map.put(w, result);
-				this.fragments.put(result.name, result);
+				this.fragments.put(result.getId(), result);
 			}
-			return result.name;
+			return result.getId();
 		}
 
 		public Fragment generate(DataflowAnalysis dfa) throws IOException {

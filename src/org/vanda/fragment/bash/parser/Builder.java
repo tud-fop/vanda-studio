@@ -53,6 +53,6 @@ public final class Builder {
 
 	public ShellTool build() {
 		return new ShellTool(id, name, category, version, contact,
-				description.toString(), imports);
+				description.toString(), imports, inPorts, outPorts);
 	}
 }

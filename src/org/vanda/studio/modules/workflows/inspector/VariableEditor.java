@@ -6,12 +6,11 @@ import org.vanda.studio.app.Application;
 import org.vanda.util.TokenSource.Token;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
-public class VariableEditor implements ElementEditorFactory<MutableWorkflow> {
+public class VariableEditor implements ElementEditorFactory<Token> {
 
 	@Override
 	public JComponent createEditor(Application app, MutableWorkflow wf,
-			Token address, MutableWorkflow o) {
-		// TODO Auto-generated method stub
+			Token address) {
 		return null;
 	}
 

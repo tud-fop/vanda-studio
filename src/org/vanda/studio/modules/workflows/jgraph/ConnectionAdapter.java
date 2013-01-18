@@ -40,42 +40,29 @@ public class ConnectionAdapter implements Adapter {
 	public void onInsert(mxGraph graph, mxICell parent, mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(parent);
-		if (cc != null) {
-			// a previously loaded connection is updated, don't change anything
-			if (wa.getConnection(cc) == null) {
-				wa.setConnection(cc, cell);
-				// propagate value change to selection listeners
-				if (graph.getSelectionCell() == cell)
-					graph.setSelectionCell(cell);
-			}
-			assert (wa.getConnection(cc) == cell);
-		} else {
-			// a new connection has been inserted by the user via GUI
+		
+		// not in the model -> hand-drawn edge
+		if (cc == null) {
 			Object source = model.getTerminal(cell, true);
 			Object target = model.getTerminal(cell, false);
 
 			// ignore "unfinished" edges
 			if (source != null && target != null) {
-				Object sval = model.getValue(source);
-				Object tval = model.getValue(target);
-				Object sparval = model.getValue(model.getParent(source));
-				Object tparval = model.getValue(model.getParent(target));
+				PortAdapter sval = (PortAdapter) model.getValue(source);
+				PortAdapter tval = (PortAdapter) model.getValue(target);
+				JobAdapter sparval = (JobAdapter) model.getValue(model
+						.getParent(source));
+				JobAdapter tparval = (JobAdapter) model.getValue(model
+						.getParent(target));
 
-				assert (sval instanceof PortAdapter
-						&& tval instanceof PortAdapter
-						&& sparval instanceof JobAdapter && tparval instanceof JobAdapter);
-
-				ConnectionKey cc = new ConnectionKey(
-						((JobAdapter) tparval).job.getAddress(),
-						((PortAdapter) tval).port);
-				wa.putInter(cc, cell);
-				cell.setValue(new ConnectionAdapter(cc));
+				ConnectionKey cc = new ConnectionKey(tparval.job, tval.port);
+				wa.setConnection(cc, cell);
 				if (wa.workflow != null)
-					wa.workflow.addConnection(cc, wa.workflow.getVariable(
-							((JobAdapter) sparval).job,
-							((PortAdapter) sval).port));
+					wa.workflow.addConnection(cc,
+							sparval.job.bindings.get(sval.port));
 			}
-		}
+		} else
+			wa.setConnection(cc, cell);
 	}
 
 	@Override
@@ -95,7 +82,7 @@ public class ConnectionAdapter implements Adapter {
 
 	@Override
 	public boolean inModel() {
-		return cc != null; // FIXME ???? && cc.address != null;
+		return cc != null;
 	}
 
 	@Override

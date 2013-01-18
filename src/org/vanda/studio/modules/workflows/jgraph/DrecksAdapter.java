@@ -12,8 +12,7 @@ import org.vanda.util.Observer;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
-import org.vanda.workflows.hyper.MutableWorkflow.WorkflowChildEvent;
-import org.vanda.workflows.hyper.MutableWorkflow.WorkflowEvent;
+import org.vanda.workflows.hyper.Workflows;
 
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
@@ -99,17 +98,11 @@ public final class DrecksAdapter {
 	}
 
 	protected class WorkflowListener implements
-			MutableWorkflow.WorkflowChildListener,
-			MutableWorkflow.WorkflowListener {
+			Workflows.WorkflowListener<MutableWorkflow> {
 
 		@Override
 		public void childAdded(MutableWorkflow mwf, Job j) {
 			renderChild(mwf, j);
-		}
-
-		@Override
-		public void childModified(MutableWorkflow mwf, Job j) {
-			modifyChild(mwf, j);
 		}
 
 		@Override
@@ -132,6 +125,10 @@ public final class DrecksAdapter {
 			// TODO improve
 			if (mwf != DrecksAdapter.this.model.getRoot())
 				graph.refresh();
+		}
+
+		@Override
+		public void updated(MutableWorkflow mwf) {
 		}
 
 	}
@@ -163,20 +160,16 @@ public final class DrecksAdapter {
 			 */
 
 			workflowListener = new WorkflowListener();
-			model.getChildObservable().addObserver(
-					new Observer<WorkflowChildEvent>() {
-						@Override
-						public void notify(WorkflowChildEvent event) {
-							event.doNotify(workflowListener);
-						}
-					});
-			model.getWorkflowObservable().addObserver(
-					new Observer<WorkflowEvent>() {
-						@Override
-						public void notify(WorkflowEvent event) {
-							event.doNotify(workflowListener);
-						}
-					});
+			model.getRoot()
+					.getObservable()
+					.addObserver(
+							new Observer<Workflows.WorkflowEvent<MutableWorkflow>>() {
+								@Override
+								public void notify(
+										Workflows.WorkflowEvent<MutableWorkflow> event) {
+									event.doNotify(workflowListener);
+								}
+							});
 
 			model.getMarkedElementsObservable().addObserver(
 					new Observer<Model>() {
@@ -273,7 +266,7 @@ public final class DrecksAdapter {
 
 	public void modifyChild(MutableWorkflow hwf, Job job) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
-		mxICell cell = wa.getChild(job.getAddress());
+		mxICell cell = wa.getChild(job);
 		mxIGraphModel model = graph.getModel();
 		mxGeometry geo = model.getGeometry(cell);
 		if (geo.getX() != job.getX() || geo.getY() != job.getY()
@@ -294,7 +287,7 @@ public final class DrecksAdapter {
 
 	public void removeChild(MutableWorkflow hwf, Job job) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
-		mxICell cell = wa.getChild(job.getAddress());
+		mxICell cell = wa.getChild(job);
 		if (cell != null)
 			graph.removeCells(new Object[] { cell });
 	}
@@ -330,12 +323,11 @@ public final class DrecksAdapter {
 	public <F> mxICell renderChild(MutableWorkflow parent, Job job) {
 		mxICell parentCell = translation.get(parent);
 		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
-		mxICell cell = wa.removeInter(job);
+		mxICell cell = wa.getChild(job);
 		if (cell != null) {
 			// wa.setChild(job.getAddress(), cell);
-			((Adapter) cell.getValue()).onInsert(graph, parentCell, cell);
-		} else if (job.getAddress() == null
-				|| wa.getChild(job.getAddress()) == null) {
+			// ((Adapter) cell.getValue()).onInsert(graph, parentCell, cell);
+		} else {
 			cell = job.selectRenderer(JobRendering.getRendererAssortment())
 					.render(job, graph, parentCell);
 		}
@@ -346,10 +338,10 @@ public final class DrecksAdapter {
 		mxICell parentCell = translation.get(parent);
 		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
 
-		mxICell cell = wa.removeInter(cc);
+		mxICell cell = wa.getConnection(cc);
 		if (cell != null) {
-			wa.setConnection(cc, cell);
-		} else if (wa.getConnection(cc) == null) {
+			// ((Adapter) cell.getValue()).onInsert(graph, parentCell, cell);
+		} else {
 			ConnectionKey scc = parent.getConnectionSource(cc);
 			mxICell source = wa.getChild(scc.target);
 			mxICell target = wa.getChild(cc.target);
@@ -376,7 +368,7 @@ public final class DrecksAdapter {
 							tcell = cl;
 					}
 					assert (scell != null && tcell != null);
-					cell = (mxICell) graph.insertEdge(parentCell, null,
+					graph.insertEdge(parentCell, null,
 							new ConnectionAdapter(cc), scell, tcell);
 				} finally {
 					graph.getModel().endUpdate();

@@ -1,10 +1,9 @@
-package org.vanda.workflows.immutable;
+package org.vanda.workflows.hyper;
 
 import java.util.List;
 import java.util.Set;
 
 import org.vanda.util.Pair;
-import org.vanda.workflows.hyper.ConnectionKey;
 
 public final class TypeCheckingException extends Exception {
 

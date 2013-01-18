@@ -1,11 +1,7 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import java.util.Map;
-
 import org.vanda.studio.modules.workflows.model.Model;
 import org.vanda.studio.modules.workflows.model.Model.JobSelection;
-import org.vanda.util.TokenSource.Token;
-import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxGeometry;
@@ -15,11 +11,9 @@ import com.mxgraph.view.mxGraph;
 
 public class JobAdapter implements Adapter, Cloneable {
 	public final Job job;
-	public final Map<Port, mxICell> portMap;
 
 	public JobAdapter(Job job) {
 		this.job = job;
-		portMap = null;
 	}
 
 	@Override
@@ -36,9 +30,8 @@ public class JobAdapter implements Adapter, Cloneable {
 	@Override
 	public void onRemove(mxICell parent) {
 		WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
-		Token address = job.getAddress();
-		if (address != null && wa.removeChild(address) != null)
-			wa.workflow.removeChild(address);
+		if (wa.removeChild(job) != null)
+			wa.workflow.removeChild(job);
 	}
 
 	@Override
@@ -48,36 +41,32 @@ public class JobAdapter implements Adapter, Cloneable {
 				.getParent(cell));
 		mxGeometry geo = model.getGeometry(cell);
 
-		if (job.getAddress() == null) {
-			// set dimensions of job
+		// we are new here, so tell the workflow adapter that we are there
+		wa.setChild(job, cell);
+
+		// the following is necessary if the job is not in the model
+		// which happens in case of drag&drop (as opposed to render)
+		// OR for the palette...
+		if (!job.isInserted()) {
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 					geo.getHeight() };
 			job.setDimensions(dim);
-			wa.putInter(job, (mxICell) cell);
-			if (wa.workflow != null)
+			if (wa.workflow != null) {
 				wa.workflow.addChild(job);
-		} else {
-			if (wa.getChild(job.getAddress()) == null) {
-				wa.setChild(job.getAddress(), cell);
-				// propagate value change to selection listeners
-				if (graph.getSelectionCell() == cell)
-					graph.setSelectionCell(cell);
+				updateLocations(cell);
 			}
-			updateLocations(cell);
-			onResize(graph, parent, cell);
 		}
 	}
-	
+
 	@Override
 	public void onResize(mxGraph graph, mxICell parent, mxICell cell) {
 		mxIGraphModel model = graph.getModel();
 		WorkflowAdapter wa = (WorkflowAdapter) model.getValue(model
 				.getParent(cell));
 		mxGeometry geo = model.getGeometry(cell);
-		if (wa.getChild(job.getAddress()) == cell) {
+		if (wa.getChild(job) == cell) {
 			if (graph.isAutoSizeCell(cell))
-				graph.updateCellSize(cell, true); // was:
-													// resizeToFitLabel(cell)
+				graph.updateCellSize(cell, true); // was: resizeToFitLabel(cell)
 			preventTooSmallNested(graph, cell);
 			graph.extendParent(cell); // was: resizeParentOfCell(cell)
 
@@ -90,7 +79,7 @@ public class JobAdapter implements Adapter, Cloneable {
 				job.setDimensions(dim);
 				sizeChanged(geo, graph, cell);
 			}
-		}		
+		}
 	}
 
 	protected void preventTooSmallNested(mxGraph graph, Object cell) {
@@ -103,28 +92,26 @@ public class JobAdapter implements Adapter, Cloneable {
 
 	@Override
 	public void setSelection(Model m) {
-		if (job.getAddress() != null)
-			m.setSelection(new JobSelection(m.getRoot(), job.getAddress()));
+		m.setSelection(new JobSelection(m.getRoot(), job));
 		// TODO no nesting support here because of m.getRoot()
 	}
 
 	@Override
 	public void register(mxICell parent, mxICell cell) {
 		WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
-		wa.setChild(job.getAddress(), cell);
+		wa.setChild(job, cell);
 	}
 
 	@Override
 	public boolean inModel() {
-		return job.getAddress() != null;
+		return job.isInserted();
 	}
-	
+
 	protected void updateLocations(mxICell cell) {
 		for (int i = 0; i < cell.getChildCount(); i++) {
-			if (cell.getChildAt(i).getValue() instanceof LocationAdapter) {
-				LocationAdapter la = (LocationAdapter)cell.getChildAt(i).getValue();
-				la.updateLocation(job);
-			}
+			Object value = cell.getChildAt(i).getValue();
+			if (value instanceof LocationAdapter)
+				((LocationAdapter) value).updateLocation(job);
 		}
 	}
 }

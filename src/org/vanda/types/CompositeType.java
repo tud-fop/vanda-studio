@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.vanda.util.Pair;
-import org.vanda.util.TokenSource;
-import org.vanda.util.TokenSource.Token;
 
 public final class CompositeType extends Type {
 
@@ -33,7 +31,7 @@ public final class CompositeType extends Type {
 	}
 
 	@Override
-	public boolean contains(Token v) {
+	public boolean contains(Object v) {
 		boolean c = false;
 		ListIterator<Type> i = children.listIterator();
 		while (!c && i.hasNext()) {
@@ -66,9 +64,9 @@ public final class CompositeType extends Type {
 	}
 
 	@Override
-	public void freshMap(TokenSource t, Map<Token, Token> m) {
+	public void freshMap(Map<Object, Object> m) {
 		for (Type c : children) {
-			c.freshMap(t, m);
+			c.freshMap(m);
 		}
 	}
 	
@@ -78,7 +76,7 @@ public final class CompositeType extends Type {
 	}
 
 	@Override
-	public Type rename(Map<Token, Token> m) {
+	public Type rename(Map<Object, Object> m) {
 		List<Type> nc = new ArrayList<Type>(children.size());
 		for (Type c : children) {
 			nc.add(c.rename(m));
@@ -87,7 +85,7 @@ public final class CompositeType extends Type {
 	}
 
 	@Override
-	public Type subst(Token variable, Type nt) {
+	public Type subst(Object variable, Type nt) {
 		List<Type> ncs = new ArrayList<Type>(children.size());
 		boolean didsubst = false;
 		for (Type c : children) {

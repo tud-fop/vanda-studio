@@ -9,7 +9,7 @@ public interface RendererAssortment<R> {
 
 	R selectAlgorithmRenderer();
 	
-	R selectBoxRenderer();
+	// R selectBoxRenderer();
 
 	R selectCorpusRenderer();
 
@@ -17,9 +17,9 @@ public interface RendererAssortment<R> {
 	
 	R selectLiteralRenderer();
 	
-	R selectInputPortRenderer();
+	// R selectInputPortRenderer();
 	
-	R selectOutputPortRenderer();
+	// R selectOutputPortRenderer();
 
 	R selectOrRenderer();
 

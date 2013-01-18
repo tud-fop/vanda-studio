@@ -1,19 +1,19 @@
 package org.vanda.workflows.hyper;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.vanda.types.Type;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
 import org.vanda.util.Observer;
-import org.vanda.util.TokenSource.Token;
 import org.vanda.workflows.elements.Element;
 import org.vanda.workflows.elements.Element.ElementListener;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
 import org.vanda.workflows.elements.Element.ElementEvent;
-import org.vanda.workflows.immutable.ImmutableJob;
 
 public final class Job implements Cloneable, ElementListener {
 	public static interface JobEvent {
@@ -29,15 +29,12 @@ public final class Job implements Cloneable, ElementListener {
 		void propertyChanged(Job j);		
 	}
 	
-	protected Token address;
 	private final Element element;
 	private final MultiplexObserver<JobEvent> observable;
-	protected Token[] inputs = null;
-	public Token[] outputs = null;
+	public Map<Port, Location> bindings;
 	protected final double[] dimensions = new double[4];
 	
 	public Job(Element element) {
-		address = null;
 		this.element = element;
 		if (element.getObservable() != null)
 			observable = new MultiplexObserver<JobEvent>();
@@ -49,14 +46,6 @@ public final class Job implements Cloneable, ElementListener {
 	@Override
 	public Job clone() throws CloneNotSupportedException {
 		return new Job(element.clone());
-	}
-
-	public ImmutableJob freeze() {
-		return new ImmutableJob(address, getElement());
-	}
-
-	public Token getAddress() {
-		return address;
 	}
 
 	public Element getElement() {
@@ -99,11 +88,20 @@ public final class Job implements Cloneable, ElementListener {
 		return dimensions[1];
 	}
 	
-	public void insert(Token address) {
-		assert (this.address == null);
-		this.address = address;
-		inputs = new Token[getInputPorts().size()];
-		outputs = new Token[getOutputPorts().size()];
+	public void insert() {
+		bindings = new HashMap<Port, Location>();
+	}
+	
+	public boolean isConnected() {
+		return bindings.keySet().containsAll(getInputPorts());
+	}
+	
+	public boolean isInserted() {
+		return bindings != null;
+	}
+	
+	public void uninsert() {
+		bindings = null;
 	}
 
 	public void propertyChanged(Element e) {
@@ -136,5 +134,14 @@ public final class Job implements Cloneable, ElementListener {
 	public void visit(ElementVisitor v) {
 		getElement().visit(v);
 	}
+	
+	public void addFragmentTypeEquation(TypeChecker tc) {
+		tc.addFragmentTypeEquation(element.getFragmentType());
+	}
+
+	public void typeCheck() throws Exception {
+		// do nothing
+	}
+	
 
 }

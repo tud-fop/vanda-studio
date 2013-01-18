@@ -18,9 +18,9 @@ import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
 import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
 import org.vanda.types.Type;
 import org.vanda.util.Observer;
-import org.vanda.util.TokenSource.Token;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class InspectorTool implements SemanticsToolFactory {
@@ -46,17 +46,16 @@ public class InspectorTool implements SemanticsToolFactory {
 			}
 
 			@Override
-			public void visitConnection(Token address, MutableWorkflow wf,
-					ConnectionKey cc) {
+			public void visitConnection(MutableWorkflow wf, ConnectionKey cc) {
 				visitVariable(wf.getConnectionValue(cc), wf);
 			}
 
 			@Override
-			public void visitJob(Token address, MutableWorkflow wf, Job j) {
+			public void visitJob(MutableWorkflow wf, Job j) {
 			}
 
 			@Override
-			public void visitVariable(Token variable, MutableWorkflow wf) {
+			public void visitVariable(Location variable, MutableWorkflow wf) {
 				type = mm.getDataflowAnalysis().getWorkflow().getType(variable);
 				value = mm.getDataflowAnalysis().getValue(variable);
 				// XXX no support for nested workflows because wf is ignored
@@ -123,8 +122,8 @@ public class InspectorTool implements SemanticsToolFactory {
 				}
 			};
 			wfe.getModel().getSelectionChangeObservable().addObserver(obs);
-			wfe.getModel().getWorkflowObservable().addObserver(obs);
-			wfe.getModel().getChildObservable().addObserver(obs);
+			// wfe.getModel().getWorkflowObservable().addObserver(obs);
+			// wfe.getModel().getChildObservable().addObserver(obs);
 			mm.getDfaChangedObservable().addObserver(obs);
 			update();
 		}
@@ -138,11 +137,11 @@ public class InspectorTool implements SemanticsToolFactory {
 			JComponent newpreview = dummyPreview;
 			Type type = null;
 			// if (frozen != null && dfa != null) {
-				InspectorialVisitor visitor = new InspectorialVisitor();
-				if (ws != null) // <--- always true for now
-					ws.visit(visitor);
-				newvalue = visitor.value;
-				type = visitor.type;
+			InspectorialVisitor visitor = new InspectorialVisitor();
+			if (ws != null) // <--- always true for now
+				ws.visit(visitor);
+			newvalue = visitor.value;
+			type = visitor.type;
 			// }
 			if (newvalue != value) {
 				value = newvalue;

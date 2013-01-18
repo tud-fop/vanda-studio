@@ -4,12 +4,12 @@ import javax.swing.JComponent;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
-import org.vanda.util.TokenSource.Token;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 public final class EditorialVisitor implements SelectionVisitor {
@@ -25,28 +25,27 @@ public final class EditorialVisitor implements SelectionVisitor {
 
 	@Override
 	public void visitWorkflow(MutableWorkflow wf) {
-		editor = eefs.workflowFactories.createEditor(app, wf, null, wf);
+		editor = eefs.workflowFactories.createEditor(app, wf, wf);
 	}
 
 	@Override
-	public void visitConnection(Token address, MutableWorkflow wf, ConnectionKey cc) {
-		editor = eefs.connectionFactories.createEditor(app, wf, address, cc);
+	public void visitConnection(MutableWorkflow wf, ConnectionKey cc) {
+		editor = eefs.connectionFactories.createEditor(app, wf, cc);
 	}
 
 	@Override
-	public void visitJob(final Token address, final MutableWorkflow wf,
-			final Job j) {
+	public void visitJob(final MutableWorkflow wf, final Job j) {
 		j.visit(new ElementVisitor() {
 
 			@Override
 			public void visitLiteral(Literal l) {
 				editor = eefs.literalFactories
-						.createEditor(app, wf, address, l);
+						.createEditor(app, wf, l);
 			}
 
 			@Override
 			public void visitTool(Tool t) {
-				editor = eefs.toolFactories.createEditor(app, wf, address, t);
+				editor = eefs.toolFactories.createEditor(app, wf, t);
 			}
 
 		});
@@ -57,8 +56,8 @@ public final class EditorialVisitor implements SelectionVisitor {
 	}
 
 	@Override
-	public void visitVariable(Token variable, MutableWorkflow wf) {
-		editor = eefs.variableFactories.createEditor(app, wf, variable, wf);
+	public void visitVariable(Location variable, MutableWorkflow wf) {
+		editor = eefs.variableFactories.createEditor(app, wf, variable);
 	}
 
 }

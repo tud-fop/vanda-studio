@@ -11,7 +11,6 @@ import java.util.Stack;
 import org.vanda.util.Lexer;
 import org.vanda.util.Pair;
 import org.vanda.util.TokenSource;
-import org.vanda.util.TokenSource.Token;
 
 public final class Types {
 
@@ -28,11 +27,10 @@ public final class Types {
 			return true;
 		if (t1 == null || t2 == null)
 			return false;
-		TokenSource freshSource = new TokenSource();
-		HashMap<Token, Token> rename1 = new HashMap<Token, Token>();
-		HashMap<Token, Token> rename2 = new HashMap<Token, Token>();
-		t1.freshMap(freshSource, rename1);
-		t2.freshMap(freshSource, rename2);
+		HashMap<Object, Object> rename1 = new HashMap<Object, Object>();
+		HashMap<Object, Object> rename2 = new HashMap<Object, Object>();
+		t1.freshMap(rename1);
+		t2.freshMap(rename2);
 		Equation<Object> eq = new Equation<Object>(t1.rename(rename1),
 				t2.rename(rename2), null);
 		try {

@@ -2,25 +2,26 @@ package org.vanda.studio.modules.workflows.jgraph;
 
 import org.vanda.studio.modules.workflows.model.Model;
 import org.vanda.studio.modules.workflows.model.Model.VariableSelection;
-import org.vanda.util.TokenSource.Token;
+import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.Location;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
 public class LocationAdapter implements Adapter, Cloneable {
 	
-	private final int index;
-	private Token address;
+	private final Port port;
+	private Location variable;
 
-	public LocationAdapter(int index, Token address) {
-		this.index = index;
-		this.address = address;
+	public LocationAdapter(Port port, Location variable) {
+		this.port = port;
+		this.variable = variable;
 	}
 
 	@Override
 	public LocationAdapter clone() throws CloneNotSupportedException {
-		return new LocationAdapter(index, address);
+		return new LocationAdapter(port, variable);
 	}
 
 	@Override
@@ -54,12 +55,12 @@ public class LocationAdapter implements Adapter, Cloneable {
 
 	@Override
 	public void setSelection(Model m) {
-		m.setSelection(new VariableSelection(m.getRoot(), address));
+		m.setSelection(new VariableSelection(m.getRoot(), variable));
 		// TODO no nesting support here because of m.getRoot()
 	}
 	
 	public void updateLocation(Job job) {
-		address = job.outputs[index];
+		variable = job.bindings.get(port);
 		// System.err.println(address.intValue());
 	}
 

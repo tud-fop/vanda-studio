@@ -4,16 +4,18 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.vanda.fragment.impl.StaticFragment;
 import org.vanda.fragment.model.DataflowAnalysis;
 import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.FragmentCompiler;
 import org.vanda.fragment.model.FragmentIO;
+import org.vanda.fragment.model.Fragments;
 import org.vanda.types.Type;
 import org.vanda.types.Types;
 import org.vanda.workflows.elements.Literal;
-import org.vanda.workflows.immutable.ImmutableJob;
-import org.vanda.workflows.immutable.ImmutableWorkflow;
-import org.vanda.workflows.immutable.JobInfo;
+import org.vanda.workflows.elements.Port;
+import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.MutableWorkflow;
 
 // XXX removed: handle ports (see older versions)
 // XXX removed: variables (names are computed statically) (see older versions)
@@ -21,43 +23,44 @@ public class ShellCompiler implements FragmentCompiler {
 
 	@Override
 	public Fragment compile(String name, DataflowAnalysis dfa,
-			ArrayList<String> fragments, FragmentIO fio) {
+			ArrayList<Fragment> fragments, FragmentIO fio) {
 		StringBuilder sb = new StringBuilder();
 		HashSet<String> dependencies = new HashSet<String>();
 		Set<String> im = new HashSet<String>();
-		ImmutableWorkflow iwf = dfa.getWorkflow();
+		MutableWorkflow iwf = dfa.getWorkflow();
 		sb.append("function ");
-		sb.append(Fragment.normalize(name));
+		sb.append(Fragments.normalize(name));
 		sb.append(" {\n");
 		int i = 0;
-		for (JobInfo ji : iwf.getChildren()) {
-			if (((ImmutableJob) ji.job).getElement() instanceof Literal) {
+		for (Job ji : iwf.getSorted()) {
+			if (ji.getElement() instanceof Literal) {
 				// nothing to be done
 			} else {
 				// im.addAll(ji.job.getElement().getImports());
 				// ^^ this comes from the fragment
 				// ^^ and it is propagated via the dependency
-				String frag = fragments.get(i);
+				Fragment frag = fragments.get(i);
 				assert (frag != null);
 				sb.append("  ");
-				sb.append(Fragment.normalize(frag));
-				for (int j = 0; j < ji.inputs.size(); j++) {
+				sb.append(Fragments.normalize(frag.getId()));
+				for (Port ip : frag.getInputPorts()) {
 					sb.append(" \"");
-					sb.append(fio.findFile(dfa.getValue(ji.inputs.get(j))));
+					sb.append(fio.findFile(dfa.getValue(ji.bindings.get(ip))));
 					sb.append("\"");
 				}
-				for (int j = 0; j < ji.outputs.size(); j++) {
+				for (Port op : frag.getOutputPorts()) {
 					sb.append(" \"");
-					sb.append(fio.findFile(dfa.getValue(ji.outputs.get(j))));
+					sb.append(fio.findFile(dfa.getValue(ji.bindings.get(op))));
 					sb.append("\"");
 				}
 				sb.append('\n');
-				dependencies.add(frag);
+				dependencies.add(frag.getId());
 			}
 			i++;
 		}
 		sb.append("}\n\n");
-		return new Fragment(name, sb.toString(), dependencies, im);
+		return new StaticFragment(name, Fragments.EMPTY_LIST,
+				Fragments.EMPTY_LIST, sb.toString(), dependencies, im);
 	}
 
 	@Override

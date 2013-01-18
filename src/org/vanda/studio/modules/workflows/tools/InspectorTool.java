@@ -49,8 +49,8 @@ public class InspectorTool implements ToolFactory {
 			};
 			this.m.getSelectionChangeObservable().addObserver(obs);
 			this.m.getWorkflowCheckObservable().addObserver(obs);
-			this.m.getWorkflowObservable().addObserver(obs);
-			this.m.getChildObservable().addObserver(obs);
+//			this.m.getWorkflowObservable().addObserver(obs);
+//			this.m.getChildObservable().addObserver(obs);
 			this.wfe.focusToolWindow(contentPane);
 			update();
 		}
@@ -61,7 +61,7 @@ public class InspectorTool implements ToolFactory {
 				ws = new WorkflowSelection(m.getRoot());
 			// set inspector text
 			{
-				InspectorialVisitor visitor = new InspectorialVisitor(m);
+				InspectorialVisitor visitor = new InspectorialVisitor();
 				if (ws != null) // <--- always true for now
 					ws.visit(visitor);
 				inspector.setText(visitor.getInspection());

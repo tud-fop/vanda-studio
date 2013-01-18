@@ -17,7 +17,7 @@ public class Model {
 
 			@Override
 			public void notify(org.vanda.studio.modules.workflows.model.Model event) {
-				dfa = new DataflowAnalysis(event.getFrozen());
+				dfa = new DataflowAnalysis(event.getRoot());
 				dfaChangedObservable.notify(dfa);
 			}
 			

@@ -12,7 +12,7 @@ public interface Profile extends RepositoryItem {
 	
 	MetaRepository<FragmentLinker> getFragmentLinkerMetaRepository();
 	
-	MetaRepository<FragmentTool> getFragmentToolMetaRepository();
+	MetaRepository<Fragment> getFragmentToolMetaRepository();
 	
 	FragmentLinker getLinker(String id);
 	

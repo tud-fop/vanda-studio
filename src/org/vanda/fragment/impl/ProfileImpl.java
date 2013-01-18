@@ -2,9 +2,9 @@ package org.vanda.fragment.impl;
 
 import java.util.Iterator;
 
+import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.FragmentCompiler;
 import org.vanda.fragment.model.FragmentLinker;
-import org.vanda.fragment.model.FragmentTool;
 import org.vanda.fragment.model.Profile;
 import org.vanda.types.Type;
 import org.vanda.types.Types;
@@ -15,12 +15,12 @@ public final class ProfileImpl implements Profile {
 
 	private final MetaRepository<FragmentCompiler> fragmentCompilers;
 	private final MetaRepository<FragmentLinker> fragmentLinkers;
-	private final MetaRepository<FragmentTool> fragmentTools;
+	private final MetaRepository<Fragment> fragmentTools;
 
 	public ProfileImpl() {
 		fragmentCompilers = new CompositeRepository<FragmentCompiler>();
 		fragmentLinkers = new CompositeRepository<FragmentLinker>();
-		fragmentTools = new CompositeRepository<FragmentTool>();
+		fragmentTools = new CompositeRepository<Fragment>();
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public final class ProfileImpl implements Profile {
 	}
 
 	@Override
-	public MetaRepository<FragmentTool> getFragmentToolMetaRepository() {
+	public MetaRepository<Fragment> getFragmentToolMetaRepository() {
 		return fragmentTools;
 	}
 

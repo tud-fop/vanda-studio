@@ -33,14 +33,14 @@ public class DebuggerTool implements ToolFactory {
 		}
 
 		public void update(Model model) {
-			StringBuilder sb = new StringBuilder();
-			model.getFrozen().appendText(sb);
-			if (!model.getFrozen().isSane()) {
-				sb.append("Warning: Your workflow(s) are not executable!\n"
-						+ "The most likely reason is that some input port "
-						+ "is not connected.\n\n");
-			}
-			debugger.setText(sb.toString());
+//			StringBuilder sb = new StringBuilder();
+//			model.getFrozen().appendText(sb);
+//			if (!model.getFrozen().isSane()) {
+//				sb.append("Warning: Your workflow(s) are not executable!\n"
+//						+ "The most likely reason is that some input port "
+//						+ "is not connected.\n\n");
+//			}
+//			debugger.setText(sb.toString());
 		}
 
 	}

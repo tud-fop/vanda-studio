@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.util.TokenSource.Token;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.Location;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -26,13 +26,9 @@ public class JobRendering {
 	protected static Renderer sinkRenderer = new SinkRenderer();
 	protected static Renderer workflowRenderer = new WorkflowRenderer();
 	protected static Renderer literalRenderer = new LiteralRenderer();
-	protected static Renderer inputPortRenderer = new InputPortRenderer();
-	protected static Renderer outputPortRenderer = new OutputPortRenderer();
-	protected static Renderer boxRenderer = new BoxRenderer();
 	protected static Renderer[] renderers = { algorithmRenderer,
 			corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
-			workflowRenderer, literalRenderer, inputPortRenderer,
-			outputPortRenderer, boxRenderer };
+			workflowRenderer, literalRenderer };
 	protected static mxStylesheet stylesheet;
 	protected static int refCount = 0;
 	private static JGraphRendererAssortment rs = new JGraphRendererAssortment();
@@ -167,21 +163,6 @@ public class JobRendering {
 		}
 
 		@Override
-		public Renderer selectInputPortRenderer() {
-			return JobRendering.inputPortRenderer;
-		}
-
-		@Override
-		public Renderer selectOutputPortRenderer() {
-			return JobRendering.outputPortRenderer;
-		}
-
-		@Override
-		public Renderer selectBoxRenderer() {
-			return JobRendering.boxRenderer;
-		}
-
-		@Override
 		public Renderer selectWorkflowRenderer() {
 			return JobRendering.workflowRenderer;
 		}
@@ -219,23 +200,26 @@ public class JobRendering {
 				// was: g.ensureMinimumCellSize(v);
 
 				// insert a cell for every input port
+				int i = 0;
 				List<Port> in = hj.getInputPorts();
-				for (int i = 0; i < in.size(); i++) {
+				for (Port ip : in) {
 					mxGeometry geo = new mxGeometry(0, (i + 1.0)
 							/ (in.size() + 1.0), PORT_DIAMETER, PORT_DIAMETER);
 					geo.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
 					geo.setRelative(true);
 
-					mxCell port = g.createCell(new PortAdapter(true, i), geo,
+					mxCell port = g.createCell(new PortAdapter(true, ip), geo,
 							"inport");
 					port.setVertex(true);
 
 					g.addCell(port, v);
+					i++;
 				}
 
 				// insert a cell for every output port
+				i = 0;
 				List<Port> out = hj.getOutputPorts();
-				for (int i = 0; i < out.size(); i++) {
+				for (Port op : out) {
 					mxGeometry geo = new mxGeometry(1, (i + 1.0)
 							/ (out.size() + 1.0), LOCATION_DIAMETER,
 							LOCATION_DIAMETER);
@@ -243,24 +227,24 @@ public class JobRendering {
 							-LOCATION_RADIUS));
 					geo.setRelative(true);
 
-					Token address = null;
-					if (hj.outputs != null) {
-						address = hj.outputs[i];
-					}
-					mxCell loc = g.createCell(new LocationAdapter(i, address),
-							geo, "location");
+					Location variable = null;
+					if (hj.bindings != null)
+						variable = hj.bindings.get(op);
+					mxCell loc = g.createCell(new LocationAdapter(op,
+							variable), geo, "location");
 					loc.setVertex(true);
 
 					geo = new mxGeometry(1, (i + 1.0) / (out.size() + 1.0),
 							OUTPORT_DIAMETER, OUTPORT_DIAMETER);
 					geo.setOffset(new mxPoint(LOCATION_RADIUS, -OUTPORT_RADIUS));
 					geo.setRelative(true);
-					mxCell port = g.createCell(new PortAdapter(false, i), geo,
+					mxCell port = g.createCell(new PortAdapter(false, op), geo,
 							"outport");
 					port.setVertex(true);
 
 					g.addCell(port, v);
 					g.addCell(loc, v);
+					i++;
 				}
 
 			} finally {
@@ -345,66 +329,6 @@ public class JobRendering {
 		@Override
 		public String getStyleName() {
 			return "text";
-		}
-	}
-
-	protected static class InputPortRenderer extends DefaultRenderer {
-		@Override
-		public void addStyle(Map<String, Object> style) {
-			super.addStyle(style);
-			// style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
-			style.put(mxConstants.STYLE_NOLABEL, "true");
-		}
-
-		@Override
-		public String getStyleName() {
-			return "inputPort";
-		}
-
-		@Override
-		protected Adapter createAdapter(Job job) {
-			return new InputPortAdapter(job);
-		}
-	}
-
-	protected static class OutputPortRenderer extends DefaultRenderer {
-		@Override
-		public void addStyle(Map<String, Object> style) {
-			super.addStyle(style);
-			// style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_ELLIPSE);
-			style.put(mxConstants.STYLE_NOLABEL, "true");
-		}
-
-		@Override
-		public String getStyleName() {
-			return "outputPort";
-		}
-
-		@Override
-		protected Adapter createAdapter(Job job) {
-			return new OutputPortAdapter(job);
-		}
-	}
-
-	protected static class BoxRenderer extends DefaultRenderer {
-		@Override
-		public void addStyle(Map<String, Object> style) {
-			style.put(mxConstants.STYLE_SPACING, 10);
-			style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
-			style.put(mxConstants.STYLE_AUTOSIZE, "0");
-			style.put(mxConstants.STYLE_RESIZABLE, "1");
-			style.put(mxConstants.STYLE_NOLABEL, "true");
-			style.put(mxConstants.STYLE_FILLCOLOR, "white");
-		}
-
-		@Override
-		public String getStyleName() {
-			return "box";
-		}
-
-		@Override
-		protected Adapter createAdapter(Job job) {
-			return new CompositeJobAdapter(job);
 		}
 	}
 

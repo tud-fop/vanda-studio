@@ -2,14 +2,6 @@ package org.vanda.workflows.elements;
 
 import org.vanda.types.Type;
 
-/**
- * Port of a Tool. Currently, the type is just represented as a String.
- * Ultimately, one might want to model types using Java classes.
- * 
- * @author buechse
- * 
- */
-
 public class Port {
 
 	private final String identifier;
@@ -22,6 +14,17 @@ public class Port {
 		else
 			this.identifier = identifier;
 		this.type = type;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return other instanceof Port
+				&& identifier.equals(((Port) other).identifier);
+	}
+	
+	@Override
+	public int hashCode() {
+		return identifier.hashCode();
 	}
 
 	public String getIdentifier() {

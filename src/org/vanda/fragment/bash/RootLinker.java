@@ -9,18 +9,21 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.vanda.fragment.impl.StaticFragment;
 import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.FragmentBase;
 import org.vanda.fragment.model.FragmentIO;
 import org.vanda.fragment.model.FragmentLinker;
+import org.vanda.fragment.model.Fragments;
 import org.vanda.types.Type;
 import org.vanda.types.Types;
 
 public class RootLinker implements FragmentLinker {
 
 	private static final String BASEPATH = "$OUTPATH";
-	private static final String RCPATH = System.getProperty("user.home") + "/.vanda/vandarc";
-	
+	private static final String RCPATH = System.getProperty("user.home")
+			+ "/.vanda/vandarc";
+
 	@Override
 	public String getCategory() {
 		return "Boxes";
@@ -76,8 +79,8 @@ public class RootLinker implements FragmentLinker {
 			if (!dependencies.contains(s)) {
 				Fragment fragment = fb.getFragment(s);
 				dependencies.add(s);
-				queue.addAll(fragment.dependencies);
-				imports.addAll(fragment.imports);
+				queue.addAll(fragment.getDependencies());
+				imports.addAll(fragment.getImports());
 			}
 		}
 
@@ -86,7 +89,7 @@ public class RootLinker implements FragmentLinker {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("#!/bin/bash\n\nset -e\n\n");
-		
+
 		sb.append("source " + RCPATH + "\n");
 		// sb.append("if [ -z \"$BASEPATH\" ]\nthen");
 		// sb.append("\n    echo \"Path not set\"\n    exit 1\nfi\n\n");
@@ -106,25 +109,24 @@ public class RootLinker implements FragmentLinker {
 
 		for (String dep : sorted) {
 			Fragment fragment = fb.getFragment(dep);
-			sb.append(fragment.text);
+			sb.append(fragment.getText());
 		}
 
-		/*sb.append("testempty");
-		for (String dep : sorted) {
-			sb.append(' ');
-			sb.append(Fragment.normalize(dep));
-		}
-		sb.append("\n\n");*/
+		/*
+		 * sb.append("testempty"); for (String dep : sorted) { sb.append(' ');
+		 * sb.append(Fragment.normalize(dep)); } sb.append("\n\n");
+		 */
 		sb.append("cd " + BASEPATH + "\n");
-		sb.append(Fragment.normalize(name));
+		sb.append(Fragments.normalize(name));
 		sb.append('\n');
 
-		File f = io.createFile(Fragment.normalize(name));
+		File f = io.createFile(Fragments.normalize(name));
 		FileWriter fw = new FileWriter(f, false);
 		fw.write(sb.toString());
 		fw.close();
 		f.setExecutable(true);
-		return new Fragment(name);
+		return new StaticFragment(name, Fragments.EMPTY_LIST,
+				Fragments.EMPTY_LIST);
 	}
 
 	@Override

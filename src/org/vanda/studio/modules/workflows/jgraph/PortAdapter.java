@@ -1,15 +1,16 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
 import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.workflows.elements.Port;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
 class PortAdapter implements Adapter, Cloneable {
 	public boolean input;
-	public int port;
+	public Port port;
 
-	public PortAdapter(boolean input, int port) {
+	public PortAdapter(boolean input, Port port) {
 		this.input = input;
 		this.port = port;
 	}
