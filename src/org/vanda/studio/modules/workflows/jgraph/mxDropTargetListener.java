@@ -41,21 +41,20 @@ public class mxDropTargetListener extends DropTargetAdapter implements
 
 				Point loc = event.getLocation();
 				Point view = c.getViewport().getViewPosition();
-				double zoom = da.getGraph().getView().getScale();
 				mxPoint tr = da.getGraph().getView().getTranslate();
-				Tool t = wfe.getApplication().getToolMetaRepository()
-						.getRepository().getItem(id);
-				System.out.println("loc:  " + loc);
-				System.out.println("view: " + view);
-				System.out.println("tr:   " + tr);
-				System.out.println("zoom: " + zoom);
+				double zoom = da.getGraph().getView().getScale();
+
 				double x = (loc.x + view.x) / zoom - tr.getX();
 				double y = (loc.y + view.y) / zoom - tr.getY();
 				double[] d = { x, y, 100, 80 };
+
+				Tool t = wfe.getApplication().getToolMetaRepository()
+						.getRepository().getItem(id);
 				Job j = new Job(t);
 				j.setDimensions(d);
+
 				da.renderChild(wfe.getModel().getRoot(), j);
-				
+
 				da.getGraph().getModel().endUpdate();
 				event.dropComplete(true);
 				return;
@@ -67,4 +66,5 @@ public class mxDropTargetListener extends DropTargetAdapter implements
 			event.rejectDrop();
 		}
 	}
+	
 }
