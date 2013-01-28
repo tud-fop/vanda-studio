@@ -1,11 +1,9 @@
 package org.vanda.studio.modules.workflows.tools;
 
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragSource;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,18 +12,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.DropMode;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.TransferHandler;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.vanda.studio.modules.workflows.jgraph.mxDragGestureListener;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
-import org.vanda.studio.modules.workflows.jgraph.mxDropTargetListener;
+import org.vanda.studio.modules.workflows.jgraph.mxDragGestureListener;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.CompositeType;
@@ -75,12 +70,9 @@ public class PaletteTool implements ToolFactory {
 			wfe.setPalette(paletteComponent);
 		}
 
-		@SuppressWarnings("serial")
 		public void update() {
 			textField = new JTextField();
 			textField.setDragEnabled(true);
-			// XXX textField can receive 'Transferable's
-//			mxDropTargetListener dt = new mxDropTargetListener(textField);
 			searchPane = new JXTaskPane("Search");
 			searchPane.add(textField);
 			if (searchGraph != null)

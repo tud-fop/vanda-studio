@@ -9,7 +9,9 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetListener;
 
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
-import org.vanda.workflows.elements.Tool;
+import org.vanda.types.CompositeType;
+import org.vanda.workflows.elements.Element;
+import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.swing.mxGraphComponent;
@@ -48,9 +50,14 @@ public class mxDropTargetListener extends DropTargetAdapter implements
 				double y = (loc.y + view.y) / zoom - tr.getY();
 				double[] d = { x, y, 100, 80 };
 
-				Tool t = wfe.getApplication().getToolMetaRepository()
-						.getRepository().getItem(id);
-				Job j = new Job(t);
+				Element ele;
+				// TODO literal should be recognized otherwise
+				if (id.equals("literal"))
+					ele = new Literal(new CompositeType("String"), "");
+				else
+					ele = wfe.getApplication().getToolMetaRepository()
+					.getRepository().getItem(id);
+				Job j = new Job(ele);
 				j.setDimensions(d);
 
 				da.renderChild(wfe.getModel().getRoot(), j);
