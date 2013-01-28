@@ -30,11 +30,12 @@ import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
 import org.vanda.studio.modules.workflows.jgraph.WorkflowAdapter;
+import org.vanda.studio.modules.workflows.jgraph.mxDropTargetListener;
 import org.vanda.studio.modules.workflows.model.Model;
-import org.vanda.studio.modules.workflows.model.ToolFactory;
-import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.studio.modules.workflows.model.Model.SingleObjectSelection;
 import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
+import org.vanda.studio.modules.workflows.model.ToolFactory;
+import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.HasActions;
@@ -44,7 +45,8 @@ import org.vanda.util.Util;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
-import org.vanda.workflows.hyper.Workflows.*;
+import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
+import org.vanda.workflows.hyper.Workflows.WorkflowListener;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
@@ -56,7 +58,8 @@ import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
 
-public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<MutableWorkflow> {
+public class WorkflowEditorImpl implements WorkflowEditor,
+		WorkflowListener<MutableWorkflow> {
 
 	protected final Application app;
 	protected final Model model;
@@ -71,11 +74,10 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 		app = a;
 		model = new Model(hwf);
 		renderer = new DrecksAdapter(model);
-		// palette = new Palette(app, sm);
-		// palette.update();
 
 		component = new MyMxGraphComponent(renderer.getGraph());
-		// component.setDragEnabled(false);
+		new mxDropTargetListener(this, renderer, component);
+		component.setDragEnabled(false);
 		component.getGraphControl().addMouseListener(new EditMouseAdapter());
 		component.getGraphControl().addMouseWheelListener(
 				new MouseZoomAdapter(app, component));
@@ -136,8 +138,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
 
-		model.getRoot().getObservable().addObserver(
-				new Observer<WorkflowEvent<MutableWorkflow>>() {
+		model.getRoot().getObservable()
+				.addObserver(new Observer<WorkflowEvent<MutableWorkflow>>() {
 
 					@Override
 					public void notify(WorkflowEvent<MutableWorkflow> event) {

@@ -1,8 +1,8 @@
 package org.vanda.studio.modules.workflows.tools;
 
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragSource;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.DropMode;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -24,8 +23,9 @@ import javax.swing.TransferHandler;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.vanda.studio.modules.workflows.jgraph.mxDragGestureListener;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
-import org.vanda.studio.modules.workflows.jgraph.XmxGraphTransferable;
+import org.vanda.studio.modules.workflows.jgraph.mxDropTargetListener;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.CompositeType;
@@ -35,8 +35,6 @@ import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.swing.handler.mxGraphTransferHandler;
-import com.mxgraph.swing.util.mxGraphTransferable;
 
 public class PaletteTool implements ToolFactory {
 	// TODO see below: beamer mode and stuff
@@ -82,27 +80,7 @@ public class PaletteTool implements ToolFactory {
 			textField = new JTextField();
 			textField.setDragEnabled(true);
 			// XXX textField can receive 'Transferable's
-			textField.setDropMode(DropMode.INSERT);
-			textField.setTransferHandler(new TransferHandler("text") {
-				public boolean importData(JComponent src, Transferable t) {
-					try {
-						textField.setText((String) t
-								.getTransferData(DataFlavor.stringFlavor));
-					} catch (UnsupportedFlavorException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					return true;
-				}
-
-				public boolean canImport(JComponent dest, DataFlavor[] flavors) {
-					// you bet we can!
-					return true;
-				}
-			});
+//			mxDropTargetListener dt = new mxDropTargetListener(textField);
 			searchPane = new JXTaskPane("Search");
 			searchPane.add(textField);
 			if (searchGraph != null)
@@ -192,7 +170,6 @@ public class PaletteTool implements ToolFactory {
 
 	}
 
-	@SuppressWarnings("serial")
 	protected static mxGraphComponent renderTemplates(List<Job> ts) {
 		DrecksAdapter da = new DrecksAdapter(null);
 		da.getGraph().setCellsLocked(true);
@@ -212,22 +189,10 @@ public class PaletteTool implements ToolFactory {
 		}
 		mxGraphComponent c = new mxGraphComponent(da.getGraph());
 		c.setConnectable(false);
-		c.setDropTarget(null);
-		c.setTransferHandler(new mxGraphTransferHandler() {
-			@Override
-			public Transferable createTransferable(JComponent c) {
-				mxGraphTransferable t = (mxGraphTransferable) super
-						.createTransferable(c);
-				return new XmxGraphTransferable(t, ((mxICell) t.getCells()[0])
-						.getId());
-			}
-			
-			@Override
-			public boolean canImport(JComponent comp, DataFlavor[] transferFlavors) {
-				return false;
-			}
-		});
-		c.setDragEnabled(true);
+		c.setDragEnabled(false);
+		DragSource ds = new DragSource();
+		ds.createDefaultDragGestureRecognizer(c.getGraphControl(), DnDConstants.ACTION_COPY_OR_MOVE,
+				new mxDragGestureListener(c.getGraph()));
 		return c;
 	}
 
