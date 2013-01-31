@@ -90,16 +90,16 @@ public final class TopSorter {
 		
 		public void init(int size) {
 			a = new Job[size];
-			i = size - 1;
+			i = 0;
 		}
 		
 		public void add(Job j) {
 			a[i] = j;
-			i--;
+			i++;
 		}
 		
 		public boolean isComplete() {
-			return i == -1;
+			return i == a.length;
 		}
 		
 		public Job[] toArray() {

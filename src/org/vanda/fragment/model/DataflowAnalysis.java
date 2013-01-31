@@ -21,10 +21,14 @@ public final class DataflowAnalysis {
 	private final Map<Location, String> values;
 	private final Job[] jobs;
 
-	public DataflowAnalysis(MutableWorkflow iwf) {
+	public DataflowAnalysis(MutableWorkflow iwf, Job[] sorted) {
 		workflow = iwf;
-		jobs = iwf.getSorted();
 		values = new HashMap<Location, String>();
+		jobs = sorted;
+	}
+	
+	public Job[] getSorted() {
+		return jobs;
 	}
 	
 	public void init() {

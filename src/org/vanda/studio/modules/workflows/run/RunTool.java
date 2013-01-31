@@ -456,7 +456,8 @@ public class RunTool implements SemanticsToolFactory {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
 			MutableWorkflow iwf = mm.getDataflowAnalysis().getWorkflow();
-			if (Types.canUnify(iwf.getFragmentType(),
+			if (mm.getDataflowAnalysis().getSorted() != null &&
+					Types.canUnify(iwf.getFragmentType(),
 							prof.getRootType())) {
 				try {
 					return prof.generate(mm.getDataflowAnalysis());

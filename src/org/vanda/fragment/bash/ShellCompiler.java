@@ -15,7 +15,6 @@ import org.vanda.types.Types;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.MutableWorkflow;
 
 // XXX removed: handle ports (see older versions)
 // XXX removed: variables (names are computed statically) (see older versions)
@@ -27,12 +26,11 @@ public class ShellCompiler implements FragmentCompiler {
 		StringBuilder sb = new StringBuilder();
 		HashSet<String> dependencies = new HashSet<String>();
 		Set<String> im = new HashSet<String>();
-		MutableWorkflow iwf = dfa.getWorkflow();
 		sb.append("function ");
 		sb.append(Fragments.normalize(name));
 		sb.append(" {\n");
 		int i = 0;
-		for (Job ji : iwf.getSorted()) {
+		for (Job ji : dfa.getSorted()) {
 			if (ji.getElement() instanceof Literal) {
 				// nothing to be done
 			} else {

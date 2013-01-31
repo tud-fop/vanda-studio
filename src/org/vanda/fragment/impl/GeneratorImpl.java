@@ -71,7 +71,7 @@ public class GeneratorImpl implements Generator, FragmentIO {
 				assert (w.getFragmentType() != null);
 				FragmentCompiler fc = prof.getCompiler(w.getFragmentType());
 				assert (fc != null);
-				Job[] jobs = w.getSorted();
+				Job[] jobs = dfa.getSorted();
 				ArrayList<Fragment> frags = new ArrayList<Fragment>(jobs.length);
 				for (Job ji : jobs) {
 					if (ji.getElement() instanceof Tool)

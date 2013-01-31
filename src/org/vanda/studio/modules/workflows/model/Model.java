@@ -108,6 +108,7 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 	}
 
 	protected final MutableWorkflow hwf;
+	protected Job[] sorted = null;
 	protected WorkflowSelection selection;
 	protected List<SingleObjectSelection> markedElements;
 	protected final MultiplexObserver<Model> selectionChangeObservable;
@@ -126,6 +127,7 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 		markedElements.clear();
 		try {
 			hwf.typeCheck();
+			sorted = hwf.getSorted();
 		} catch (TypeCheckingException e) {
 			List<Pair<String, Set<ConnectionKey>>> errors = e.getErrors();
 			for (Pair<String, Set<ConnectionKey>> error : errors) {
@@ -165,6 +167,10 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 
 	public Observable<Model> getSelectionChangeObservable() {
 		return selectionChangeObservable;
+	}
+	
+	public Job[] getSorted() {
+		return sorted;
 	}
 
 	public Observable<Model> getMarkedElementsObservable() {

@@ -29,7 +29,6 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 	private String name;
 	private int update = 0;
 	private Map<Object, Type> types = Collections.emptyMap();
-	private Job[] sorted = null;
 	private Type fragmentType = null;
 
 	{
@@ -73,7 +72,7 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 		return children;
 	}
 
-	public Job[] getTopSort() throws Exception {
+	public Job[] getSorted() throws Exception {
 		TopSorter t = new TopSorter();
 		t.init(this);
 		t.proceed();
@@ -151,10 +150,6 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 
 	public Type getFragmentType() {
 		return fragmentType;
-	}
-
-	public Job[] getSorted() {
-		return sorted;
 	}
 
 	public Type getType(Object variable) {
