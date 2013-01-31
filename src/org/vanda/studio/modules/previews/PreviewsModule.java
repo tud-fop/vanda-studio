@@ -19,6 +19,8 @@ public class PreviewsModule implements Module {
 				new BerkeleyGrammarPreviewFactory());
 		app.registerPreviewFactory(new CompositeType("EMSteps"),
 				new DictionaryPreviewFactory(app));
+		app.registerPreviewFactory(new CompositeType("Scores"),
+				new ScorePreviewFactory());
 		app.registerPreviewFactory(null, new MonospacePreviewFactory());
 		return null;
 	}
