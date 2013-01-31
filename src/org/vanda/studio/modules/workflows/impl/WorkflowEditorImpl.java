@@ -406,6 +406,12 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 	public void childAdded(MutableWorkflow mwf, Job j) {
 		recheck();
 	}
+	
+
+	@Override
+	public void childModified(MutableWorkflow mwf, Job j) {
+		recheck();
+	}
 
 	@Override
 	public void childRemoved(MutableWorkflow mwf, Job j) {
@@ -584,4 +590,5 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 	public void updated(MutableWorkflow mwf) {
 		// FIXME FIXME FIXME
 	}
+
 }

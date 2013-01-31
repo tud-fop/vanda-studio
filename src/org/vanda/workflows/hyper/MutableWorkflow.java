@@ -64,7 +64,8 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 				children.add(ji.clone());
 		}
 		observable = hyperWorkflow.observable.clone();
-		varSources = new WeakHashMap<Location, ConnectionKey>(hyperWorkflow.varSources);
+		varSources = new WeakHashMap<Location, ConnectionKey>(
+				hyperWorkflow.varSources);
 	}
 
 	public Collection<Job> getChildren() {
@@ -155,7 +156,7 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 	public Job[] getSorted() {
 		return sorted;
 	}
-	
+
 	public Type getType(Object variable) {
 		return types.get(variable);
 	}
@@ -248,6 +249,8 @@ public final class MutableWorkflow implements Cloneable, JobListener {
 
 	@Override
 	public void propertyChanged(Job j) {
+		observable.notify(new Workflows.ChildModifiedEvent<MutableWorkflow>(
+				this, j));
 	}
 
 	public void typeCheck() throws Exception {

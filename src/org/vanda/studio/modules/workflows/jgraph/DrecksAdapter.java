@@ -104,6 +104,11 @@ public final class DrecksAdapter {
 		public void childAdded(MutableWorkflow mwf, Job j) {
 			renderChild(mwf, j);
 		}
+		
+		@Override
+		public void childModified(MutableWorkflow mwf, Job j) {
+			modifyChild(mwf, j);
+		}
 
 		@Override
 		public void childRemoved(MutableWorkflow mwf, Job j) {

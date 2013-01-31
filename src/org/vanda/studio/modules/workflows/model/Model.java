@@ -188,6 +188,11 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 	@Override
 	public void childAdded(MutableWorkflow mwf, Job j) {
 	}
+	
+
+	@Override
+	public void childModified(MutableWorkflow mwf, Job j) {
+	}
 
 	@Override
 	public void childRemoved(MutableWorkflow mwf, Job j) {

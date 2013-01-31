@@ -10,6 +10,8 @@ public final class Workflows {
 
 	public static interface WorkflowListener<W> {
 		void childAdded(W mwf, Job j);
+		
+		void childModified(W mwf, Job j);
 
 		void childRemoved(W mwf, Job j);
 
@@ -38,6 +40,21 @@ public final class Workflows {
 		@Override
 		public void doNotify(WorkflowListener<W> wcl) {
 			wcl.childAdded(mwf, j);
+		}
+	}
+	
+	public static class ChildModifiedEvent<W> implements WorkflowEvent<W> {
+		private final W mwf;
+		private final Job j;
+		
+		public ChildModifiedEvent(W mwf, Job j) {
+			this.mwf = mwf;
+			this.j = j;
+		}
+
+		@Override
+		public void doNotify(WorkflowListener<W> wcl) {
+			wcl.childModified(mwf, j);
 		}
 	}
 	
