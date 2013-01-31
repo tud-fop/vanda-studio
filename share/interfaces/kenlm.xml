@@ -1,0 +1,30 @@
+<root>
+
+	<toolinterface
+		id="kenlm1"
+		name="KenLM"
+		version="2013-01-31"
+		contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+		category="Language Models::Application">
+
+		<description>Tools related to the KenLM n-gram query library.</description>
+
+		<tool
+			type="Shell"
+			id="KenLM"
+			name="KenLM"
+			version="2013-01-31"
+			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			category="Language Models::Application"
+			status="">
+
+			<description><![CDATA[Evaluates the corpus according to the given model]]>.</description>
+
+			<in name="n-gram model" type="ARPA" />
+			<in name="English corpus" type="SentenceCorpus" />
+			<out name="logarithmic scores" type="Scores" />
+		</tool>
+
+	</toolinterface>
+
+</root>

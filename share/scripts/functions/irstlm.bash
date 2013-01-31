@@ -4,11 +4,11 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-12-03
 # Contact: Tobias.Denkinger@mailbox.tu-dresden.de
 # Category: language model
-# IN English Corpus :: Sentence Corpus
+# IN English corpus :: SentenceCorpus
 # IN n-gram length :: Integer
-# OUT ARPA n-grams :: ARPA
+# OUT n-grams :: ARPA
 #
-# Computes n-gram probabilities.
+# Trains an n-gram model.
 IRSTLM () {
 	echo "Running: IRSTLM..."
 	TMP="$OUTPATH/IRSTLM_TMP"
@@ -24,12 +24,13 @@ IRSTLM () {
 # Version: 2012-12-04
 # Contact: Tobias Denkinger@mailbox.tu-dresden.de
 # Category: language model
-# IN ARPA n-grams :: ARPA
-# OUT binary n-grams :: Binary n-grams
+# IN textual n-grams :: ARPA
+# OUT binary n-grams :: BinARPA
 #
-# Converts iARPA to binary n-gram format.
+# Converts ARPA to binary ARPA format.
 ARPA2Binary () {
 	echo "Running: ARPA2Binary..."
 	"$IRSTLM/compile-lm" "$1" "$2"
 	echo "Done."
 }
+
