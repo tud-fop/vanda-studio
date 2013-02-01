@@ -4,10 +4,10 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-05-16
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: rule extraction
-# IN Alignments :: Alignments
-# IN Tree Corpus :: Penn Tree Corpus
-# IN Corpus :: Sentence Corpus
-# OUT Rules :: GHKM Hypergraph
+# IN alignments :: Alignments
+# IN tree corpus :: PennTreeCorpus
+# IN sentence corpus :: SentenceCorpus
+# OUT rules :: GHKMHypergraph
 #
 # Extracts GHKM rules from a GIZA alignment, a corpus and a tree corpus
 GHKM () {

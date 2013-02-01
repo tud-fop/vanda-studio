@@ -4,8 +4,8 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-05-16
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: corpus tools
-# IN Corpus :: Sentence Corpus
-# OUT Tokenized Corpus :: Sentence Corpus
+# IN corpus :: SentenceCorpus
+# OUT tokenized corpus :: SentenceCorpus
 #
 # Converts some special characters into tokens, such as ( into -LLB-
 BerkeleyTokenizer () {
@@ -18,9 +18,9 @@ BerkeleyTokenizer () {
 # Version: 2012-05-16
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: parsing
-# IN Corpus :: Sentence Corpus
-# IN Grammar :: BerkeleyGrammar.sm6
-# OUT Tree Corpus :: Penn Tree Corpus
+# IN corpus :: SentenceCorpus
+# IN grammar :: BerkeleyGrammar.sm6
+# OUT trees :: PennTreeCorpus
 #
 # Berkeley parser using a state-split grammar. Corpus must not contain empty lines.
 BerkeleyParser () {

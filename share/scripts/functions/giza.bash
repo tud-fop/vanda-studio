@@ -4,9 +4,9 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-09-12
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: alignments
-# IN English Corpus :: Sentence Corpus
-# IN French Corpus :: Sentence Corpus
-# OUT Alignments :: Alignments
+# IN english corpus :: SentenceCorpus
+# IN french corpus :: SentenceCorpus
+# OUT alignments :: Alignments
 #
 # computes alignments and translation tables
 GIZA () {

@@ -21,7 +21,7 @@
 			<description><![CDATA[Evaluates the corpus according to the given model]]>.</description>
 
 			<in name="n-gram model" type="ARPA" />
-			<in name="English corpus" type="SentenceCorpus" />
+			<in name="english corpus" type="SentenceCorpus" />
 			<out name="logarithmic scores" type="Scores" />
 		</tool>
 

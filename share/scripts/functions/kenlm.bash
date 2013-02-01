@@ -5,7 +5,7 @@ source "$FUNCDIR/util.bash"
 # Contact: Tobias.Denkinger@mailbox.tu-dresden.de
 # Category: language model
 # IN n-gram model :: ARPA
-# IN English corpus :: SentenceCorpus
+# IN english corpus :: SentenceCorpus
 # OUT logarithmic scores :: Scores
 #
 # Evaluates the corpus according to the given model.

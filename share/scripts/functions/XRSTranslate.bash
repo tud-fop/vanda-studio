@@ -4,9 +4,9 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-05-16
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: translation
-# IN Rules :: GHKM Hypergraph
-# IN Corpus :: Sentence Corpus
-# OUT Tree Corpus :: Penn Tree Corpus
+# IN rules :: GHKMHypergraph
+# IN sentence corpus :: SentenceCorpus
+# OUT tree corpus :: PennTreeCorpus
 #
 # Generates a Tree Corpus given a GHKM Hypergraph and a Sentence Corpus
 XRSTranslate () {

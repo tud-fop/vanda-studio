@@ -4,11 +4,11 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-05-16
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: training
-# IN English Corpus :: Sentence Corpus
-# IN French Corpus :: Sentence Corpus
-# IN Threshold :: Double
-# OUT Dictionary :: Dictionary
-# OUT EM Steps :: EM Steps
+# IN english corpus :: SentenceCorpus
+# IN french corpus :: SentenceCorpus
+# IN threshold :: Double
+# OUT dictionary :: Dictionary
+# OUT em steps :: EMSteps
 #
 # Trains a dictionary with a bilingual corpus.
 EMDictionary () {

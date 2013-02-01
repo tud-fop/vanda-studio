@@ -4,10 +4,10 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-12-17
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: corpus tools
-# IN English Corpus :: t1
-# IN French Corpus :: t2
-# OUT English Corpus without empty lines :: t1
-# OUT French Corpus without empty lines :: t2
+# IN corpus #1 :: t1
+# IN corpus #2 :: t2
+# OUT corpus #1 without empty lines :: t1
+# OUT corpus #2 without empty lines :: t2
 #
 # Removes empty lines from parallel corpora and alignments.
 remEmptyLines2 () {
@@ -23,12 +23,12 @@ remEmptyLines2 () {
 # Version: 2012-12-17
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: corpus tools
-# IN English Tree Corpus :: t1
-# IN French Corpus :: t2
-# IN Alignments :: t3
-# OUT English Tree Corpus without empty lines :: t1
-# OUT French Corpus without empty lines :: t2
-# OUT Alignments without empty lines :: t3
+# IN corpus #1 :: t1
+# IN corpus #2 :: t2
+# IN corpus #3 :: t3
+# OUT corpus #1 without empty lines :: t1
+# OUT corpus #2 without empty lines :: t2
+# OUT corpus #3 without empty lines :: t3
 #
 # Removes empty lines from parallel corpora and alignments.
 remEmptyLines3 () {

@@ -4,7 +4,7 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-12-03
 # Contact: Tobias.Denkinger@mailbox.tu-dresden.de
 # Category: language model
-# IN English corpus :: SentenceCorpus
+# IN english corpus :: SentenceCorpus
 # IN n-gram length :: Integer
 # OUT n-grams :: ARPA
 #
@@ -24,7 +24,7 @@ IRSTLM () {
 # Version: 2012-12-04
 # Contact: Tobias Denkinger@mailbox.tu-dresden.de
 # Category: language model
-# IN textual n-grams :: ARPA
+# IN texual n-grams :: ARPA
 # OUT binary n-grams :: BinARPA
 #
 # Converts ARPA to binary ARPA format.

@@ -20,7 +20,7 @@
 			
 			<description><![CDATA[Extracts n-gram probabilities from a sentence corpus]]>.</description>
 	
-			<in name="English corpus" type="SentenceCorpus" />
+			<in name="english corpus" type="SentenceCorpus" />
 			<in name="n-gram length" type="Integer" />
 			<out name="n-grams" type="ARPA" />
 		</tool>

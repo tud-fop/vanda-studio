@@ -4,7 +4,7 @@ source "$FUNCDIR/util.bash"
 # Version: n/a
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: basics
-# IN inputPort :: t
+# IN in :: t0
 #
 # Sink
 SinkTool () {
