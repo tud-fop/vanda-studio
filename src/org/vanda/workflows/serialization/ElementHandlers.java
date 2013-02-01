@@ -1,13 +1,15 @@
 package org.vanda.workflows.serialization;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.vanda.util.Repository;
 import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.hyper.LiteralAdapter;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.ToolAdapter;
+import org.vanda.xml.CompositeElementHandlerFactory;
 import org.vanda.xml.ElementHandler;
+import org.vanda.xml.ElementHandlerFactory;
 import org.vanda.xml.Parser;
+import org.vanda.xml.SingleElementHandlerFactory;
 
 public final class ElementHandlers {
 
@@ -15,47 +17,32 @@ public final class ElementHandlers {
 		ElementHandler createHandler(Parser<MutableWorkflow> p);
 	}
 
-	public interface JobHandlerFactory {
-		ElementHandler createHandler(Parser<MutableWorkflow> p,
-				WorkflowBuilder wb);
-	}
-
-	public interface JobElementHandlerFactory {
-		ElementHandler createHandler(String tag, Parser<MutableWorkflow> p,
-				JobBuilder jb);
-	}
-
-	public interface SingleJobElementHandlerFactory extends
-			JobElementHandlerFactory {
-		String getTag();
-	}
-
-	public static SingleJobElementHandlerFactory createBindingHandlerFactory() {
+	public static SingleElementHandlerFactory<JobBuilder> createBindingHandlerFactory() {
 		return new BindingHandlerFactoryImpl();
 	}
 
-	public static SingleJobElementHandlerFactory createGeometryHandlerFactory() {
+	public static SingleElementHandlerFactory<JobBuilder> createGeometryHandlerFactory() {
 		return new GeometryHandlerFactoryImpl();
 	}
 
-	public static SingleJobElementHandlerFactory createLiteralHandlerFactory() {
+	public static SingleElementHandlerFactory<JobBuilder> createLiteralHandlerFactory() {
 		return new LiteralHandlerFactoryImpl();
 	}
 
-	public static SingleJobElementHandlerFactory createToolHandlerFactory(
+	public static SingleElementHandlerFactory<JobBuilder> createToolHandlerFactory(
 			Repository<Tool> tr) {
 		return new ToolHandlerFactoryImpl(tr);
 	}
 
-	public static JobHandlerFactory createJobHandlerFactory(
-			SingleJobElementHandlerFactory bhf,
-			SingleJobElementHandlerFactory ghf,
-			SingleJobElementHandlerFactory... eahf) {
-		return new JobHandlerFactoryImpl(bhf, ghf, eahf);
+	public static ElementHandlerFactory<WorkflowBuilder> createJobHandlerFactory(
+			SingleElementHandlerFactory<JobBuilder> bhf,
+			SingleElementHandlerFactory<JobBuilder> ghf,
+			SingleElementHandlerFactory<JobBuilder>... eahf) {
+		return new JobHandlerFactory(bhf, ghf, eahf);
 	}
 
 	public static WorkflowHandlerFactory createWorkflowHandlerFactory(
-			JobHandlerFactory jhf) {
+			ElementHandlerFactory<WorkflowBuilder> jhf) {
 		return new WorkflowHandlerFactoryImpl(jhf);
 	}
 
@@ -105,9 +92,10 @@ public final class ElementHandlers {
 	private static final class WorkflowHandlerFactoryImpl implements
 			WorkflowHandlerFactory {
 
-		private final JobHandlerFactory jhf;
+		private final ElementHandlerFactory<WorkflowBuilder> jhf;
 
-		public WorkflowHandlerFactoryImpl(JobHandlerFactory jhf) {
+		public WorkflowHandlerFactoryImpl(
+				ElementHandlerFactory<WorkflowBuilder> jhf) {
 			this.jhf = jhf;
 		}
 
@@ -139,14 +127,14 @@ public final class ElementHandlers {
 			@Override
 			public ElementHandler handleChild(String namespace, String name) {
 				if ("job".equals(name))
-					return jhf.createHandler(p, wb);
+					return jhf.create(name, p, wb);
 				else
 					throw p.fail(null);
 			}
 
 			@Override
 			public void endElement(String namespace, String name) {
-				p.notify(wb.build());
+				p.getObserver().notify(wb.build());
 			}
 
 			@Override
@@ -156,33 +144,34 @@ public final class ElementHandlers {
 		}
 	}
 
-	private static final class JobHandlerFactoryImpl implements
-			JobHandlerFactory {
+	private static final class JobHandlerFactory implements
+			ElementHandlerFactory<WorkflowBuilder> {
 
-		private final CompositeJobElementHandlerFactory eahf;
+		private final CompositeElementHandlerFactory<JobBuilder> eahf;
 
-		public JobHandlerFactoryImpl(SingleJobElementHandlerFactory bhf,
-				SingleJobElementHandlerFactory ghf,
-				SingleJobElementHandlerFactory... eahf) {
-			this.eahf = new CompositeJobElementHandlerFactory();
+		@SuppressWarnings("unchecked")
+		public JobHandlerFactory(SingleElementHandlerFactory<JobBuilder> bhf,
+				SingleElementHandlerFactory<JobBuilder> ghf,
+				SingleElementHandlerFactory<JobBuilder>... eahf) {
+			this.eahf = new CompositeElementHandlerFactory<JobBuilder>();
 			this.eahf.addHandlers(eahf);
 			this.eahf.addHandler(bhf);
 			this.eahf.addHandler(ghf);
 		}
 
 		@Override
-		public ElementHandler createHandler(Parser<MutableWorkflow> p,
+		public ElementHandler create(String name, Parser<?> p,
 				WorkflowBuilder wb) {
 			return new JobHandler(p, wb);
 		}
 
 		private final class JobHandler implements ElementHandler {
 
-			private final Parser<MutableWorkflow> p;
+			private final Parser<?> p;
 			private final WorkflowBuilder wb;
 			private JobBuilder jb;
 
-			public JobHandler(Parser<MutableWorkflow> p, WorkflowBuilder wb) {
+			public JobHandler(Parser<?> p, WorkflowBuilder wb) {
 				this.p = p;
 				this.wb = wb;
 			}
@@ -200,7 +189,7 @@ public final class ElementHandlers {
 
 			@Override
 			public ElementHandler handleChild(String namespace, String name) {
-				ElementHandler result = eahf.createHandler(name, p, jb);
+				ElementHandler result = eahf.create(name, p, jb);
 				if (result != null)
 					return result;
 				else
@@ -219,11 +208,10 @@ public final class ElementHandlers {
 	}
 
 	private static final class LiteralHandlerFactoryImpl implements
-			SingleJobElementHandlerFactory {
+			SingleElementHandlerFactory<JobBuilder> {
 
 		@Override
-		public ElementHandler createHandler(String tag,
-				Parser<MutableWorkflow> p, JobBuilder jb) {
+		public ElementHandler create(String tag, Parser<?> p, JobBuilder jb) {
 			return new LiteralHandler(p, jb);
 		}
 
@@ -261,7 +249,7 @@ public final class ElementHandlers {
 
 			@Override
 			public void endElement(String namespace, String name) {
-				jb.element = lb.build();
+				jb.element = new LiteralAdapter(lb.build());
 			}
 
 			@Override
@@ -271,7 +259,7 @@ public final class ElementHandlers {
 	}
 
 	private static final class ToolHandlerFactoryImpl implements
-			SingleJobElementHandlerFactory {
+			SingleElementHandlerFactory<JobBuilder> {
 
 		private final Repository<Tool> tr;
 
@@ -285,8 +273,7 @@ public final class ElementHandlers {
 		}
 
 		@Override
-		public ElementHandler createHandler(String tag,
-				Parser<MutableWorkflow> p, JobBuilder jb) {
+		public ElementHandler create(String tag, Parser<?> p, JobBuilder jb) {
 			return new ToolHandler(p, jb);
 		}
 
@@ -319,7 +306,7 @@ public final class ElementHandlers {
 
 			@Override
 			public void endElement(String namespace, String name) {
-				jb.element = tb.build(tr);
+				jb.element = new ToolAdapter(tb.build(tr));
 			}
 
 			@Override
@@ -328,41 +315,11 @@ public final class ElementHandlers {
 		}
 	}
 
-	public static final class CompositeJobElementHandlerFactory implements
-			JobElementHandlerFactory {
-
-		private final Map<String, JobElementHandlerFactory> map;
-
-		public CompositeJobElementHandlerFactory() {
-			map = new HashMap<String, JobElementHandlerFactory>();
-		}
-
-		public void addHandler(SingleJobElementHandlerFactory sjehf) {
-			map.put(sjehf.getTag(), sjehf);
-		}
-
-		public void addHandlers(SingleJobElementHandlerFactory... sjehfs) {
-			for (SingleJobElementHandlerFactory sjehf : sjehfs)
-				map.put(sjehf.getTag(), sjehf);
-		}
-
-		@Override
-		public ElementHandler createHandler(String tag,
-				Parser<MutableWorkflow> p, JobBuilder jb) {
-			JobElementHandlerFactory eahf = map.get(tag);
-			if (eahf != null)
-				return eahf.createHandler(tag, p, jb);
-			else
-				return null;
-		}
-	}
-
 	private static final class BindingHandlerFactoryImpl implements
-			SingleJobElementHandlerFactory {
+			SingleElementHandlerFactory<JobBuilder> {
 
 		@Override
-		public ElementHandler createHandler(String tag,
-				Parser<MutableWorkflow> p, JobBuilder jb) {
+		public ElementHandler create(String tag, Parser<?> p, JobBuilder jb) {
 			return new BindingHandler(p, jb);
 		}
 
@@ -410,11 +367,10 @@ public final class ElementHandlers {
 	}
 
 	private static final class GeometryHandlerFactoryImpl implements
-			SingleJobElementHandlerFactory {
+			SingleElementHandlerFactory<JobBuilder> {
 
 		@Override
-		public ElementHandler createHandler(String tag,
-				Parser<MutableWorkflow> p, JobBuilder jb) {
+		public ElementHandler create(String tag, Parser<?> p, JobBuilder jb) {
 			return new GeometryHandler(p, jb);
 		}
 

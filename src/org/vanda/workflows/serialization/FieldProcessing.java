@@ -1,18 +1,78 @@
 package org.vanda.workflows.serialization;
 
 import org.vanda.types.Types;
+import org.vanda.util.Observer;
+import org.vanda.util.Repository;
+import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.hyper.LiteralAdapter;
+import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.ToolAdapter;
+import org.vanda.xml.ComplexFieldProcessor;
 import org.vanda.xml.CompositeFieldProcessor;
 import org.vanda.xml.FieldProcessor;
 import org.vanda.xml.SingleFieldProcessor;
 
 public final class FieldProcessing {
+	
+	public static class WorkflowCompleter implements ComplexFieldProcessor<Observer<MutableWorkflow>, WorkflowBuilder> {
+		@Override
+		public void process(Observer<MutableWorkflow> b1, WorkflowBuilder b2) {
+			b1.notify(b2.build());
+		}
+	}
+
+	public static class JobAdder implements
+			ComplexFieldProcessor<WorkflowBuilder, JobBuilder> {
+		@Override
+		public void process(WorkflowBuilder b1, JobBuilder b2) {
+			b1.jbs.add(b2.build());
+		}
+	}
+
+	public static class LiteralSetter implements
+			ComplexFieldProcessor<JobBuilder, LiteralBuilder> {
+		@Override
+		public void process(JobBuilder b1, LiteralBuilder b2) {
+			b1.element = new LiteralAdapter(b2.build());
+		}
+	}
+
+	public static class ToolSetter implements
+			ComplexFieldProcessor<JobBuilder, ToolBuilder> {
+		private final Repository<Tool> tr;
+		
+		public ToolSetter(Repository<Tool> tr) {
+			this.tr = tr;
+		}
+		
+		@Override
+		public void process(JobBuilder b1, ToolBuilder b2) {
+			b1.element = new ToolAdapter(b2.build(tr));
+		}
+	}
+
+	public static class BindingAdder implements
+			ComplexFieldProcessor<JobBuilder, BindingBuilder> {
+		@Override
+		public void process(JobBuilder b1, BindingBuilder b2) {
+			b1.bindings.put(b2.port, b2.variable);
+		}
+	}
+
+	public static class GeometrySetter implements
+			ComplexFieldProcessor<JobBuilder, GeometryBuilder> {
+		@Override
+		public void process(JobBuilder b1, GeometryBuilder b2) {
+			b1.dimensions = b2.build();
+		}
+	}
 
 	public static final FieldProcessor<WorkflowBuilder> wfp;
 	public static final FieldProcessor<LiteralBuilder> lfp;
 	public static final FieldProcessor<ToolBuilder> tfp;
 	public static final FieldProcessor<BindingBuilder> bfp;
 	public static final FieldProcessor<GeometryBuilder> gfp;
-
+	
 	static {
 		@SuppressWarnings("unchecked")
 		SingleFieldProcessor<WorkflowBuilder>[] wfps = new SingleFieldProcessor[] {

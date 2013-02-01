@@ -7,7 +7,7 @@ public class CompositeFieldProcessor<Builder> implements
 
 	private final HashMap<String, SingleFieldProcessor<Builder>> map;
 
-	public CompositeFieldProcessor(SingleFieldProcessor<Builder>[] fps) {
+	public CompositeFieldProcessor(SingleFieldProcessor<Builder>... fps) {
 		map = new HashMap<String, SingleFieldProcessor<Builder>>();
 		for (SingleFieldProcessor<Builder> fp : fps)
 			map.put(fp.getFieldName(), fp);

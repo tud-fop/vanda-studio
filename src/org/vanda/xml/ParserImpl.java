@@ -108,8 +108,8 @@ public class ParserImpl<T> implements Parser<T> {
 	}
 
 	@Override
-	public void notify(T ti) {
-		o.notify(ti);
+	public Observer<T> getObserver() {
+		return o;
 	}
 
 	@Override

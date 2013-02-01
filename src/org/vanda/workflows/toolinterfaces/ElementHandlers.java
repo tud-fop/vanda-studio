@@ -145,7 +145,7 @@ public final class ElementHandlers {
 			public void endElement(String namespace, String name) {
 				// TODO sanity checks
 				for (StaticTool t : tib.build())
-					p.notify(t);
+					p.getObserver().notify(t);
 			}
 
 			@Override

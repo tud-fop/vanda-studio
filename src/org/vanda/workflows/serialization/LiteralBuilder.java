@@ -2,8 +2,6 @@ package org.vanda.workflows.serialization;
 
 import org.vanda.types.Type;
 import org.vanda.workflows.elements.Literal;
-import org.vanda.workflows.hyper.ElementAdapter;
-import org.vanda.workflows.hyper.LiteralAdapter;
 
 public class LiteralBuilder {
 	
@@ -11,8 +9,8 @@ public class LiteralBuilder {
 	
 	public String value;
 	
-	public ElementAdapter build() {
-		return new LiteralAdapter(new Literal(type, value));
+	public Literal build() {
+		return new Literal(type, value);
 	}
 
 }
