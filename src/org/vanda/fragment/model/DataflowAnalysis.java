@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.vanda.types.Type;
+import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.Tool;
@@ -20,11 +22,17 @@ public final class DataflowAnalysis {
 	private final MutableWorkflow workflow;
 	private final Map<Location, String> values;
 	private final Job[] jobs;
+	private final Type fragmentType;
 
-	public DataflowAnalysis(MutableWorkflow iwf, Job[] sorted) {
+	public DataflowAnalysis(MutableWorkflow iwf, Job[] sorted, Type fragmentType) {
 		workflow = iwf;
 		values = new HashMap<Location, String>();
 		jobs = sorted;
+		this.fragmentType = fragmentType;
+	}
+	
+	public Type getFragmentType() {
+		return fragmentType;
 	}
 	
 	public Job[] getSorted() {
@@ -34,30 +42,36 @@ public final class DataflowAnalysis {
 	public void init() {
 		if (jobs == null)
 			return;
-		for (Job ji : jobs) {
+		for (final Job ji : jobs) {
 			if (ji.isConnected()) {
-				if (ji.getElement() instanceof Literal) {
-					Literal lit = (Literal) ji.getElement();
-					values.put(ji.bindings.get(lit.getOutputPorts().get(0)),
-							lit.getValue());
-				} else if (ji.getElement() instanceof Tool) {
-					StringBuilder sb = new StringBuilder();
-					sb.append('(');
-					List<Port> ports = ji.getInputPorts();
-					if (ports.size() > 0)
-						appendValue(sb, ji, ports.get(0));
-					for (int i = 1; i < ports.size(); i++) {
-						sb.append(',');
-						appendValue(sb, ji, ports.get(i));
+				ji.visit(new ElementVisitor() {
+					@Override
+					public void visitLiteral(Literal lit) {
+						values.put(ji.bindings.get(ji.getOutputPorts().get(0)),
+								lit.getValue());
 					}
-					sb.append(')');
-					String s = sb.toString();
-					for (Port op : ji.getOutputPorts()) {
-						values.put(ji.bindings.get(op),
-								Fragments.normalize(ji.getElement().getId()) + s
-										+ "." + op.getIdentifier());
+					@Override
+					public void visitTool(Tool t) {
+						StringBuilder sb = new StringBuilder();
+						sb.append('(');
+						List<Port> ports = t.getInputPorts();
+						if (ports.size() > 0)
+							appendValue(sb, ji, ports.get(0));
+						for (int i = 1; i < ports.size(); i++) {
+							sb.append(',');
+							appendValue(sb, ji, ports.get(i));
+						}
+						sb.append(')');
+						String s = sb.toString();
+						for (Port op : t.getOutputPorts()) {
+							values.put(ji.bindings.get(op),
+									Fragments.normalize(t.getId()) + s
+											+ "." + op.getIdentifier());
+						}
+						
 					}
-				}
+					
+				});
 			} else {
 				for (Port op : ji.getOutputPorts()) {
 					Location variable = ji.bindings.get(op);

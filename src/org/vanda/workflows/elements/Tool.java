@@ -1,24 +1,22 @@
 package org.vanda.workflows.elements;
 
-import org.vanda.util.Observable;
+import java.util.List;
 
-public abstract class Tool implements Element {
-	public Element clone() {
-		// tools are immutable
-		return this;
-	}
+import org.vanda.types.Type;
+import org.vanda.util.RepositoryItem;
+
+public interface Tool extends RepositoryItem {
 	
 	public abstract String getStatus();
 	
 	public abstract ToolInterface getInterface();
 	
-	@Override
-	public final Observable<ElementEvent> getObservable() {
-		return null;
-	}
+	public Type getFragmentType();
 
-	@Override
-	public void visit(ElementVisitor v) {
-		v.visitTool(this);
-	}
+	public List<Port> getInputPorts();
+	
+	public List<Port> getOutputPorts();
+
+	public <R> R selectRenderer(RendererAssortment<R> ra);
+
 }

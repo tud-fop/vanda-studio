@@ -29,7 +29,7 @@ public class JobRendering {
 	protected static Renderer[] renderers = { algorithmRenderer,
 			corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
 			workflowRenderer, literalRenderer };
-	protected static mxStylesheet stylesheet;
+	protected static mxStylesheet staticStylesheet;
 	protected static int refCount = 0;
 	private static JGraphRendererAssortment rs = new JGraphRendererAssortment();
 
@@ -109,9 +109,9 @@ public class JobRendering {
 	}
 
 	public static mxStylesheet getStylesheet() {
-		if (stylesheet == null)
-			stylesheet = createStylesheet();
-		return stylesheet;
+		if (staticStylesheet == null)
+			staticStylesheet = createStylesheet();
+		return staticStylesheet;
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class JobRendering {
 	public static void refStylesheet(int rc) {
 		refCount = refCount + rc;
 		if (refCount == 0)
-			stylesheet = null;
+			staticStylesheet = null;
 	}
 
 	public static JGraphRendererAssortment getRendererAssortment() {

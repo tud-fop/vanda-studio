@@ -1,9 +1,12 @@
 package org.vanda.studio.modules.workflows.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.vanda.types.Type;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
 import org.vanda.util.Pair;
@@ -11,6 +14,7 @@ import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.TypeChecker;
 import org.vanda.workflows.hyper.TypeCheckingException;
 import org.vanda.workflows.hyper.Workflows.*;
 
@@ -109,6 +113,8 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 
 	protected final MutableWorkflow hwf;
 	protected Job[] sorted = null;
+	private Map<Object, Type> types = Collections.emptyMap();
+	private Type fragmentType = null;
 	protected WorkflowSelection selection;
 	protected List<SingleObjectSelection> markedElements;
 	protected final MultiplexObserver<Model> selectionChangeObservable;
@@ -122,11 +128,21 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 		markedElementsObservable = new MultiplexObserver<Model>();
 		workflowCheckObservable = new MultiplexObserver<Model>();
 	}
+	
+	public void typeCheck() throws TypeCheckingException {
+		TypeChecker tc = new TypeChecker();
+		hwf.typeCheck(tc);
+		tc.check();
+		types = tc.getTypes();
+		fragmentType = tc.getFragmentType();
+		
+	}
 
 	public void checkWorkflow() throws Exception {
 		markedElements.clear();
 		try {
-			hwf.typeCheck();
+			sorted = null;
+			typeCheck();
 			sorted = hwf.getSorted();
 		} catch (TypeCheckingException e) {
 			List<Pair<String, Set<ConnectionKey>>> errors = e.getErrors();
@@ -226,6 +242,14 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 	public void updated(MutableWorkflow mwf) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public Type getFragmentType() {
+		return fragmentType;
+	}
+
+	public Type getType(Object variable) {
+		return types.get(variable);
 	}
 
 }

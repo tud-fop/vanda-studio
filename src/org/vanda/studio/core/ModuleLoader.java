@@ -37,7 +37,7 @@ public class ModuleLoader {
 		else {
 			files = dir.listFiles(new FilenameFilter() {
 				@Override
-				public boolean accept(File dir, String name) {
+				public boolean accept(File _, String name) {
 					return (name.endsWith(".jar"));
 				}
 			});

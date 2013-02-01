@@ -12,8 +12,10 @@ import org.vanda.fragment.model.FragmentIO;
 import org.vanda.fragment.model.Fragments;
 import org.vanda.types.Type;
 import org.vanda.types.Types;
+import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
+import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
 
 // XXX removed: handle ports (see older versions)
@@ -21,39 +23,47 @@ import org.vanda.workflows.hyper.Job;
 public class ShellCompiler implements FragmentCompiler {
 
 	@Override
-	public Fragment compile(String name, DataflowAnalysis dfa,
-			ArrayList<Fragment> fragments, FragmentIO fio) {
-		StringBuilder sb = new StringBuilder();
-		HashSet<String> dependencies = new HashSet<String>();
+	public Fragment compile(String name, final DataflowAnalysis dfa,
+			ArrayList<Fragment> fragments, final FragmentIO fio) {
+		final StringBuilder sb = new StringBuilder();
+		final HashSet<String> dependencies = new HashSet<String>();
 		Set<String> im = new HashSet<String>();
 		sb.append("function ");
 		sb.append(Fragments.normalize(name));
 		sb.append(" {\n");
 		int i = 0;
-		for (Job ji : dfa.getSorted()) {
-			if (ji.getElement() instanceof Literal) {
-				// nothing to be done
-			} else {
-				// im.addAll(ji.job.getElement().getImports());
-				// ^^ this comes from the fragment
-				// ^^ and it is propagated via the dependency
-				Fragment frag = fragments.get(i);
-				assert (frag != null);
-				sb.append("  ");
-				sb.append(Fragments.normalize(frag.getId()));
-				for (Port ip : frag.getInputPorts()) {
-					sb.append(" \"");
-					sb.append(fio.findFile(dfa.getValue(ji.bindings.get(ip))));
-					sb.append("\"");
+		for (final Job ji : dfa.getSorted()) {
+			final Fragment frag = fragments.get(i);
+			ji.visit(new ElementVisitor() {
+
+				@Override
+				public void visitLiteral(Literal l) {
+					// nothing to be done
 				}
-				for (Port op : frag.getOutputPorts()) {
-					sb.append(" \"");
-					sb.append(fio.findFile(dfa.getValue(ji.bindings.get(op))));
-					sb.append("\"");
+
+				@Override
+				public void visitTool(Tool t) {
+					// im.addAll(ji.job.getElement().getImports());
+					// ^^ this comes from the fragment
+					// ^^ and it is propagated via the dependency
+					assert (frag != null);
+					sb.append("  ");
+					sb.append(Fragments.normalize(frag.getId()));
+					for (Port ip : frag.getInputPorts()) {
+						sb.append(" \"");
+						sb.append(fio.findFile(dfa.getValue(ji.bindings.get(ip))));
+						sb.append("\"");
+					}
+					for (Port op : frag.getOutputPorts()) {
+						sb.append(" \"");
+						sb.append(fio.findFile(dfa.getValue(ji.bindings.get(op))));
+						sb.append("\"");
+					}
+					sb.append('\n');
+					dependencies.add(frag.getId());
 				}
-				sb.append('\n');
-				dependencies.add(frag.getId());
-			}
+				
+			});
 			i++;
 		}
 		sb.append("}\n\n");

@@ -1,30 +1,29 @@
 package org.vanda.workflows.toolinterfaces;
 
-import org.vanda.workflows.elements.Tool;
 import org.vanda.xml.ElementHandler;
 import org.vanda.xml.Parser;
 
 public final class ElementHandlers {
 
 	public interface DescriptionHandlerFactory {
-		ElementHandler createHandler(Parser<Tool> p,
+		ElementHandler createHandler(Parser<StaticTool> p,
 				RepositoryItemBuilder tb);
 	}
 
 	public interface PortHandlerFactory {
-		ElementHandler createPortHandler(Parser<Tool> p, ToolBuilder tb);
+		ElementHandler createPortHandler(Parser<StaticTool> p, ToolBuilder tb);
 	}
 
 	public interface ToolHandlerFactory {
-		ElementHandler createToolHandler(Parser<Tool> p,
+		ElementHandler createToolHandler(Parser<StaticTool> p,
 				ToolInterfaceBuilder tib);
 	}
 
 	public interface ToolInterfacesHandlerFactory {
-		ElementHandler createToolInterfacesHandler(Parser<Tool> p);
+		ElementHandler createToolInterfacesHandler(Parser<StaticTool> p);
 	}
 
-	public static ElementHandler createRootHandler(Parser<Tool> p,
+	public static ElementHandler createRootHandler(Parser<StaticTool> p,
 			ToolInterfacesHandlerFactory tih) {
 		return new RootHandler(p, tih);
 	}
@@ -53,10 +52,10 @@ public final class ElementHandlers {
 	}
 
 	private static class RootHandler implements ElementHandler {
-		private final Parser<Tool> p;
+		private final Parser<StaticTool> p;
 		private final ToolInterfacesHandlerFactory tiHandler;
 
-		public RootHandler(Parser<Tool> p,
+		public RootHandler(Parser<StaticTool> p,
 				ToolInterfacesHandlerFactory tih) {
 			this.p = p;
 			tiHandler = tih;
@@ -106,16 +105,16 @@ public final class ElementHandlers {
 
 		@Override
 		public ElementHandler createToolInterfacesHandler(
-				Parser<Tool> p) {
+				Parser<StaticTool> p) {
 			return new ToolInterfacesHandler(p);
 		}
 
 		public class ToolInterfacesHandler implements ElementHandler {
-			private final Parser<Tool> p;
+			private final Parser<StaticTool> p;
 			private final ToolInterfaceBuilder tib;
 			private boolean desc = false;
 
-			public ToolInterfacesHandler(Parser<Tool> p) {
+			public ToolInterfacesHandler(Parser<StaticTool> p) {
 				this.p = p;
 				tib = new ToolInterfaceBuilder();
 				desc = false;
@@ -145,7 +144,7 @@ public final class ElementHandlers {
 			@Override
 			public void endElement(String namespace, String name) {
 				// TODO sanity checks
-				for (Tool t : tib.build())
+				for (StaticTool t : tib.build())
 					p.notify(t);
 			}
 
@@ -171,18 +170,18 @@ public final class ElementHandlers {
 		}
 
 		@Override
-		public ElementHandler createToolHandler(Parser<Tool> p,
+		public ElementHandler createToolHandler(Parser<StaticTool> p,
 				ToolInterfaceBuilder tib) {
 			return new ToolHandler(p, tib);
 		}
 
 		public class ToolHandler implements ElementHandler {
 			private boolean desc = false;
-			private final Parser<Tool> p;
+			private final Parser<StaticTool> p;
 			private final ToolInterfaceBuilder tib;
 			private final ToolBuilder tb;
 
-			public ToolHandler(Parser<Tool> p, ToolInterfaceBuilder tib) {
+			public ToolHandler(Parser<StaticTool> p, ToolInterfaceBuilder tib) {
 				this.p = p;
 				this.tib = tib;
 				tb = new ToolBuilder();
@@ -231,16 +230,16 @@ public final class ElementHandlers {
 	private static class InHandlerFactory implements PortHandlerFactory {
 
 		@Override
-		public ElementHandler createPortHandler(Parser<Tool> p,
+		public ElementHandler createPortHandler(Parser<StaticTool> p,
 				ToolBuilder tb) {
 			return new InHandler(p, tb);
 		}
 
 		public static class InHandler implements ElementHandler {
-			private final Parser<Tool> p;
+			private final Parser<StaticTool> p;
 			private final PortBuilder pb;
 
-			public InHandler(Parser<Tool> p, ToolBuilder tb) {
+			public InHandler(Parser<StaticTool> p, ToolBuilder tb) {
 				this.p = p;
 				pb = new PortBuilder(tb);
 			}
@@ -276,16 +275,16 @@ public final class ElementHandlers {
 	private static class OutHandlerFactory implements PortHandlerFactory {
 
 		@Override
-		public ElementHandler createPortHandler(Parser<Tool> p,
+		public ElementHandler createPortHandler(Parser<StaticTool> p,
 				ToolBuilder tb) {
 			return new OutHandler(p, tb);
 		}
 
 		public static class OutHandler implements ElementHandler {
-			private final Parser<Tool> p;
+			private final Parser<StaticTool> p;
 			private final PortBuilder pb;
 
-			public OutHandler(Parser<Tool> p, ToolBuilder tb) {
+			public OutHandler(Parser<StaticTool> p, ToolBuilder tb) {
 				this.p = p;
 				pb = new PortBuilder(tb);
 			}
@@ -324,16 +323,16 @@ public final class ElementHandlers {
 			DescriptionHandlerFactory {
 
 		@Override
-		public ElementHandler createHandler(Parser<Tool> p,
+		public ElementHandler createHandler(Parser<StaticTool> p,
 				RepositoryItemBuilder b) {
 			return new DescriptionHandler(p, b);
 		}
 
 		public static class DescriptionHandler implements ElementHandler {
-			private final Parser<Tool> p;
+			private final Parser<StaticTool> p;
 			private final RepositoryItemBuilder b;
 
-			public DescriptionHandler(Parser<Tool> p,
+			public DescriptionHandler(Parser<StaticTool> p,
 					RepositoryItemBuilder b) {
 				this.p = p;
 				this.b = b;

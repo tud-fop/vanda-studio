@@ -44,7 +44,6 @@ import org.vanda.types.Types;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.RCChecker;
-import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class RunTool implements SemanticsToolFactory {
 
@@ -455,9 +454,8 @@ public class RunTool implements SemanticsToolFactory {
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
-			MutableWorkflow iwf = mm.getDataflowAnalysis().getWorkflow();
 			if (mm.getDataflowAnalysis().getSorted() != null &&
-					Types.canUnify(iwf.getFragmentType(),
+					Types.canUnify(wfe.getModel().getFragmentType(),
 							prof.getRootType())) {
 				try {
 					return prof.generate(mm.getDataflowAnalysis());

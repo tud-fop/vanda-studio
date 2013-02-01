@@ -3,13 +3,12 @@ package org.vanda.workflows.serialization;
 import java.util.Map;
 
 import org.vanda.util.TokenSource.Token;
-import org.vanda.workflows.elements.Element;
 
 public class JobBuilder {
 
 	WorkflowBuilder parent;
 	
-	Element element;
+	// Element element;
 	double x;
 	double y;
 	double width;

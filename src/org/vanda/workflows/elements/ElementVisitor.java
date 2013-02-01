@@ -1,14 +1,10 @@
 package org.vanda.workflows.elements;
 
 
-public abstract class ElementVisitor {
+public interface ElementVisitor {
 
-	public void visitLiteral(Literal l) {
-
-	}
-
-	public void visitTool(Tool t) {
-
-	}
+	public void visitLiteral(Literal l);
+	
+	public void visitTool(Tool t);
 
 }

@@ -69,9 +69,9 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 	protected JComponent palette;
 	protected final JSplitPane mainpane;
 
-	public WorkflowEditorImpl(Application a,
+	public WorkflowEditorImpl(Application app,
 			Repository<ToolFactory> toolFactories, MutableWorkflow hwf) {
-		app = a;
+		this.app = app;
 		model = new Model(hwf);
 		renderer = new DrecksAdapter(model);
 
@@ -229,7 +229,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 					@SuppressWarnings("serial")
 					JMenuItem item = new JMenuItem("Remove Connection") {
 						@Override
-						public void fireActionPerformed(ActionEvent e) {
+						public void fireActionPerformed(ActionEvent _) {
 							removeSelectedCell();
 						}
 					};
@@ -245,7 +245,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 					@SuppressWarnings("serial")
 					JMenuItem item = new JMenuItem("Remove Job") {
 						@Override
-						public void fireActionPerformed(ActionEvent e) {
+						public void fireActionPerformed(ActionEvent _) {
 							removeSelectedCell();
 						}
 					};
@@ -263,7 +263,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 							@SuppressWarnings("serial")
 							JMenuItem item = new JMenuItem(a.getName()) {
 								@Override
-								public void fireActionPerformed(ActionEvent e) {
+								public void fireActionPerformed(ActionEvent _) {
 									a.invoke();
 								}
 							};

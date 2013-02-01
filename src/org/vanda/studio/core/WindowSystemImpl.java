@@ -56,8 +56,8 @@ public class WindowSystemImpl implements WindowSystem {
 	 * @param a
 	 *            Vanda Composer Application root object
 	 */
-	public WindowSystemImpl(Application a) {
-		app = a;
+	public WindowSystemImpl(Application app) {
+		this.app = app;
 		app.getShutdownObservable().addObserver(new Observer<Application>() {
 			@Override
 			public void notify(Application a) {
@@ -72,7 +72,7 @@ public class WindowSystemImpl implements WindowSystem {
 		mainWindow.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-				app.shutdown();
+				WindowSystemImpl.this.app.shutdown();
 			}
 		});
 
@@ -85,7 +85,7 @@ public class WindowSystemImpl implements WindowSystem {
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				app.shutdown();
+				WindowSystemImpl.this.app.shutdown();
 			}
 		});
 
@@ -103,7 +103,7 @@ public class WindowSystemImpl implements WindowSystem {
 			item.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					app.setUIMode(m);
+					WindowSystemImpl.this.app.setUIMode(m);
 				}
 			});
 			optionsMenu.add(item);

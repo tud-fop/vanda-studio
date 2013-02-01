@@ -64,8 +64,8 @@ public final class TypeVariable extends Type {
 	}
 
 	@Override
-	public Type subst(Object variable, Type nt) {
-		if (variable == this.variable)
+	public Type subst(Object v, Type nt) {
+		if (v == variable)
 			return nt;
 		else
 			return this;

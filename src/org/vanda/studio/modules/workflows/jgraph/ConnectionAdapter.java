@@ -31,7 +31,7 @@ public class ConnectionAdapter implements Adapter {
 	public void onRemove(mxICell parent) {
 		if (cc != null) {
 			WorkflowAdapter wa = (WorkflowAdapter) parent.getValue();
-			if (wa.removeConnection(cc) != null)
+			if (wa.removeConnection(cc) != null && cc.target.isInserted())
 				wa.workflow.removeConnection(cc);
 		}
 	}
@@ -55,7 +55,7 @@ public class ConnectionAdapter implements Adapter {
 				JobAdapter tparval = (JobAdapter) model.getValue(model
 						.getParent(target));
 
-				ConnectionKey cc = new ConnectionKey(tparval.job, tval.port);
+				cc = new ConnectionKey(tparval.job, tval.port);
 				wa.setConnection(cc, cell);
 				if (wa.workflow != null)
 					wa.workflow.addConnection(cc,
@@ -82,7 +82,7 @@ public class ConnectionAdapter implements Adapter {
 
 	@Override
 	public boolean inModel() {
-		return cc != null;
+		return cc != null && cc.target.isInserted();
 	}
 
 	@Override

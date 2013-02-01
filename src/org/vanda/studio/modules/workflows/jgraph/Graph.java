@@ -50,9 +50,9 @@ class Graph extends mxGraph {
 					public String check(mxGraph graph, Object edge,
 							Object source, Object target, int sourceOut,
 							int targetIn) {
-						mxIGraphModel model = graph.getModel();
-						if (model.getParent(model.getParent(source)) == model
-								.getParent(model.getParent(target)))
+						mxIGraphModel m = graph.getModel();
+						if (m.getParent(m.getParent(source)) == m
+								.getParent(m.getParent(target)))
 							return null;
 						else
 							return countError;
@@ -154,13 +154,14 @@ class Graph extends mxGraph {
 
 		@Override
 		protected Object cloneValue() {
-			Object value = getValue();
+			// Object value = getValue();
 			if (value instanceof Adapter && value instanceof Cloneable) {
-				try {
-					return ((Adapter) value).clone();
-				} catch (CloneNotSupportedException e) {
-					return super.cloneValue();
-				}
+				// try {
+					return value;
+					// return ((Adapter) value).clone();
+				// } catch (CloneNotSupportedException e) {
+				// 	return super.cloneValue();
+				// }
 			} else
 				return super.cloneValue();
 		}

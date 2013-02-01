@@ -8,7 +8,6 @@ import java.util.Map;
 import org.vanda.types.Type;
 import org.vanda.util.TokenSource;
 import org.vanda.workflows.elements.Port;
-import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.elements.ToolInterface;
 
 public class ToolBuilder extends RepositoryItemBuilder {
@@ -36,7 +35,7 @@ public class ToolBuilder extends RepositoryItemBuilder {
 		tVars = new HashMap<String, Type>();
 	}
 
-	public Tool build() {
+	public StaticTool build() {
 		return new StaticTool(id, name, category, version, contact,
 				description.toString(), inPorts, outPorts, rs, fragmentType,
 				status, ti);

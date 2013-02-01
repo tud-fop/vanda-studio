@@ -31,19 +31,19 @@ public final class Serialization {
 	}
 
 	private XStream createXStream(Repository<Tool> tr) {
-		XStream xs = new XStream();
-		xs.registerConverter(new InternedIntegerConverter());
-		xs.registerConverter(new MultiplexObserverConverter());
-		xs.registerConverter(new ToolConverter(tr));
-		xs.addImmutableType(TokenSource.Token.class);
-		xs.addImmutableType(Tool.class);
-		xs.alias("ovsm.hyper.AtomicJob", Job.class);
-		xs.aliasPackage("ovsu", "org.vanda.util");
-		xs.alias("org.vanda.studio.modules.profile.ShellTool",
+		XStream result = new XStream();
+		result.registerConverter(new InternedIntegerConverter());
+		result.registerConverter(new MultiplexObserverConverter());
+		result.registerConverter(new ToolConverter(tr));
+		result.addImmutableType(TokenSource.Token.class);
+		result.addImmutableType(Tool.class);
+		result.alias("ovsm.hyper.AtomicJob", Job.class);
+		result.aliasPackage("ovsu", "org.vanda.util");
+		result.alias("org.vanda.studio.modules.profile.ShellTool",
 				Tool.class);
-		xs.aliasPackage("ovsm.types", "org.vanda.types");
-		xs.aliasPackage("ovsm", "org.vanda.workflows");
-		return xs;
+		result.aliasPackage("ovsm.types", "org.vanda.types");
+		result.aliasPackage("ovsm", "org.vanda.workflows");
+		return result;
 	}
 
 	public MutableWorkflow load(String pathToFile) throws Exception {

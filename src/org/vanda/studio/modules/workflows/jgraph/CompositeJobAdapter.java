@@ -15,11 +15,6 @@ public class CompositeJobAdapter extends JobAdapter {
 		super(job);
 	}
 
-	@Override
-	public CompositeJobAdapter clone() throws CloneNotSupportedException {
-		return new CompositeJobAdapter(job.clone());
-	}
-
 	/**
 	 * keeps the size of a cell big enough to contain all its children properly
 	 * 

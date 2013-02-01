@@ -45,7 +45,7 @@ public final class TypeChecker {
 	private final Map<Object, Type> types;
 	private Type fragmentType;
 
-	public TypeChecker() throws CloneNotSupportedException {
+	public TypeChecker() {
 		eqs = new LinkedList<Equation<Set<ConnectionKey>>>();
 		variables = new HashSet<Object>();
 		fragmentTypeVariable = new TypeVariable(new Object());
@@ -83,7 +83,7 @@ public final class TypeChecker {
 		}
 	}
 
-	public void check() throws Exception {
+	public void check() throws TypeCheckingException {
 		List<Pair<String, Set<ConnectionKey>>> errors = Types.unify(eqs,
 				new EqInfoMerge());
 		if (errors.isEmpty()) {

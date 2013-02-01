@@ -4,10 +4,9 @@ import java.io.File;
 
 import org.vanda.util.Loader;
 import org.vanda.util.Observer;
-import org.vanda.workflows.elements.Tool;
 import org.vanda.xml.ParserImpl;
 
-public class ToolLoader implements Loader<Tool> {
+public class ToolLoader implements Loader<StaticTool> {
 
 	private final String path;
 
@@ -15,9 +14,9 @@ public class ToolLoader implements Loader<Tool> {
 		this.path = file;
 	}
 
-	private static ParserImpl<Tool> createParser(
-			Observer<Tool> o) {
-		ParserImpl<Tool> p = new ParserImpl<Tool>(o);
+	private static ParserImpl<StaticTool> createParser(
+			Observer<StaticTool> o) {
+		ParserImpl<StaticTool> p = new ParserImpl<StaticTool>(o);
 		// do the whole dependency injection thing
 		ElementHandlers.DescriptionHandlerFactory dhf = ElementHandlers
 				.createDescriptionHandlerFactory();
@@ -30,9 +29,9 @@ public class ToolLoader implements Loader<Tool> {
 		return p;
 	}
 	
-	public void loadFile(Observer<Tool> o, File f) {
+	public void loadFile(Observer<StaticTool> o, File f) {
 		System.out.println("Processing: " + f.getAbsolutePath());
-		ParserImpl<Tool> p = createParser(o);
+		ParserImpl<StaticTool> p = createParser(o);
 		try {
 			p.init(f);
 			p.process();
@@ -49,7 +48,7 @@ public class ToolLoader implements Loader<Tool> {
 	}
 
 	@Override
-	public void load(Observer<Tool> o) {
+	public void load(Observer<StaticTool> o) {
 		for (File f : (new File(path)).listFiles())
 			if (f.isFile() && f.getAbsolutePath().toLowerCase().endsWith(".xml"))
 				loadFile(o, f);

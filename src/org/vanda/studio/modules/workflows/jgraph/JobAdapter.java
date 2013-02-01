@@ -17,12 +17,6 @@ public class JobAdapter implements Adapter, Cloneable {
 	}
 
 	@Override
-	public JobAdapter clone() throws CloneNotSupportedException {
-		return new JobAdapter(job.clone());
-
-	}
-
-	@Override
 	public String getName() {
 		return job.getElement().getName();
 	}

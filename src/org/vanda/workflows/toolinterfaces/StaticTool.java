@@ -8,7 +8,7 @@ import org.vanda.workflows.elements.RendererAssortment;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.elements.ToolInterface;
 
-final class StaticTool extends Tool {
+public final class StaticTool implements Tool {
 	private final String id;
 	private final String name;
 	private final String description;
@@ -99,5 +99,5 @@ final class StaticTool extends Tool {
 	public String getStatus() {
 		return status;
 	}
-
+	
 }

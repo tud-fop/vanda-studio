@@ -63,21 +63,21 @@ public final class DrecksAdapter {
 					mxChildChange cc = (mxChildChange) c;
 					mxICell cell = (mxICell) cc.getChild();
 					Adapter value = (Adapter) gmodel.getValue(cell);
-					boolean migrateSelection = false;
+					boolean refreshSelection = false;
+					if (cell == graph.getSelectionCell()) {
+						refreshSelection = true;
+						if (model != null)
+							model.setSelection(null);
+					}
 					if (cc.getPrevious() != null) {
 						// something has been removed
-						if (cell == graph.getSelectionCell()) {
-							migrateSelection = true;
-							if (model != null)
-								model.setSelection(null);
-						}
 						value.onRemove((mxICell) cc.getPrevious());
 					}
 					// the second conjunct is necessary for edges
 					if (cc.getParent() != null
 							&& cell.getParent() == cc.getParent())
 						value.onInsert(graph, cell.getParent(), cell);
-					if (migrateSelection)
+					if (refreshSelection)
 						graph.setSelectionCell(cell);
 				} else if (c instanceof mxValueChange) {
 					// not supposed to happen, or not relevant
@@ -179,8 +179,8 @@ public final class DrecksAdapter {
 			model.getMarkedElementsObservable().addObserver(
 					new Observer<Model>() {
 						@Override
-						public void notify(Model model) {
-							List<mxICell> markedCells = transformElementsToCells(model
+						public void notify(Model m) {
+							List<mxICell> markedCells = transformElementsToCells(m
 									.getMarkedElements());
 
 							List<mxICell> inverseOfMarkedCells = calculateInverseCellList(
@@ -272,8 +272,8 @@ public final class DrecksAdapter {
 	public void modifyChild(MutableWorkflow hwf, Job job) {
 		WorkflowAdapter wa = (WorkflowAdapter) translation.get(hwf).getValue();
 		mxICell cell = wa.getChild(job);
-		mxIGraphModel model = graph.getModel();
-		mxGeometry geo = model.getGeometry(cell);
+		mxIGraphModel m = graph.getModel();
+		mxGeometry geo = m.getGeometry(cell);
 		if (geo.getX() != job.getX() || geo.getY() != job.getY()
 				|| geo.getWidth() != job.getWidth()
 				|| geo.getHeight() != job.getHeight()) {
@@ -282,7 +282,7 @@ public final class DrecksAdapter {
 			ng.setY(job.getY());
 			ng.setWidth(job.getWidth());
 			ng.setHeight(job.getHeight());
-			model.setGeometry(cell, ng);
+			m.setGeometry(cell, ng);
 		}
 		// TODO make this principled
 		if (graph.isAutoSizeCell(cell))

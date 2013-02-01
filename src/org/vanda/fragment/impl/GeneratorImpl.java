@@ -16,6 +16,8 @@ import org.vanda.fragment.model.Generator;
 import org.vanda.fragment.model.Profile;
 import org.vanda.studio.app.Application;
 import org.vanda.types.Type;
+import org.vanda.workflows.elements.ElementVisitor;
+import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
@@ -24,6 +26,10 @@ public class GeneratorImpl implements Generator, FragmentIO {
 
 	private final Application app;
 	private Profile prof;
+
+//	static interface Functor<E extends Throwable> {
+//		void run() throws E;
+//	}
 
 	// The Generator class encapsulates stuff that should not be kept around
 	// all the time, and resource acquisition is initialization, blah blah
@@ -50,7 +56,7 @@ public class GeneratorImpl implements Generator, FragmentIO {
 			};
 		}
 
-		public Fragment generateAtomic(Tool t) throws IOException {
+		public Fragment generateAtomic(Tool t) {
 			Fragment result = map.get(t.getId());
 			if (result == null) {
 				result = prof.getFragmentToolMetaRepository().getRepository()
@@ -68,16 +74,24 @@ public class GeneratorImpl implements Generator, FragmentIO {
 			Fragment result = map.get(w);
 			if (result == null) {
 				String name = makeUnique(w.getName(), w);
-				assert (w.getFragmentType() != null);
-				FragmentCompiler fc = prof.getCompiler(w.getFragmentType());
+				assert (dfa.getFragmentType() != null);
+				FragmentCompiler fc = prof.getCompiler(dfa.getFragmentType());
 				assert (fc != null);
 				Job[] jobs = dfa.getSorted();
-				ArrayList<Fragment> frags = new ArrayList<Fragment>(jobs.length);
-				for (Job ji : jobs) {
-					if (ji.getElement() instanceof Tool)
-						frags.add(generateAtomic((Tool) ji.getElement()));
-					else
-						frags.add(null);
+				final ArrayList<Fragment> frags = new ArrayList<Fragment>(
+						jobs.length);
+				for (final Job ji : jobs) {
+					ji.visit(new ElementVisitor() {
+						@Override
+						public void visitLiteral(Literal l) {
+							frags.add(null);
+						}
+
+						@Override
+						public void visitTool(final Tool t) {
+							frags.add(generateAtomic(t));
+						}
+					});
 				}
 				result = fc.compile(name, dfa, frags, GeneratorImpl.this);
 				assert (result != null);

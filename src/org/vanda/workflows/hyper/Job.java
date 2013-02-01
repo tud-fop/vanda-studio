@@ -8,52 +8,35 @@ import org.vanda.types.Type;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
 import org.vanda.util.Observer;
-import org.vanda.workflows.elements.Element;
-import org.vanda.workflows.elements.Element.ElementListener;
+import org.vanda.workflows.elements.ElementReturnVisitor;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
-import org.vanda.workflows.elements.Element.ElementEvent;
+import org.vanda.workflows.hyper.ElementAdapters.ElementAdapterEvent;
+import org.vanda.workflows.hyper.ElementAdapters.ElementAdapterListener;
+import org.vanda.workflows.hyper.Jobs.*;
 
-public final class Job implements Cloneable, ElementListener {
-	public static interface JobEvent {
-		void doNotify(JobListener jl);
-	}
-	
-	public static interface JobListener {
-		// removed: see older versions
-		// void inputPortAdded(Job j, int index);
-		// void inputPortRemoved(Job j, int index);
-		// void outputPortAdded(Job j, int index);
-		// void outputPortRemoved(Job j, int index);
-		void propertyChanged(Job j);		
-	}
-	
-	private final Element element;
-	private final MultiplexObserver<JobEvent> observable;
+public class Job implements ElementAdapterListener<ElementAdapter> {
+	private final ElementAdapter element;
 	public Map<Port, Location> bindings;
 	protected final double[] dimensions = new double[4];
-	
-	public Job(Element element) {
+	private final MultiplexObserver<JobEvent<Job>> observable;
+
+	public Job(ElementAdapter element) {
 		this.element = element;
 		if (element.getObservable() != null)
-			observable = new MultiplexObserver<JobEvent>();
+			observable = new MultiplexObserver<JobEvent<Job>>();
 		else
 			observable = null;
 		rebind();
 	}
-	
-	@Override
-	public Job clone() throws CloneNotSupportedException {
-		return new Job(element.clone());
-	}
 
-	public Element getElement() {
+	public ElementAdapter getElement() {
 		return element;
 	}
 
 	public Type getFragmentType() {
-		return getElement().getFragmentType();
+		return element.getFragmentType();
 	}
 
 	public double getHeight() {
@@ -61,21 +44,21 @@ public final class Job implements Cloneable, ElementListener {
 	}
 
 	public List<Port> getInputPorts() {
-		return getElement().getInputPorts();
+		return element.getInputPorts();
 	}
-	
+
 	public String getName() {
 		return element.getName();
 	}
 
-	public Observable<JobEvent> getObservable() {
+	public Observable<JobEvent<Job>> getObservable() {
 		return observable;
 	}
 
 	public List<Port> getOutputPorts() {
-		return getElement().getOutputPorts();
+		return element.getOutputPorts();
 	}
-	
+
 	public double getWidth() {
 		return dimensions[2];
 	}
@@ -87,61 +70,68 @@ public final class Job implements Cloneable, ElementListener {
 	public double getY() {
 		return dimensions[1];
 	}
-	
+
 	public void insert() {
 		bindings = new HashMap<Port, Location>();
 	}
-	
+
 	public boolean isConnected() {
 		return bindings.keySet().containsAll(getInputPorts());
 	}
-	
+
 	public boolean isInserted() {
 		return bindings != null;
 	}
-	
+
 	public void uninsert() {
 		bindings = null;
 	}
 
-	public void propertyChanged(Element e) {
-		observable.notify(new Jobs.PropertyChangedEvent(this));
-	}
-
 	/**
-	 *  call this after deserialization
+	 * call this after deserialization
 	 */
 	public void rebind() {
-		if (observable != null)
-			getElement().getObservable().addObserver(new Observer<ElementEvent>() {
+		Observable<ElementAdapterEvent<ElementAdapter>> o = element
+				.getObservable();
+		if (o != null)
+			o.addObserver(new Observer<ElementAdapterEvent<ElementAdapter>>() {
 				@Override
-				public void notify(ElementEvent event) {
+				public void notify(ElementAdapterEvent<ElementAdapter> event) {
 					event.doNotify(Job.this);
 				}
 			});
+		element.rebind();
 	}
-	
+
 	public <R> R selectRenderer(RendererAssortment<R> ra) {
-		return getElement().selectRenderer(ra);
+		return element.selectRenderer(ra);
 	}
 
 	/** { x, y, width, height } */
 	public void setDimensions(double[] d) {
-		assert(d.length == 4);
+		assert (d.length == 4);
 		System.arraycopy(d, 0, dimensions, 0, 4);
 	}
-	
+
 	public void visit(ElementVisitor v) {
-		getElement().visit(v);
+		element.visit(v);
 	}
-	
+
+	public <R> R visitReturn(ElementReturnVisitor<R> v) {
+		return element.visitReturn(v);
+	}
+
 	public void addFragmentTypeEquation(TypeChecker tc) {
 		tc.addFragmentTypeEquation(element.getFragmentType());
 	}
 
-	public void typeCheck() throws Exception {
+	public void typeCheck() throws TypeCheckingException {
 		// do nothing
 	}
-	
+
+	@Override
+	public void propertyChanged(ElementAdapter e) {
+		observable.notify(new PropertyChangedEvent<Job>(this));
+	}
 
 }

@@ -17,7 +17,7 @@ public class Model {
 
 			@Override
 			public void notify(org.vanda.studio.modules.workflows.model.Model event) {
-				dfa = new DataflowAnalysis(event.getRoot(), event.getSorted());
+				dfa = new DataflowAnalysis(event.getRoot(), event.getSorted(), event.getFragmentType());
 				dfa.init();
 				dfaChangedObservable.notify(dfa);
 			}

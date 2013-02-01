@@ -1,19 +1,28 @@
 package org.vanda.workflows.elements;
 
-import org.vanda.workflows.elements.Element.ElementListener;
-
 public class Elements {
+
+	public static interface ElementListener<E> {
+		// removed: see older versions
+		// void inputPortAdded(Element e, int index);
+		// void inputPortRemoved(Element e, int index);
+		void propertyChanged(E e);
+	}
 	
-	public static class PropertyChangeEvent implements Element.ElementEvent {
+	public static interface ElementEvent<E> {
+		void doNotify(ElementListener<E> el);
+	}
+	
+	public static class PropertyChangeEvent<E> implements ElementEvent<E> {
 		
-		private final Element e;
+		private final E e;
 		
-		public PropertyChangeEvent(Element e) {
+		public PropertyChangeEvent(E e) {
 			this.e = e;
 		}
 
 		@Override
-		public void doNotify(ElementListener el) {
+		public void doNotify(ElementListener<E> el) {
 			el.propertyChanged(e);
 		}
 		

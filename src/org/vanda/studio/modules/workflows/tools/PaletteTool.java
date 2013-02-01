@@ -27,6 +27,8 @@ import org.vanda.types.CompositeType;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.LiteralAdapter;
+import org.vanda.workflows.hyper.ToolAdapter;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
@@ -90,13 +92,13 @@ public class PaletteTool implements ToolFactory {
 			for (Tool t : wfe.getApplication().getToolMetaRepository()
 					.getRepository().getItems()) {
 				// if ("".equals(t.getStatus()))
-				templates.add(new Job(t));
+				templates.add(new Job(new ToolAdapter(t)));
 			}
 			// templates.add(new AtomicJob(new Choice()));
 			// templates.add(new AtomicJob(new InputPort()));
 			// templates.add(new AtomicJob(new OutputPort()));
-			templates
-					.add(new Job(new Literal(new CompositeType("String"), "")));
+			templates.add(new Job(new LiteralAdapter(new Literal(
+					new CompositeType("String"), ""))));
 			Collections.sort(templates, new Comparator<Job>() {
 				@Override
 				public int compare(Job o1, Job o2) {
@@ -183,7 +185,8 @@ public class PaletteTool implements ToolFactory {
 		c.setConnectable(false);
 		c.setDragEnabled(false);
 		DragSource ds = new DragSource();
-		ds.createDefaultDragGestureRecognizer(c.getGraphControl(), DnDConstants.ACTION_COPY_OR_MOVE,
+		ds.createDefaultDragGestureRecognizer(c.getGraphControl(),
+				DnDConstants.ACTION_COPY_OR_MOVE,
 				new mxDragGestureListener(c.getGraph()));
 		return c;
 	}

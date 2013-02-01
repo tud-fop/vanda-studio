@@ -56,7 +56,7 @@ public class InspectorTool implements SemanticsToolFactory {
 
 			@Override
 			public void visitVariable(Location variable, MutableWorkflow wf) {
-				type = mm.getDataflowAnalysis().getWorkflow().getType(variable);
+				type = wfe.getModel().getType(variable);
 				value = mm.getDataflowAnalysis().getValue(variable);
 				// XXX no support for nested workflows because wf is ignored
 			}

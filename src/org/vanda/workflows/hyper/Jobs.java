@@ -1,20 +1,31 @@
 package org.vanda.workflows.hyper;
 
-import org.vanda.workflows.hyper.Job.JobEvent;
-import org.vanda.workflows.hyper.Job.JobListener;
 
 public class Jobs {
 	
-	public static class PropertyChangedEvent implements JobEvent {
+	public static interface JobEvent<J> {
+		void doNotify(JobListener<J> jl);
+	}
+	
+	public static interface JobListener<J> {
+		// removed: see older versions
+		// void inputPortAdded(Job j, int index);
+		// void inputPortRemoved(Job j, int index);
+		// void outputPortAdded(Job j, int index);
+		// void outputPortRemoved(Job j, int index);
+		void propertyChanged(J j);		
+	}
+	
+	public static class PropertyChangedEvent<J> implements JobEvent<J> {
 		
-		private final Job j;
+		private final J j;
 		
-		public PropertyChangedEvent(Job j) {
+		public PropertyChangedEvent(J j) {
 			this.j = j;
 		}
 
 		@Override
-		public void doNotify(JobListener jl) {
+		public void doNotify(JobListener<J> jl) {
 			jl.propertyChanged(j);
 		}
 
