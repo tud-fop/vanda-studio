@@ -36,7 +36,7 @@ public class ToolLoader implements Loader<StaticTool> {
 			p.init(f);
 			p.process();
 		} catch (Exception e) {
-			System.err.println("Tool interface file " + path
+			System.err.println("Tool interface file " + f.getPath()
 					+ " can not be loaded.");
 			e.printStackTrace();
 			// app.sendMessage(new ExceptionMessage(e));

@@ -36,7 +36,6 @@ public final class MutableWorkflow implements JobListener<Job> {
 	}
 
 	public MutableWorkflow(String name) {
-		super();
 		this.name = name;
 		children = new ArrayList<Job>();
 		observable = new MultiplexObserver<WorkflowEvent<MutableWorkflow>>();

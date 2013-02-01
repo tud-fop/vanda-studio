@@ -36,7 +36,7 @@ import org.vanda.util.ExternalRepository;
 import org.vanda.util.ListRepository;
 import org.vanda.util.Observer;
 import org.vanda.workflows.hyper.MutableWorkflow;
-import org.vanda.workflows.hyper.Serialization;
+import org.vanda.workflows.serialization.Loader;
 
 public class WorkflowModule implements Module {
 
@@ -139,7 +139,7 @@ public class WorkflowModule implements Module {
 				chooser.setDialogType(JFileChooser.OPEN_DIALOG);
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				chooser.setFileFilter(new FileNameExtensionFilter(
-						"Hyperworkflows (*.hwf)", "hwf"));
+						"Workflow XML (*.xwf)", "xwf"));
 				String lastDir = app.getProperty("lastDir");
 				if (lastDir != null)
 					chooser.setCurrentDirectory(new File(lastDir));
@@ -158,10 +158,11 @@ public class WorkflowModule implements Module {
 						 * app .getSemanticsModuleMetaRepository()
 						 * .getRepository().getItem("profile");
 						 */
-						Serialization ser = new Serialization(app
-								.getToolMetaRepository()
-								.getRepository());
-						hwf = ser.load(filePath);
+						// Serialization ser = new Serialization(app
+						// .getToolMetaRepository()
+						// .getRepository());
+						hwf = new Loader(app.getToolMetaRepository()
+								.getRepository()).load(filePath);
 						new WorkflowEditorImpl(app, toolFactories, hwf);
 					} catch (Exception e) {
 						app.sendMessage(new ExceptionMessage(e));

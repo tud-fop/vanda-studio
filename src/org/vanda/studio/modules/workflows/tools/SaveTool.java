@@ -12,7 +12,7 @@ import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
-import org.vanda.workflows.hyper.Serialization;
+import org.vanda.workflows.serialization.Storer;
 
 public final class SaveTool implements ToolFactory {
 	@Override
@@ -97,9 +97,10 @@ public final class SaveTool implements ToolFactory {
 			};
 
 			chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+			chooser.setAcceptAllFileFilterUsed(false);
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			chooser.setFileFilter(new FileNameExtensionFilter(
-					"Hyperworkflows (*.hwf)", "hwf"));
+					"Workflow XML (*.xwf)", "xwf"));
 			String lastDir = wfe.getApplication().getProperty("lastDir");
 			if (lastDir != null)
 				chooser.setCurrentDirectory(new File(lastDir));
@@ -112,10 +113,12 @@ public final class SaveTool implements ToolFactory {
 				wfe.getApplication().setProperty("lastDir",
 						chosenFile.getParentFile().getAbsolutePath());
 				String filePath = chosenFile.getPath();
+				if (!filePath.endsWith(".xwf"))
+					filePath = filePath + ".xwf";
 				try {
-					Serialization ser = new Serialization(wfe.getApplication()
-							.getToolMetaRepository().getRepository());
-					ser.save(wfe.getModel().getRoot(), filePath);
+//					Serialization ser = new Serialization(wfe.getApplication()
+//							.getToolMetaRepository().getRepository());
+					new Storer().store(wfe.getModel().getRoot(), filePath);
 				} catch (Exception e) {
 					wfe.getApplication().sendMessage(new ExceptionMessage(e));
 				}

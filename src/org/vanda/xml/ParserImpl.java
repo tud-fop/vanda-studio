@@ -66,44 +66,44 @@ public class ParserImpl<T> implements Parser<T> {
 			while (eventType != XmlPullParser.END_DOCUMENT) {
 				if (eventType == XmlPullParser.START_DOCUMENT) {
 					if (!stack.isEmpty())
-						fail(null);
+						throw fail(null);
 					current = rootHandler;
 					// stack.push(current);
 					current.startElement(null, null);
 				} else if (eventType == XmlPullParser.START_TAG) {
-					if (current == null || stack.size() < 1)
-						fail(null);
+					if (current == null) // || stack.size() < 1)
+						throw fail(null);
 					stack.push(current);
 					current = current.handleChild(xp.getNamespace(),
 							xp.getName());
 					if (current == null)
-						fail(null);
+						throw fail(null);
 					current.startElement(xp.getNamespace(), xp.getName());
 					int c = xp.getAttributeCount();
 					for (int i = 0; i < c; i++)
 						current.handleAttribute(xp.getAttributeNamespace(i),
 								xp.getAttributeName(i), xp.getAttributeValue(i));
 				} else if (eventType == XmlPullParser.END_TAG) {
-					if (current == null || stack.size() < 2)
-						fail(null);
+					if (current == null || stack.size() < 1)
+						throw fail(null);
 					current.endElement(xp.getNamespace(), xp.getName());
 					current = stack.pop();
 				} else if (eventType == XmlPullParser.TEXT) {
-					if (current == null || stack.size() < 1)
-						fail(null);
+					if (current == null)
+						throw fail(null);
 					current.handleText(xp.getText());
 				}
-				//System.out.println(stack);
-				//System.out.println(current);
+				System.out.println(stack);
+				System.out.println(current);
 				eventType = xp.next();
 			}
-			if (current == null || stack.size() != 1)
-				fail(null);
+			if (current == null || stack.size() != 0)
+				throw fail(null);
 			current.endElement(null, null);
 		} catch (XmlPullParserException e) {
-			fail(e);
+			throw fail(e);
 		} catch (IOException e) {
-			fail(e);
+			throw fail(e);
 		}
 	}
 

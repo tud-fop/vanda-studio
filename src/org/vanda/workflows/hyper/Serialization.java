@@ -46,7 +46,8 @@ public final class Serialization {
 		return result;
 	}
 
-	public MutableWorkflow load(String pathToFile) throws Exception {
+	@Deprecated
+	public MutableWorkflow load0(String pathToFile) throws Exception {
 		try {
 			MutableWorkflow result = (MutableWorkflow) xs.fromXML(new File(
 					pathToFile));
@@ -57,7 +58,8 @@ public final class Serialization {
 		}
 	}
 
-	public void save(MutableWorkflow hwf, String filename) throws Exception {
+	@Deprecated
+	public void save0(MutableWorkflow hwf, String filename) throws Exception {
 		try {
 			FileWriter fileWriter = new FileWriter(filename);
 

@@ -127,7 +127,7 @@ public final class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessing.processRepositoryItemField(name, value, tib);
+				FieldProcessing.rifp.process(name, value, tib);
 			}
 
 			@Override
@@ -195,8 +195,8 @@ public final class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessing.processRepositoryItemField(name, value, tb);
-				FieldProcessing.processToolField(name, value, tb);
+				FieldProcessing.rifp.process(name, value, tb);
+				FieldProcessing.tfp.process(name, value, tb);
 			}
 
 			@Override
@@ -252,7 +252,7 @@ public final class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessing.processPortField(name, value, pb);
+				FieldProcessing.pfp.process(name, value, pb);
 			}
 
 			@Override
@@ -297,7 +297,7 @@ public final class ElementHandlers {
 			@Override
 			public void handleAttribute(String namespace, String name,
 					String value) {
-				FieldProcessing.processPortField(name, value, pb);
+				FieldProcessing.pfp.process(name, value, pb);
 			}
 
 			@Override

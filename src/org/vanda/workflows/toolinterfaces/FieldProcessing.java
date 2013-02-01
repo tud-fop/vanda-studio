@@ -1,69 +1,35 @@
 package org.vanda.workflows.toolinterfaces;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.vanda.types.Types;
+import org.vanda.xml.FieldProcessor;
+import org.vanda.xml.CompositeFieldProcessor;
+import org.vanda.xml.SingleFieldProcessor;
 
 public final class FieldProcessing {
 
-	private interface FieldProcessor<Builder> {
-		String getFieldName();
-
-		void process(String value, Builder b);
-	}
-
-	private static Map<String, FieldProcessor<RepositoryItemBuilder>> rifpMap;
-	private static Map<String, FieldProcessor<ToolBuilder>> tfpMap;
-	private static Map<String, FieldProcessor<PortBuilder>> pfpMap;
+	public static final FieldProcessor<RepositoryItemBuilder> rifp;
+	public static final FieldProcessor<ToolBuilder> tfp;
+	public static final FieldProcessor<PortBuilder> pfp;
 
 	static {
 		@SuppressWarnings("unchecked")
-		FieldProcessor<RepositoryItemBuilder>[] rifps = new FieldProcessor[] {
+		SingleFieldProcessor<RepositoryItemBuilder>[] rifps = new SingleFieldProcessor[] {
 				new Name(), new Identifier(), new Version(), new Contact(),
 				new Category() };
 		@SuppressWarnings("unchecked")
-		FieldProcessor<ToolBuilder>[] tfps = new FieldProcessor[] {
+		SingleFieldProcessor<ToolBuilder>[] tfps = new SingleFieldProcessor[] {
 				new FragmentType(), new Status() };
 		@SuppressWarnings("unchecked")
-		FieldProcessor<PortBuilder>[] pfps = new FieldProcessor[] {
+		SingleFieldProcessor<PortBuilder>[] pfps = new SingleFieldProcessor[] {
 				new PIdent(), new PType() };
 
-		rifpMap = mkMap(rifps);
-		tfpMap = mkMap(tfps);
-		pfpMap = mkMap(pfps);
+		rifp = new CompositeFieldProcessor<RepositoryItemBuilder>(rifps);
+		tfp = new CompositeFieldProcessor<ToolBuilder>(tfps);
+		pfp = new CompositeFieldProcessor<PortBuilder>(pfps);
 	}
 
-	public static void processRepositoryItemField(String name, String value,
-			RepositoryItemBuilder b) {
-		FieldProcessor<RepositoryItemBuilder> fp = rifpMap.get(name);
-		if (fp != null)
-			fp.process(value, b);
-	}
-
-	public static void processToolField(String name, String value,
-			ToolBuilder tb) {
-		FieldProcessor<ToolBuilder> fp = tfpMap.get(name);
-		if (fp != null)
-			fp.process(value, tb);
-	}
-
-	public static void processPortField(String name, String value,
-			PortBuilder pb) {
-		FieldProcessor<PortBuilder> fp = pfpMap.get(name);
-		if (fp != null)
-			fp.process(value, pb);
-	}
-
-	private static <Builder> Map<String, FieldProcessor<Builder>> mkMap(
-			FieldProcessor<Builder>[] fps) {
-		Map<String, FieldProcessor<Builder>> result = new HashMap<String, FieldProcessor<Builder>>();
-		for (FieldProcessor<Builder> fp : fps)
-			result.put(fp.getFieldName(), fp);
-		return result;
-	}
-
-	private static class Name implements FieldProcessor<RepositoryItemBuilder> {
+	private static class Name implements
+			SingleFieldProcessor<RepositoryItemBuilder> {
 
 		@Override
 		public String getFieldName() {
@@ -71,13 +37,13 @@ public final class FieldProcessing {
 		}
 
 		@Override
-		public void process(String line, RepositoryItemBuilder b) {
+		public void process(String name, String line, RepositoryItemBuilder b) {
 			b.name = line;
 		}
 	}
 
 	private static class Identifier implements
-			FieldProcessor<RepositoryItemBuilder> {
+			SingleFieldProcessor<RepositoryItemBuilder> {
 
 		@Override
 		public String getFieldName() {
@@ -85,13 +51,13 @@ public final class FieldProcessing {
 		}
 
 		@Override
-		public void process(String line, RepositoryItemBuilder b) {
+		public void process(String name, String line, RepositoryItemBuilder b) {
 			b.id = line;
 		}
 	}
 
 	private static class Version implements
-			FieldProcessor<RepositoryItemBuilder> {
+			SingleFieldProcessor<RepositoryItemBuilder> {
 
 		@Override
 		public String getFieldName() {
@@ -99,13 +65,13 @@ public final class FieldProcessing {
 		}
 
 		@Override
-		public void process(String line, RepositoryItemBuilder b) {
+		public void process(String name, String line, RepositoryItemBuilder b) {
 			b.version = line;
 		}
 	}
 
 	private static class Contact implements
-			FieldProcessor<RepositoryItemBuilder> {
+			SingleFieldProcessor<RepositoryItemBuilder> {
 
 		@Override
 		public String getFieldName() {
@@ -113,13 +79,13 @@ public final class FieldProcessing {
 		}
 
 		@Override
-		public void process(String line, RepositoryItemBuilder b) {
+		public void process(String name, String line, RepositoryItemBuilder b) {
 			b.contact = line;
 		}
 	}
 
 	private static class Category implements
-			FieldProcessor<RepositoryItemBuilder> {
+			SingleFieldProcessor<RepositoryItemBuilder> {
 
 		@Override
 		public String getFieldName() {
@@ -127,12 +93,13 @@ public final class FieldProcessing {
 		}
 
 		@Override
-		public void process(String line, RepositoryItemBuilder b) {
+		public void process(String name, String line, RepositoryItemBuilder b) {
 			b.category = line;
 		}
 	}
 
-	private static class FragmentType implements FieldProcessor<ToolBuilder> {
+	private static class FragmentType implements
+			SingleFieldProcessor<ToolBuilder> {
 
 		@Override
 		public String getFieldName() {
@@ -140,12 +107,12 @@ public final class FieldProcessing {
 		}
 
 		@Override
-		public void process(String value, ToolBuilder b) {
+		public void process(String name, String value, ToolBuilder b) {
 			b.fragmentType = Types.parseType(null, null, value);
 		}
 	}
 
-	private static class Status implements FieldProcessor<ToolBuilder> {
+	private static class Status implements SingleFieldProcessor<ToolBuilder> {
 
 		@Override
 		public String getFieldName() {
@@ -153,12 +120,12 @@ public final class FieldProcessing {
 		}
 
 		@Override
-		public void process(String value, ToolBuilder b) {
+		public void process(String name, String value, ToolBuilder b) {
 			b.status = value;
 		}
 	}
 
-	private static class PIdent implements FieldProcessor<PortBuilder> {
+	private static class PIdent implements SingleFieldProcessor<PortBuilder> {
 
 		@Override
 		public String getFieldName() {
@@ -166,12 +133,12 @@ public final class FieldProcessing {
 		}
 
 		@Override
-		public void process(String line, PortBuilder pb) {
+		public void process(String name, String line, PortBuilder pb) {
 			pb.name = line;
 		}
 	}
 
-	private static class PType implements FieldProcessor<PortBuilder> {
+	private static class PType implements SingleFieldProcessor<PortBuilder> {
 
 		@Override
 		public String getFieldName() {
@@ -179,7 +146,7 @@ public final class FieldProcessing {
 		}
 
 		@Override
-		public void process(String line, PortBuilder pb) {
+		public void process(String name, String line, PortBuilder pb) {
 			ToolBuilder tb = pb.parent;
 			pb.type = Types.parseType(tb.tVars, tb.ts, line);
 		}
