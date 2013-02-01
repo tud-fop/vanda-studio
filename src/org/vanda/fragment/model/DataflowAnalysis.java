@@ -1,5 +1,6 @@
 package org.vanda.fragment.model;
 
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -67,10 +68,10 @@ public final class DataflowAnalysis {
 							appendValue(sb, ji, ports.get(i));
 						}
 						sb.append(')');
-						String s = sb.toString();
+						String s = md5sum(sb.toString());
 						for (Port op : t.getOutputPorts()) {
 							String value = Fragments.normalize(t.getId()) + "."
-									+ md5sum(s) + "." + op.getIdentifier();
+									+ s + "." + op.getIdentifier();
 							values.put(ji.bindings.get(op), value);
 						}
 
@@ -93,7 +94,7 @@ public final class DataflowAnalysis {
 
 	private String md5sum(String in) {
 		try {
-			byte[] bytesOfMessage = in.getBytes();
+			byte[] bytesOfMessage = in.getBytes(Charset.forName("UTF-8"));
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			return DatatypeConverter.printHexBinary(md.digest(bytesOfMessage));
 		} catch (NoSuchAlgorithmException e) {
