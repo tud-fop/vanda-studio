@@ -20,7 +20,9 @@ public class PreviewsModule implements Module {
 		app.registerPreviewFactory(new CompositeType("EMSteps"),
 				new DictionaryPreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("Scores"),
-				new ScorePreviewFactory());
+				new ScoresPreviewFactory());
+//		app.registerPreviewFactory(new CompositeType("Alignments"),
+//				new AlignmentsPreviewFactory());
 		app.registerPreviewFactory(null, new MonospacePreviewFactory());
 		return null;
 	}
