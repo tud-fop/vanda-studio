@@ -11,12 +11,9 @@ source "$FUNCDIR/util.bash"
 #
 # Removes empty lines from parallel corpora and alignments.
 remEmptyLines2 () {
-	echo "Running: remEmptyLines..."
-	$REM_EMPTY_LINES "$1" "$2" "$1"
+	$REM_EMPTY_LINES "$1" "$2"
 	mv "${1}.nel" "$3"
 	mv "${2}.nel" "$4"
-	rm "${3}.nel"
-	echo "Done."
 }
 
 # remEmptyLines
@@ -32,10 +29,8 @@ remEmptyLines2 () {
 #
 # Removes empty lines from parallel corpora and alignments.
 remEmptyLines3 () {
-	echo "Running: remEmptyLines..."
 	$REM_EMPTY_LINES "$1" "$2" "$3"
 	mv "${1}.nel" "$4"
 	mv "${2}.nel" "$5"
 	mv "${3}.nel" "$6"
-	echo "Done."
 }

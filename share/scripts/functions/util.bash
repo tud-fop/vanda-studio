@@ -24,27 +24,31 @@ plain2snt () {
 	echo "Done."
 }
 
+
+# runs a tool
+# run <n> <tool> <i1> ... <in> <o1> ... <om>
+# <n>     number of input arguments
+# <m>     number of output arguments
+# <tool>  tool to run
+# <i?>    input argument
+# <o?>    output argument
 run () {
-	args=($@)
+	args=("$@")
 	echo "Running: ${args[1]}..."
 
 	inNew="${args[2]}"
 	for (( i=3; i < $(( ${args[0]} + 2 )); i++ )); do
-		echo "Checking: ${args[$i]}"
 		if [[ "${args[i]}" -nt "$inNew" ]]; then
 			inNew="${args[$i]}"
 		fi
 	done
-	echo "inNew=$inNew"
 
 	outOld="${args[$((${args[0]} + 2))]}"
-	for (( i=$(( ${args[0]} + 2 )); i <= $#; i++ )); do
-		echo "Checking: ${args[$i]}"
+	for (( i=$(( ${args[0]} + 2 )); i < $#; i++ )); do
 		if [[ "${args[$i]}" -ot "$inNew" ]]; then
 			outOld="${args[$i]}"
 		fi
 	done
-	echo "outOld=$outOld"
 
 	if [[ -f "$outOld" ]]; then
 		if [[ "$inNew" -nt "$outOld" ]]; then
@@ -53,7 +57,7 @@ run () {
 			echo "Up-to-date file(s) found, skipping."
 		fi
 	else
-		${@:2}
+		"${@:2}"
 	fi
 
 	echo "Done."

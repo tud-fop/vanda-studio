@@ -9,9 +9,7 @@ source "$FUNCDIR/util.bash"
 #
 # Converts some special characters into tokens, such as ( into -LLB-
 BerkeleyTokenizer () {
-	echo "Running: BerkeleyTokenizer..."
 	cat "$1" | java -cp "$BERKELEY_PARSER:$BERKELEY_TOKENIZER" Main > "$2"
-	echo "Done."
 }
 
 # Berkeley Parser
@@ -24,7 +22,5 @@ BerkeleyTokenizer () {
 #
 # Berkeley parser using a state-split grammar. Corpus must not contain empty lines.
 BerkeleyParser () {
-	echo "Running: BerkeleyParser..."
 	java -jar "$BERKELEY_PARSER" -gr "$2" -inputFile "$1" -outputFile "$3"
-	echo "Done."
 }

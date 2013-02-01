@@ -10,7 +10,6 @@ source "$FUNCDIR/util.bash"
 #
 # Generates a Tree Corpus given a GHKM Hypergraph and a Sentence Corpus
 XRSTranslate () {
-	echo "Running: XRSTranslate..."
 	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
 	TMP="$OUTPATH/XRS_TMP"
 	mkdir -p "$TMP"
@@ -19,5 +18,4 @@ XRSTranslate () {
 	runhaskell "$VANDADIR/programs/XRSToHypergraph.hs" -e "$TMP/map.e" -f "$TMP/map.f" -g "$1" -z "$TMP/zhg"
 	runhaskell "$VANDADIR/programs/XRSTranslate.hs" -e "$TMP/map.e.new" -f "$TMP/map.f.new" -z "$TMP/zhg" < "$2" > "$3"
 	rm -rf "$TMP"
-	echo "Done."
 }

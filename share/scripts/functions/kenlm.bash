@@ -10,10 +10,11 @@ source "$FUNCDIR/util.bash"
 #
 # Evaluates the corpus according to the given model.
 KenLM () {
-	echo "Running: KenLM..."
 	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
+	echo "$1"
+	echo "$2"
+	echo "$3"
 	"runhaskell" "$VANDADIR/programs/NGrams_KenLM.hs" -g "$1" -i "$2" -o "$3"
 	echo "$2" > "${3}.meta"
-	echo "Done."
 }
 

@@ -10,7 +10,6 @@ source "$FUNCDIR/util.bash"
 #
 # computes alignments and translation tables
 GIZA () {
-	echo "Running: GIZA..."
 	TMP="$OUTPATH/GIZA_TMP"
 	mkdir -p "$TMP"
 	i1new="corpus.en"
@@ -22,5 +21,4 @@ GIZA () {
 	unlink "$TMP/$i1new"
 	unlink "$TMP/$i2new"
 	rm -r "$TMP"
-	echo "Done."
 }
