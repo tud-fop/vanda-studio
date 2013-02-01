@@ -4,22 +4,18 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-05-16
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: translation
-# IN Rules :: GHKM Hypergraph
-# IN Corpus :: Sentence Corpus
-# OUT Tree Corpus :: Penn Tree Corpus
+# IN rules :: GHKMHypergraph
+# IN sentence corpus :: SentenceCorpus
+# OUT tree corpus :: PennTreeCorpus
 #
 # Generates a Tree Corpus given a GHKM Hypergraph and a Sentence Corpus
 XRSTranslate () {
-	echo "Running: XRSTranslate..."
+	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
 	TMP="$OUTPATH/XRS_TMP"
 	mkdir -p "$TMP"
-	cd "$TMP"
-	echo -e "0\n" > "map.e"
-	echo -e "0\n" > "map.f"
-	cd "$VANDADIR"
-	runhaskell "programs/XRSToHypergraph.hs" -e "$TMP/map.e" -f "$TMP/map.f" -g "$1" -z "$TMP/zhg"
-	runhaskell "programs/XRSTranslate.hs" -e "$TMP/map.e.new" -f "$TMP/map.f.new" -z "$TMP/zhg" < "$2" > "$3"
-	cd $OUTPATH
+	echo -e "0\n" > "$TMP/map.e"
+	echo -e "0\n" > "$TMP/map.f"
+	runhaskell "$VANDADIR/programs/XRSToHypergraph.hs" -e "$TMP/map.e" -f "$TMP/map.f" -g "$1" -z "$TMP/zhg"
+	runhaskell "$VANDADIR/programs/XRSTranslate.hs" -e "$TMP/map.e.new" -f "$TMP/map.f.new" -z "$TMP/zhg" < "$2" > "$3"
 	rm -rf "$TMP"
-	echo "Done."
 }

@@ -1,8 +1,12 @@
 package org.vanda.fragment.model;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.vanda.types.Type;
 import org.vanda.workflows.elements.ElementVisitor;
@@ -30,15 +34,15 @@ public final class DataflowAnalysis {
 		jobs = sorted;
 		this.fragmentType = fragmentType;
 	}
-	
+
 	public Type getFragmentType() {
 		return fragmentType;
 	}
-	
+
 	public Job[] getSorted() {
 		return jobs;
 	}
-	
+
 	public void init() {
 		if (jobs == null)
 			return;
@@ -50,6 +54,7 @@ public final class DataflowAnalysis {
 						values.put(ji.bindings.get(ji.getOutputPorts().get(0)),
 								lit.getValue());
 					}
+
 					@Override
 					public void visitTool(Tool t) {
 						StringBuilder sb = new StringBuilder();
@@ -64,13 +69,13 @@ public final class DataflowAnalysis {
 						sb.append(')');
 						String s = sb.toString();
 						for (Port op : t.getOutputPorts()) {
-							values.put(ji.bindings.get(op),
-									Fragments.normalize(t.getId()) + s
-											+ "." + op.getIdentifier());
+							String value = Fragments.normalize(t.getId()) + "."
+									+ md5sum(s) + "." + op.getIdentifier();
+							values.put(ji.bindings.get(op), value);
 						}
-						
+
 					}
-					
+
 				});
 			} else {
 				for (Port op : ji.getOutputPorts()) {
@@ -83,13 +88,24 @@ public final class DataflowAnalysis {
 					values.put(variable, sb.toString());
 				}
 			}
-		}		
+		}
 	}
-	
+
+	private String md5sum(String in) {
+		try {
+			byte[] bytesOfMessage = in.getBytes();
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			return DatatypeConverter.printHexBinary(md.digest(bytesOfMessage));
+		} catch (NoSuchAlgorithmException e) {
+			System.out.println("MD5 not supported by platform.");
+			return null;
+		}
+	}
+
 	private void appendValue(StringBuilder sb, Job j, Port p) {
 		sb.append(p.getIdentifier());
 		sb.append('=');
-		sb.append(values.get(j.bindings.get(p)).replace('/', '#'));		
+		sb.append(values.get(j.bindings.get(p)).replace('/', '#'));
 	}
 
 	public String getValue(Location address) {

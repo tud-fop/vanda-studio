@@ -48,6 +48,8 @@ public class ShellCompiler implements FragmentCompiler {
 					// ^^ and it is propagated via the dependency
 					assert (frag != null);
 					sb.append("  ");
+					sb.append("run ");
+					sb.append(frag.getInputPorts().size() + " ");
 					sb.append(Fragments.normalize(frag.getId()));
 					for (Port ip : frag.getInputPorts()) {
 						sb.append(" \"");

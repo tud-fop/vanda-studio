@@ -4,13 +4,12 @@ source "$FUNCDIR/util.bash"
 # Version: 2012-09-12
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: alignments
-# IN English Corpus :: Sentence Corpus
-# IN French Corpus :: Sentence Corpus
-# OUT Alignments :: Alignments
+# IN english corpus :: SentenceCorpus
+# IN french corpus :: SentenceCorpus
+# OUT alignments :: Alignments
 #
 # computes alignments and translation tables
 GIZA () {
-	echo "Running: GIZA..."
 	TMP="$OUTPATH/GIZA_TMP"
 	mkdir -p "$TMP"
 	i1new="corpus.en"
@@ -22,5 +21,4 @@ GIZA () {
 	unlink "$TMP/$i1new"
 	unlink "$TMP/$i2new"
 	rm -r "$TMP"
-	echo "Done."
 }
