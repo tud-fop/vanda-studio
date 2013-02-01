@@ -2,7 +2,7 @@
 
 source "setuprc"
 
-allPkgs=(base functions berkeleyParser remEmptyLines toParallelCorpus giza irstlm randlm xrstranslate moses ghkm emDictionary examples)
+allPkgs=(config functions berkeleyParser remEmptyLines toParallelCorpus giza irstlm randlm xrstranslate moses ghkm emDictionary examples)
 
 all () {
 	install $allPkgs
@@ -130,7 +130,7 @@ examples () {
 
 help () {
 	echo "Usage: \
-./setup.bash { [ help | config | base | berkeleyParser | ghkm | examples\
+./setup.bash { [ help | config | config | berkeleyParser | ghkm | examples\
 | remEmptyLines | toParallelCorpus | giza | xrstranslate\
 | irstlm | randlm | moses | emDictionary | functions ] }"
 }
