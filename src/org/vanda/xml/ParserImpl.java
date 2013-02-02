@@ -74,6 +74,7 @@ public class ParserImpl<T> implements Parser<T> {
 					if (current == null) // || stack.size() < 1)
 						throw fail(null);
 					stack.push(current);
+					System.out.println(xp.getName());
 					current = current.handleChild(xp.getNamespace(),
 							xp.getName());
 					if (current == null)
@@ -93,8 +94,8 @@ public class ParserImpl<T> implements Parser<T> {
 						throw fail(null);
 					current.handleText(xp.getText());
 				}
-				System.out.println(stack);
-				System.out.println(current);
+				// System.out.println(stack);
+				// System.out.println(current);
 				eventType = xp.next();
 			}
 			if (current == null || stack.size() != 0)

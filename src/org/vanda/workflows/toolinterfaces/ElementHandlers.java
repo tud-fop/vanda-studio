@@ -179,16 +179,16 @@ public final class ElementHandlers {
 			private boolean desc = false;
 			private final Parser<StaticTool> p;
 			private final ToolInterfaceBuilder tib;
-			private final ToolBuilder tb;
+			private ToolBuilder tb;
 
 			public ToolHandler(Parser<StaticTool> p, ToolInterfaceBuilder tib) {
 				this.p = p;
 				this.tib = tib;
-				tb = new ToolBuilder();
 			}
 
 			@Override
 			public void startElement(String namespace, String name) {
+				tb = new ToolBuilder();
 				desc = false;
 			}
 
@@ -237,16 +237,17 @@ public final class ElementHandlers {
 
 		public static class InHandler implements ElementHandler {
 			private final Parser<StaticTool> p;
-			private final PortBuilder pb;
+			private final ToolBuilder tb;
+			private PortBuilder pb;
 
 			public InHandler(Parser<StaticTool> p, ToolBuilder tb) {
 				this.p = p;
-				pb = new PortBuilder(tb);
+				this.tb = tb;
 			}
 
 			@Override
 			public void startElement(String namespace, String name) {
-				pb.reset();
+				pb = new PortBuilder();
 			}
 
 			@Override
@@ -262,7 +263,7 @@ public final class ElementHandlers {
 
 			@Override
 			public void endElement(String namespace, String name) {
-				pb.parent.inPorts.add(pb.build());
+				tb.inPorts.add(pb.build(tb.ts, tb.tVars));
 			}
 
 			@Override
@@ -282,16 +283,17 @@ public final class ElementHandlers {
 
 		public static class OutHandler implements ElementHandler {
 			private final Parser<StaticTool> p;
-			private final PortBuilder pb;
+			private final ToolBuilder tb;
+			private PortBuilder pb;
 
 			public OutHandler(Parser<StaticTool> p, ToolBuilder tb) {
 				this.p = p;
-				pb = new PortBuilder(tb);
+				this.tb = tb;
 			}
 
 			@Override
 			public void startElement(String namespace, String name) {
-				pb.reset();
+				pb = new PortBuilder();
 			}
 
 			@Override
@@ -309,7 +311,7 @@ public final class ElementHandlers {
 			public void endElement(String namespace, String name) {
 				if ("".equals(pb.name) || pb.type == null)
 					p.fail(null);
-				pb.parent.outPorts.add(pb.build());
+				tb.outPorts.add(pb.build(tb.ts, tb.tVars));
 			}
 
 			@Override

@@ -147,8 +147,7 @@ public final class FieldProcessing {
 
 		@Override
 		public void process(String name, String line, PortBuilder pb) {
-			ToolBuilder tb = pb.parent;
-			pb.type = Types.parseType(tb.tVars, tb.ts, line);
+			pb.type = line;
 		}
 	}
 }

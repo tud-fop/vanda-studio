@@ -8,6 +8,7 @@ import org.vanda.util.Pair;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ElementAdapter;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.xml.Factory;
 
 public class JobBuilder {
 
@@ -30,5 +31,16 @@ public class JobBuilder {
 			if (s != null)
 				m.put(p, s);
 		}		
+	}
+	
+	public static Factory<JobBuilder> createFactory() {
+		return new Fäctory();
+	}
+	
+	public static final class Fäctory implements Factory<JobBuilder> {
+		@Override
+		public JobBuilder create() {
+			return new JobBuilder();
+		}
 	}
 }

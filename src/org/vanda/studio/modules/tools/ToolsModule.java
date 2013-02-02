@@ -3,7 +3,7 @@ package org.vanda.studio.modules.tools;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.util.ExternalRepository;
-import org.vanda.workflows.toolinterfaces.StaticTool;
+import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.toolinterfaces.ToolLoader;
 
 public class ToolsModule implements Module {
@@ -15,7 +15,7 @@ public class ToolsModule implements Module {
 
 	@Override
 	public Object createInstance(Application a) {
-		ExternalRepository<StaticTool> er = new ExternalRepository<StaticTool>(
+		ExternalRepository<Tool> er = new ExternalRepository<Tool>(
 				new ToolLoader(a.getProperty("toolsPath")));
 		er.refresh();
 		a.getToolMetaRepository().addRepository(er);

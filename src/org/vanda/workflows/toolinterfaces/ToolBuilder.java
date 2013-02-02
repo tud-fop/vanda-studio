@@ -6,26 +6,26 @@ import java.util.List;
 import java.util.Map;
 
 import org.vanda.types.Type;
+import org.vanda.types.Types;
 import org.vanda.util.TokenSource;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.ToolInterface;
+import org.vanda.xml.CompositeFieldProcessor;
+import org.vanda.xml.Factory;
+import org.vanda.xml.FieldProcessor;
+import org.vanda.xml.SingleFieldProcessor;
 
 public class ToolBuilder extends RepositoryItemBuilder {
-	RendererSelector rs;
-	List<Port> inPorts;
-	List<Port> outPorts;
-	Type fragmentType;
-	String status;
-	ToolInterface ti;
-	TokenSource ts;
-	Map<String, Type> tVars;
+	public RendererSelector rs;
+	public List<Port> inPorts;
+	public List<Port> outPorts;
+	public Type fragmentType;
+	public String status;
+	public ToolInterface ti;
+	public TokenSource ts;
+	public Map<String, Type> tVars;
 
 	public ToolBuilder() {
-		reset();
-	}
-
-	public void reset() {
-		super.reset();
 		rs = RendererSelectors.selectors[0];
 		fragmentType = null;
 		status = "";
@@ -36,9 +36,49 @@ public class ToolBuilder extends RepositoryItemBuilder {
 	}
 
 	public StaticTool build() {
-		return new StaticTool(id, name, category, version, contact,
-				description.toString(), inPorts, outPorts, rs, fragmentType,
-				status, ti);
+		return new StaticTool(id, name, category, version, contact, description.toString(), inPorts, outPorts, rs,
+				fragmentType, status, ti);
+	}
+
+	public static Factory<ToolBuilder> createFactory() {
+		return new Fäctory();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static FieldProcessor<ToolBuilder> createProcessor() {
+		return new CompositeFieldProcessor<ToolBuilder>(new NameProcessor(), new IdProcessor(), new VersionProcessor(),
+				new CategoryProcessor(), new ContactProcessor(), new FragmentTypeProcessor(), new StatusProcessor());
+	}
+
+	public static final class Fäctory implements Factory<ToolBuilder> {
+		@Override
+		public ToolBuilder create() {
+			return new ToolBuilder();
+		}
+	}
+
+	private static final class FragmentTypeProcessor implements SingleFieldProcessor<ToolBuilder> {
+		@Override
+		public String getFieldName() {
+			return "type";
+		}
+
+		@Override
+		public void process(String name, String value, ToolBuilder b) {
+			b.fragmentType = Types.parseType(null, null, value);
+		}
+	}
+
+	private static final class StatusProcessor implements SingleFieldProcessor<ToolBuilder> {
+		@Override
+		public String getFieldName() {
+			return "status";
+		}
+
+		@Override
+		public void process(String name, String value, ToolBuilder b) {
+			b.status = value;
+		}
 	}
 
 }

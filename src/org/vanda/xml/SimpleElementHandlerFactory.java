@@ -8,16 +8,18 @@ public class SimpleElementHandlerFactory<Builder1, Builder2> implements
 	private final Factory<Builder2> factory;
 	private final ComplexFieldProcessor<Builder1, Builder2> cfp;
 	private final FieldProcessor<Builder2> fp;
+	private final FieldProcessor<Builder2> tfp;
 
 	public SimpleElementHandlerFactory(String tag,
 			ElementHandlerFactory<Builder2> ehf, Factory<Builder2> factory,
 			ComplexFieldProcessor<Builder1, Builder2> cfp,
-			FieldProcessor<Builder2> fp) {
+			FieldProcessor<Builder2> fp, FieldProcessor<Builder2> tfp) {
 		this.tag = tag;
 		this.ehf = ehf;
 		this.factory = factory;
 		this.cfp = cfp;
 		this.fp = fp;
+		this.tfp = tfp;
 	}
 
 	@Override
@@ -65,6 +67,8 @@ public class SimpleElementHandlerFactory<Builder1, Builder2> implements
 
 		@Override
 		public void handleText(String text) {
+			if (tfp != null)
+				tfp.process(null, text, b2);
 		}
 
 	}

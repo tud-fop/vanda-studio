@@ -11,6 +11,10 @@ import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.xml.CompositeFieldProcessor;
+import org.vanda.xml.Factory;
+import org.vanda.xml.FieldProcessor;
+import org.vanda.xml.SingleFieldProcessor;
 
 public class WorkflowBuilder {
 
@@ -47,6 +51,34 @@ public class WorkflowBuilder {
 			result.endUpdate();
 		}
 		return result;
+	}
+	
+	public static Factory<WorkflowBuilder> createFactory() {
+		return new Fäctory();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static FieldProcessor<WorkflowBuilder> createProcessor() {
+		return new CompositeFieldProcessor<WorkflowBuilder>(new NameProcessor());
+	}
+	
+	public static final class Fäctory implements Factory<WorkflowBuilder> {
+		@Override
+		public WorkflowBuilder create() {
+			return new WorkflowBuilder();
+		}
+	}
+
+	public static final class NameProcessor implements SingleFieldProcessor<WorkflowBuilder> {
+		@Override
+		public String getFieldName() {
+			return "name";
+		}
+		
+		@Override
+		public void process(String name, String value, WorkflowBuilder b) {
+			b.name = value;
+		}
 	}
 
 }
