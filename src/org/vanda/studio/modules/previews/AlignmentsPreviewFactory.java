@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -136,7 +137,7 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 		private static final long serialVersionUID = -7932798413164129787L;
 		private static final int DYR = 3;
 		private static final int FONT_SIZE = 14;
-		private static final int DX = 7;
+		private static final int DX = 10;
 		private static final int DY = 5 * (FONT_SIZE + DYR);
 		private Alignment al;
 		private int width = DX;
@@ -156,53 +157,68 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 				return;
 			Graphics2D g2d = (Graphics2D) g;
 
+			// configure rendering
 			g2d.setStroke(new BasicStroke(1.5f));
 			g2d.setFont(new Font("SansSerif", Font.BOLD, FONT_SIZE));
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
+			FontMetrics fm = g2d.getFontMetrics();
 
+			// parse alignments
 			int[] ali = new int[al.as2.length];
 			for (String a : al.al) {
 				ali[Integer.parseInt(a.trim().split("-")[0])] = Integer
 						.parseInt(a.trim().split("-")[1]);
 			}
-
+			
+			// offset lines for centering
+			int w1 = 0, w2 = 0;
+			for (String a : al.as1)
+				w1 += fm.stringWidth(a);
+			w1 += (al.as1.length - 1) * DX;
+			for (String a : al.as2)
+				w2 += fm.stringWidth(a);
+			w2 += (al.as2.length - 1) * DX;
+			int x1, x2;
+			if (w1 > w2) {
+				x1 = DX;
+				x2 = DX + (w1 - w2) / 2;
+			} else {
+				x1 = DX + (w2 - w1) / 2;
+				x2 = DX;
+			}
+			
+			// initialize data
 			int[] midXs1 = new int[al.as1.length];
-			int x0 = DX;
-
-			JLabel lbl;
 			int width;
-			int i = 0;
+			int i = 0, mid;
+
+			// draw upper sentence
 			for (String s : al.as1) {
-				lbl = new JLabel(s);
-				lbl.setFont(new Font("SansSerif", Font.BOLD, FONT_SIZE));
-				width = lbl.getPreferredSize().width;
+				width = fm.stringWidth(s);
+				g2d.drawString(s, x1, DYR + FONT_SIZE);
 
-				g2d.drawString(s, x0, DYR + FONT_SIZE);
-
-				midXs1[i] = x0 + width / 2;
-				x0 += width + DX;
+				midXs1[i] = x1 + width / 2;
+				x1 += width + DX;
 				i++;
 			}
-			this.width = x0;
 
+			// draw lower sentence and lines
 			i = 0;
-			x0 = DX;
-			int mid;
 			for (String s : al.as2) {
-				lbl = new JLabel(s);
-				lbl.setFont(new Font("SansSerif", Font.BOLD, FONT_SIZE));
-				width = lbl.getPreferredSize().width;
-				mid = x0 + width / 2;
+				width = fm.stringWidth(s);
+				mid = x2 + width / 2;
 
-				g2d.drawString(s, x0, DY + DYR + 2 * FONT_SIZE);
-				g2d.drawLine(mid, DY + FONT_SIZE, midXs1[ali[i]], DYR
-						+ FONT_SIZE + DYR);
+				g2d.drawString(s, x2, DY + DYR + 2 * FONT_SIZE);
+				g2d.drawLine(mid, DY + FONT_SIZE, midXs1[ali[i]], 2 * DYR
+						+ FONT_SIZE + fm.getDescent());
 
-				x0 += width + DX;
+				x2 += width + DX;
 				i++;
 			}
-			this.width = Math.max(this.width, x0);
+			
+			// set width for getPreferredSize()
+			this.width = Math.max(x1, x2);
 		}
 		
 		public void setAlignment(Alignment al) {
