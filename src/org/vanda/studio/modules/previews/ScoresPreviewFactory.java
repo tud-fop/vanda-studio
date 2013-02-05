@@ -8,17 +8,24 @@ import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
+import org.vanda.util.ExceptionMessage;
 
 public class ScoresPreviewFactory implements PreviewFactory {
 
+	private Application app;
+	
+	public ScoresPreviewFactory(Application app) {
+		super();
+		this.app = app;
+	}
+	
 	@Override
 	public JComponent createPreview(String absolutePath) {
-		JComponent result;
 		File scores = new File(absolutePath);
 		File meta = new File(absolutePath + ".meta");
 		Scanner sScores = null, sMeta = null, sSentences = null;
@@ -46,10 +53,11 @@ public class ScoresPreviewFactory implements PreviewFactory {
 			}
 			// build GUI
 			JTable jTable = new JTable(data, new String[] {"sentence", "score"});
-			result = new JScrollPane(jTable);
+			JComponent result = new JScrollPane(jTable);
+			return result;
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			result = new JLabel("File not found.");
+			app.sendMessage(new ExceptionMessage(e));
+			return app.getPreviewFactory(null).createPreview(absolutePath);
 		} finally {
 			if (sScores != null)
 				sScores.close();
@@ -58,7 +66,6 @@ public class ScoresPreviewFactory implements PreviewFactory {
 			if (sSentences != null)
 				sSentences.close();
 		}
-		return result;
 	}
 
 	@Override
@@ -75,8 +82,7 @@ public class ScoresPreviewFactory implements PreviewFactory {
 				try {
 					Runtime.getRuntime().exec("xdg-open " + value);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					app.sendMessage(new ExceptionMessage(e));
 				}
 			}
 		});
