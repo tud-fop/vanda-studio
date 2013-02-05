@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,10 @@ import javax.swing.event.ListSelectionListener;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
+import org.vanda.util.Action;
+import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Lexer;
+import org.vanda.util.Message;
 import org.vanda.util.Pair;
 
 @SuppressWarnings({ "unchecked", "serial" })
@@ -519,6 +523,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 				JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 						pan, jZoomPane);
+				split.setResizeWeight(0.5);
 				add(split, BorderLayout.CENTER);
 
 				more();
@@ -564,8 +569,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				try {
 					Runtime.getRuntime().exec("xdg-open " + value);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					app.sendMessage(new ExceptionMessage(e));
 				}
 			}
 		});
