@@ -10,15 +10,18 @@ source "$FUNCDIR/util.bash"
 #
 # computes alignments and translation tables
 GIZA () {
-	TMP="$OUTPATH/GIZA_TMP"
-	mkdir -p "$TMP"
-	i1new="corpus.en"
-	i2new="corpus.fr"
-	ln -s "$1" "$TMP/$i1new"
-	ln -s "$2" "$TMP/$i2new"
+	TMP="$1"
+	i1new="$TMP/corpus.en"
+	i2new="$TMP/corpus.fr"
+	if [[ ! -f "$i1new" ]]; then
+		ln -svf "$2" "$i1new"
+	fi
+	if [[ ! -f "$i2new" ]]; then
+		ln -svf "$3" "$i2new"
+	fi
 	$MOSES/scripts/training/train-model.perl -root-dir "$TMP" --corpus "$TMP/corpus" --e fr --f en --last-step 3 --external-bin-dir="$GIZA"
-	mv "$TMP/model/aligned.grow-diag-final" "$3"
-	unlink "$TMP/$i1new"
-	unlink "$TMP/$i2new"
-	rm -r "$TMP"
+	mv "$TMP/model/aligned.grow-diag-final" "$4"
+	unlink "$i1new"
+	unlink "$i2new"
+	echo -e "$3\n$2\n" > "${4}.meta"
 }

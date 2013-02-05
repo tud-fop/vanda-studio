@@ -11,8 +11,8 @@ source "$FUNCDIR/util.bash"
 # Evaluates the corpus according to the given model.
 NGrams () {
 	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
-	N=$(grep "grams:" "$1" | wc -l)
-	"runhaskell" "$VANDADIR/programs/NGrams.hs" -g "$1" -n "$N" "$2" > "$3"
-	echo "$2" > "${3}.meta"
+	N=$(grep "grams:" "$2" | wc -l)
+	"runhaskell" "$VANDADIR/programs/NGrams.hs" -g "$2" -n "$N" "$3" > "$4"
+	echo "$3" > "${4}.meta"
 }
 

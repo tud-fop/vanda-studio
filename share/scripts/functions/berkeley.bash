@@ -5,11 +5,11 @@ source "$FUNCDIR/util.bash"
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: corpus tools
 # IN corpus :: SentenceCorpus
-# OUT tokenized corpus :: SentenceCorpus
+# OUT tokenizedCorpus :: SentenceCorpus
 #
 # Converts some special characters into tokens, such as ( into -LLB-
 BerkeleyTokenizer () {
-	cat "$1" | java -cp "$BERKELEY_PARSER:$BERKELEY_TOKENIZER" Main > "$2"
+	cat "$2" | java -cp "$BERKELEY_PARSER:$BERKELEY_TOKENIZER" Main > "$3"
 }
 
 # Berkeley Parser
@@ -22,5 +22,5 @@ BerkeleyTokenizer () {
 #
 # Berkeley parser using a state-split grammar. Corpus must not contain empty lines.
 BerkeleyParser () {
-	java -jar "$BERKELEY_PARSER" -gr "$2" -inputFile "$1" -outputFile "$3"
+	cat "$2" | java -jar "$BERKELEY_PARSER" -gr "$3" -outputFile "$4"
 }

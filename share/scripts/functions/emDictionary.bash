@@ -12,9 +12,8 @@ source "$FUNCDIR/util.bash"
 #
 # Trains a dictionary with a bilingual corpus.
 EMDictionary () {
-	mkdir -p "$OUTPATH/EM_TEMP"
-	tmp="$OUTPATH/EM_TEMP/parallelCorpus"
-	$TO_PARALLEL_CORPUS "$1" "$2" > "$tmp"
-	$EMDICTIONARY csvAndBest "$3" "$tmp" "$5" > "$4"
-	rm -r "$OUTPATH/EM_TEMP"
+	tmp="$1/corpus.txt"
+	$TO_PARALLEL_CORPUS "$2" "$3" > "$tmp"
+	$EMDICTIONARY csvAndBest "$4" "$tmp" "$6" > "$5"
+	rm -r "$OUTPATH/corpus.txt"
 }

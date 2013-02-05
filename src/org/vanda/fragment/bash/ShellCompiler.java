@@ -51,6 +51,8 @@ public class ShellCompiler implements FragmentCompiler {
 					sb.append("run ");
 					sb.append(frag.getInputPorts().size() + " ");
 					sb.append(Fragments.normalize(frag.getId()));
+					sb.append("  ");
+					sb.append(dfa.getRootDir(t));
 					for (Port ip : frag.getInputPorts()) {
 						sb.append(" \"");
 						sb.append(fio.findFile(dfa.getValue(ji.bindings.get(ip))));

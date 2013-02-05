@@ -10,12 +10,10 @@ source "$FUNCDIR/util.bash"
 #
 # Trains an n-gram model.
 IRSTLM () {
-	TMP="$OUTPATH/IRSTLM_TMP"
-	mkdir -p "$TMP"
-	"$IRSTLM/add-start-end.sh" < "$1" > "$TMP/train.txt"
-	"$IRSTLM/ngt" -i="$TMP/train.txt" -n="$2" -o="$TMP/train.www"
-	"$IRSTLM/tlm" -tr="$TMP/train.www" -n="$2" -lm=wb -o="$3"
-	rm -rf "$TMP"
+	TMP="$1"
+	"$IRSTLM/add-start-end.sh" < "$2" > "$TMP/train.txt"
+	"$IRSTLM/ngt" -i="$TMP/train.txt" -n="$3" -o="$TMP/train.www"
+	"$IRSTLM/tlm" -tr="$TMP/train.www" -n="$3" -lm=wb -o="$4"
 }
 
 # ARPA2Binary
@@ -27,6 +25,6 @@ IRSTLM () {
 #
 # Converts ARPA to binary ARPA format.
 ARPA2Binary () {
-	"$IRSTLM/compile-lm" "$1" "$2"
+	"$IRSTLM/compile-lm" "$2" "$3"
 }
 

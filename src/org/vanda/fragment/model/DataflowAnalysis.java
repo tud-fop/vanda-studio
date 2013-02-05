@@ -26,12 +26,14 @@ public final class DataflowAnalysis {
 
 	private final MutableWorkflow workflow;
 	private final Map<Location, String> values;
+	private final Map<Tool, String> rootDirs;
 	private final Job[] jobs;
 	private final Type fragmentType;
 
 	public DataflowAnalysis(MutableWorkflow iwf, Job[] sorted, Type fragmentType) {
 		workflow = iwf;
 		values = new HashMap<Location, String>();
+		rootDirs = new HashMap<Tool, String>();
 		jobs = sorted;
 		this.fragmentType = fragmentType;
 	}
@@ -68,10 +70,11 @@ public final class DataflowAnalysis {
 							appendValue(sb, ji, ports.get(i));
 						}
 						sb.append(')');
-						String s = md5sum(sb.toString());
+						String toolPrefix = Fragments.normalize(t.getId()) + "."
+								+ md5sum(sb.toString());
+						rootDirs.put(t, toolPrefix);
 						for (Port op : t.getOutputPorts()) {
-							String value = Fragments.normalize(t.getId()) + "."
-									+ s + "." + op.getIdentifier();
+							String value = toolPrefix + "." + op.getIdentifier();
 							values.put(ji.bindings.get(op), value);
 						}
 
@@ -111,6 +114,10 @@ public final class DataflowAnalysis {
 
 	public String getValue(Location address) {
 		return values.get(address);
+	}
+	
+	public String getRootDir(Tool t) {
+		return rootDirs.get(t);
 	}
 
 	public MutableWorkflow getWorkflow() {

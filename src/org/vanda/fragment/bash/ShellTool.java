@@ -90,4 +90,5 @@ public class ShellTool implements Fragment, RepositoryItem {
 	public Set<String> getDependencies() {
 		return Collections.emptySet();
 	}
+
 }

@@ -1,5 +1,4 @@
 plain2snt () {
-	echo "Running: plain2snt..."
 	i1new="$OUTPATH/i1New"
 	i2new="$OUTPATH/i2New"
 	i1new=${i1new/%.txt/}
@@ -21,30 +20,31 @@ plain2snt () {
 	mv "$g1vcb" "$5"
 	mv "$g2snt" "$4"
 	mv "$g2vcb" "$6"
-	echo "Done."
 }
 
 
 # runs a tool
-# run <n> <tool> <i1> ... <in> <o1> ... <om>
+# run <n> <tool> <root> <i1> ... <in> <o1> ... <om>
 # <n>     number of input arguments
 # <m>     number of output arguments
 # <tool>  tool to run
+# <root>  directory to root temp and meta files
 # <i?>    input argument
 # <o?>    output argument
 run () {
 	args=("$@")
 	echo "Running: ${args[1]}..."
+	mkdir -p "${args[2]}"
 
-	inNew="${args[2]}"
-	for (( i=3; i < $(( ${args[0]} + 2 )); i++ )); do
+	inNew="${args[3]}"
+	for (( i=4; i < $(( ${args[0]} + 3 )); i++ )); do
 		if [[ "${args[i]}" -nt "$inNew" ]]; then
 			inNew="${args[$i]}"
 		fi
 	done
 
-	outOld="${args[$((${args[0]} + 2))]}"
-	for (( i=$(( ${args[0]} + 2 )); i < $#; i++ )); do
+	outOld="${args[$((${args[0]} + 3))]}"
+	for (( i=$(( ${args[0]} + 3 )); i < $#; i++ )); do
 		if [[ "${args[$i]}" -ot "$inNew" ]]; then
 			outOld="${args[$i]}"
 		fi
@@ -52,7 +52,7 @@ run () {
 
 	if [[ -f "$outOld" ]]; then
 		if [[ "$inNew" -nt "$outOld" ]]; then
-			${@:2}
+			"${@:2}"
 		else
 			echo "Up-to-date file(s) found, skipping."
 		fi
