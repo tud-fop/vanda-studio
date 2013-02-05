@@ -39,7 +39,7 @@ import Control.Applicative
 import Control.Arrow
 
 remEmptyLines3 :: FilePath -> FilePath -> FilePath -> IO ()
-remEmptyLines3 file_en file_fn file_a
+remEmptyLines3 file_a file_en file_fn
   = do
       en <- TIO.readFile file_en
       fn <- TIO.readFile file_fn
@@ -78,6 +78,6 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    [eFile, fFile, aFile] -> remEmptyLines3 eFile fFile aFile
+    [aFile, eFile, fFile] -> remEmptyLines3 aFile eFile fFile
     [eFile, fFile] -> remEmptyLines2 eFile fFile
 
