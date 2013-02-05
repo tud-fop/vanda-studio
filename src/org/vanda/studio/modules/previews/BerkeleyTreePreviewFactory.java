@@ -27,7 +27,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,10 +51,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
-import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Lexer;
-import org.vanda.util.Message;
 import org.vanda.util.Pair;
 
 @SuppressWarnings({ "unchecked", "serial" })
@@ -94,15 +91,13 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		}
 
 		public String yield() {
-			if (children.length == 0) {
+			if (children.length == 0)
 				return label;
-			} else {
-				String result = "";
-				for (Tree c : children) {
-					result += c.yield() + " ";
-				}
-				return result.trim().replaceAll(" +", " ");
+			String result = "";
+			for (Tree c : children) {
+				result += c.yield() + " ";
 			}
+			return result.trim().replaceAll(" +", " ");
 		}
 
 		@Override
@@ -136,9 +131,8 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			if (!st.isEmpty())
 				st.pop();
 			return new Tree(head, subTrees.toArray(new Tree[0]));
-		} else {
-			return new Tree(st.pop());
 		}
+		return new Tree(st.pop());
 	}
 
 	class DragScrollListener extends MouseAdapter implements MouseWheelListener {
@@ -484,8 +478,6 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 					@Override
 					public void componentShown(ComponentEvent e) {
-						// TODO Auto-generated method stub
-
 					}
 
 					@Override
@@ -510,14 +502,10 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 
 					@Override
 					public void componentMoved(ComponentEvent e) {
-						// TODO Auto-generated method stub
-
 					}
 
 					@Override
 					public void componentHidden(ComponentEvent e) {
-						// TODO Auto-generated method stub
-
 					}
 				});
 
@@ -557,8 +545,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 	public JComponent createPreview(String value) {
 		if ((new File(value)).exists())
 			return new BerkeleyTreePreview(value);
-		else
-			return app.getPreviewFactory(null).createPreview(value);
+		return app.getPreviewFactory(null).createPreview(value);
 	}
 
 	public void openEditor(final String value) {

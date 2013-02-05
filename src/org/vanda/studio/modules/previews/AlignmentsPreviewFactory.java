@@ -130,6 +130,10 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 
 	public class AlignmentView extends JPanel {
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -7932798413164129787L;
 		private static final int DYR = 3;
 		private static final int FONT_SIZE = 14;
 		private static final int DX = 7;
