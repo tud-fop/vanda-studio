@@ -301,9 +301,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		 */
 		public int drawTree(Graphics2D g, int level, int seedX, Tree t) {
 			int currentX = seedX;
-			JLabel lbl = new JLabel(t.label);
-			lbl.setFont(new Font("SansSerif", Font.BOLD, FONT_SIZE));
-			int width = lbl.getPreferredSize().width;
+			int width = g.getFontMetrics().stringWidth(t.label);
 			int xMid;
 			if (t.children.length == 0) {
 				g.setColor(Color.BLUE);
