@@ -2,7 +2,7 @@
 
 source "setuprc"
 
-allPkgs=(config functions berkeleyParser remEmptyLines toParallelCorpus giza irstlm randlm xrstranslate moses ghkm emDictionary examples)
+allPkgs=(config functions berkeleyParser remEmptyLines toParallelCorpus giza mgiza irstlm randlm xrstranslate moses ghkm emDictionary examples)
 
 all () {
 	install $allPkgs
@@ -58,6 +58,21 @@ giza () {
 	rm -rf giza-pp*
 	echo "PLAIN2SNT=$HOME/.vanda/bin/giza/plain2snt.out" >> ~/.vanda/vandarc
 	echo "GIZA=$HOME/.vanda/bin/giza" >> ~/.vanda/vandarc
+}
+
+mgiza () {
+	wget http://ignum.dl.sourceforge.net/project/mgizapp/mgizapp-0.7.3.tgz
+	tar xfv mgizapp-0.7.3.tgz
+	cd mgizapp
+	rm CMakeCache.txt
+	sed -i "s/FIND_PACKAGE( Boost 1.41 COMPONENTS thread)/FIND_PACKAGE( Boost 1.41 COMPONENTS thread system)/g" CMakeLists.txt
+	cmake .
+	make mgiza
+	cp bin/mgiza ~/.vanda/bin/giza
+	wget http://www.cs.cmu.edu/~qing/release/merge_alignment.py -O ~/.vanda/bin/giza/merge_alignment.py
+	sed -i "s/train-model.perl -root-dir/train-model.perl -mgiza -root-dir/g" ~/.vanda/functions/giza.bash
+	cd ..
+	rm -rf mgizapp*
 }
 
 xrstranslate () {
