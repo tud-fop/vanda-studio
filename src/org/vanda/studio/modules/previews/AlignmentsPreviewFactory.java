@@ -20,7 +20,6 @@ import java.util.Scanner;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -106,8 +105,8 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 
 		public void initialize() throws FileNotFoundException {
 			Scanner mHandle = new Scanner(new File(file + ".meta"));
-			fHandle = new Scanner(new File(mHandle.nextLine()));
-			eHandle = new Scanner(new File(mHandle.nextLine()));
+			fHandle = new Scanner(new File(app.findFile(mHandle.nextLine())));
+			eHandle = new Scanner(new File(app.findFile(mHandle.nextLine())));
 			mHandle.close();
 			aHandle = new Scanner(new File(file));
 			load();
@@ -117,11 +116,8 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 			int i = 10;
 			while (i > 0 && fHandle.hasNextLine() && eHandle.hasNextLine()
 					&& aHandle.hasNextLine()) {
-				String aLine = aHandle.nextLine();
-				System.out.println(aLine);
-				Alignment a = new Alignment(fHandle.nextLine(), eHandle.nextLine(),
-						aLine);
-				als.add(a);
+				als.add(new Alignment(fHandle.nextLine(), eHandle.nextLine(),
+						 aHandle.nextLine()));
 				i--;
 			}
 			jAls.setListData(als.toArray());
@@ -242,6 +238,7 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 			aps.initialize();
 			return aps;
 		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 			return app.getPreviewFactory(null).createPreview(value);
 		}
 	}
