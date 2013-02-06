@@ -22,5 +22,5 @@ BerkeleyTokenizer () {
 #
 # Berkeley parser using a state-split grammar. Corpus must not contain empty lines.
 BerkeleyParser () {
-	cat "$2" | java -jar "$BERKELEY_PARSER" -gr "$3" -outputFile "$4"
+	cat "$2" | java -jar "$BERKELEY_PARSER" -nThreads "$(nproc)" -gr "$3" -outputFile "$4"
 }
