@@ -33,9 +33,13 @@ plain2snt () {
 # <o?>    output argument
 run () {
 	args=("$@")
-	echo "Running: ${args[1]}..."
+	echo "Running: ${args[2]}"
 	mkdir -p "${args[2]}"
-
+	
+	logFile="${args[2]}/log"
+	touch "$logFile"
+	
+	echo "Checking: ${args[2]}" >> "$logFile"
 	inNew="${args[3]}"
 	for (( i=4; i < $(( ${args[0]} + 3 )); i++ )); do
 		if [[ "${args[i]}" -nt "$inNew" ]]; then
@@ -50,17 +54,23 @@ run () {
 		fi
 	done
 
+	echo "$(date)" >> logFile
 	if [[ -f "$outOld" ]]; then
 		if [[ "$inNew" -nt "$outOld" ]]; then
-			"${@:2}"
+			echo "Running: ${args[2]}" >> $logFile"
+			"${@:2}" &>> "$logFile"
+			echo "Returned: $?" >> $logFile"
 		else
-			echo "Up-to-date file(s) found, skipping."
+			echo "Skipping: ${args[2]}" >> "$logFile"
+			echo "  Reason: Up-to-date file(s) found." >> "$logFile"
 		fi
 	else
-		"${@:2}"
+		echo "Running: ${args[2]}" >> "$logFile"
+		"${@:2}" &>> "$logFile"
+		echo "Returned: $?" >> "$logFile"
 	fi
 
-	echo "Done."
+	echo "Done: ${args[2]}"
 }
 
 findFile () {

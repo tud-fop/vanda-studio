@@ -164,7 +164,7 @@ public class RunTool implements SemanticsToolFactory {
 						synchronized (doc) {
 							try {
 								if (line.startsWith("Running:")
-										| line.startsWith("Done."))
+										| line.startsWith("Done:"))
 									doc.insertString(doc.getLength(), line
 											+ "\n", infoStyle);
 								else
