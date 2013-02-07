@@ -2,7 +2,7 @@
 
 source "setuprc"
 
-allPkgs=(config functions berkeleyParser europarlTools remEmptyLines toParallelCorpus giza mgiza irstlm randlm xrstranslate moses ghkm emDictionary examples)
+allPkgs="config functions berkeleyParser europarlTools remEmptyLines toParallelCorpus giza mgiza irstlm randlm xrstranslate moses ghkm emDictionary examples"
 
 all () {
 	install $allPkgs
@@ -21,7 +21,9 @@ config () {
 
 functions () {
 	mkdir -p ~/.vanda/functions
+	mkdir -p ~/.vanda/interfaces
 	cp functions/* ~/.vanda/functions/.
+	cp ../interfaces/* ~/.vanda/interfaces/.
 }
 
 berkeleyParser () {
@@ -164,7 +166,7 @@ install () {
 	args=($@)
 	i=0
 	echo "$date" > setup.log
-	for t in "$@"; do
+	for t in $@; do
 		(( i++ ))
 		echo -ne "[$i/$#] Installing ${args[(($i - 1))]}."
 		echo "[$i/$#] Installing ${args[(($i - 1))]}." >> setup.log
