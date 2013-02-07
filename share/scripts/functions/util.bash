@@ -54,12 +54,12 @@ run () {
 		fi
 	done
 
-	echo "$(date)" >> logFile
+	echo "$(date)" >> "$logFile"
 	if [[ -f "$outOld" ]]; then
 		if [[ "$inNew" -nt "$outOld" ]]; then
-			echo "Running: ${args[2]}" >> $logFile"
+			echo "Running: ${args[2]}" >> "$logFile"
 			"${@:2}" &>> "$logFile"
-			echo "Returned: $?" >> $logFile"
+			echo "Returned: $?" >> "$logFile"
 		else
 			echo "Skipping: ${args[2]}" >> "$logFile"
 			echo "  Reason: Up-to-date file(s) found." >> "$logFile"
