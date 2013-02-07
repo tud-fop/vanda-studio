@@ -80,6 +80,7 @@ mgiza () {
 	make mgiza
 	cp bin/mgiza ~/.vanda/bin/giza
 	wget http://www.cs.cmu.edu/~qing/release/merge_alignment.py -O ~/.vanda/bin/giza/merge_alignment.py
+	chmod +x ~/.vanda/bin/giza/merge_alignment.py
 	sed -i "s/train-model.perl -root-dir/train-model.perl -mgiza -root-dir/g" ~/.vanda/functions/giza.bash
 	cd ..
 	rm -rf mgizapp*
