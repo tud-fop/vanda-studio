@@ -2,7 +2,7 @@
 
 source "setuprc"
 
-allPkgs=(config functions berkeleyParser remEmptyLines toParallelCorpus giza mgiza irstlm randlm xrstranslate moses ghkm emDictionary examples)
+allPkgs=(config functions berkeleyParser europarlTools remEmptyLines toParallelCorpus giza mgiza irstlm randlm xrstranslate moses ghkm emDictionary examples)
 
 all () {
 	install $allPkgs
@@ -33,6 +33,14 @@ berkeleyParser () {
 	mv "berkeleyTokenizer/Main.class" ~/.vanda/bin/berkeleyTokenizer/.
 	rm "berkeleyParser.jar"
 	echo "BERKELEY_TOKENIZER=$HOME/.vanda/bin/berkeleyTokenizer" >> ~/.vanda/vandarc
+}
+
+europarlTools () {
+	wget http://www.statmt.org/europarl/v7/tools.tgz
+	tar xfv tools.tgz
+	mv tools ~/.vanda/bin/europarlTools
+	rm tools.tgz
+	echo "EUROPARL_TOOLS=$HOME/.vanda/bin/europarlTools" >> ~/.vanda/vandarc
 }
 
 remEmptyLines () {
@@ -145,8 +153,8 @@ examples () {
 
 help () {
 	echo "Usage: \
-./setup.bash { [ help | config | config | berkeleyParser | ghkm | examples\
-| remEmptyLines | toParallelCorpus | giza | xrstranslate\
+./setup.bash { [ help | config | config | berkeleyParser | europarlTools \
+| ghkm | examples| remEmptyLines | toParallelCorpus | giza | xrstranslate\
 | irstlm | randlm | moses | emDictionary | functions ] }"
 }
 
