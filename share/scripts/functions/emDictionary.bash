@@ -15,5 +15,4 @@ EMDictionary () {
 	tmp="$1/corpus.txt"
 	$TO_PARALLEL_CORPUS "$2" "$3" > "$tmp"
 	$EMDICTIONARY csvAndBest "$4" "$tmp" "$6" > "$5"
-	rm -r "$OUTPATH/corpus.txt"
 }

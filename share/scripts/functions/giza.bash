@@ -14,10 +14,10 @@ GIZA () {
 	i1new="$TMP/corpus.en"
 	i2new="$TMP/corpus.fr"
 	if [[ ! -f "$i1new" ]]; then
-		ln -rsvf "$2" "$i1new"
+		ln -svf "$2" "$i1new"
 	fi
 	if [[ ! -f "$i2new" ]]; then
-		ln -rsvf "$3" "$i2new"
+		ln -svf "$3" "$i2new"
 	fi
 	$MOSES/scripts/training/train-model.perl -root-dir "$TMP" --corpus "$TMP/corpus" --e fr --f en --last-step 3 --external-bin-dir="$GIZA"
 	mv "$TMP/model/aligned.grow-diag-final" "$4"
