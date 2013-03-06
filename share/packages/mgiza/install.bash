@@ -11,8 +11,10 @@ install_me () {
 	sed -i "s/FIND_PACKAGE( Boost 1.41 COMPONENTS thread)/FIND_PACKAGE( Boost 1.41 COMPONENTS thread system)/g" CMakeLists.txt
 	cmake .
 	make mgiza
-	cp bin/mgiza "$1/giza"
-	wget http://www.cs.cmu.edu/~qing/release/merge_alignment.py -O "$1/giza/merge_alignment.py"
+	mkdir "$1/giza"
+	cp bin/mgiza "$1/giza/."
+	wget http://www.cs.cmu.edu/~qing/release/merge_alignment.py
+	cp "merge_alignment.py" "$1/giza"
 	chmod +x "$1/giza/merge_alignment.py"
 	cd ..
 	git clone git://github.com/moses-smt/mosesdecoder.git

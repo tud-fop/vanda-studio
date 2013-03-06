@@ -46,7 +46,7 @@ install () {
 
 # configure packages
 	declare -i j=1
-	echo_color "Configuring ${pkgs[@]}."
+	echo_color "Configuring."
 
 # merging files
 	mkdir -p "$TMP"
