@@ -1,0 +1,35 @@
+1 What is a package?
+====================
+
+- tools are offered through packages
+- packages are archived(.tar.gz) folders
+- the folder must at least contain the files
+  - install.bash
+  - func.bash
+- install.bash must contain id, varname, version, binpath and a function
+  install_me
+- install_me is provided with the target path for binaries in the first
+  command line argument and should take care of downloading, compiling and
+  installing the needed binaries
+- func.bash is parsed by vanda-studio according to the interface in charge,
+  look at some code for further insights
+- the folder may contain additional files needed by install_me
+
+
+2 How do I use vandapkg?
+========================
+
+- list installed packages
+  ./vandapkg.bash list
+- install new packages
+  ./vandapkg.bash install <package1.tar.gz> [<package2.tag.gz>] ...
+- remove installed packages
+  ./vandapkg.bash remove <pkgname1> [<pkgname2>] ...
+
+
+3 How do I build a package?
+===========================
+
+- prepare a folder according to [1]
+- pack it with
+  tar cvzf <pkgname>.tar.gz <pkgdir>

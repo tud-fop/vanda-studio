@@ -1,0 +1,30 @@
+<root>
+
+	<toolinterface
+		id="ngrams1"
+		name="NGrams"
+		version="2013-01-31"
+		contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+		category="Language Models::Application">
+
+		<description>Tools related to n-gram query.</description>
+
+		<tool
+			type="Shell"
+			id="NGrams"
+			name="NGrams"
+			version="2013-01-31"
+			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			category="Language Models::Application"
+			status="">
+
+			<description><![CDATA[Evaluates the corpus according to the given model]]>.</description>
+
+			<in name="n-gram model" type="ARPA" />
+			<in name="english corpus" type="SentenceCorpus" />
+			<out name="logarithmic scores" type="Scores" />
+		</tool>
+
+	</toolinterface>
+
+</root>

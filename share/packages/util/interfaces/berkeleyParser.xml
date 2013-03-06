@@ -1,0 +1,58 @@
+<root>
+	<toolinterface
+		id="berkeleyparser1"
+		name="Berkeley Tools"
+		version="2013-01-16"
+		contact="Matthias.Buechse@tu-dresden.de"
+		category="">
+		
+		<description>Tools related to the Berkeley Parser.</description>
+		
+		<tool
+			type="Shell"
+			id="BerkeleyParser"
+			name="Berkeley Parser"
+			version="2013-01-16"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="Language Models::Parsing">
+			
+			<description><![CDATA[Berkeley parser using a state-split grammar. Corpus must <em>not</em> contain empty lines]]>.</description>
+	
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="grammar" type="BerkeleyGrammar.sm6" />
+			<out name="trees" type="PennTreeCorpus" />
+		</tool>
+		
+		<tool
+			type="Shell"
+			id="bpnbest"
+			name="Berkeley Parser n-best"
+			version="2013-01-16"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="Language Models::Parsing"
+			status="provisional">
+			
+			<description>Computes n best trees for the first sentence in the corpus.</description>
+	
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="n" type="Integer" />
+			<in name="grammar" type="BerkeleyGrammar.sm6" />
+			<out name="trees" type="PennTreeCorpus" />
+		</tool>
+		
+		<tool
+			type="Shell"
+			id="BerkeleyTokenizer"
+			name="Berkeley Tokenizer"
+			version="2013-01-16"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="Corpus Tools">
+			
+			<description>Converts some special characters into tokens, such as ( into -LLB-.</description>
+			
+			<in name="corpus" type="SentenceCorpus" />
+			<out name="tokenizedCorpus" type="SentenceCorpus" />
+		</tool>
+		
+	</toolinterface>
+</root>
