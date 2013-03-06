@@ -5,10 +5,11 @@ binpath="$id"
 
 install_me () {
 	mkdir -p "$VANDASTUDIO" "$BINDIR" "$FUNCDIR" "$IFACEDIR" "$OUTDIR" "$INDIR" "$PKGDB"
-	echo -e "#!/bin/bash\n"         > "$RCPATH"
-	echo    "DATAPATH=$INDIR"      >> "$RCPATH"
-	echo    "OUTPATH=$OUTDIR"      >> "$RCPATH"
-	echo -e "FUNCDIR=$FUNCDIR\n"   >> "$RCPATH"
+	echo -e "#!/bin/bash\n"                > "$RCPATH"
+	echo    "DATAPATH=$INDIR"             >> "$RCPATH"
+	echo    "OUTPATH=$OUTDIR"             >> "$RCPATH"
+	echo -e "FUNCDIR=$FUNCDIR\n"          >> "$RCPATH"
+	echo -e "source $FUNCDIR/util.bash\n" >> "$RCPATH"
 	cp interfaces/* "$IFACEDIR/."
 	cp -r examples/* "$INDIR/."
 }

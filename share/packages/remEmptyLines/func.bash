@@ -9,9 +9,9 @@
 #
 # Removes empty lines from parallel corpora and alignments.
 remEmptyLines2 () {
-	ln -rsvf "$2" "$1/in1"
-	ln -rsvf "$3" "$1/in2"
-	$REM_EMPTY_LINES "$1/in1" "$1/in2"
+	ln -svf "$2" "$1/in1"
+	ln -svf "$3" "$1/in2"
+	$REM_EMPTY_LINES/remEmptyLines "$1/in1" "$1/in2"
 	mv "$1/in1.nel" "$4"
 	mv "$1/in2.nel" "$5"
 	unlink "$1/in1"
@@ -31,10 +31,10 @@ remEmptyLines2 () {
 #
 # Removes empty lines from parallel corpora and alignments.
 remEmptyLines3 () {
-	ln -rsvf "$2" "$1/in1"
-	ln -rsvf "$3" "$1/in2"
-	ln -rsvf "$4" "$1/in3"
-	$REM_EMPTY_LINES "$1/in1" "$1/in2" "$1/in3"
+	ln -svf "$2" "$1/in1"
+	ln -svf "$3" "$1/in2"
+	ln -svf "$4" "$1/in3"
+	$REM_EMPTY_LINES/remEmptyLines "$1/in1" "$1/in2" "$1/in3"
 	mv "$1/in1.nel" "$5"
 	mv "$1/in2.nel" "$6"
 	mv "$1/in3.nel" "$7"
