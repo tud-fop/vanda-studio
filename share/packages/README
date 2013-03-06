@@ -19,6 +19,7 @@
 2 How do I use vandapkg?
 ========================
 
+! install util.bash first, never reinstall it
 - list installed packages
   ./vandapkg.bash list
 - install new packages
