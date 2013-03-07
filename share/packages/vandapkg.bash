@@ -55,11 +55,12 @@ install () {
 	touch "$TMP/install.bash"
 	for (( i=0; i<${#pkgs[@]}; i+=1 )); do
 		mkdir -p "$TMP/${pkgs[$i]}"
-		tar xf "${pkgs[$i]}" --strip 1 -C "$TMP/${pkgs[$i]}"
-		echo "<<<< ${pkgs[$i]}" >> "$TMP/install.bash"
-		cat "$TMP/${pkgs[$i]}/install.bash" >> "$TMP/install.bash"
+		tar xf "${pkgs[$i]}" -C "$TMP/${pkgs[$i]}"
+		name=$(ls "$TMP/${pkgs[$i]}")
+		echo "<<<< $name" >> "$TMP/install.bash"
+		cat "$TMP/${pkgs[$i]}/$name/install.bash" >> "$TMP/install.bash"
 		echo "" >> "$TMP/install.bash"
-		echo ">>>> ${pkgs[$i]}" >> "$TMP/install.bash"
+		echo ">>>> $name" >> "$TMP/install.bash"
 	done
 
 # configuring
@@ -75,14 +76,16 @@ install () {
 
 # dissecting files
 	for (( i=0; i<${#pkgs[@]}; i+=1 )); do
-		extract_subfile "$TMP/install.bash" "${pkgs[$i]}" "$TMP/${pkgs[$i]}/install.bash"
+		name=$(ls "$TMP/${pkgs[$i]}")
+		extract_subfile "$TMP/install.bash" "$name" "$TMP/${pkgs[$i]}/$name/install.bash"
 	done
 
 # install packages
 	declare -i j=1
 	for (( i=0; i<${#pkgs[@]}; i+=1 )); do
-		echo_color "[$j/${#pkgs[@]}] Installing \"${pkgs[$i]}\"..."
-		install_pkg "$TMP/${pkgs[$i]}" "${pkgs[$i]}"
+		name=$(ls "$TMP/${pkgs[$i]}")
+		echo_color "[$j/${#pkgs[@]}] Installing \"$name\"..."
+		install_pkg "$TMP/${pkgs[$i]}/$name"
 		echo_color "[$j/${#pkgs[@]}] Done."
 		((j+=1))
 	done
@@ -160,6 +163,10 @@ makepkg () {
 	fi
 	if [ -z "$binpath" ]; then
 		echo "The variable \"binpath\" is not set."
+		e+=1
+	fi
+	if [ "$id" != "${1%/}" ]; then
+		echo "The folder name does not match the package name."
 		e+=1
 	fi
 	declare -F install_me > /dev/null || {

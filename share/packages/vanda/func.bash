@@ -9,10 +9,8 @@
 # Generates a Tree Corpus given a GHKM Hypergraph and a Sentence Corpus
 XRSTranslate () {
 	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
-	echo -e "0\n" > "$1/map.e"
-	echo -e "0\n" > "$1/map.f"
-	runhaskell "$VANDA/programs/XRSToHypergraph.hs" -e "$1/map.e" -f "$1/map.f" -g "$2" -z "$1/zhg"
-	runhaskell "$VANDA/programs/XRSTranslate.hs" -e "$1/map.e.new" -f "$1/map.f.new" -z "$1/zhg" < "$3" > "$4"
+	runhaskell "$VANDA/programs/XRSToHypergraph.hs" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
+	runhaskell "$VANDA/programs/XRSTranslate.hs" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" --complicated < "$3" > "$4"
 }
 
 # NGrams

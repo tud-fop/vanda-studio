@@ -11,6 +11,6 @@
 # Trains a dictionary with a bilingual corpus.
 EMDictionary () {
 	tmp="$1/corpus.txt"
-	$TO_PARALLEL_CORPUS "$2" "$3" > "$tmp"
-	$EMDICTIONARY csvAndBest "$4" "$tmp" "$6" > "$5"
+	"$EMDICTIONARY/toParallelCorpus" "$2" "$3" > "$tmp"
+	"$EMDICTIONARY/EMDictionary" csvAndBest "$4" "$tmp" "$6" > "$5"
 }

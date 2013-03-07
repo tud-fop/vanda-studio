@@ -16,7 +16,7 @@ GIZA () {
 	if [[ ! -f "$i2new" ]]; then
 		ln -svf "$3" "$i2new"
 	fi
-	"$GIZA/MOSES/scripts/training/train-model.perl" -mgiza -root-dir "$1" --corpus "$1/corpus" --e fr --f en --last-step 3 --external-bin-dir="$GIZA/giza"
+	"$MGIZA/mosesdecoder/scripts/training/train-model.perl" -mgiza -root-dir "$1" --corpus "$1/corpus" --e fr --f en --last-step 3 --external-bin-dir="$MGIZA/giza"
 	mv "$1/model/aligned.grow-diag-final" "$4"
 	unlink "$i1new"
 	unlink "$i2new"
