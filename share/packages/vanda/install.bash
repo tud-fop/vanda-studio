@@ -6,7 +6,7 @@ binpath="$id"
 VANDA="ssh://tdenk@tcs.inf.tu-dresden.de/~buechse/public_git/vanda -b hyperedge"
 
 install_me () {
-	git clone "$VANDA" "$1"
+	git clone $VANDA "$1"
 	cd "$1"
 	runhaskell tools/Setup.hs configure --user
 	runhaskell tools/Setup.hs build

@@ -128,4 +128,52 @@ extract_subfile () {
 	sed -n $l1,$l2'p' "$1" > "$3"
 }
 
+makepkg () {
+	echo_color "[1/2] Checking folder..."
+	declare -i e=0
+	if [ ! -d "$1" ]; then
+		echo "\"$1\" is not a directory."
+		return 1
+	fi
+	if [ ! -f "$1/func.bash" ]; then
+		echo "\"$1/func.bash\" does not exist."
+		e+=1
+	fi
+	if [ ! -f "$1/install.bash" ]; then
+		echo "\"$1/install.bash\" does not exist."
+		return 1
+	fi
+	source "$1/install.bash"
+	if [ -z "$id" ]; then
+		echo "The variable \"id\" is not set."
+		e+=1
+	fi
+	if [ -z "$varname" ]; then
+		echo "The variable \"varname\" is not set."
+		e+=1
+	fi
+	if [ -z "$version" ]; then
+		echo "The variable \"version\" is not set."
+		e+=1
+	fi
+	if [ -z "$binpath" ]; then
+		echo "The variable \"binpath\" is not set."
+		e+=1
+	fi
+	declare -F install_me > /dev/null || {
+		echo "The function \"install_me\" does not exist."
+		e+=1
+	}
+	if [[ 1 -gt $e ]]; then
+		echo_color "[1/2] Success."
+		echo_color "[2/2] Packing archive..."
+		tar czf "${1%/}.tar.gz" "$1"
+		echo_color "[2/2] Done."
+		return 0
+	else
+		echo_color "[1/2] Failed. Aborting."
+		return $e
+	fi
+}
+
 "${@:1}"

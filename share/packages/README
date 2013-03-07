@@ -33,4 +33,4 @@
 
 - prepare a folder according to [1]
 - pack it with
-  tar cvzf <pkgname>.tar.gz <pkgdir>
+  ./vandapkg.bash makepkg <pkgdir>
