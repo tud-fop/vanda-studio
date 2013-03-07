@@ -44,6 +44,8 @@ install () {
 		fi
 	done
 
+	[ 0 == ${#pkgs[@]} ] && return 1
+
 # configure packages
 	declare -i j=1
 	echo_color "Configuring."
@@ -61,7 +63,7 @@ install () {
 	done
 
 # configuring
-	read -p "Edit install.bash? [y/N]" choice
+	read -p "Edit install.bash [y/N]? " choice
 	if [ "$choice" == "y" ]; then
 		if [[ -z "$EDITOR" ]]; then
 			read -p "Variable EDITOR not set. Editor command to use: " editor
@@ -176,4 +178,24 @@ makepkg () {
 	fi
 }
 
-"${@:1}"
+usage () {
+	echo "usage: ./vandapkg.bash <command> [<args>]"
+	echo " ./vandapkg.bash install <pkgfiles> # installs packages from a TAR.GZ-file"
+	echo " ./vandapkg.bash remove <pkgnames>  # removes packages"
+	echo " ./vandapkg.bash makepkg <pkgdir>   # build a package from a directory"
+	echo " ./vandapkg.bash list               # shows a list of all installed packages"
+}
+
+case "$1" in
+	install|remove|makepkg)
+		if [[ -n "$2" ]]; then
+			"${@:1}"
+		else
+			usage
+		fi
+	;;
+	list)
+		list ;;
+	*)
+		usage ;;
+esac

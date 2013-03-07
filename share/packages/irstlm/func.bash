@@ -8,10 +8,9 @@
 #
 # Trains an n-gram model.
 IRSTLM () {
-	TMP="$1"
-	"$IRSTLM/add-start-end.sh" < "$2" > "$TMP/train.txt"
-	"$IRSTLM/ngt" -i="$TMP/train.txt" -n="$3" -o="$TMP/train.www"
-	"$IRSTLM/tlm" -tr="$TMP/train.www" -n="$3" -lm=wb -o="$4"
+	"$IRSTLM/bin/add-start-end.sh" < "$2" > "$1/train.txt"
+	"$IRSTLM/bin/ngt" -i="$1/train.txt" -n="$3" -o="$1/train.www"
+	"$IRSTLM/bin/tlm" -tr="$1/train.www" -n="$3" -lm=wb -o="$4"
 }
 
 # ARPA2Binary
@@ -23,6 +22,6 @@ IRSTLM () {
 #
 # Converts ARPA to binary ARPA format.
 ARPA2Binary () {
-	"$IRSTLM/compile-lm" "$2" "$3"
+	"$IRSTLM/bin/compile-lm" "$2" "$3"
 }
 
