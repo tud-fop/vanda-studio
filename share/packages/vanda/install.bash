@@ -1,6 +1,6 @@
 id="vanda"
 varname="VANDA"
-version="2013-03-05"
+version="2013-03-07"
 binpath="$id"
 
 VANDA="ssh://tdenk@tcs.inf.tu-dresden.de/~buechse/public_git/vanda -b hyperedge"

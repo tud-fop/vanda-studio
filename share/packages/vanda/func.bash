@@ -13,6 +13,22 @@ XRSTranslate () {
 	runhaskell "$VANDA/programs/XRSTranslate.hs" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" --complicated < "$3" > "$4"
 }
 
+# XRSNGrams
+# Version: 2013-03-07
+# Contact: Tobias.Denkinger@mailbox.tu-dresden.de
+# Category: intersection
+# IN rulesIn :: GHKMHypergraph
+# IN ngrams :: ARPA
+# OUT rulesOut :: GHKMHypergraph
+#
+# Intersects a language model in ARPA format with a GHKM hypergraph.
+XRSNGrams () {
+	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
+	runhaskell "$VANDA/programs/XRSToHypergraph.hs" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
+	runhaskell "$VANDA/programs/XRSNGrams.hs" -f "$1/map.f" -z "$1/zhg" -l "$3"
+	runhaskell "$VANDA/programs/XRSToHypergraph.hs" b2t -e "$1/map.e" -f "$1/map.f" -z "$1/zhg.new" > "$4"
+}
+
 # NGrams
 # Version: 2013-01-31
 # Contact: Tobias.Denkinger@mailbox.tu-dresden.de
