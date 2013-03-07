@@ -74,7 +74,7 @@ public class ParserImpl<T> implements Parser<T> {
 					if (current == null) // || stack.size() < 1)
 						throw fail(null);
 					stack.push(current);
-					System.out.println(xp.getName());
+					// System.out.println(xp.getName());
 					current = current.handleChild(xp.getNamespace(),
 							xp.getName());
 					if (current == null)
