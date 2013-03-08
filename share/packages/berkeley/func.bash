@@ -22,3 +22,17 @@ BerkeleyTokenizer () {
 BerkeleyParser () {
 	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -nThreads "$(nproc)" -gr "$3" -outputFile "$4"
 }
+
+# Berkeley Parser n-best
+# Version: 2012-05-16
+# Contact: Tobias.Denkinger@mailbox.tu-dresden.de
+# Category: parsing
+# IN corpus :: SentenceCorpus
+# IN n :: Integer
+# IN grammar :: BerkeleyGrammar.sm6
+# OUT trees :: PennTreeCorpus
+#
+# Computes n best trees for the sentences in the corpus.
+bpnbest () {
+	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -nThreads "$(nproc)" -gr "$4" -kbest "$3" -outputFile "$5"
+}

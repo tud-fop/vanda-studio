@@ -30,9 +30,9 @@
 			version="2013-01-16"
 			contact="Matthias.Buechse@tu-dresden.de"
 			category="Language Models::Parsing"
-			status="provisional">
+			status="">
 			
-			<description>Computes n best trees for the first sentence in the corpus.</description>
+			<description>Computes n best trees for the sentences in the corpus.</description>
 	
 			<in name="corpus" type="SentenceCorpus" />
 			<in name="n" type="Integer" />

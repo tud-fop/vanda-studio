@@ -522,10 +522,12 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		public void more() {
 			int i = 0;
 			String line;
-			while (i < SIZE & scan.hasNextLine()) {
+			while (i < SIZE && scan.hasNextLine()) {
 				line = scan.nextLine();
-				trees.add(new Pair<String, Tree>(line, parseTree(line)));
-				i++;
+				if (!line.isEmpty()) {
+					trees.add(new Pair<String, Tree>(line, parseTree(line)));
+					i++;
+				}
 			}
 			if (!scan.hasNextLine())
 				bMore.setEnabled(false);
