@@ -110,8 +110,8 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		string = string.trim();
 		if (string.equals("(())") || string.equals("(no parse)"))
 			return new Tree("[no parse]");
-		if (string.startsWith("( (") && string.endsWith(") )"))
-			string = string.substring(1, string.length() - 1).trim();
+		if (string.startsWith("( ("))
+			string = string.substring(1).trim();
 		Lexer lex = new Lexer("()", " ");
 		Stack<String> st = lex.lex(string);
 		Tree t = parseTree(st);
@@ -523,8 +523,8 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			int i = 0;
 			String line;
 			while (i < SIZE && scan.hasNextLine()) {
-				line = scan.nextLine();
-				if (!line.isEmpty()) {
+				line = scan.nextLine().trim();
+				if (!line.isEmpty() && line.startsWith("(")) {
 					trees.add(new Pair<String, Tree>(line, parseTree(line)));
 					i++;
 				}
