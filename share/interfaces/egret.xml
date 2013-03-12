@@ -39,5 +39,21 @@
 			<out name="trees" type="PennTreeCorpus" />
 		</tool>
 		
+		<tool
+			type="Shell"
+			id="egretnbestforest"
+			name="Egret n-best forest"
+			version="2013-03-12"
+			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			category="Language Models::Parsing">
+			
+			<description>Computes the forest of n best trees for every sentence in the corpus.</description>
+	
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="n" type="Integer" />
+			<in name="grammar" type="LAPCFG-Grammar" />
+			<out name="pcfgs" type="PCFGs" />
+		</tool>
+		
 	</toolinterface>
 </root>
