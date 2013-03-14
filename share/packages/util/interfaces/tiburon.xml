@@ -1,0 +1,59 @@
+<root>
+	<toolinterface
+		id="tiburon1"
+		name="Tiburon"
+		version="2013-03-14"
+		contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+		category="Language Models">
+		
+		<description>Tools related to the Tiburon tree automata software.</description>
+		
+		<tool
+			type="Shell"
+			id="TiburonIntersect"
+			name="Tiburon Intersection"
+			version="2013-03-14"
+			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			category="Language Models::Intersection">
+			
+			<description><![CDATA[Intersects two weighted regular tree grammars]]>.</description>
+	
+			<in name="wrtg1" type="RegularTreeGrammar" />
+			<in name="wrtg2" type="RegularTreeGrammar" />
+			<out name="wrtg" type="RegularTreeGrammar" />
+		</tool>
+		
+		<tool
+			type="Shell"
+			id="TiburonNBest"
+			name="Tiburon n-best"
+			version="2013-03-14"
+			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			category="Language Models::Generation">
+			
+			<description>Calculates n-best trees and their weights.</description>
+	
+			<in name="wrtg" type="RegularTreeGrammar" />
+			<in name="n" type="Integer" />
+			<out name="trees" type="TiburonTreeCorpus" />
+			<out name="scores" type="Scores" />
+		</tool>
+		
+		<tool
+			type="Shell"
+			id="TiburonNBestY"
+			name="Tiburon n-best yield"
+			version="2013-03-14"
+			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			category="Language Models::Generation">
+			
+			<description>Calculates n-best yields and their weights.</description>
+	
+			<in name="wrtg" type="RegularTreeGrammar" />
+			<in name="n" type="Integer" />
+			<out name="sentences" type="SentenceCorpus" />
+			<out name="scores" type="Scores" />
+		</tool>
+		
+	</toolinterface>
+</root>
