@@ -55,5 +55,21 @@
 			<out name="scores" type="Scores" />
 		</tool>
 		
+		<tool
+			type="Shell"
+			id="TiburonApplyTT"
+			name="Tiburon apply tree transducer"
+			version="2013-03-15"
+			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			category="Application">
+			
+			<description>Applies a tree transducer.</description>
+	
+			<in name="treesIn" type="TiburonTreeCorpus" />
+			<in name="transducer" type="TreeTransducer" />
+			<out name="treesOut" type="TiburonTreeCorpus" />
+			<out name="scores" type="Scores" />
+		</tool>
+		
 	</toolinterface>
 </root>
