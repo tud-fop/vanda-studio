@@ -44,3 +44,20 @@ TiburonNBestY () {
 	cat "$1/tmp.txt" | sed 's/^.*# //' > "$5"
 	echo "$4" > "$5.meta"
 }
+
+# Tiburon apply tree transducer
+# Version: 2013-03-15
+# Contact: Tobias.Denkinger@mailbox.tu-dresden.de
+# Category: Language Models
+# IN treesIn :: TiburonTreeCorpus
+# IN transducer :: TreeTransducer
+# OUT treesOut :: TiburonTreeCorpus
+# OUT scores :: Scores
+#
+# Applies a tree transducer.
+TiburonApplyTT () {
+	java -jar -Duser.language=en -Duser.country=US "$TIBURON/tiburon.jar" "$2" "$3" "-k1" > "$1/tmp.txt"
+	cat "$1/tmp.txt" | sed 's/#.*//' > "$4"
+	cat "$1/tmp.txt" | sed 's/^.*# //' > "$5"
+	echo "$4" > "$5.meta"
+}
