@@ -1,6 +1,6 @@
 id="mgiza"
 varname="MGIZA"
-version="2013-03-05"
+version="2013-03-18"
 binpath="$id"
 
 install_me () {

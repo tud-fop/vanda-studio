@@ -8,6 +8,7 @@
 #
 # computes alignments and translation tables
 GIZA () {
+	rm -rf "$1/*"
 	i1new="$1/corpus.en"
 	i2new="$1/corpus.fr"
 	if [[ ! -f "$i1new" ]]; then
