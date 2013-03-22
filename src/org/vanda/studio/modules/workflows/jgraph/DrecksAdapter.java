@@ -325,7 +325,7 @@ public final class DrecksAdapter {
 		}
 	}
 
-	public <F> mxICell renderChild(MutableWorkflow parent, Job job) {
+	public mxICell renderChild(MutableWorkflow parent, Job job) {
 		mxICell parentCell = translation.get(parent);
 		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
 		mxICell cell = wa.getChild(job);
@@ -339,7 +339,7 @@ public final class DrecksAdapter {
 		return cell;
 	}
 
-	public <F> void renderConnection(MutableWorkflow parent, ConnectionKey cc) {
+	public void renderConnection(MutableWorkflow parent, ConnectionKey cc) {
 		mxICell parentCell = translation.get(parent);
 		WorkflowAdapter wa = (WorkflowAdapter) parentCell.getValue();
 
