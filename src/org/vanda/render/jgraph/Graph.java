@@ -1,9 +1,9 @@
 package org.vanda.render.jgraph;
 
+import java.util.Hashtable;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
+import org.vanda.render.jgraph.Cell.CellListener;
 import org.vanda.view.AbstractView;
 import org.vanda.view.View;
 
@@ -12,12 +12,14 @@ import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
 import com.mxgraph.model.mxGraphModel.mxValueChange;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxMultiplicity;
 import com.mxgraph.view.mxGraphSelectionModel.mxSelectionChange;
 /**
  * 
@@ -82,10 +84,10 @@ public final class Graph{
 	protected final ChangeListener changeListener;
 	protected final mxGraph graph;
 	protected final View view;
-	protected final CellSelectionListener cellSelectionListener;
+	protected final CellChangeListener cellChangeListener;
 	
-	public CellSelectionListener getCellSelectionListener() {
-		return cellSelectionListener;
+	public CellListener<Cell> getCellChangeListener() {
+		return cellChangeListener;
 	}
 
 	public View getView() {
@@ -97,16 +99,64 @@ public final class Graph{
 	}
 	
 	public Graph(View view) {
-		this.graph = new mxGraph();
+		// Create graph and set graph properties
+		this.graph = new mxGraph(NaiveLayoutManagerFactory.getStylesheet());
+		NaiveLayoutManagerFactory.refStylesheet(1);
+		graph.setCellsCloneable(false);
+		graph.setSplitEnabled(false);
+		// setDropEnabled(false);
+		// graph.setCellsMovable(false);
+		graph.setCellsEditable(false);
+		graph.setCollapseToPreferredSize(true);
+		// setAutoSizeCells(true);
+		graph.setExtendParents(true);
+		graph.setExtendParentsOnAdd(true);
+		graph.setCellsResizable(true);
+		graph.setCellsDisconnectable(false);
+		graph.setMultigraph(false); // no effect!
+		graph.setAllowLoops(false);
+		graph.setAllowDanglingEdges(false);
+		Hashtable<String, Object> style = new Hashtable<String, Object>();
+		style.put(mxConstants.STYLE_ROUNDED, true);
+		graph.getStylesheet().putCellStyle("ROUNDED", style);
+		graph.setMultiplicities(new mxMultiplicity[] {
+				new mxMultiplicity(false, null, null, null, 0, "1", null, ".",
+						"", false) {
+					@Override
+					public String check(mxGraph graph, Object edge,
+							Object source, Object target, int sourceOut,
+							int targetIn) {
+						if (targetIn == 0)
+							return null;
+						else
+							return countError;
+					}
+				},
+				new mxMultiplicity(false, null, null, null, 0, "1", null, ".",
+						"", false) {
+					@Override
+					public String check(mxGraph graph, Object edge,
+							Object source, Object target, int sourceOut,
+							int targetIn) {
+						mxIGraphModel m = graph.getModel();
+						if (m.getParent(m.getParent(source)) == m
+								.getParent(m.getParent(target)))
+							return null;
+						else
+							return countError;
+					}
+				} });
+		
+		
 		this.view = view;
 		changeListener = new ChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
 		graph.getSelectionModel().addListener(mxEvent.UNDO, changeListener);
-		cellSelectionListener = new CellSelectionListener();
+		cellChangeListener = new CellChangeListener();
 	}
 	
 	public void refresh() {
-		// TODO Auto-generated method stub
+		graph.refresh();
 	}
 	
 	private void updateSelection(mxIGraphModel gmodel, Object[] cells) {
@@ -124,15 +174,23 @@ public final class Graph{
 			v.setSelected(false);
 	}
 	
-	protected class CellSelectionListener implements Observer {
+
+	protected class CellChangeListener implements Cell.CellListener<Cell> {
 
 		@Override
-		public void update(Observable arg0, Object arg1) {
-			Cell cell = (Cell) arg0; 
-			setSelection(cell);
+		public void propertyChanged(Cell c) {
+			if (graph.isAutoSizeCell(c))
+				graph.updateCellSize(c, true);
+			refresh();
+		}
+
+		@Override
+		public void selectionChanged(Cell c) {
+			setSelection(c);
 		}
 		
 	}
+	
 	public void setSelection(Cell cell) {
 		if (cell.getView(view).isSelected())
 			graph.addSelectionCell(cell.getVisualization());

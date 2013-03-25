@@ -20,10 +20,18 @@ public class ConnectionCell extends Cell {
 		}
 	}
 	
-	public ConnectionCell(ConnectionKey connectionKey, Graph graph, PortCell source, PortCell target) {
+	public ConnectionCell(ConnectionKey connectionKey, final Graph graph, PortCell source, PortCell target) {
 		this.connectionKey = connectionKey;
 		graph.getView().getConnectionView(connectionKey).addObserver(new ConnectionViewObserver());
-		addObserver(graph.getCellSelectionListener());
+		getObservable().addObserver(new org.vanda.util.Observer<CellEvent<Cell>> () {
+
+			@Override
+			public void notify(CellEvent<Cell> event) {
+				event.doNotify(graph.getCellChangeListener());	
+			}
+			
+		});
+		//addObserver(graph.getCellSelectionListener());
 		mxICell sourceVis = source.getVisualization();
 		mxICell targetVis = target.getVisualization();
 

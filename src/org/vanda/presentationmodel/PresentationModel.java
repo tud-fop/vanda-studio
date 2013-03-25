@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.vanda.render.jgraph.Graph;
-import org.vanda.render.jgraph.LayoutManager;
+import org.vanda.render.jgraph.LayoutManagerInterface;
+import org.vanda.render.jgraph.NaiveLayoutManager;
 import org.vanda.util.Observer;
 import org.vanda.view.View;
 import org.vanda.workflows.hyper.ConnectionKey;
@@ -16,22 +17,37 @@ import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 public class PresentationModel {
 	protected final Graph graph;
 	private final WorkflowListener workflowListener;
+	private int update = 0;
 	List<JobAdapter> jobs;
 	Map<ConnectionKey, ConnectionAdapter> connections;
 	View view;
+	LayoutManagerInterface layoutManager = new NaiveLayoutManager();
 	/* map that holds Layouts for all Job-Types, where String is <code>Job.getName()</code> */
-	static final Map<String, LayoutManager> layouts = null; //TODO define some Layouts
+	//static final Map<String, LayoutManager> layouts = null; //TODO define some Layouts
+	
+	void beginUpdate() {
+		update++;
+	}
+	
+	void endUpdate() {
+		update--;
+	}
 	
 	public Graph getVisualization () {
 		return graph;
 	}
 	
 	public void addJobAdapter(Job job) {
+		if (!view.getWorkflow().getChildren().contains(job)) {
+			view.getWorkflow().addChild(job);
+		}
 		jobs.add(new JobAdapter(job, selectLayout(job), graph));
+		graph.refresh();
 	}
 
-	private LayoutManager selectLayout(Job job) {
-		return layouts.get(job.getName());
+	private LayoutManagerInterface selectLayout(Job job) {
+		//return layouts.get(job.getName());
+		return layoutManager;
 	}
 	
 	/**
@@ -47,8 +63,9 @@ public class PresentationModel {
 
 		@Override
 		public void childAdded(MutableWorkflow mwf, Job j) {
-			addJobAdapter(j);
-			graph.refresh();
+			if (update == 0) {
+				addJobAdapter(j);
+			}
 		}
 
 		@Override
@@ -59,17 +76,23 @@ public class PresentationModel {
 
 		@Override
 		public void childRemoved(MutableWorkflow mwf, Job j) {
-			removeJobAdatper(mwf, j);
+			if (update == 0) {
+				removeJobAdatper(mwf, j);
+			}
 		}
 
 		@Override
 		public void connectionAdded(MutableWorkflow mwf, ConnectionKey cc) {
-			addConnectionAdapter(mwf, cc);
+			if (update == 0) {
+				addConnectionAdapter(mwf, cc);
+			}
 		}
 
 		@Override
 		public void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc) {
-			removeConnectionAdapter(mwf, cc);
+			if (update == 0) {
+				removeConnectionAdapter(mwf, cc);
+			}
 		}
 
 		@Override

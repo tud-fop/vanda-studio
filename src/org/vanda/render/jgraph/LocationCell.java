@@ -21,15 +21,23 @@ public class LocationCell extends Cell {
 	private class LocationViewObserver implements Observer {
 		@Override
 		public void update(Observable arg0, Object arg1) {
-			notify(); // CellSelectionListener in graph
+			getObservable().notify(new SelectionChangedEvent<Cell>(LocationCell.this));
 		}
 	}
-	public LocationCell(Graph g, LayoutManager layout, Cell parent, Port port, Location variable) {
+	public LocationCell(final Graph g, LayoutManagerInterface layout, Cell parent, Port port, Location variable) {
 		this.port = port;
 		this.variable = variable;
 		g.getView().getLocationView(variable).addObserver(new LocationViewObserver());
-		addObserver(g.getCellSelectionListener());
 		
+		// Register Graph
+		getObservable().addObserver(new org.vanda.util.Observer<CellEvent<Cell>> () {
+
+			@Override
+			public void notify(CellEvent<Cell> event) {
+				event.doNotify(g.getCellChangeListener());
+			}
+		});
+						
 		g.getGraph().getModel().beginUpdate();
 		try {
 			visualization = new mxCell(this, layout.getGeometry(this), layout.getStyleName(this));

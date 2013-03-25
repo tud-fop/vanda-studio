@@ -1,11 +1,9 @@
 package org.vanda.render.jgraph;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import org.vanda.view.AbstractView;
 import org.vanda.view.JobView;
 import org.vanda.view.View;
+import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Jobs;
 import org.vanda.workflows.hyper.Jobs.JobEvent;
@@ -17,18 +15,20 @@ import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.view.mxGraph;
 
 public class JobCell extends Cell {
-	final LayoutManager layoutManager;
+	final LayoutManagerInterface layoutManager;
 	final Job job;
 	protected final org.vanda.workflows.hyper.Jobs.JobListener<Job> jobListerer;
-	private class JobViewObserver implements Observer {
+	protected final JobViewListener jobViewListener;
+	private class JobViewListener implements AbstractView.ViewListener<AbstractView> {
+
 		@Override
-		public void update(Observable arg0, Object arg1) {
-			notify(); // CellSelectionListener in graph
+		public void selectionChanged(AbstractView v) {
+			getObservable().notify(new SelectionChangedEvent<Cell>(JobCell.this)); 
+			
 		}
 	}
 	
 	private class JobListener implements Jobs.JobListener<Job> {
-
 		@Override
 		public void propertyChanged(Job j) {
 			if (getX() != j.getX() || getY() != j.getY()
@@ -42,24 +42,37 @@ public class JobCell extends Cell {
 				ng.setWidth(j.getWidth());
 				ng.setHeight(j.getHeight());
 				visualization.setGeometry(ng);
+				getObservable().notify(new Cell.PropertyChangedEvent<Cell>(JobCell.this));
 			}
-
-			// TODO notify -> graph geo update
-//			if (graph.isAutoSizeCell(cell))
-//				graph.updateCellSize(cell, true);
-//			graph.refresh();
-			
 		}
 		
 	}
-		
-	public JobCell(Graph graph, LayoutManager layoutManager, Job job) {
+
+	public JobCell(final Graph graph, LayoutManagerInterface layoutManager, Job job) {
 		this.layoutManager = layoutManager;
 		this.job = job;
 		this.jobListerer = new JobListener();
+		this.jobViewListener = new JobViewListener();
 		
-		graph.getView().getJobView(job).addObserver(new JobViewObserver());
-		addObserver(graph.getCellSelectionListener());
+		graph.getView().getJobView(job).getObservable().addObserver(new org.vanda.util.Observer<ViewEvent<AbstractView>> () {
+
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				// TODO Auto-generated method stub
+				event.doNotify(jobViewListener);
+			}
+			
+		});
+		
+		
+		getObservable().addObserver(new org.vanda.util.Observer<CellEvent<Cell>> () {
+
+			@Override
+			public void notify(CellEvent<Cell> event) {
+				event.doNotify(graph.getCellChangeListener());
+			}
+			
+		});
 		
 		job.getObservable().addObserver(new org.vanda.util.Observer<Jobs.JobEvent<Job>> (){
 
