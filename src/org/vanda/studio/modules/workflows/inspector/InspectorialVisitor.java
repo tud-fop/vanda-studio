@@ -2,7 +2,8 @@ package org.vanda.studio.modules.workflows.inspector;
 
 import java.util.Locale;
 
-import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
+import org.vanda.view.AbstractView.SelectionVisitor;
+//import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;

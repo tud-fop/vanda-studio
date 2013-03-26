@@ -41,11 +41,9 @@ public abstract class Cell {
 	
 	public abstract void setSelection(View view); 
 	
-	public abstract void onRemove(mxICell previous); 
+	public abstract void onRemove(View view); 
 	
-	public abstract void onInsert(mxGraph graph);
-	
-	public abstract boolean inModel();
+	public abstract void onInsert(final Graph graph, mxICell parent, mxICell cell);
 	
 	public abstract void onResize(mxGraph graph); 
 	

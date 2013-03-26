@@ -1,28 +1,47 @@
 package org.vanda.render.jgraph;
 
-import java.util.Observable;
-import java.util.Observer;
-
+import org.vanda.presentationmodel.PresentationModel;
+import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
+import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.view.View;
 import org.vanda.workflows.hyper.ConnectionKey;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.view.mxGraph;
 
 public class ConnectionCell extends Cell {
-	private final ConnectionKey connectionKey;
-	private class ConnectionViewObserver implements Observer {
+	private ConnectionKey connectionKey;
+	private ConnectionViewListener connectionViewListener;
+	private class ConnectionViewListener implements AbstractView.ViewListener<AbstractView> {
+	
 		@Override
-		public void update(Observable arg0, Object arg1) {
-			notify(); // CellSelectionListener in graph
+		public void selectionChanged(AbstractView v) {
+			getObservable().notify(new SelectionChangedEvent<Cell>(ConnectionCell.this)); 
 		}
+	}
+	
+	public ConnectionCell() {	
+		connectionKey = null;
 	}
 	
 	public ConnectionCell(ConnectionKey connectionKey, final Graph graph, PortCell source, PortCell target) {
 		this.connectionKey = connectionKey;
-		graph.getView().getConnectionView(connectionKey).addObserver(new ConnectionViewObserver());
+		this.connectionViewListener = new ConnectionViewListener();
+		
+		// Register at ConnectionView
+		graph.getView().getConnectionView(connectionKey).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
+
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				event.doNotify(connectionViewListener);
+			}
+			
+		});
+		
+		// Register at Graph
 		getObservable().addObserver(new org.vanda.util.Observer<CellEvent<Cell>> () {
 
 			@Override
@@ -31,7 +50,8 @@ public class ConnectionCell extends Cell {
 			}
 			
 		});
-		//addObserver(graph.getCellSelectionListener());
+		
+		// create mxCell and add it to Graph
 		mxICell sourceVis = source.getVisualization();
 		mxICell targetVis = target.getVisualization();
 
@@ -64,21 +84,66 @@ public class ConnectionCell extends Cell {
 	}
 
 	@Override
-	public void onRemove(mxICell previous) {
-		// TODO Auto-generated method stub
-		
+	public void onRemove(View view) {
+		if (connectionKey != null) {
+			if (connectionKey.target.isInserted()) // TODO it could be necessary to do more checks here
+				view.getWorkflow().removeConnection(connectionKey);
+		}
 	}
 
 	@Override
-	public void onInsert(mxGraph graph) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
+		// not in the model -> hand-drawn edge
+		if (connectionKey == null) {
+			mxIGraphModel model = graph.getGraph().getModel();
+			Object source = model.getTerminal(cell, true);
+			Object target = model.getTerminal(cell, false);
 
-	@Override
-	public boolean inModel() {
-		// TODO Auto-generated method stub
-		return false;
+			// ignore "unfinished" edges
+			if (source != null && target != null) {
+				
+				PortCell sval = (PortCell) model.getValue(source);
+				PortCell tval = (PortCell) model.getValue(target);
+				JobCell sparval = (JobCell) model.getValue(model
+						.getParent(source));
+				JobCell tparval = (JobCell) model.getValue(model
+						.getParent(target));
+
+				connectionKey = new ConnectionKey(tparval.job, tval.port);
+				
+				//Create ConnectionAdapter
+				PresentationModel pm = (PresentationModel) 
+						((WorkflowCell) sparval.getVisualization()
+								.getParent().getValue()).getPresentationModel();
+				pm.addConnectionAdapter(this, connectionKey);
+				
+				this.connectionViewListener = new ConnectionViewListener();
+				
+				// Register at ConnectionView
+				graph.getView().getConnectionView(connectionKey).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
+
+					@Override
+					public void notify(ViewEvent<AbstractView> event) {
+						event.doNotify(connectionViewListener);
+					}
+					
+				});
+				
+				// Register at Graph
+				getObservable().addObserver(new org.vanda.util.Observer<CellEvent<Cell>> () {
+
+					@Override
+					public void notify(CellEvent<Cell> event) {
+						event.doNotify(graph.getCellChangeListener());	
+					}
+					
+				});
+				
+				// Add Connection to Workflow
+				graph.getView().getWorkflow().addConnection(connectionKey, 
+							sparval.job.bindings.get(sval.port));
+			}
+		} 		
 	}
 
 	@Override

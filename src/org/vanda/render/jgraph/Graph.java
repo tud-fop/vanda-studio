@@ -7,6 +7,8 @@ import org.vanda.render.jgraph.Cell.CellListener;
 import org.vanda.view.AbstractView;
 import org.vanda.view.View;
 
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
@@ -21,13 +23,169 @@ import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxMultiplicity;
 import com.mxgraph.view.mxGraphSelectionModel.mxSelectionChange;
+import com.mxgraph.view.mxStylesheet;
 /**
  * 
  * @author kgebhardt
  *
  */
 public final class Graph{
+	private class customMxGraph extends mxGraph {
+		public customMxGraph(mxStylesheet styleSheet, WorkflowCell workflowCell) {
+			super(styleSheet);
+			setCellsCloneable(false);
+			setSplitEnabled(false);
+			// setDropEnabled(false);
+			// graph.setCellsMovable(false);
+			setCellsEditable(false);
+			setCollapseToPreferredSize(true);
+			// setAutoSizeCells(true);
+			setExtendParents(true);
+			setExtendParentsOnAdd(true);
+			setCellsResizable(true);
+			setCellsDisconnectable(false);
+			setMultigraph(false); // no effect!
+			setAllowLoops(false);
+			setAllowDanglingEdges(false);
+			Hashtable<String, Object> style = new Hashtable<String, Object>();
+			style.put(mxConstants.STYLE_ROUNDED, true);
+			getStylesheet().putCellStyle("ROUNDED", style);
+			setMultiplicities(new mxMultiplicity[] {
+					new mxMultiplicity(false, null, null, null, 0, "1", null, ".",
+							"", false) {
+						@Override
+						public String check(mxGraph graph, Object edge,
+								Object source, Object target, int sourceOut,
+								int targetIn) {
+							if (targetIn == 0)
+								return null;
+							else
+								return countError;
+						}
+					},
+					new mxMultiplicity(false, null, null, null, 0, "1", null, ".",
+							"", false) {
+						@Override
+						public String check(mxGraph graph, Object edge,
+								Object source, Object target, int sourceOut,
+								int targetIn) {
+							mxIGraphModel m = graph.getModel();
+							if (m.getParent(m.getParent(source)) == m
+									.getParent(m.getParent(target)))
+								return null;
+							else
+								return countError;
+						}
+					} });
+			((mxICell) getDefaultParent()).setValue(workflowCell);
+		}
 
+		@Override
+		public String convertValueToString(Object cell) {
+			Object value = model.getValue(cell);
+			if (value instanceof Cell)
+				return ((Cell) value).getType();
+			else
+				return "";
+		}
+		
+		public mxCell createCell(Object value, mxGeometry geometry, String style) {
+			return new customMxCell(value, geometry, style);
+		}
+
+		@Override
+		public Object createEdge(Object parent, String id, Object value,
+				Object source, Object target, String style) {
+			if (value == null || "".equals(value))
+				value = new ConnectionCell();
+			// XXX don't call with a constant
+			return super.createEdge(parent, id, value, source, target, "ROUNDED");
+		}
+
+		@Override
+		public Object createVertex(Object parent, String id, Object value,
+				double x, double y, double width, double height, String style,
+				boolean relative) {
+			mxGeometry geometry = new mxGeometry(x, y, width, height);
+			geometry.setRelative(relative);
+			mxCell vertex = createCell(value, geometry, style);
+
+			vertex.setId(id);
+			vertex.setVertex(true);
+			vertex.setConnectable(true);
+
+			return vertex;
+		}
+
+		@Override
+		public void finalize() throws Throwable {
+			super.finalize();
+		}
+
+		@Override
+		public boolean isCellSelectable(Object cell) {
+			if (getModel().getValue(cell) instanceof PortCell
+					&& !(getModel().getValue(cell) instanceof LocationCell))
+				return false;
+			return super.isCellSelectable(cell);
+		}
+
+		@Override
+		public boolean isValidSource(Object cell) {
+			return super.isValidSource(cell)
+					&& (cell == null || ((PortCell) ((mxCell) cell).getValue()).getType() == "OutPortCell");
+		}
+
+		@Override
+		public boolean isValidTarget(Object cell) {
+			return super.isValidSource(cell) /* sic!! */
+					&& (cell == null || ((PortCell) ((mxCell) cell).getValue()).getType() == "InPortCell");
+		}
+
+		@Override
+		public boolean isValidDropTarget(Object cell, Object[] cells) {
+			// return ((mxCell) cell).getValue() instanceof WorkflowAdapter;
+			// return super.isValidDropTarget(cell, cells);
+			return ((mxCell) cell).getValue() instanceof WorkflowCell
+					&& super.isValidDropTarget(cell, cells);
+		}
+
+		// Removes the folding icon from simple jobs and disables folding
+		// Allows folding of NestedHyperworkflows
+		@Override
+		public boolean isCellFoldable(Object cell, boolean collapse) {
+			return false;
+//			mxCell c = (mxCell) cell;
+//			return c.getValue() instanceof CompositeJobAdapter;
+		}
+
+		
+		private class customMxCell extends mxCell {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 39927174614076724L;
+
+			public customMxCell(Object value, mxGeometry geometry, String style) {
+				super(value, geometry, style);
+			}
+
+			@Override
+			protected Object cloneValue() {
+				// Object value = getValue();
+				if (value instanceof Cell && value instanceof Cloneable) {
+					// try {
+						return value;
+						// return ((Adapter) value).clone();
+					// } catch (CloneNotSupportedException e) {
+					// 	return super.cloneValue();
+					// }
+				} else
+					return super.cloneValue();
+			}
+		}	
+	}
+	
 	protected class ChangeListener implements mxIEventListener{
 		// edges: childChange, terminalChange, terminalChange, geometryChange,
 		// terminalChange
@@ -55,12 +213,12 @@ public final class Graph{
 //					}
 					if (cc.getPrevious() != null) {
 						// something has been removed
-						value.onRemove((mxICell) cc.getPrevious());
+						value.onRemove(view);
 					}
 					// the second conjunct is necessary for edges
 					if (cc.getParent() != null
 							&& cell.getParent() == cc.getParent())
-						value.onInsert(getGraph());
+						value.onInsert(Graph.this, cell.getParent(), cell);
 //					if (refreshSelection)
 //						setSelectionCell(cell);
 				} else if (c instanceof mxValueChange) {
@@ -68,7 +226,7 @@ public final class Graph{
 				} else if (c instanceof mxGeometryChange) {
 					mxICell cell = (mxICell) ((mxGeometryChange) c).getCell();
 					Cell value = (Cell) gmodel.getValue(cell);
-					if (cell.getParent() != null && value.inModel())
+					if (cell.getParent() != null /*&& value.inModel()*/)
 						value.onResize(getGraph());
 				} else if (c instanceof mxSelectionChange) {
 					Object[] cells = graph.getSelectionCells();
@@ -98,56 +256,10 @@ public final class Graph{
 		return graph;
 	}
 	
-	public Graph(View view) {
+	public Graph(View view, WorkflowCell workflowCell) {
 		// Create graph and set graph properties
-		this.graph = new mxGraph(NaiveLayoutManagerFactory.getStylesheet());
-		NaiveLayoutManagerFactory.refStylesheet(1);
-		graph.setCellsCloneable(false);
-		graph.setSplitEnabled(false);
-		// setDropEnabled(false);
-		// graph.setCellsMovable(false);
-		graph.setCellsEditable(false);
-		graph.setCollapseToPreferredSize(true);
-		// setAutoSizeCells(true);
-		graph.setExtendParents(true);
-		graph.setExtendParentsOnAdd(true);
-		graph.setCellsResizable(true);
-		graph.setCellsDisconnectable(false);
-		graph.setMultigraph(false); // no effect!
-		graph.setAllowLoops(false);
-		graph.setAllowDanglingEdges(false);
-		Hashtable<String, Object> style = new Hashtable<String, Object>();
-		style.put(mxConstants.STYLE_ROUNDED, true);
-		graph.getStylesheet().putCellStyle("ROUNDED", style);
-		graph.setMultiplicities(new mxMultiplicity[] {
-				new mxMultiplicity(false, null, null, null, 0, "1", null, ".",
-						"", false) {
-					@Override
-					public String check(mxGraph graph, Object edge,
-							Object source, Object target, int sourceOut,
-							int targetIn) {
-						if (targetIn == 0)
-							return null;
-						else
-							return countError;
-					}
-				},
-				new mxMultiplicity(false, null, null, null, 0, "1", null, ".",
-						"", false) {
-					@Override
-					public String check(mxGraph graph, Object edge,
-							Object source, Object target, int sourceOut,
-							int targetIn) {
-						mxIGraphModel m = graph.getModel();
-						if (m.getParent(m.getParent(source)) == m
-								.getParent(m.getParent(target)))
-							return null;
-						else
-							return countError;
-					}
-				} });
-		
-		
+		LayoutManagerFactoryInterface layoutFactory = new NaiveLayoutManagerFactory();
+		this.graph = new customMxGraph(layoutFactory.getStylesheet(), workflowCell);
 		this.view = view;
 		changeListener = new ChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);

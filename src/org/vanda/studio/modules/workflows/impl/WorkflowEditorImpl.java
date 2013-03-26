@@ -25,15 +25,17 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
+import org.vanda.presentationmodel.PresentationModel;
+import org.vanda.render.jgraph.mxDropTargetListener;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
 import org.vanda.studio.modules.workflows.jgraph.WorkflowAdapter;
-import org.vanda.studio.modules.workflows.jgraph.mxDropTargetListener;
+//import org.vanda.studio.modules.workflows.jgraph.mxDropTargetListener;
 import org.vanda.studio.modules.workflows.model.Model;
-import org.vanda.studio.modules.workflows.model.Model.SingleObjectSelection;
-import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
+//import org.vanda.studio.modules.workflows.model.Model.SingleObjectSelection;
+//import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
@@ -42,6 +44,8 @@ import org.vanda.util.HasActions;
 import org.vanda.util.Observer;
 import org.vanda.util.Repository;
 import org.vanda.util.Util;
+import org.vanda.view.AbstractView;
+import org.vanda.view.View;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
@@ -62,21 +66,26 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 		WorkflowListener<MutableWorkflow> {
 
 	protected final Application app;
-	protected final Model model;
+//	protected final Model model;
+	protected final View view;
+	protected final PresentationModel presentationModel;
 	protected final MyMxGraphComponent component;
 	protected final mxGraphOutline outline;
-	protected final DrecksAdapter renderer;
+//	protected final DrecksAdapter renderer;
 	protected JComponent palette;
 	protected final JSplitPane mainpane;
 
 	public WorkflowEditorImpl(Application app,
 			Repository<ToolFactory> toolFactories, MutableWorkflow hwf) {
 		this.app = app;
-		model = new Model(hwf);
-		renderer = new DrecksAdapter(model);
-
-		component = new MyMxGraphComponent(renderer.getGraph());
-		new mxDropTargetListener(this, renderer, component);
+//		model = new Model(hwf);
+//		renderer = new DrecksAdapter(model);
+		view = new View(hwf);
+		presentationModel = new PresentationModel(view);
+		
+		component = new MyMxGraphComponent(presentationModel.getVisualization().getGraph());
+		new mxDropTargetListener(this, presentationModel, component);
+		
 		component.setDragEnabled(false);
 		component.getGraphControl().addMouseListener(new EditMouseAdapter());
 		component.getGraphControl().addMouseWheelListener(
@@ -113,7 +122,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 		mainpane.setResizeWeight(0.9);
 		mainpane.setDividerSize(6);
 		mainpane.setBorder(null);
-		mainpane.setName(model.getRoot().getName());
+		mainpane.setName(hwf.getName());
 		mainpane.setDividerLocation(0.7);
 
 		app.getUIModeObservable().addObserver(new Observer<Application>() {
@@ -138,7 +147,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
 
-		model.getRoot().getObservable()
+		view.getWorkflow().getObservable()
 				.addObserver(new Observer<WorkflowEvent<MutableWorkflow>>() {
 
 					@Override
@@ -188,9 +197,12 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 	}
 
 	private void removeSelectedCell() {
-		WorkflowSelection ws = model.getSelection();
-		if (ws instanceof SingleObjectSelection)
-			((SingleObjectSelection) ws).remove();
+//		WorkflowSelection ws = model.getSelection();
+//		if (ws instanceof SingleObjectSelection)
+		//	((SingleObjectSelection) ws).remove();
+		List<AbstractView> selection = view.getCurrentSelection();
+		for (AbstractView v : selection)
+			v.remove(view);
 	}
 
 	/**
@@ -388,7 +400,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 
 	@Override
 	public void propertyChanged(MutableWorkflow mwf) {
-		if (mwf == model.getRoot()) {
+		if (mwf == view.getWorkflow()) {
 			mainpane.setName(mwf.getName());
 			app.getWindowSystem().addContentWindow(null, mainpane, null);
 		}
@@ -396,7 +408,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 
 	private void recheck() {
 		try {
-			model.checkWorkflow();
+			//model.checkWorkflow();
 		} catch (Exception e) {
 			app.sendMessage(new ExceptionMessage(e));
 		}
@@ -583,12 +595,14 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 
 	@Override
 	public Model getModel() {
-		return model;
+//		return model;
+		return null;
 	}
 
 	@Override
 	public void updated(MutableWorkflow mwf) {
 		// FIXME FIXME FIXME
 	}
+
 
 }

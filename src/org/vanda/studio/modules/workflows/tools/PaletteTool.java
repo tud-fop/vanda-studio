@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.vanda.presentationmodel.PresentationModel;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.jgraph.mxDragGestureListener;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
@@ -166,6 +167,10 @@ public class PaletteTool implements ToolFactory {
 
 	protected static mxGraphComponent renderTemplates(List<Job> ts) {
 		DrecksAdapter da = new DrecksAdapter(null);
+//		PresentationModel pm = new PresentationModel(null);
+//		pm.getVisualization().getGraph().setCellsLocked(true);
+//		pm.getVisualization().getGraph().setDropEnabled(false);
+//		pm.getVisualization().getGraph().getModel().beginUpdate();
 		da.getGraph().setCellsLocked(true);
 		da.getGraph().setDropEnabled(false);
 		da.getGraph().getModel().beginUpdate();
@@ -179,6 +184,7 @@ public class PaletteTool implements ToolFactory {
 				d[1] += cell.getGeometry().getHeight() + 10;
 			}
 		} finally {
+			//pm.getVisualization().getGraph().getModel().endUpdate();
 			da.getGraph().getModel().endUpdate();
 		}
 		mxGraphComponent c = new mxGraphComponent(da.getGraph());

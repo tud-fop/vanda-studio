@@ -44,5 +44,10 @@ public class ConnectionAdapter {
 		this.visualization = new ConnectionCell(connectionKey, pm.getVisualization(), source, target);
 	}
 	
+	public ConnectionAdapter(ConnectionKey connectionKey, ConnectionCell visualization) {
+		this.visualization = visualization;
+		this.connectionKey = connectionKey;
+	}
+	
 
 }

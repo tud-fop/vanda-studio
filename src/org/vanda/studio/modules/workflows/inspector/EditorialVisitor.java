@@ -3,7 +3,8 @@ package org.vanda.studio.modules.workflows.inspector;
 import javax.swing.JComponent;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
+import org.vanda.view.AbstractView.SelectionVisitor;
+//import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
@@ -59,5 +60,6 @@ public final class EditorialVisitor implements SelectionVisitor {
 	public void visitVariable(Location variable, MutableWorkflow wf) {
 		editor = eefs.variableFactories.createEditor(app, wf, variable);
 	}
+
 
 }

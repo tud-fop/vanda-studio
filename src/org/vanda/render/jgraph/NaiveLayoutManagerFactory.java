@@ -1,13 +1,11 @@
 package org.vanda.render.jgraph;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
-import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
 import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.Location;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -19,25 +17,24 @@ import com.mxgraph.view.mxStylesheet;
 
 public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface {
 
-	protected static JobLayouter algorithmRenderer = new AlgorithmRenderer();
-	protected static JobLayouter corpusRenderer = new CorpusRenderer();
-	protected static JobLayouter grammarRenderer = new GrammarRenderer();
-	protected static JobLayouter orRenderer = new ChoiceNodeRenderer();
-	protected static JobLayouter sinkRenderer = new SinkRenderer();
-	protected static JobLayouter workflowRenderer = new WorkflowRenderer();
-	protected static JobLayouter literalRenderer = new LiteralRenderer();
-	protected static JobLayouter[] renderers = { algorithmRenderer,
-			corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
+	protected LayoutManagerInterface algorithmRenderer = new AlgorithmRenderer();
+	protected LayoutManagerInterface corpusRenderer = new CorpusRenderer();
+	protected LayoutManagerInterface grammarRenderer = new GrammarRenderer();
+	protected LayoutManagerInterface orRenderer = new ChoiceNodeRenderer();
+	protected LayoutManagerInterface sinkRenderer = new SinkRenderer();
+	protected LayoutManagerInterface workflowRenderer = new WorkflowRenderer();
+	protected LayoutManagerInterface literalRenderer = new LiteralRenderer();
+	protected LayoutManagerInterface[] renderers  = { corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
 			workflowRenderer, literalRenderer };
-	protected static mxStylesheet staticStylesheet;
-	protected static int refCount = 0;
-	private static JGraphRendererAssortment rs = new JGraphRendererAssortment();
+	protected mxStylesheet staticStylesheet;
+	protected int refCount = 0;
+	private JGraphRendererAssortment rs = new JGraphRendererAssortment();
 
-	protected static mxStylesheet createStylesheet() {
+	protected mxStylesheet createStylesheet() {
 		mxStylesheet stylesheet = new mxStylesheet();
 		Map<String, Object> style;
 
-		for (JobLayouter r : renderers) {
+		for (LayoutManagerInterface r : renderers) {
 			style = new HashMap<String, Object>(
 					stylesheet.getDefaultVertexStyle());
 			r.addStyle(style);
@@ -100,7 +97,7 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		return stylesheet;
 	}
 
-	public static mxStylesheet getStylesheet() {
+	public mxStylesheet getStylesheet() {
 		if (staticStylesheet == null)
 			staticStylesheet = createStylesheet();
 		return staticStylesheet;
@@ -109,62 +106,62 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 	/**
 	 * increase reference counter for stylesheet by rc (usually +1 or -1)
 	 */
-	public static void refStylesheet(int rc) {
+	public void refStylesheet(int rc) {
 		refCount = refCount + rc;
 		if (refCount == 0)
 			staticStylesheet = null;
 	}
 
-	public static JGraphRendererAssortment getRendererAssortment() {
+	public JGraphRendererAssortment getRendererAssortment() {
 		return rs;
 	}
 
-	public static class JGraphRendererAssortment implements
-			RendererAssortment<JobLayouter> {
+	public class JGraphRendererAssortment implements
+			RendererAssortment<LayoutManagerInterface> {
 		protected JGraphRendererAssortment() {
 		}
 
 		@Override
-		public JobLayouter selectAlgorithmRenderer() {
-			return NaiveLayoutManagerFactory.algorithmRenderer;
+		public LayoutManagerInterface selectAlgorithmRenderer() {
+			return algorithmRenderer;
 		}
 
 		@Override
-		public JobLayouter selectCorpusRenderer() {
-			return NaiveLayoutManagerFactory.corpusRenderer;
+		public LayoutManagerInterface selectCorpusRenderer() {
+			return corpusRenderer;
 		}
 
 		@Override
-		public JobLayouter selectGrammarRenderer() {
-			return NaiveLayoutManagerFactory.grammarRenderer;
+		public LayoutManagerInterface selectGrammarRenderer() {
+			return grammarRenderer;
 		}
 
 		@Override
-		public JobLayouter selectOrRenderer() {
-			return NaiveLayoutManagerFactory.orRenderer;
+		public LayoutManagerInterface selectOrRenderer() {
+			return orRenderer;
 		}
 
 		@Override
-		public JobLayouter selectSinkRenderer() {
-			return NaiveLayoutManagerFactory.sinkRenderer;
+		public LayoutManagerInterface selectSinkRenderer() {
+			return sinkRenderer;
 		}
 
 		@Override
-		public JobLayouter selectLiteralRenderer() {
-			return NaiveLayoutManagerFactory.literalRenderer;
+		public LayoutManagerInterface selectLiteralRenderer() {
+			return literalRenderer;
 		}
 
 		@Override
-		public JobLayouter selectWorkflowRenderer() {
-			return NaiveLayoutManagerFactory.workflowRenderer;
+		public LayoutManagerInterface selectWorkflowRenderer() {
+			return workflowRenderer;
 		}
 	}
 
-	protected abstract class DefaultRenderer implements LayoutManagerInterface {
-		private final JobCell jobCell;
-		private Map<Integer, PortCell> inputs;
-		private Map<Integer, PortCell> outputs;
-		private Map<Integer, LocationCell> locations;
+	protected class DefaultRenderer implements LayoutManagerInterface {
+		protected JobCell jobCell;
+		protected WeakHashMap<Integer, PortCell> inputs;
+		protected WeakHashMap<Integer, PortCell> outputs;
+		protected WeakHashMap<Integer, LocationCell> locations;
 		
 		public void addStyle(Map<String, Object> style) {
 			// style.put(mxConstants.STYLE_AUTOSIZE, "0");
@@ -228,23 +225,31 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		}
 
 
+		@Override
+		public String getStyleName() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+
 	}
 
-	protected static class AlgorithmRenderer extends DefaultRenderer {
+	protected class AlgorithmRenderer extends DefaultRenderer {
 		@Override
 		public String getStyleName() {
 			return "algorithm";
 		}
+
 	}
 
-	protected static class CorpusRenderer extends DefaultRenderer {
+	protected class CorpusRenderer extends DefaultRenderer {
 		@Override
 		public String getStyleName() {
 			return "corpus";
 		}
 	}
 
-	protected static class ChoiceNodeRenderer extends DefaultRenderer {
+	protected class ChoiceNodeRenderer extends DefaultRenderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
 			super.addStyle(style);
@@ -259,7 +264,7 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		}
 	}
 
-	protected static class GrammarRenderer extends DefaultRenderer {
+	protected class GrammarRenderer extends DefaultRenderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
 			super.addStyle(style);
@@ -273,14 +278,14 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		}
 	}
 
-	protected static class SinkRenderer extends DefaultRenderer {
+	protected class SinkRenderer extends DefaultRenderer {
 		@Override
 		public String getStyleName() {
 			return "sink";
 		}
 	}
 
-	protected static class WorkflowRenderer extends DefaultRenderer {
+	protected class WorkflowRenderer extends DefaultRenderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
 			super.addStyle(style);
@@ -296,7 +301,7 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		}
 	}
 
-	protected static class LiteralRenderer extends DefaultRenderer {
+	protected class LiteralRenderer extends DefaultRenderer {
 		@Override
 		public String getStyleName() {
 			return "text";
@@ -318,8 +323,7 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 	protected static final int LOCATION_RADIUS = LOCATION_DIAMETER / 2;
 	
 	@Override
-	public void getLayoutManager(Job job) {
-		// TODO Auto-generated method stub
-		
+	public LayoutManagerInterface getLayoutManager(Job job) {
+		return job.selectRenderer(rs);
 	}
 }

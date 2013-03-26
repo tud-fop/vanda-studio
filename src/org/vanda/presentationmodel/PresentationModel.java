@@ -3,9 +3,12 @@ package org.vanda.presentationmodel;
 import java.util.List;
 import java.util.Map;
 
+import org.vanda.render.jgraph.ConnectionCell;
 import org.vanda.render.jgraph.Graph;
+import org.vanda.render.jgraph.LayoutManagerFactoryInterface;
 import org.vanda.render.jgraph.LayoutManagerInterface;
-import org.vanda.render.jgraph.NaiveLayoutManager;
+import org.vanda.render.jgraph.NaiveLayoutManagerFactory;
+import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.util.Observer;
 import org.vanda.view.View;
 import org.vanda.workflows.hyper.ConnectionKey;
@@ -16,12 +19,13 @@ import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 
 public class PresentationModel {
 	protected final Graph graph;
+	protected final WorkflowCell workflowCell;
 	private final WorkflowListener workflowListener;
 	private int update = 0;
 	List<JobAdapter> jobs;
 	Map<ConnectionKey, ConnectionAdapter> connections;
 	View view;
-	LayoutManagerInterface layoutManager = new NaiveLayoutManager();
+	LayoutManagerFactoryInterface layoutManager = new NaiveLayoutManagerFactory();
 	/* map that holds Layouts for all Job-Types, where String is <code>Job.getName()</code> */
 	//static final Map<String, LayoutManager> layouts = null; //TODO define some Layouts
 	
@@ -47,7 +51,7 @@ public class PresentationModel {
 
 	private LayoutManagerInterface selectLayout(Job job) {
 		//return layouts.get(job.getName());
-		return layoutManager;
+		return layoutManager.getLayoutManager(job);
 	}
 	
 	/**
@@ -117,7 +121,8 @@ public class PresentationModel {
 	}
 
 	public void addConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
-		connections.put(cc, new ConnectionAdapter(cc, this, mwf));
+		if (!connections.containsKey(cc))
+			connections.put(cc, new ConnectionAdapter(cc, this, mwf));
 	}
 
 	public void removeJobAdatper(MutableWorkflow mwf, Job j) {
@@ -128,9 +133,10 @@ public class PresentationModel {
 		return jobs;
 	}
 	
-	PresentationModel(View view) {
+	public PresentationModel(View view) {
 		this.view = view;
-		graph = new Graph(view);
+		this.workflowCell = new WorkflowCell(this);
+		graph = new Graph(view, workflowCell);
 		workflowListener = new WorkflowListener();
 		view.getWorkflow()
 			.getObservable()
@@ -154,6 +160,11 @@ public class PresentationModel {
 		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
 			connections.put(ck, new ConnectionAdapter(ck, this, view.getWorkflow()));
 		}
+	}
+
+	public void addConnectionAdapter(ConnectionCell connectionCell,
+			ConnectionKey connectionKey) {
+		connections.put(connectionKey, new ConnectionAdapter(connectionKey, connectionCell));
 	}
 
 }

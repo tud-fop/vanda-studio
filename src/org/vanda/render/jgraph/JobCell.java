@@ -1,5 +1,6 @@
 package org.vanda.render.jgraph;
 
+import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
 import org.vanda.view.JobView;
 import org.vanda.view.View;
@@ -54,7 +55,8 @@ public class JobCell extends Cell {
 		this.jobListerer = new JobListener();
 		this.jobViewListener = new JobViewListener();
 		
-		graph.getView().getJobView(job).getObservable().addObserver(new org.vanda.util.Observer<ViewEvent<AbstractView>> () {
+		// Register at JobView
+		graph.getView().getJobView(job).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
 
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
@@ -64,8 +66,8 @@ public class JobCell extends Cell {
 			
 		});
 		
-		
-		getObservable().addObserver(new org.vanda.util.Observer<CellEvent<Cell>> () {
+		// Register at Graph
+		getObservable().addObserver(new Observer<CellEvent<Cell>> () {
 
 			@Override
 			public void notify(CellEvent<Cell> event) {
@@ -74,7 +76,8 @@ public class JobCell extends Cell {
 			
 		});
 		
-		job.getObservable().addObserver(new org.vanda.util.Observer<Jobs.JobEvent<Job>> (){
+		// Register at Job
+		job.getObservable().addObserver(new Observer<Jobs.JobEvent<Job>> (){
 
 			@Override
 			public void notify(JobEvent<Job> event) {
@@ -83,22 +86,20 @@ public class JobCell extends Cell {
 			
 		});
 		
-		//TODO some initial layout of cell?
-		
+		// Create mxCell and add it to Graph
 		graph.getGraph().getModel().beginUpdate();
 		try {
 		
-			visualization = (mxCell) graph.getGraph().insertVertex(graph.getGraph().getDefaultParent(), null, this,
-				getX(), getY(), getWidth(), getHeight(),
-				layoutManager.getStyleName(this));
-			visualization.setConnectable(false);
-			
-			if (graph.getGraph().isAutoSizeCell(visualization))
-				graph.getGraph().updateCellSize(visualization, true);
+			visualization = new mxCell(this);
+			graph.getGraph().addCell(visualization, graph.getGraph().getDefaultParent());
+
 
 		} finally {
 			graph.getGraph().getModel().endUpdate();			
 		}
+		
+		// Register at LayoutManager
+		layoutManager.register(this);
 	}
 
 	@Override
@@ -107,19 +108,13 @@ public class JobCell extends Cell {
 	}
 
 	@Override
-	public void onRemove(mxICell previous) {
-		// TODO Auto-generated method stub
-		
+	public void onRemove(View view) {
+		if (job != null)
+			view.getWorkflow().removeChild(job);
 	}
 
 	@Override
-	public boolean inModel() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void onInsert(mxGraph graph) {
+	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
 		// TODO Auto-generated method stub
 		
 	}

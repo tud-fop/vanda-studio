@@ -3,6 +3,7 @@ package org.vanda.studio.modules.workflows.run;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -14,10 +15,12 @@ import javax.swing.SwingConstants;
 import org.vanda.fragment.model.Model;
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
-import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
-import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
+//import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
+//import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
 import org.vanda.types.Type;
 import org.vanda.util.Observer;
+import org.vanda.view.AbstractView;
+import org.vanda.view.AbstractView.SelectionVisitor;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
@@ -121,15 +124,17 @@ public class InspectorTool implements SemanticsToolFactory {
 					update();
 				}
 			};
-			wfe.getModel().getSelectionChangeObservable().addObserver(obs);
-			// wfe.getModel().getWorkflowObservable().addObserver(obs);
+			//wfe.getModel().getSelectionChangeObservable().addObserver(obs);
+			wfe.getView().getObservable().addObserver(obs);
+			//wfe.getModel().getWorkflowObservable().addObserver(obs);
 			// wfe.getModel().getChildObservable().addObserver(obs);
 			mm.getDfaChangedObservable().addObserver(obs);
 			update();
 		}
 
 		public void update() {
-			WorkflowSelection ws = wfe.getModel().getSelection();
+//			WorkflowSelection ws = wfe.getModel().getSelection();
+			List<AbstractView> ws = wfe.getView().getCurrentSelection();
 			if (ws == null)
 				ws = new WorkflowSelection(wfe.getModel().getRoot());
 			// set inspector text

@@ -1,10 +1,10 @@
 package org.vanda.render.jgraph;
 
-import java.util.Observable;
-import java.util.Observer;
 
+import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
 import org.vanda.view.View;
+import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
@@ -18,18 +18,21 @@ public class LocationCell extends Cell {
 	private final Port port;
 	private Location variable;
 	
-	private class LocationViewObserver implements Observer {
-		@Override
-		public void update(Observable arg0, Object arg1) {
-			getObservable().notify(new SelectionChangedEvent<Cell>(LocationCell.this));
-		}
-	}
 	public LocationCell(final Graph g, LayoutManagerInterface layout, Cell parent, Port port, Location variable) {
 		this.port = port;
 		this.variable = variable;
-		g.getView().getLocationView(variable).addObserver(new LocationViewObserver());
 		
-		// Register Graph
+		// Register at LocationView
+		g.getView().getLocationView(variable).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
+
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				getObservable().notify(new SelectionChangedEvent<Cell>(LocationCell.this));
+				
+			}
+		});
+		
+		// Register at Graph
 		getObservable().addObserver(new org.vanda.util.Observer<CellEvent<Cell>> () {
 
 			@Override
@@ -37,15 +40,18 @@ public class LocationCell extends Cell {
 				event.doNotify(g.getCellChangeListener());
 			}
 		});
-						
+		
+		// Create mxCell and add it to Graph
 		g.getGraph().getModel().beginUpdate();
 		try {
-			visualization = new mxCell(this, layout.getGeometry(this), layout.getStyleName(this));
-			visualization.setVertex(true);
+			visualization = new mxCell(this);
 			g.getGraph().addCell(visualization, parent.getVisualization());
 		} finally {
 			g.getGraph().getModel().endUpdate();
 		}
+		
+		// Register at LayoutManager
+		layout.register(this);
 	}
 
 	@Override
@@ -54,16 +60,11 @@ public class LocationCell extends Cell {
 	}
 
 	@Override
-	public void onRemove(mxICell previous) {		
+	public void onRemove(View view) {		
 	}
 
 	@Override
-	public void onInsert(mxGraph graph) {		
-	}
-
-	@Override
-	public boolean inModel() {
-		return false;
+	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {		
 	}
 
 	@Override
@@ -81,8 +82,7 @@ public class LocationCell extends Cell {
 
 	@Override
 	public AbstractView getView(View view) {
-		// TODO Auto-generated method stub
-		return null;
+		return view.getLocationView(variable);
 	}
 
 }

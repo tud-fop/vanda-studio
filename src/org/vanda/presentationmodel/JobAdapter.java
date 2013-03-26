@@ -43,6 +43,9 @@ public class JobAdapter {
 				LocationCell newLoc = new LocationCell(g, layoutManager, jobCell, op, job.bindings.get(op));
 				cells.add(newLoc);
 			}
+			
+			// setup Layout
+			layoutManager.setUpLayout(g);
 
 		} finally {
 			g.getGraph().getModel().endUpdate();

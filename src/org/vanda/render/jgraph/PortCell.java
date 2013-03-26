@@ -1,11 +1,8 @@
 package org.vanda.render.jgraph;
 
-import java.util.Map;
-
 import org.vanda.view.AbstractView;
 import org.vanda.view.View;
 import org.vanda.workflows.elements.Port;
-import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
@@ -17,15 +14,19 @@ public class PortCell extends Cell {
 	
 	public PortCell(Graph g, LayoutManagerInterface layout, Cell parent, Port port, String portType) {
 		this.port = port;
-		this.portType = portType;		
+		this.portType = portType;
+		
+		// Create Cell in Graph
 		g.getGraph().getModel().beginUpdate();
 		try {
-			visualization = new mxCell(this, layout.getGeometry(this), layout.getStyleName(this));
-			visualization.setVertex(true);
+			visualization = new mxCell(this);
 			g.getGraph().addCell(visualization, parent.getVisualization());
 		} finally {
 			g.getGraph().getModel().endUpdate();
 		}
+		
+		// Register at LayoutManager
+		layout.register(this);
 
 	}
 
@@ -35,16 +36,11 @@ public class PortCell extends Cell {
 	}
 
 	@Override
-	public void onRemove(mxICell previous) {
+	public void onRemove(View view) {
 	}
 
 	@Override
-	public void onInsert(mxGraph graph) {
-	}
-
-	@Override
-	public boolean inModel() {
-		return false;
+	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
 	}
 
 	@Override
@@ -58,7 +54,7 @@ public class PortCell extends Cell {
 
 	@Override
 	public AbstractView getView(View view) {
-		return null;
+		return null;	// no view for Ports !
 	}
 
 	public Port getPort() {

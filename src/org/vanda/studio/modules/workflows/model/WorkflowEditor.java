@@ -5,6 +5,7 @@ import javax.swing.KeyStroke;
 
 import org.vanda.studio.app.Application;
 import org.vanda.util.Action;
+import org.vanda.view.View;
 
 public interface WorkflowEditor {
 	void addAction(Action a, KeyStroke keyStroke);
@@ -14,4 +15,5 @@ public interface WorkflowEditor {
 	Model getModel();
 	void removeToolWindow(JComponent c);
 	void setPalette(JComponent c);
+	View getView();
 }
