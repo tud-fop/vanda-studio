@@ -90,7 +90,7 @@ public class WorkflowModule implements Module {
 			eefs = new ElementEditorFactories();
 			eefs.workflowFactories
 					.add(new org.vanda.studio.modules.workflows.inspector.WorkflowEditor());
-			eefs.literalFactories.add(new LiteralEditor());
+			eefs.literalFactories.add(new LiteralEditor(app));
 
 			ListRepository<SemanticsToolFactory> srep = new ListRepository<SemanticsToolFactory>();
 			srep.addItem(new RunTool(new GeneratorImpl(app, profile)));

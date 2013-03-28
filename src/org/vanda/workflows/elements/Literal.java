@@ -29,7 +29,6 @@ public final class Literal {
 		return value;
 	}
 	
-	
 	public void setType(Type type) {
 		if (!type.equals(this.type)) {
 			this.type = type;
