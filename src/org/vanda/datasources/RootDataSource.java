@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -111,6 +112,10 @@ public class RootDataSource implements DataSource {
 	
 	public void mount(String prefix, DataSource ds) {
 		sources.put(prefix, ds);
+	}
+	
+	public Set<Map.Entry<String, DataSource>> mtab() {
+		return sources.entrySet();
 	}
 	
 	public void umount(String prefix) {

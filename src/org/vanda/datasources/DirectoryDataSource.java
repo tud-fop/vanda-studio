@@ -13,9 +13,9 @@ import org.vanda.util.Observer;
 
 public class DirectoryDataSource implements DataSource {
 
-	private File dir;
-	private String filter;
-	private Type type;
+	public File dir;
+	public String filter;
+	public Type type;
 
 	public DirectoryDataSource(Type type, String path, String filter) {
 		this.type = type;
