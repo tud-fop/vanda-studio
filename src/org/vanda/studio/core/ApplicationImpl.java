@@ -14,7 +14,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import org.vanda.datasources.DataSourceFactory;
+import org.vanda.datasources.DataSource;
+import org.vanda.datasources.Element;
+import org.vanda.datasources.RootDataSource;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.app.UIMode;
@@ -45,7 +47,7 @@ public final class ApplicationImpl implements Application {
 	// protected final CompositeRepository<Profile> profileRepository;
 	protected final HashMap<Type, PreviewFactory> previewFactories;
 	protected final CompositeRepository<Tool> toolRepository;
-	protected final CompositeRepository<DataSourceFactory> dataSourceRepository;
+	protected final RootDataSource rootDataSource;
 	protected final MultiplexObserver<Application> shutdownObservable;
 	protected final WindowSystemImpl windowSystem;
 	protected final HashSet<Type> types;
@@ -70,7 +72,7 @@ public final class ApplicationImpl implements Application {
 		// profileRepository = new CompositeRepository<Profile>();
 		previewFactories = new HashMap<Type, PreviewFactory>();
 		toolRepository = new CompositeRepository<Tool>();
-		dataSourceRepository = new CompositeRepository<DataSourceFactory>();
+		rootDataSource = new RootDataSource(new HashMap<String, DataSource>());
 		shutdownObservable = new MultiplexObserver<Application>();
 		if (gui)
 			windowSystem = new WindowSystemImpl(this);
@@ -127,9 +129,10 @@ public final class ApplicationImpl implements Application {
 		// System.out.println(getProperty("inputPath"));
 		if (value.startsWith("/"))
 			return value;
-		if (value.contains(":"))
-			return dataSourceRepository.getItem(value.split(":")[0]).createInstance()
-					.getValue(value);
+		if (value.contains(":")) {
+			Element el = Element.fromString(value);
+			return rootDataSource.getValue(el);
+		}
 		if (new File(getProperty("inputPath") + value).exists())
 			return getProperty("inputPath") + value;
 		if (new File(getProperty("outputPath") + value).exists())
@@ -232,8 +235,8 @@ public final class ApplicationImpl implements Application {
 	}
 
 	@Override
-	public MetaRepository<DataSourceFactory> getDataSourceMetaRepository() {
-		return dataSourceRepository;
+	public RootDataSource getRootDataSource() {
+		return rootDataSource;
 	}
 
 	@Override

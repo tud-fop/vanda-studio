@@ -24,6 +24,7 @@ import org.vanda.studio.modules.workflows.jgraph.mxDragGestureListener;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.CompositeType;
+import org.vanda.types.Types;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
@@ -98,7 +99,7 @@ public class PaletteTool implements ToolFactory {
 			// templates.add(new AtomicJob(new InputPort()));
 			// templates.add(new AtomicJob(new OutputPort()));
 			templates.add(new Job(new LiteralAdapter(new Literal(
-					new CompositeType("String"), ""))));
+					Types.undefined, ""))));
 			Collections.sort(templates, new Comparator<Job>() {
 				@Override
 				public int compare(Job o1, Job o2) {

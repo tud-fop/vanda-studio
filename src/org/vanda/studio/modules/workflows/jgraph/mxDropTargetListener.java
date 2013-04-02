@@ -9,7 +9,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetListener;
 
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
-import org.vanda.types.CompositeType;
+import org.vanda.types.Types;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.hyper.ElementAdapter;
 import org.vanda.workflows.hyper.Job;
@@ -55,8 +55,7 @@ public class mxDropTargetListener extends DropTargetAdapter implements
 				ElementAdapter ele;
 				// TODO literal should be recognized otherwise
 				if (id.equals("literal"))
-					ele = new LiteralAdapter(new Literal(new CompositeType(
-							"String"), ""));
+					ele = new LiteralAdapter(new Literal(Types.undefined, ""));
 				else
 					ele = new ToolAdapter(wfe.getApplication()
 							.getToolMetaRepository().getRepository()

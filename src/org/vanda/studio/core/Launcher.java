@@ -51,10 +51,6 @@ public final class Launcher implements Runnable {
 			moduleManager.loadModule(m);
 		moduleManager.initModules();
 
-		// outdated
-		// app.getToolMetaRepository().getRepository().refresh();
-		// System.out.println(app.getToolMetaRepository().getRepository()
-		//		.getItems());
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(app));
 		// throw new NullPointerException("brain is null");
 	}

@@ -6,8 +6,7 @@ package org.vanda.studio.app;
 import java.util.Collection;
 import java.util.Set;
 
-import org.vanda.datasources.DataSource;
-import org.vanda.datasources.DataSourceFactory;
+import org.vanda.datasources.RootDataSource;
 import org.vanda.types.Type;
 import org.vanda.util.Message;
 import org.vanda.util.MetaRepository;
@@ -50,7 +49,7 @@ public interface Application {
 	 */
 	MetaRepository<Tool> getToolMetaRepository();
 	
-	MetaRepository<DataSourceFactory> getDataSourceMetaRepository();
+	RootDataSource getRootDataSource();
 	
 	Observable<Message> getMessageObservable();
 

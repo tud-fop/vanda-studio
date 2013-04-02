@@ -62,7 +62,7 @@ public final class LiteralAdapter implements ElementAdapter, ElementListener<Lit
 
 	@Override
 	public String getName() {
-		return "literal[" + lit.getValue() + "]";
+		return lit.getValue();
 	}
 
 	@Override

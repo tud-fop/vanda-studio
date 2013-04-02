@@ -1,13 +1,11 @@
 package org.vanda.studio.modules.workflows.datasources;
 
-import org.vanda.datasources.DataSourceFactory;
-import org.vanda.datasources.DirectoryDataSourceFactory;
-import org.vanda.datasources.IntegerSourceFactory;
+import org.vanda.datasources.DirectoryDataSource;
+import org.vanda.datasources.IntegerDataSource;
+import org.vanda.datasources.RootDataSource;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
 import org.vanda.types.CompositeType;
-import org.vanda.util.ListRepository;
-import org.vanda.util.MetaRepository;
 
 public class DataSourceModule implements Module {
 
@@ -18,22 +16,20 @@ public class DataSourceModule implements Module {
 
 	@Override
 	public Object createInstance(Application a) {
-		MetaRepository<DataSourceFactory> dsr = a.getDataSourceMetaRepository();
-		ListRepository<DataSourceFactory> r = new ListRepository<DataSourceFactory>();
-		r.addItem(new IntegerSourceFactory(a));
-		r.addItem(new DirectoryDataSourceFactory(a, "europarl",
+		RootDataSource rds = a.getRootDataSource();
+		rds.mount("Integer", new IntegerDataSource());
+		rds.mount("europarl", new DirectoryDataSource(
 				new CompositeType("SentenceCorpus"), "europarl_eng-ger", ".*"));
-		r.addItem(new DirectoryDataSourceFactory(a, "example1",
+		rds.mount("example1", new DirectoryDataSource(
 				new CompositeType("SentenceCorpus"), "example_eng-spa", ".*"));
-		r.addItem(new DirectoryDataSourceFactory(a, "example2",
+		rds.mount("example2", new DirectoryDataSource(
 				new CompositeType("SentenceCorpus"), "example_arc-cen", ".*"));
-		r.addItem(new DirectoryDataSourceFactory(a, "example3",
+		rds.mount("example3", new DirectoryDataSource(
 				new CompositeType("SentenceCorpus"), "example_astronauts", ".*"));
-		r.addItem(new DirectoryDataSourceFactory(a, "Berkeley Grammars",
+		rds.mount("Berkeley Grammars", new DirectoryDataSource(
 				new CompositeType("BerkeleyGrammar.sm6"), "grammars", ".*gr"));
-		r.addItem(new DirectoryDataSourceFactory(a, "LAPCFG Grammars",
+		rds.mount("LAPCFG Grammars", new DirectoryDataSource(
 				new CompositeType("LAPCFG-Grammar"), "lapcfg", ".*"));
-		dsr.addRepository(r);
 		return null;
 	}
 
