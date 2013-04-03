@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.workflows.impl;
 
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
@@ -20,7 +21,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
@@ -65,7 +65,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 	protected final mxGraphOutline outline;
 	protected final DrecksAdapter renderer;
 	protected JComponent palette;
-	protected final JSplitPane mainpane;
+	// protected final JSplitPane mainpane;
 
 	public WorkflowEditorImpl(Application app, List<ToolFactory> toolFactories, MutableWorkflow hwf) {
 		this.app = app;
@@ -98,13 +98,15 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 		// component.setPanning(true); // too complic: must press SHIFT+CONTROL
 		// (component.getGraph().getDefaultParent());
 		outline = new mxGraphOutline(component);
-		mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component, outline);
-		mainpane.setOneTouchExpandable(true);
-		mainpane.setResizeWeight(0.9);
-		mainpane.setDividerSize(6);
-		mainpane.setBorder(null);
-		mainpane.setName(model.getRoot().getName());
-		mainpane.setDividerLocation(0.7);
+		outline.setPreferredSize(new Dimension(250, 250));
+//		mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component, outline);
+//		mainpane.setOneTouchExpandable(true);
+//		mainpane.setResizeWeight(0.9);
+//		mainpane.setDividerSize(6);
+//		mainpane.setBorder(null);
+//		mainpane.setName(model.getRoot().getName());
+//		mainpane.setDividerLocation(0.7);
+		component.setName(model.getRoot().getName());
 
 		app.getUIModeObservable().addObserver(new Observer<Application>() {
 			@Override
@@ -115,16 +117,19 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 					component.zoomActual();
 			}
 		});
-		app.getWindowSystem().addContentWindow(null, mainpane, null);
-		app.getWindowSystem().focusContentWindow(mainpane);
-		mainpane.requestFocusInWindow();
+		app.getWindowSystem().addContentWindow(null, component, null);
+		app.getWindowSystem().focusContentWindow(component);
+		component.requestFocusInWindow();
 
 		for (ToolFactory tf : toolFactories)
 			tf.instantiate(this);
-		app.getWindowSystem().addAction(mainpane, new ResetZoomAction(),
+		app.getWindowSystem().addAction(component, new ResetZoomAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK));
-		app.getWindowSystem().addAction(mainpane, new CloseWorkflowAction(),
+		app.getWindowSystem().addAction(component, new CloseWorkflowAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
+		
+		outline.setName("Map");
+		addToolWindow(outline, WindowSystem.SOUTHEAST);
 
 		model.getRoot().getObservable().addObserver(new Observer<WorkflowEvent<MutableWorkflow>>() {
 
@@ -151,7 +156,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 	public void close() {
 		// remove tab
-		app.getWindowSystem().removeContentWindow(mainpane);
+		app.getWindowSystem().removeContentWindow(component);
 	}
 
 	/**
@@ -334,7 +339,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 	@Override
 	public void addToolWindow(JComponent c, Integer layer) {
-		app.getWindowSystem().addToolWindow(mainpane, null, c, layer);
+		app.getWindowSystem().addToolWindow(component, null, c, layer);
 	}
 
 	@Override
@@ -344,12 +349,12 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 	@Override
 	public void removeToolWindow(JComponent c) {
-		app.getWindowSystem().removeToolWindow(mainpane, c);
+		app.getWindowSystem().removeToolWindow(component, c);
 	}
 
 	@Override
 	public void addAction(Action a, KeyStroke keyStroke) {
-		app.getWindowSystem().addAction(mainpane, a, keyStroke);
+		app.getWindowSystem().addAction(component, a, keyStroke);
 	}
 
 	@Override
@@ -360,8 +365,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 	@Override
 	public void propertyChanged(MutableWorkflow mwf) {
 		if (mwf == model.getRoot()) {
-			mainpane.setName(mwf.getName());
-			app.getWindowSystem().addContentWindow(null, mainpane, null);
+			component.setName(mwf.getName());
+			app.getWindowSystem().addContentWindow(null, component, null);
 		}
 	}
 

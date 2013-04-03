@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.workflows.run;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 
@@ -52,6 +53,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			therealinspector = new JScrollPane(inspector);
 			contentPane = new JPanel(new BorderLayout());
 			contentPane.add(therealinspector, BorderLayout.CENTER);
+			contentPane.setPreferredSize(new Dimension(800, 300));
 			contentPane.setName("Inspector");
 			editor = null;
 			this.wfe.addToolWindow(contentPane, WindowSystem.SOUTH);

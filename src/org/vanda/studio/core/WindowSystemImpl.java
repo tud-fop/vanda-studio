@@ -159,8 +159,8 @@ public class WindowSystemImpl implements WindowSystem {
 		// inner2.setBounds(0, 300, 500, 500);
 		mainPane.add(contentPane, LayerLayout.CENTER);
 		// inner.add(inner2, new Integer(1));
-		mainPane.setBorder(BorderFactory.createTitledBorder(
-                "Move the Mouse to Move Duke"));
+		// mainPane.setBorder(BorderFactory.createTitledBorder(
+        //        "Move the Mouse to Move Duke"));
 
 		contentPane.addChangeListener(new ChangeListener() {
 

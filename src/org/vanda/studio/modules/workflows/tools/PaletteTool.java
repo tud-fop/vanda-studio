@@ -55,7 +55,7 @@ public class PaletteTool implements ToolFactory {
 		protected mxGraphComponent searchGraph;
 		protected JXTaskPaneContainer taskPaneContainer;
 		protected JTextField textField;
-		protected JSplitPane paletteComponent;
+		// protected JSplitPane paletteComponent;
 		protected JScrollPane scrollPane;
 		protected JXTaskPane searchPane;
 		protected final ArrayList<Job> templates;
@@ -65,11 +65,11 @@ public class PaletteTool implements ToolFactory {
 			taskPaneContainer = new JXTaskPaneContainer();
 			scrollPane = new JScrollPane();
 			templates = new ArrayList<Job>();
-			paletteComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					scrollPane, new JPanel());
-			paletteComponent.setName("Palette");
+			// paletteComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+			// 		scrollPane, new JPanel());
+			scrollPane.setName("Palette");
 			update();
-			wfe.setPalette(paletteComponent);
+			wfe.setPalette(scrollPane);
 		}
 
 		public void update() {
