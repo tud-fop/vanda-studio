@@ -15,6 +15,11 @@ import org.vanda.util.Action;
  * @author buechse
  */
 public interface WindowSystem {
+	static final Integer CENTER = 0;
+	static final Integer SOUTHWEST = 1;
+	static final Integer SOUTH = 2;
+	static final Integer SOUTHEAST = 3;
+	
 	/**
 	 * Call this *before* adding c as a contentWindow.
 	 */
@@ -34,7 +39,7 @@ public interface WindowSystem {
 	
 	/**
 	 */
-	void addToolWindow(JComponent window, Icon i, JComponent c);
+	void addToolWindow(JComponent window, Icon i, JComponent c, Integer layer);
 
 	/**
 	 */

@@ -13,6 +13,7 @@ import javax.swing.UIManager;
 import javax.swing.text.html.HTMLDocument;
 
 import org.vanda.fragment.model.Model;
+import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.inspector.AbstractEditorFactory;
 import org.vanda.studio.modules.workflows.inspector.AbstractPreviewFactory;
 import org.vanda.studio.modules.workflows.inspector.EditorialVisitor;
@@ -53,7 +54,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			contentPane.add(therealinspector, BorderLayout.CENTER);
 			contentPane.setName("Inspector");
 			editor = null;
-			this.wfe.addToolWindow(contentPane);
+			this.wfe.addToolWindow(contentPane, WindowSystem.SOUTH);
 			Observer<Object> obs = new Observer<Object>() {
 				@Override
 				public void notify(Object event) {

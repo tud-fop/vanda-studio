@@ -8,7 +8,7 @@ import org.vanda.util.Action;
 
 public interface WorkflowEditor {
 	void addAction(Action a, KeyStroke keyStroke);
-	void addToolWindow(JComponent c);
+	void addToolWindow(JComponent c, Integer layer);
 	void focusToolWindow(JComponent c);
 	Application getApplication();
 	WorkflowDecoration getWorkflowDecoration();

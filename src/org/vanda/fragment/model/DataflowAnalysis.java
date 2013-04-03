@@ -27,6 +27,7 @@ public final class DataflowAnalysis {
 	private final Map<Tool, String> rootDirs;
 	private final Job[] jobs;
 	private final Type fragmentType;
+	private boolean connected;
 
 	public DataflowAnalysis(MutableWorkflow iwf, Job[] sorted, Type fragmentType) {
 		workflow = iwf;
@@ -34,6 +35,7 @@ public final class DataflowAnalysis {
 		rootDirs = new HashMap<Tool, String>();
 		jobs = sorted;
 		this.fragmentType = fragmentType;
+		connected = false;
 	}
 
 	public Type getFragmentType() {
@@ -45,6 +47,7 @@ public final class DataflowAnalysis {
 	}
 
 	public void init() {
+		Boolean cc = true;
 		if (jobs == null)
 			return;
 		for (final Job ji : jobs) {
@@ -89,8 +92,10 @@ public final class DataflowAnalysis {
 					sb.append(variable.toString());
 					values.put(variable, sb.toString());
 				}
+				cc = false;
 			}
 		}
+		connected = cc;
 	}
 
 	private static String md5sum(String in) {
@@ -120,5 +125,9 @@ public final class DataflowAnalysis {
 
 	public MutableWorkflow getWorkflow() {
 		return workflow;
+	}
+	
+	public boolean isConnected() {
+		return connected;
 	}
 }

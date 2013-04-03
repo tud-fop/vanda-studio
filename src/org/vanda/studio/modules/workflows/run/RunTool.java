@@ -39,6 +39,7 @@ import org.vanda.fragment.model.Fragments;
 import org.vanda.fragment.model.Generator;
 import org.vanda.fragment.model.Model;
 import org.vanda.studio.app.Application;
+import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.Types;
 import org.vanda.util.Action;
@@ -140,7 +141,7 @@ public class RunTool implements SemanticsToolFactory {
 			gbc.gridwidth = 3;
 			pMain.add(sRuntool, gbc);
 
-			Tool.this.wfe.addToolWindow(pMain);
+			Tool.this.wfe.addToolWindow(pMain, WindowSystem.SOUTH);
 		}
 
 		private static class StreamGobbler extends Thread {
@@ -454,7 +455,7 @@ public class RunTool implements SemanticsToolFactory {
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
-			if (mm.getDataflowAnalysis().getSorted() != null &&
+			if (mm.getDataflowAnalysis().isConnected() &&
 					Types.canUnify(mm.getFragmentType(),
 							prof.getRootType())) {
 				try {

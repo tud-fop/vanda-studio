@@ -29,7 +29,7 @@ public class DebuggerTool implements ToolFactory {
 					});
 			therealdebugger = new JScrollPane(debugger);
 			therealdebugger.setName("Debugger");
-			this.wfe.addToolWindow(therealdebugger);
+			// FIXME this.wfe.addToolWindow(therealdebugger);
 		}
 
 		public void update(WorkflowDecoration model) {

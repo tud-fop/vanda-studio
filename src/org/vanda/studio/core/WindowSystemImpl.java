@@ -3,7 +3,9 @@
  */
 package org.vanda.studio.core;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -14,13 +16,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -43,6 +48,7 @@ public class WindowSystemImpl implements WindowSystem {
 
 	protected final Application app;
 	protected JFrame mainWindow;
+	protected JLayeredPane mainPane;
 	protected JTabbedPane contentPane;
 	protected JTabbedPane toolPane;
 	protected JMenuBar menuBar;
@@ -128,19 +134,33 @@ public class WindowSystemImpl implements WindowSystem {
 		// Creates the library pane that contains the tabs with the palettes
 		contentPane = new JTabbedPane();
 		toolPane = new JTabbedPane();
-		/*
-		 * toolPane.add("Definitions", new JLabel("Test"));
-		 * toolPane.add("Documentation", new JLabel("Test"));
-		 * toolPane.add("Source Code", new JLabel("Test"));
-		 */
+		
+		// toolPanel = new JPanel(new BorderLayout());
+		// toolPanel.add(new JPanel(), BorderLayout.CENTER);
+		// toolPanel.add(toolPane, BorderLayout.SOUTH);
 
-		JSplitPane inner = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				contentPane, toolPane);
-		inner.setOneTouchExpandable(true);
-		inner.setDividerLocation(0.7);
-		inner.setResizeWeight(0.7);
-		inner.setDividerSize(6);
-		inner.setBorder(null);
+		/*
+		JPanel pp = new JPanel();
+		pp.setOpaque(false);
+		
+		JSplitPane inner2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				pp, toolPane);
+		inner2.setOpaque(false);
+		inner2.setOneTouchExpandable(true);
+		inner2.setDividerLocation(0.7);
+		inner2.setResizeWeight(0.7);
+		inner2.setDividerSize(6);
+		inner2.setBorder(null);
+		*/
+
+		mainPane = new JLayeredPane();
+		mainPane.setLayout(new LayerLayout());
+		// contentPane.setBounds(0, 0, 500, 500);
+		// inner2.setBounds(0, 300, 500, 500);
+		mainPane.add(contentPane, LayerLayout.CENTER);
+		// inner.add(inner2, new Integer(1));
+		mainPane.setBorder(BorderFactory.createTitledBorder(
+                "Move the Mouse to Move Duke"));
 
 		contentPane.addChangeListener(new ChangeListener() {
 
@@ -181,8 +201,8 @@ public class WindowSystemImpl implements WindowSystem {
 		});
 
 		// Puts everything together
-		// mainWindow.getContentPane().setLayout(new BorderLayout());
-		mainWindow.getContentPane().add(inner); // BorderLayout.CENTER
+		mainWindow.getContentPane().setLayout(new BorderLayout());
+		mainWindow.getContentPane().add(mainPane, BorderLayout.CENTER);
 		// mainWindow.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
 		SwingUtilities.invokeLater(new Runnable() {
@@ -258,7 +278,7 @@ public class WindowSystemImpl implements WindowSystem {
 	/**
 	 */
 	@Override
-	public void addToolWindow(JComponent window, Icon i, JComponent c) {
+	public void addToolWindow(JComponent window, Icon i, JComponent c, Integer layer) {
 		List<JComponent> tcs = windowTools.get(window);
 		if (tcs == null) {
 			tcs = new ArrayList<JComponent>();
@@ -277,7 +297,8 @@ public class WindowSystemImpl implements WindowSystem {
 					if (l != null)
 						idx += l.size();
 				}
-				toolPane.add(c, idx);
+				// toolPane.add(c, idx);
+				mainPane.add(c, layer);
 			}
 		}
 	}
@@ -308,7 +329,8 @@ public class WindowSystemImpl implements WindowSystem {
 	@Override
 	public void focusToolWindow(JComponent c) {
 		try {
-			toolPane.setSelectedComponent(c);
+			// do nothing
+			// toolPane.setSelectedComponent(c);
 		} catch (IllegalArgumentException e) {
 			// if the component is not in there, then the corresponding
 			// window is not focused, and we ignore the request
@@ -337,7 +359,8 @@ public class WindowSystemImpl implements WindowSystem {
 			tcs.remove(c);
 		}
 		if (contentPane.getSelectedComponent() == window)
-			toolPane.remove(c);
+			// toolPane.remove(c);
+			mainPane.remove(c);
 	}
 
 }
