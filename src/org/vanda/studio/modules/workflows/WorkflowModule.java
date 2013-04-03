@@ -23,7 +23,6 @@ import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.inspector.LiteralEditor;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
-import org.vanda.studio.modules.workflows.run.InspectorToolObsolete;
 import org.vanda.studio.modules.workflows.run.InspectorTool;
 import org.vanda.studio.modules.workflows.run.ProfileManager;
 import org.vanda.studio.modules.workflows.run.RunTool;
@@ -96,7 +95,6 @@ public class WorkflowModule implements Module {
 
 			LinkedList<SemanticsToolFactory> srep = new LinkedList<SemanticsToolFactory>();
 			srep.add(new RunTool(new GeneratorImpl(app, profile)));
-			// srep.add(new InspectorTool());
 			srep.add(new InspectorTool(eefs));
 
 			toolFactories = new LinkedList<ToolFactory>();
@@ -156,13 +154,6 @@ public class WorkflowModule implements Module {
 					String filePath = chosenFile.getPath();
 					MutableWorkflow hwf;
 					try {
-						/*
-						 * app .getSemanticsModuleMetaRepository()
-						 * .getRepository().getItem("profile");
-						 */
-						// Serialization ser = new Serialization(app
-						// .getToolMetaRepository()
-						// .getRepository());
 						hwf = new Loader(app.getToolMetaRepository()
 								.getRepository()).load(filePath);
 						new WorkflowEditorImpl(app, toolFactories, hwf);
@@ -196,36 +187,6 @@ public class WorkflowModule implements Module {
 				manager = null;
 			}
 		}
-		//
-		// @Override
-		// public String getName() {
-		// return "Profile Semantics";
-		// }
-		//
-		// @Override
-		// public String getCategory() {
-		// return "Profile Semantics";
-		// }
-		//
-		// @Override
-		// public String getContact() {
-		// return "Matthias.Buechse@tu-dresden.de";
-		// }
-		//
-		// @Override
-		// public String getDescription() {
-		// return "Semantics module based on fragment profiles";
-		// }
-		//
-		// @Override
-		// public String getId() {
-		// return "profile";
-		// }
-		//
-		// @Override
-		// public String getVersion() {
-		// return "2012-12-12";
-		// }
 
 	}
 }

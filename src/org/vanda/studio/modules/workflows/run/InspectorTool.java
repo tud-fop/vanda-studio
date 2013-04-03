@@ -87,9 +87,9 @@ public class InspectorTool implements SemanticsToolFactory {
 		public void setPreview(AbstractPreviewFactory previewFactory) {
 			if (preview != null) {
 				contentPane.remove(preview);
-				contentPane.remove(therealinspector);
 				preview = null;
 			}
+			contentPane.remove(therealinspector);
 			if (previewFactory != null) {
 				preview = previewFactory.createPreview(wfe.getApplication());
 				contentPane.add(therealinspector, BorderLayout.NORTH);
