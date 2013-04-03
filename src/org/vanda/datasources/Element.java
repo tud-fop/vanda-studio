@@ -1,18 +1,40 @@
 package org.vanda.datasources;
 
+import java.util.LinkedList;
+
+import org.vanda.datasources.Elements.ElementEvent;
+import org.vanda.datasources.Elements.PrefixChangeEvent;
+import org.vanda.datasources.Elements.ValueChangeEvent;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
+import org.vanda.util.Util;
 
 public final class Element {
 
+	private LinkedList<ElementEvent<Element>> events;
+	private int update;
 	private String prefix;
 	private String value;
-	private MultiplexObserver<Element> observable;
+	private MultiplexObserver<ElementEvent<Element>> observable;
 	
 	public Element(String prefix, String value) {
-		observable = new MultiplexObserver<Element>();
+		events = new LinkedList<Elements.ElementEvent<Element>>();
+		observable = new MultiplexObserver<ElementEvent<Element>>();
 		this.prefix = prefix;
 		this.value = value;
+	}
+	
+	public void beginUpdate() {
+		update++;
+	}
+	
+	public void endUpdate() {
+		update--;
+		if (update == 0) {
+			LinkedList<ElementEvent<Element>> ev = events;
+			events = new LinkedList<ElementEvent<Element>>();
+			Util.notifyAll(observable, ev);			
+		}
 	}
 	
 	public static Element fromString(String element) {
@@ -28,29 +50,31 @@ public final class Element {
 		return value;
 	}
 
-	public Observable<Element> getObservable() {
+	public Observable<ElementEvent<Element>> getObservable() {
 		return observable;
-	}
-	
-	public void setElement(String prefix, String value) {
-		if (!this.prefix.equals(prefix) || !this.value.equals(value)) {
-			this.prefix = prefix;
-			this.value = value;
-			observable.notify(this);
-		}
 	}
 
 	public void setPrefix(String prefix) {
 		if (!this.prefix.equals(prefix)) {
-			this.prefix = prefix;
-			observable.notify(this);
+			beginUpdate();
+			try {
+				this.prefix = prefix;
+				events.add(new PrefixChangeEvent<Element>(this));
+			} finally {
+				endUpdate();
+			}
 		}
 	}
 
 	public void setValue(String value) {
 		if (!this.value.equals(value)) {
-			this.value = value;
-			observable.notify(this);
+			beginUpdate();
+			try {
+				this.value = value;
+				events.add(new ValueChangeEvent<Element>(this));
+			} finally {
+				endUpdate();
+			}
 		}
 	}
 	

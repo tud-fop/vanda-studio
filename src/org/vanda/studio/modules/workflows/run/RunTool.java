@@ -52,15 +52,15 @@ public class RunTool implements SemanticsToolFactory {
 		private final Model mm;
 		private final Application app;
 		private final Generator prof;
-		// private Fragment frag;
 		private final List<Run> runs;
 		private final JTextPane tRuntool;
 		private final JScrollPane sRuntool;
 		private final JPanel pMain;
 		private final JButton bClear, bCancel;
 		private final JComboBox lRuns;
-		private static final SimpleAttributeSet messageStyle, errorStyle,
-				infoStyle;
+		private static final SimpleAttributeSet infoStyle;
+		private static final SimpleAttributeSet messageStyle;
+		private static final SimpleAttributeSet errorStyle;
 
 		static {
 
@@ -347,7 +347,7 @@ public class RunTool implements SemanticsToolFactory {
 			public void doFinish() {
 				state = new StateDone();
 				try {
-					wfe.getModel().checkWorkflow();
+					mm.checkWorkflow();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -450,12 +450,12 @@ public class RunTool implements SemanticsToolFactory {
 
 		private Fragment generate() {
 			try {
-				wfe.getModel().checkWorkflow();
+				mm.checkWorkflow();
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
 			if (mm.getDataflowAnalysis().getSorted() != null &&
-					Types.canUnify(wfe.getModel().getFragmentType(),
+					Types.canUnify(mm.getFragmentType(),
 							prof.getRootType())) {
 				try {
 					return prof.generate(mm.getDataflowAnalysis());
@@ -478,35 +478,5 @@ public class RunTool implements SemanticsToolFactory {
 	public Object instantiate(WorkflowEditor wfe, Model model) {
 		return new Tool(wfe, model, prof);
 	}
-
-	@Override
-	public String getCategory() {
-		return "Workflow Semantics";
-	}
-
-	@Override
-	public String getContact() {
-		return "Matthias.Buechse@tu-dresden.de";
-	}
-
-	@Override
-	public String getDescription() {
-		return "";
-	}
-
-	@Override
-	public String getId() {
-		return "profile-run";
-	}
-
-	@Override
-	public String getName() {
-		return "Run Tool";
-	}
-
-	@Override
-	public String getVersion() {
-		return "2012-12-12";
-	}
-
+	
 }

@@ -332,6 +332,8 @@ public class JobRendering {
 			style.remove(mxConstants.STYLE_SPACING);
 			style.put(mxConstants.STYLE_SPACING_LEFT, 4);
 			style.put(mxConstants.STYLE_SPACING_RIGHT, 8);
+			style.put(mxConstants.STYLE_SPACING_TOP, 4);
+			style.put(mxConstants.STYLE_SPACING_BOTTOM, 0);
 			// style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
 			style.put(mxConstants.STYLE_AUTOSIZE, "1");
 			style.put(mxConstants.STYLE_RESIZABLE, "0");

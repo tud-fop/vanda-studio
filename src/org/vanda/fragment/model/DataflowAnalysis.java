@@ -19,8 +19,6 @@ import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 // XXX removed: handle ports (see older versions)
-// XXX I've had it with all of this instanceof/typecast bullshit
-// find a principled solution (e.g., visitor)
 public final class DataflowAnalysis {
 	public static final String UNDEFINED = "UNDEFINED";
 
@@ -95,7 +93,7 @@ public final class DataflowAnalysis {
 		}
 	}
 
-	private String md5sum(String in) {
+	private static String md5sum(String in) {
 		try {
 			byte[] bytesOfMessage = in.getBytes(Charset.forName("UTF-8"));
 			MessageDigest md = MessageDigest.getInstance("MD5");

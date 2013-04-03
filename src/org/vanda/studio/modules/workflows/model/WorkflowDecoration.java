@@ -1,24 +1,17 @@
 package org.vanda.studio.modules.workflows.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.vanda.types.Type;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
-import org.vanda.util.Pair;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
-import org.vanda.workflows.hyper.TypeChecker;
-import org.vanda.workflows.hyper.TypeCheckingException;
 import org.vanda.workflows.hyper.Workflows.*;
 
-public final class Model implements WorkflowListener<MutableWorkflow> {
+public final class WorkflowDecoration implements WorkflowListener<MutableWorkflow> {
 
 	public static interface SelectionVisitor {
 		void visitWorkflow(MutableWorkflow wf);
@@ -112,61 +105,18 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 	}
 
 	protected final MutableWorkflow hwf;
-	protected Job[] sorted = null;
-	private Map<Object, Type> types = Collections.emptyMap();
-	private Type fragmentType = null;
 	protected WorkflowSelection selection;
 	protected List<SingleObjectSelection> markedElements;
-	protected final MultiplexObserver<Model> selectionChangeObservable;
-	protected final MultiplexObserver<Model> markedElementsObservable;
-	protected final MultiplexObserver<Model> workflowCheckObservable;
+	protected final MultiplexObserver<WorkflowDecoration> selectionChangeObservable;
+	protected final MultiplexObserver<WorkflowDecoration> markedElementsObservable;
+	protected final MultiplexObserver<WorkflowDecoration> workflowCheckObservable;
 
-	public Model(MutableWorkflow hwf) {
+	public WorkflowDecoration(MutableWorkflow hwf) {
 		this.hwf = hwf;
 		markedElements = new ArrayList<SingleObjectSelection>();
-		selectionChangeObservable = new MultiplexObserver<Model>();
-		markedElementsObservable = new MultiplexObserver<Model>();
-		workflowCheckObservable = new MultiplexObserver<Model>();
-	}
-	
-	public void typeCheck() throws TypeCheckingException {
-		TypeChecker tc = new TypeChecker();
-		hwf.typeCheck(tc);
-		tc.check();
-		types = tc.getTypes();
-		fragmentType = tc.getFragmentType();
-		
-	}
-
-	public void checkWorkflow() throws Exception {
-		markedElements.clear();
-		try {
-			sorted = null;
-			typeCheck();
-			sorted = hwf.getSorted();
-		} catch (TypeCheckingException e) {
-			List<Pair<String, Set<ConnectionKey>>> errors = e.getErrors();
-			for (Pair<String, Set<ConnectionKey>> error : errors) {
-				// TODO use new color in each iteration
-				Set<ConnectionKey> eqs = error.snd;
-				for (ConnectionKey eq : eqs) {
-					markedElements.add(new ConnectionSelection(hwf, eq));
-					/*
-					for (Connection c : hwf.getConnections()) {
-						if (c.target.equals(eq.address)
-								&& c.targetPort == eq.port) {
-							markedElements.add(new ConnectionSelection(hwf,
-									c.address));
-							break;
-						}
-					}
-					*/
-				}
-			}
-
-		}
-		markedElementsObservable.notify(this);
-		workflowCheckObservable.notify(this);
+		selectionChangeObservable = new MultiplexObserver<WorkflowDecoration>();
+		markedElementsObservable = new MultiplexObserver<WorkflowDecoration>();
+		workflowCheckObservable = new MultiplexObserver<WorkflowDecoration>();
 	}
 
 	public List<SingleObjectSelection> getMarkedElements() {
@@ -181,19 +131,15 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 		return selection;
 	}
 
-	public Observable<Model> getSelectionChangeObservable() {
+	public Observable<WorkflowDecoration> getSelectionChangeObservable() {
 		return selectionChangeObservable;
 	}
-	
-	public Job[] getSorted() {
-		return sorted;
-	}
 
-	public Observable<Model> getMarkedElementsObservable() {
+	public Observable<WorkflowDecoration> getMarkedElementsObservable() {
 		return markedElementsObservable;
 	}
 
-	public Observable<Model> getWorkflowCheckObservable() {
+	public Observable<WorkflowDecoration> getWorkflowCheckObservable() {
 		return workflowCheckObservable;
 	}
 
@@ -234,22 +180,10 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 
 	@Override
 	public void propertyChanged(MutableWorkflow mwf) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void updated(MutableWorkflow mwf) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public Type getFragmentType() {
-		return fragmentType;
-	}
-
-	public Type getType(Object variable) {
-		return types.get(variable);
 	}
 
 }

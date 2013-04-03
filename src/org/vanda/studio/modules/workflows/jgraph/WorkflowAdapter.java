@@ -3,8 +3,8 @@ package org.vanda.studio.modules.workflows.jgraph;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.vanda.studio.modules.workflows.model.Model;
-import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration.WorkflowSelection;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
@@ -71,7 +71,7 @@ public class WorkflowAdapter implements Adapter {
 	}
 
 	@Override
-	public void setSelection(Model m) {
+	public void setSelection(WorkflowDecoration m) {
 		m.setSelection(new WorkflowSelection(workflow));
 	}
 

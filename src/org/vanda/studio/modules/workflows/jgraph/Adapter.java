@@ -1,6 +1,6 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
@@ -12,5 +12,5 @@ public interface Adapter {
 	void onRemove(mxICell parent);
 	void onResize(mxGraph graph, mxICell parent, mxICell cell);
 	void register(mxICell parent, mxICell cell);
-	void setSelection(Model m);
+	void setSelection(WorkflowDecoration m);
 }

@@ -13,6 +13,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import org.vanda.datasources.Elements.ElementEvent;
+import org.vanda.datasources.Elements.ElementListener;
 import org.vanda.types.Type;
 import org.vanda.types.Types;
 import org.vanda.util.Observer;
@@ -25,7 +27,7 @@ public class RootDataSource implements DataSource {
 		this.sources = sources;
 	}
 
-	final class RootElement implements ElementSelector, Observer<Element> {
+	final class RootElement implements ElementSelector, Observer<ElementEvent<Element>>, ElementListener<Element> {
 
 		private String prefix;
 		private Element element;
@@ -78,14 +80,14 @@ public class RootDataSource implements DataSource {
 				element = e;
 				if (element != null) {
 					element.getObservable().addObserver(this);
-					notify(element);
+					prefixChanged(element);
 				}
 			}
 		}
 
 		@Override
-		public void notify(Element event) {
-			String prefix1 = event.getPrefix();
+		public void prefixChanged(Element e) {
+			String prefix1 = e.getPrefix();
 			if (!prefix.equals(prefix1)) {
 				prefix = prefix1;
 				jDSList.setSelectedItem(prefix);
@@ -102,6 +104,16 @@ public class RootDataSource implements DataSource {
 					elementSelector = null;
 				selector.revalidate();
 			}
+		}
+
+		@Override
+		public void valueChanged(Element e) {
+			// do nothing
+		}
+
+		@Override
+		public void notify(ElementEvent<Element> event) {
+			event.doNotify(this);
 		}
 	}
 

@@ -1,7 +1,5 @@
 package org.vanda.studio.modules.workflows.model;
 
-import org.vanda.util.RepositoryItem;
-
-public interface ToolFactory extends RepositoryItem {
+public interface ToolFactory {
 	Object instantiate(WorkflowEditor wfe);
 }

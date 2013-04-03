@@ -20,17 +20,22 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 		rds = app.getRootDataSource();
 	}
 	
-	public class BumsObserver implements Observer<Element> {
+	public class BumsObserver implements Observer<org.vanda.datasources.Elements.ElementEvent<Element>> {
 		final Literal l;
 		
 		public BumsObserver(Literal l) {
 			this.l = l;
 		}
-		
+
 		@Override
-		public void notify(Element ds) {
-			l.setValue(ds.toString());
-			l.setType(rds.getType(ds));
+		public void notify(org.vanda.datasources.Elements.ElementEvent<Element> event) {
+			// event.doNotify(this);
+			Element e = event.getElement();
+			String s = e.toString();
+			if (!s.equals(l.getValue())) {
+				l.setValue(s);
+				l.setType(rds.getType(e));
+			}
 		}
 	}
 
@@ -47,9 +52,20 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 		}
 
 		@Override
-		public void propertyChanged(Literal l) {
+		public void typeChanged(Literal l) {
+			// do nothing
+		}
+
+		@Override
+		public void valueChanged(Literal l) {
 			Element el = Element.fromString(l.getValue());
-			ds.setElement(el.getPrefix(), el.getValue());
+			ds.beginUpdate();
+			try {
+				ds.setPrefix(el.getPrefix());
+				ds.setValue(el.getValue());
+			} finally {
+				ds.endUpdate();
+			}
 		}
 	}
 

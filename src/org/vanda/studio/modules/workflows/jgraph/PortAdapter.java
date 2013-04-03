@@ -1,6 +1,6 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 import org.vanda.workflows.elements.Port;
 
 import com.mxgraph.model.mxICell;
@@ -37,7 +37,7 @@ class PortAdapter implements Adapter, Cloneable {
 	}
 
 	@Override
-	public void setSelection(Model m) {
+	public void setSelection(WorkflowDecoration m) {
 		
 	}
 

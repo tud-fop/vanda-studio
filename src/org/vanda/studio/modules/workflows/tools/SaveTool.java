@@ -23,36 +23,6 @@ public final class SaveTool implements ToolFactory {
 		return a;
 	}
 
-	@Override
-	public String getCategory() {
-		return "Workflow Serialization";
-	}
-
-	@Override
-	public String getContact() {
-		return "Matthias.Buechse@tu-dresden.de";
-	}
-
-	@Override
-	public String getDescription() {
-		return "Permits saving the workflow";
-	}
-
-	@Override
-	public String getId() {
-		return "serialize-tool";
-	}
-
-	@Override
-	public String getName() {
-		return "Serialization tool";
-	}
-
-	@Override
-	public String getVersion() {
-		return "2012-12-12";
-	}
-
 	protected class SaveWorkflowAction implements Action {
 
 		private final WorkflowEditor wfe;
@@ -118,7 +88,7 @@ public final class SaveTool implements ToolFactory {
 				try {
 //					Serialization ser = new Serialization(wfe.getApplication()
 //							.getToolMetaRepository().getRepository());
-					new Storer().store(wfe.getModel().getRoot(), filePath);
+					new Storer().store(wfe.getWorkflowDecoration().getRoot(), filePath);
 				} catch (Exception e) {
 					wfe.getApplication().sendMessage(new ExceptionMessage(e));
 				}

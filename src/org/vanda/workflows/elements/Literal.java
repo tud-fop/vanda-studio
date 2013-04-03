@@ -32,14 +32,14 @@ public final class Literal {
 	public void setType(Type type) {
 		if (!type.equals(this.type)) {
 			this.type = type;
-			observable.notify(new PropertyChangeEvent<Literal>(this));
+			observable.notify(new TypeChangeEvent<Literal>(this));
 		}
 	}
 	
 	public void setValue(String value) {
 		if (!value.equals(this.value)) {
 			this.value = value;
-			observable.notify(new PropertyChangeEvent<Literal>(this));
+			observable.notify(new ValueChangeEvent<Literal>(this));
 		}
 	}
 	

@@ -1,119 +1,58 @@
 package org.vanda.studio.modules.workflows.run;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.event.KeyEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
+import javax.swing.JEditorPane;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.text.html.HTMLDocument;
 
 import org.vanda.fragment.model.Model;
-import org.vanda.studio.app.PreviewFactory;
+import org.vanda.studio.modules.workflows.inspector.AbstractEditorFactory;
+import org.vanda.studio.modules.workflows.inspector.AbstractPreviewFactory;
+import org.vanda.studio.modules.workflows.inspector.EditorialVisitor;
+import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
+import org.vanda.studio.modules.workflows.inspector.InspectorialVisitor;
+import org.vanda.studio.modules.workflows.inspector.PreviewesqueVisitor;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration.WorkflowSelection;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
-import org.vanda.studio.modules.workflows.model.Model.SelectionVisitor;
-import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
-import org.vanda.types.Type;
+import org.vanda.util.Action;
 import org.vanda.util.Observer;
-import org.vanda.workflows.hyper.ConnectionKey;
-import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.Location;
-import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class InspectorTool implements SemanticsToolFactory {
+
+	private final ElementEditorFactories eefs;
 
 	public final class Inspector {
 		private final WorkflowEditor wfe;
 		private final Model mm;
 		private final JPanel contentPane;
-		private final JLabel fileName;
-		private String value;
-		private PreviewFactory pf;
-		private GridBagConstraints gbc;
-		private JLabel dummyPreview;
+		private final JEditorPane inspector;
+		private final JScrollPane therealinspector;
+		private JComponent editor;
 		private JComponent preview;
-
-		private class InspectorialVisitor implements SelectionVisitor {
-
-			String value = null;
-			Type type = null;
-
-			@Override
-			public void visitWorkflow(MutableWorkflow wf) {
-			}
-
-			@Override
-			public void visitConnection(MutableWorkflow wf, ConnectionKey cc) {
-				visitVariable(wf.getConnectionValue(cc), wf);
-			}
-
-			@Override
-			public void visitJob(MutableWorkflow wf, Job j) {
-			}
-
-			@Override
-			public void visitVariable(Location variable, MutableWorkflow wf) {
-				type = wfe.getModel().getType(variable);
-				value = mm.getDataflowAnalysis().getValue(variable);
-				// XXX no support for nested workflows because wf is ignored
-			}
-
-		}
+		private WorkflowSelection ws;
 
 		public Inspector(WorkflowEditor wfe, Model mm) {
 			this.wfe = wfe;
 			this.mm = mm;
-			fileName = new JLabel("Select a location or a connection.");
-			contentPane = new JPanel(new GridBagLayout());
-			@SuppressWarnings("serial")
-			JButton bOpenEditor = new JButton(new AbstractAction("Editor") {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (pf != null && value != null)
-						pf.openEditor(Inspector.this.wfe.getApplication()
-								.findFile(value));
-				}
-			});
-
-			dummyPreview = new JLabel(
-					"<html><center>(select a location or a connection<br> for a quick preview)</center></html>",
-					SwingConstants.CENTER);
-			preview = dummyPreview;
-
-			gbc = new GridBagConstraints();
-			gbc.fill = GridBagConstraints.HORIZONTAL;
-			gbc.weightx = 1;
-			gbc.gridx = 0;
-			gbc.gridy = 0;
-			gbc.gridheight = 1;
-			gbc.gridwidth = 1;
-			contentPane.add(fileName, gbc);
-
-			gbc = new GridBagConstraints();
-			gbc.fill = GridBagConstraints.NONE;
-			gbc.gridx = 1;
-			gbc.gridy = 0;
-			gbc.gridheight = 1;
-			gbc.gridwidth = 1;
-			contentPane.add(bOpenEditor, gbc);
-
-			gbc = new GridBagConstraints();
-			gbc.fill = GridBagConstraints.BOTH;
-			gbc.weightx = 1;
-			gbc.weighty = 1;
-			gbc.gridx = 0;
-			gbc.gridy = 1;
-			gbc.gridheight = 1;
-			gbc.gridwidth = 2;
-			contentPane.add(preview, gbc);
-
-			contentPane.setName("Semantics Inspector");
-			value = null;
-			pf = null;
+			ws = null;
+			inspector = new JEditorPane("text/html", "");
+			inspector.setEditable(false);
+			Font font = UIManager.getFont("Label.font");
+	        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
+	                "font-size: " + font.getSize() + "pt; }";
+	        ((HTMLDocument) inspector.getDocument()).getStyleSheet().addRule(bodyRule);
+			therealinspector = new JScrollPane(inspector);
+			contentPane = new JPanel(new BorderLayout());
+			contentPane.add(therealinspector, BorderLayout.CENTER);
+			contentPane.setName("Inspector");
+			editor = null;
 			this.wfe.addToolWindow(contentPane);
 			Observer<Object> obs = new Observer<Object>() {
 				@Override
@@ -121,87 +60,75 @@ public class InspectorTool implements SemanticsToolFactory {
 					update();
 				}
 			};
-			wfe.getModel().getSelectionChangeObservable().addObserver(obs);
-			// wfe.getModel().getWorkflowObservable().addObserver(obs);
-			// wfe.getModel().getChildObservable().addObserver(obs);
-			mm.getDfaChangedObservable().addObserver(obs);
+			wfe.addAction(new CheckWorkflowAction(),
+					KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
+			this.wfe.getWorkflowDecoration().getSelectionChangeObservable().addObserver(obs);
+			this.wfe.focusToolWindow(contentPane);
 			update();
+		}
+		
+		public void setEditor(AbstractEditorFactory editorFactory) {
+			if (editor != null) {
+				contentPane.remove(editor);
+				editor = null;
+			}
+			if (editorFactory != null) {
+				editor = editorFactory.createEditor(wfe.getApplication());
+				if (editor != null)
+					contentPane.add(editor, BorderLayout.EAST);
+			}
+			contentPane.validate();
+		}
+		
+		public void setInspection(String inspection) {
+			inspector.setText(inspection);
+		}
+		
+		public void setPreview(AbstractPreviewFactory previewFactory) {
+			if (preview != null) {
+				contentPane.remove(preview);
+				contentPane.remove(therealinspector);
+				preview = null;
+			}
+			if (previewFactory != null) {
+				preview = previewFactory.createPreview(wfe.getApplication());
+				contentPane.add(therealinspector, BorderLayout.NORTH);
+				contentPane.add(preview, BorderLayout.CENTER);
+			} else
+				contentPane.add(therealinspector, BorderLayout.CENTER);
+			contentPane.validate();
 		}
 
 		public void update() {
-			WorkflowSelection ws = wfe.getModel().getSelection();
+			ws = wfe.getWorkflowDecoration().getSelection();
 			if (ws == null)
-				ws = new WorkflowSelection(wfe.getModel().getRoot());
-			// set inspector text
-			String newvalue = null;
-			JComponent newpreview = dummyPreview;
-			Type type = null;
-			// if (frozen != null && dfa != null) {
-			InspectorialVisitor visitor = new InspectorialVisitor();
-			if (ws != null) // <--- always true for now
-				ws.visit(visitor);
-			newvalue = visitor.value;
-			type = visitor.type;
-			// }
-			if (newvalue != value) {
-				value = newvalue;
-				if (type != null && value != null) {
-					fileName.setText(value + " :: " + type.toString());
-					// create preview
-					pf = wfe.getApplication().getPreviewFactory(type);
-					if (pf != null)
-						newpreview = pf.createPreview(wfe.getApplication()
-								.findFile(value));
-				} else
-					fileName.setText("");
-			} else
-				newpreview = preview;
-			if (newpreview != preview) {
-				if (preview != null)
-					contentPane.remove(preview);
-				preview = newpreview;
-				if (preview != null)
-					contentPane.add(preview, gbc);
+				ws = new WorkflowSelection(wfe.getWorkflowDecoration().getRoot());
+			setInspection(InspectorialVisitor.inspect(mm, ws));
+			setEditor(EditorialVisitor.createAbstractFactory(eefs, ws));
+			setPreview(PreviewesqueVisitor.createPreviewFactory(mm, ws));
+		}
+
+		protected class CheckWorkflowAction implements Action {
+
+			@Override
+			public String getName() {
+				return "Check Workflow";
+			}
+
+			@Override
+			public void invoke() {
+				mm.checkWorkflow();
 			}
 		}
 	}
 
-	public InspectorTool() {
+	public InspectorTool(ElementEditorFactories eefs) {
+		this.eefs = eefs;
 	}
 
 	@Override
 	public Object instantiate(WorkflowEditor wfe, Model model) {
 		return new Inspector(wfe, model);
-	}
-
-	@Override
-	public String getCategory() {
-		return "Workflow Inspection";
-	}
-
-	@Override
-	public String getContact() {
-		return "Matthias.Buechse@tu-dresden.de";
-	}
-
-	@Override
-	public String getDescription() {
-		return null;
-	}
-
-	@Override
-	public String getId() {
-		return "profile-inspector";
-	}
-
-	@Override
-	public String getName() {
-		return "Profile Semantics Inspector";
-	}
-
-	@Override
-	public String getVersion() {
-		return "2012-12-12";
 	}
 
 }

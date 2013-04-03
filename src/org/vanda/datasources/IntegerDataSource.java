@@ -6,6 +6,8 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.vanda.datasources.Elements.ElementEvent;
+import org.vanda.datasources.Elements.ElementListener;
 import org.vanda.types.CompositeType;
 import org.vanda.types.Type;
 import org.vanda.util.Observer;
@@ -17,7 +19,7 @@ public class IntegerDataSource implements DataSource {
 	public IntegerDataSource() {
 	}
 
-	private class IntegerElement implements ElementSelector, Observer<Element> {
+	private class IntegerElement implements ElementSelector, Observer<ElementEvent<Element>>, ElementListener<Element> {
 
 		private Element element;
 		private JSpinner jNumber;
@@ -51,18 +53,28 @@ public class IntegerDataSource implements DataSource {
 				element = e;
 				if (element != null) {
 					element.getObservable().addObserver(this);
-					notify(element);
+					valueChanged(element);
 				}
 			}
 		}
 
 		@Override
-		public void notify(Element event) {
+		public void prefixChanged(Element e) {
+			// do nothing
+		}
+
+		@Override
+		public void valueChanged(Element e) {
 			try {
-				jNumber.getModel().setValue(Integer.parseInt(event.getValue()));
+				jNumber.getModel().setValue(Integer.parseInt(e.getValue()));
 			} catch (NumberFormatException nfe) {
 				jNumber.getModel().setValue(0);
 			}
+		}
+
+		@Override
+		public void notify(ElementEvent<Element> event) {
+			event.doNotify(this);
 		}
 
 	}

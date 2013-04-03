@@ -1,13 +1,12 @@
 package org.vanda.studio.modules.workflows.run;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.vanda.fragment.model.Model;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
-import org.vanda.util.CompositeRepository;
-import org.vanda.util.MetaRepository;
-import org.vanda.util.Repository;
 
 public class SemanticsTool implements ToolFactory {
 	
@@ -16,62 +15,30 @@ public class SemanticsTool implements ToolFactory {
 		Model model;
 
 		public Tool(WorkflowEditor wfe, Collection<SemanticsToolFactory> stfs) {
-			model = new Model(wfe.getModel());
+			model = new Model(wfe.getWorkflowDecoration());
 			for (SemanticsToolFactory stf : stfs)
 				stf.instantiate(wfe, model);
 		}
 		
 	}
 	
-	private final CompositeRepository<SemanticsToolFactory> repository;
+	private final LinkedList<SemanticsToolFactory> repository;
 	
 	public SemanticsTool() {
-		repository = new CompositeRepository<SemanticsToolFactory>();
+		repository = new LinkedList<SemanticsToolFactory>();
 	}
 
-	public SemanticsTool(Repository<SemanticsToolFactory> srep) {
-		repository = new CompositeRepository<SemanticsToolFactory>();
-		repository.addRepository(srep);
+	public SemanticsTool(List<SemanticsToolFactory> srep) {
+		repository = new LinkedList<SemanticsToolFactory>(srep);
 	}
 
-	@Override
-	public String getCategory() {
-		return "Semantics Tool Collections";
-	}
-
-	@Override
-	public String getContact() {
-		return "Matthias.Buechse@tu-dresden.de";
-	}
-
-	@Override
-	public String getDescription() {
-		// TODO compile description of SemanticsToolFactories in the repository
-		return "";
-	}
-
-	@Override
-	public String getId() {
-		return "profile-semantics-tools";
-	}
-
-	@Override
-	public String getName() {
-		return "Profile Semantics Tool Collection";
-	}
-	
-	public MetaRepository<SemanticsToolFactory> getSemanticsToolFactoryMetaRepository() {
+	public LinkedList<SemanticsToolFactory> getSemanticsToolFactoryMetaRepository() {
 		return repository;
 	}
 
 	@Override
-	public String getVersion() {
-		return "2012-12-20";
-	}
-
-	@Override
 	public Object instantiate(WorkflowEditor wfe) {
-		return new Tool(wfe, repository.getItems());
+		return new Tool(wfe, repository);
 	}
 
 }

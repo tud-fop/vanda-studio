@@ -8,6 +8,8 @@ import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.vanda.datasources.Elements.ElementEvent;
+import org.vanda.datasources.Elements.ElementListener;
 import org.vanda.types.Type;
 import org.vanda.util.Observer;
 
@@ -23,7 +25,7 @@ public class DirectoryDataSource implements DataSource {
 		this.dir = new File(path);
 	}
 
-	public class DirectoryElementSelector implements ElementSelector, Observer<Element> {
+	public class DirectoryElementSelector implements ElementSelector, Observer<ElementEvent<Element>>, ElementListener<Element> {
 
 		private Element element;
 		private JList selector;
@@ -65,14 +67,24 @@ public class DirectoryDataSource implements DataSource {
 				element = e;
 				if (element != null) {
 					element.getObservable().addObserver(this);
-					notify(element);
+					valueChanged(element);
 				}
 			}
 		}
 
 		@Override
-		public void notify(Element event) {
-			selector.setSelectedValue(event.getValue(), true);
+		public void notify(ElementEvent<Element> event) {
+			event.doNotify(this);
+		}
+
+		@Override
+		public void prefixChanged(Element e) {
+			// do nothing
+		}
+
+		@Override
+		public void valueChanged(Element e) {
+			selector.setSelectedValue(e.getValue(), true);
 		}
 	}
 

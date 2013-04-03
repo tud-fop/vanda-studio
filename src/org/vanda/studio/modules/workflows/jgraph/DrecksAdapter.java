@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.studio.modules.workflows.model.Model;
-import org.vanda.studio.modules.workflows.model.Model.ConnectionSelection;
-import org.vanda.studio.modules.workflows.model.Model.SingleObjectSelection;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration.ConnectionSelection;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration.SingleObjectSelection;
 import org.vanda.util.Observer;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
@@ -138,13 +138,13 @@ public final class DrecksAdapter {
 
 	}
 
-	protected final Model model;
+	protected final WorkflowDecoration model;
 	protected final Graph graph;
 	protected final ChangeListener changeListener;
 	protected final WorkflowListener workflowListener;
 	protected final Map<MutableWorkflow, mxICell> translation;
 
-	public DrecksAdapter(Model model) {
+	public DrecksAdapter(WorkflowDecoration model) {
 		this.model = model;
 		translation = new HashMap<MutableWorkflow, mxICell>();
 
@@ -177,9 +177,9 @@ public final class DrecksAdapter {
 							});
 
 			model.getMarkedElementsObservable().addObserver(
-					new Observer<Model>() {
+					new Observer<WorkflowDecoration>() {
 						@Override
-						public void notify(Model m) {
+						public void notify(WorkflowDecoration m) {
 							List<mxICell> markedCells = transformElementsToCells(m
 									.getMarkedElements());
 

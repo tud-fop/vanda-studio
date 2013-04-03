@@ -11,7 +11,7 @@ public interface WorkflowEditor {
 	void addToolWindow(JComponent c);
 	void focusToolWindow(JComponent c);
 	Application getApplication();
-	Model getModel();
+	WorkflowDecoration getWorkflowDecoration();
 	void removeToolWindow(JComponent c);
 	void setPalette(JComponent c);
 }

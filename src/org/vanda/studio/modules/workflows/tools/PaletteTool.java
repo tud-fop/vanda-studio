@@ -23,7 +23,6 @@ import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.jgraph.mxDragGestureListener;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
-import org.vanda.types.CompositeType;
 import org.vanda.types.Types;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
@@ -190,36 +189,6 @@ public class PaletteTool implements ToolFactory {
 				DnDConstants.ACTION_COPY_OR_MOVE,
 				new mxDragGestureListener(c.getGraph()));
 		return c;
-	}
-
-	@Override
-	public String getCategory() {
-		return "Workflow Editing";
-	}
-
-	@Override
-	public String getContact() {
-		return "Matthias.Buechse@tu-dresden.de";
-	}
-
-	@Override
-	public String getDescription() {
-		return "Displays tools for dragging into workflow editor";
-	}
-
-	@Override
-	public String getId() {
-		return "palette";
-	}
-
-	@Override
-	public String getName() {
-		return "Palette Tool";
-	}
-
-	@Override
-	public String getVersion() {
-		return "2012-12-19";
 	}
 
 	@Override

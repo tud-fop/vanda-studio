@@ -2,6 +2,7 @@ package org.vanda.studio.modules.workflows;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.LinkedList;
 
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
@@ -22,11 +23,12 @@ import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.inspector.LiteralEditor;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
+import org.vanda.studio.modules.workflows.run.InspectorToolObsolete;
+import org.vanda.studio.modules.workflows.run.InspectorTool;
 import org.vanda.studio.modules.workflows.run.ProfileManager;
 import org.vanda.studio.modules.workflows.run.RunTool;
 import org.vanda.studio.modules.workflows.run.SemanticsTool;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
-import org.vanda.studio.modules.workflows.tools.InspectorTool;
 import org.vanda.studio.modules.workflows.tools.PaletteTool;
 import org.vanda.studio.modules.workflows.tools.SaveTool;
 import org.vanda.studio.modules.workflows.tools.WorkflowToPDFToolFactory;
@@ -57,7 +59,7 @@ public class WorkflowModule implements Module {
 		private final ListRepository<Profile> repository;
 		private final Profile profile;
 		private ProfileManager manager;
-		private final ListRepository<ToolFactory> toolFactories;
+		private final LinkedList<ToolFactory> toolFactories;
 
 		public static String TOOL_PATH_KEY = "profileToolPath";
 		public static String TOOL_PATH_DEFAULT = System
@@ -92,16 +94,16 @@ public class WorkflowModule implements Module {
 					.add(new org.vanda.studio.modules.workflows.inspector.WorkflowEditor());
 			eefs.literalFactories.add(new LiteralEditor(app));
 
-			ListRepository<SemanticsToolFactory> srep = new ListRepository<SemanticsToolFactory>();
-			srep.addItem(new RunTool(new GeneratorImpl(app, profile)));
-			srep.addItem(new org.vanda.studio.modules.workflows.run.InspectorTool());
+			LinkedList<SemanticsToolFactory> srep = new LinkedList<SemanticsToolFactory>();
+			srep.add(new RunTool(new GeneratorImpl(app, profile)));
+			// srep.add(new InspectorTool());
+			srep.add(new InspectorTool(eefs));
 
-			toolFactories = new ListRepository<ToolFactory>();
-			toolFactories.addItem(new InspectorTool(eefs));
-			toolFactories.addItem(new PaletteTool());
-			toolFactories.addItem(new SaveTool());
-			toolFactories.addItem(new WorkflowToPDFToolFactory(app));
-			toolFactories.addItem(new SemanticsTool(srep));
+			toolFactories = new LinkedList<ToolFactory>();
+			toolFactories.add(new PaletteTool());
+			toolFactories.add(new SaveTool());
+			toolFactories.add(new WorkflowToPDFToolFactory(app));
+			toolFactories.add(new SemanticsTool(srep));
 
 			app.getWindowSystem()
 					.addAction(null, new OpenManagerAction(), null);

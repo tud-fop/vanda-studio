@@ -3,7 +3,7 @@ package org.vanda.studio.modules.workflows.tools;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Observer;
@@ -12,18 +12,18 @@ public class DebuggerTool implements ToolFactory {
 
 	private static final class Tool {
 		private final WorkflowEditor wfe;
-		private final Model m;
+		private final WorkflowDecoration m;
 		private final JTextArea debugger;
 		private final JScrollPane therealdebugger;
 
 		public Tool(WorkflowEditor wfe) {
 			this.wfe = wfe;
-			this.m = wfe.getModel(); // XXX better not cache this
+			this.m = wfe.getWorkflowDecoration(); // XXX better not cache this
 			debugger = new JTextArea();
 			this.m.getWorkflowCheckObservable().addObserver(
-					new Observer<Model>() {
+					new Observer<WorkflowDecoration>() {
 						@Override
-						public void notify(Model event) {
+						public void notify(WorkflowDecoration event) {
 							update(event);
 						}
 					});
@@ -32,7 +32,7 @@ public class DebuggerTool implements ToolFactory {
 			this.wfe.addToolWindow(therealdebugger);
 		}
 
-		public void update(Model model) {
+		public void update(WorkflowDecoration model) {
 //			StringBuilder sb = new StringBuilder();
 //			model.getFrozen().appendText(sb);
 //			if (!model.getFrozen().isSane()) {
@@ -48,36 +48,6 @@ public class DebuggerTool implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe) {
 		return new Tool(wfe);
-	}
-
-	@Override
-	public String getCategory() {
-		return "Workflow Inspection";
-	}
-
-	@Override
-	public String getContact() {
-		return "Matthias.Buechse@tu-dresden.de";
-	}
-
-	@Override
-	public String getDescription() {
-		return "Shows the system of equations behind the workflow.";
-	}
-
-	@Override
-	public String getId() {
-		return "debugger-tool";
-	}
-
-	@Override
-	public String getName() {
-		return "Debugger Tool";
-	}
-
-	@Override
-	public String getVersion() {
-		return "2012-12-12";
 	}
 
 }
