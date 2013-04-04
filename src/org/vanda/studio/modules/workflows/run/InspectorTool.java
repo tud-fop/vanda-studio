@@ -77,7 +77,7 @@ public class InspectorTool implements SemanticsToolFactory {
 				editor = null;
 			}
 			if (editorFactory != null) {
-				editor = editorFactory.createEditor(wfe.getApplication());
+				editor = editorFactory.createEditor(wfe.getDatabase());
 				if (editor != null)
 					contentPane.add(editor, BorderLayout.EAST);
 			}

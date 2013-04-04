@@ -9,7 +9,7 @@ public final class Databases {
 	
 	public interface DatabaseListener<D> {
 		void cursorChange(D d);
-		void dataChange(D d);
+		void dataChange(D d, Object key);
 	}
 	
 	public static class CursorChange<D> implements DatabaseEvent<D> {
@@ -35,14 +35,16 @@ public final class Databases {
 	public static class DataChange<D> implements DatabaseEvent<D> {
 		
 		private final D d;
+		private final Object key;
 		
-		public DataChange(D d) {
+		public DataChange(D d, Object key) {
 			this.d = d;
+			this.key = key;
 		}
 
 		@Override
 		public void doNotify(DatabaseListener<D> l) {
-			l.dataChange(d);
+			l.dataChange(d, key);
 		}
 
 		@Override

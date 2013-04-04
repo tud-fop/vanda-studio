@@ -2,9 +2,9 @@ package org.vanda.studio.modules.workflows.inspector;
 
 import javax.swing.JComponent;
 
-import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.workflows.model.WorkflowDecoration.SelectionVisitor;
 import org.vanda.studio.modules.workflows.model.WorkflowDecoration.WorkflowSelection;
+import org.vanda.workflows.data.Database;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
@@ -26,8 +26,8 @@ public final class EditorialVisitor implements SelectionVisitor {
 	public void visitWorkflow(final MutableWorkflow wf) {
 		editorFactory = new AbstractEditorFactory() {
 			@Override
-			public JComponent createEditor(Application app) {
-				return eefs.workflowFactories.createEditor(app, wf, wf);
+			public JComponent createEditor(Database d) {
+				return eefs.workflowFactories.createEditor(d, wf, wf);
 			}
 		};
 	}
@@ -36,8 +36,8 @@ public final class EditorialVisitor implements SelectionVisitor {
 	public void visitConnection(final MutableWorkflow wf, final ConnectionKey cc) {
 		editorFactory = new AbstractEditorFactory() {
 			@Override
-			public JComponent createEditor(Application app) {
-				return eefs.connectionFactories.createEditor(app, wf, cc);
+			public JComponent createEditor(Database d) {
+				return eefs.connectionFactories.createEditor(d, wf, cc);
 			}
 		};
 	}
@@ -50,8 +50,8 @@ public final class EditorialVisitor implements SelectionVisitor {
 			public void visitLiteral(final Literal l) {
 				editorFactory = new AbstractEditorFactory() {
 					@Override
-					public JComponent createEditor(Application app) {
-						return eefs.literalFactories.createEditor(app, wf, l);
+					public JComponent createEditor(Database d) {
+						return eefs.literalFactories.createEditor(d, wf, l);
 					}
 				};
 			}
@@ -60,8 +60,8 @@ public final class EditorialVisitor implements SelectionVisitor {
 			public void visitTool(final Tool t) {
 				editorFactory = new AbstractEditorFactory() {
 					@Override
-					public JComponent createEditor(Application app) {
-						return eefs.toolFactories.createEditor(app, wf, t);
+					public JComponent createEditor(Database d) {
+						return eefs.toolFactories.createEditor(d, wf, t);
 					}
 				};
 			}
@@ -77,8 +77,8 @@ public final class EditorialVisitor implements SelectionVisitor {
 	public void visitVariable(final Location variable, final MutableWorkflow wf) {
 		editorFactory = new AbstractEditorFactory() {
 			@Override
-			public JComponent createEditor(Application app) {
-				return eefs.variableFactories.createEditor(app, wf, variable);
+			public JComponent createEditor(Database d) {
+				return eefs.variableFactories.createEditor(d, wf, variable);
 			}
 		};
 	}
