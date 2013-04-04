@@ -40,7 +40,9 @@ import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.HasActions;
 import org.vanda.util.Observer;
+import org.vanda.util.Pair;
 import org.vanda.util.Util;
+import org.vanda.workflows.data.Database;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
@@ -60,6 +62,7 @@ import com.mxgraph.view.mxGraphView;
 public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<MutableWorkflow> {
 
 	protected final Application app;
+	protected final Database database;
 	protected final WorkflowDecoration model;
 	protected final MyMxGraphComponent component;
 	protected final mxGraphOutline outline;
@@ -67,9 +70,10 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 	protected JComponent palette;
 	// protected final JSplitPane mainpane;
 
-	public WorkflowEditorImpl(Application app, List<ToolFactory> toolFactories, MutableWorkflow hwf) {
+	public WorkflowEditorImpl(Application app, List<ToolFactory> toolFactories, Pair<MutableWorkflow, Database> phd) {
 		this.app = app;
-		model = new WorkflowDecoration(hwf);
+		model = new WorkflowDecoration(phd.fst);
+		database = phd.snd;
 		renderer = new DrecksAdapter(model);
 
 		component = new MyMxGraphComponent(renderer.getGraph());
@@ -535,6 +539,11 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 				addToolWindow(palette, WindowSystem.SOUTHWEST);
 			// mainpane.setRightComponent(c);
 		}
+	}
+
+	@Override
+	public Database getDatabase() {
+		return database;
 	}
 
 	@Override
