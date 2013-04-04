@@ -97,6 +97,7 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 
 	@Override
 	public void childModified(MutableWorkflow mwf, Job j) {
+		checkWorkflow(); // FIXME
 	}
 
 	@Override
