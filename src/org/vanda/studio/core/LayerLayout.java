@@ -11,10 +11,15 @@ import java.util.Map;
 
 public class LayerLayout implements LayoutManager2 {
 	
-	public static final Integer CENTER = 0;
-	public static final Integer SOUTHWEST = 1;
-	public static final Integer SOUTH = 2;
-	public static final Integer SOUTHEAST = 3;
+	static final Integer CENTER = 0;
+	static final Integer NORTH = 1;
+	static final Integer NORTHWEST = 2;
+	static final Integer WEST = 3;
+	static final Integer SOUTHWEST = 4;
+	static final Integer SOUTH = 5;
+	static final Integer SOUTHEAST = 6;
+	static final Integer EAST = 7;
+	static final Integer NORTHEAST = 8;
 	
 	private interface LayerOuter {
 		Integer getLayer();
@@ -42,6 +47,42 @@ public class LayerLayout implements LayoutManager2 {
 		@Override
 		public void layout(Component comp, Rectangle bounds) {
 			comp.setBounds(bounds);
+		}
+	}
+	
+	private static class North extends AbstractLayerOuter {
+		public North() {
+			super(NORTH);
+		}
+
+		@Override
+		public void layout(Component c, Rectangle bounds) {
+			Dimension d = c.getPreferredSize();
+			c.setBounds(bounds.x + (bounds.width - d.width) / 2, bounds.y, d.width, d.height);
+		}
+	}
+	
+	private static class NorthWest extends AbstractLayerOuter {
+		public NorthWest() {
+			super(NORTHWEST);
+		}
+
+		@Override
+		public void layout(Component c, Rectangle bounds) {
+			Dimension d = c.getPreferredSize();
+			c.setBounds(bounds.x, bounds.y, d.width, d.height);
+		}
+	}
+	
+	private static class West extends AbstractLayerOuter {
+		public West() {
+			super(WEST);
+		}
+
+		@Override
+		public void layout(Component c, Rectangle bounds) {
+			Dimension d = c.getPreferredSize();
+			c.setBounds(bounds.x, bounds.y + (bounds.height - d.height) / 2, d.width, d.height);
 		}
 	}
 
@@ -81,7 +122,31 @@ public class LayerLayout implements LayoutManager2 {
 		}
 	}
 	
-	private LayerOuter[] layerOuters = { new Center(), new SouthWest(), new South(), new SouthEast() };
+	private static class East extends AbstractLayerOuter {
+		public East() {
+			super(EAST);
+		}
+
+		@Override
+		public void layout(Component c, Rectangle bounds) {
+			Dimension d = c.getPreferredSize();
+			c.setBounds(bounds.x + bounds.width - d.width, bounds.y + (bounds.height - d.height) / 2, d.width, d.height);
+		}
+	}
+	
+	private static class NorthEast extends AbstractLayerOuter {
+		public NorthEast() {
+			super(NORTHEAST);
+		}
+
+		@Override
+		public void layout(Component c, Rectangle bounds) {
+			Dimension d = c.getPreferredSize();
+			c.setBounds(bounds.x + bounds.width - d.width, bounds.y, d.width, d.height);
+		}
+	}
+	
+	private LayerOuter[] layerOuters = { new Center(), new North(), new NorthWest(), new West(), new SouthWest(), new South(), new SouthEast(), new East(), new NorthEast() };
 	private HashMap<Component, LayerOuter> damap = new HashMap<Component, LayerOuter>();
 
 	@Override

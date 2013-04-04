@@ -141,7 +141,7 @@ public class RunTool implements SemanticsToolFactory {
 			gbc.gridwidth = 3;
 			pMain.add(sRuntool, gbc);
 
-			Tool.this.wfe.addToolWindow(pMain, WindowSystem.SOUTH);
+			Tool.this.wfe.addToolWindow(pMain, WindowSystem.EAST);
 		}
 
 		private static class StreamGobbler extends Thread {

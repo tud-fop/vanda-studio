@@ -16,9 +16,14 @@ import org.vanda.util.Action;
  */
 public interface WindowSystem {
 	static final Integer CENTER = 0;
-	static final Integer SOUTHWEST = 1;
-	static final Integer SOUTH = 2;
-	static final Integer SOUTHEAST = 3;
+	static final Integer NORTH = 1;
+	static final Integer NORTHWEST = 2;
+	static final Integer WEST = 3;
+	static final Integer SOUTHWEST = 4;
+	static final Integer SOUTH = 5;
+	static final Integer SOUTHEAST = 6;
+	static final Integer EAST = 7;
+	static final Integer NORTHEAST = 8;
 	
 	/**
 	 * Call this *before* adding c as a contentWindow.
