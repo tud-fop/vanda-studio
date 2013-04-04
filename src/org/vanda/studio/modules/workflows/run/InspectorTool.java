@@ -66,6 +66,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			wfe.addAction(new CheckWorkflowAction(),
 					KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
 			this.wfe.getWorkflowDecoration().getSelectionChangeObservable().addObserver(obs);
+			this.wfe.getWorkflowDecoration().getRoot().getObservable().addObserver(obs);
 			this.wfe.focusToolWindow(contentPane);
 			update();
 		}

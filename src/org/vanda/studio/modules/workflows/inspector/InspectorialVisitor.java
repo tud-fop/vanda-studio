@@ -24,6 +24,10 @@ public final class InspectorialVisitor implements SelectionVisitor {
 
 	@Override
 	public void visitWorkflow(MutableWorkflow iwf) {
+		sb.append("<html><table><tr><th>");
+		sb.append(iwf.getName());
+		sb.append("</th></tr></table></html>");
+		/*
 		sb.append("<html><h1>");
 		sb.append(iwf.getName());
 		sb.append("</h1>");
@@ -34,6 +38,7 @@ public final class InspectorialVisitor implements SelectionVisitor {
 			sb.append(type.toString());
 		}
 		sb.append("</dl>");
+		*/
 	}
 
 	@Override

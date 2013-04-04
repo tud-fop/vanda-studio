@@ -5,7 +5,6 @@ package org.vanda.studio.core;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -16,7 +15,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -25,9 +23,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -39,6 +35,7 @@ import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.util.Action;
 import org.vanda.util.Observer;
+import org.vanda.util.Pair;
 
 /**
  * @author buechse, rmueller
@@ -50,12 +47,12 @@ public class WindowSystemImpl implements WindowSystem {
 	protected JFrame mainWindow;
 	protected JLayeredPane mainPane;
 	protected JTabbedPane contentPane;
-	protected JTabbedPane toolPane;
+	// protected JTabbedPane toolPane;
 	protected JMenuBar menuBar;
 	protected JMenu fileMenu;
 	protected HashMap<UIMode, JRadioButtonMenuItem> modeMenuItems;
 	protected HashMap<JComponent, JMenu> windowMenus;
-	protected HashMap<JComponent, List<JComponent>> windowTools;
+	protected HashMap<JComponent, List<Pair<JComponent, Integer>>> windowTools;
 	protected ButtonGroup modeGroup;
 
 	/**
@@ -127,13 +124,13 @@ public class WindowSystemImpl implements WindowSystem {
 		menuBar.add(optionsMenu);
 
 		windowMenus = new HashMap<JComponent, JMenu>();
-		windowTools = new HashMap<JComponent, List<JComponent>>();
+		windowTools = new HashMap<JComponent, List<Pair<JComponent, Integer>>>();
 
 		mainWindow.setJMenuBar(menuBar);
 
 		// Creates the library pane that contains the tabs with the palettes
 		contentPane = new JTabbedPane();
-		toolPane = new JTabbedPane();
+		// toolPane = new JTabbedPane();
 		
 		// toolPanel = new JPanel(new BorderLayout());
 		// toolPanel.add(new JPanel(), BorderLayout.CENTER);
@@ -166,6 +163,8 @@ public class WindowSystemImpl implements WindowSystem {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
+				// FIXME do not change tool windows when there is merely a
+				// new title for a content window
 				Component c = contentPane.getSelectedComponent();
 				JMenu menu = windowMenus.get(c);
 				if (menuBar.getMenu(1) != menu) {
@@ -178,23 +177,19 @@ public class WindowSystemImpl implements WindowSystem {
 				}
 				menuBar.revalidate();
 				menuBar.repaint();
-				int idx = toolPane.getSelectedIndex();
-				toolPane.removeAll();
-				List<JComponent> tcs = windowTools.get(null);
+				mainPane.removeAll();
+				mainPane.add(contentPane, LayerLayout.CENTER);
+				List<Pair<JComponent, Integer>> tcs = windowTools.get(null);
 				if (tcs != null) {
-					for (JComponent tc : tcs)
-						toolPane.add(tc);
+					for (Pair<JComponent, Integer> tc : tcs)
+						mainPane.add(tc.fst, tc.snd);
+						// toolPane.add(tc);
 				}
 				tcs = windowTools.get(c);
 				if (tcs != null) {
-					for (JComponent tc : tcs)
-						toolPane.add(tc);
-				}
-				try {
-					toolPane.setSelectedIndex(Math.min(idx,
-							toolPane.getTabCount() - 1));
-				} catch (IndexOutOfBoundsException ex) {
-					// ignore
+					for (Pair<JComponent, Integer> tc : tcs)
+						mainPane.add(tc.fst, tc.snd);
+						// toolPane.add(tc);
 				}
 			}
 
@@ -279,27 +274,15 @@ public class WindowSystemImpl implements WindowSystem {
 	 */
 	@Override
 	public void addToolWindow(JComponent window, Icon i, JComponent c, Integer layer) {
-		List<JComponent> tcs = windowTools.get(window);
+		List<Pair<JComponent, Integer>> tcs = windowTools.get(window);
 		if (tcs == null) {
-			tcs = new ArrayList<JComponent>();
+			tcs = new ArrayList<Pair<JComponent, Integer>>();
 			windowTools.put(window, tcs);
 		}
 		if (!tcs.contains(c)) {
-			int idx = 0;
-			String name = c.getName();
-			while (idx < tcs.size()
-					&& name.compareTo(tcs.get(idx).getName()) > 0)
-				idx++;
-			tcs.add(idx, c);
-			if (contentPane.getSelectedComponent() == window) {
-				if (window != null) {
-					List<JComponent> l = windowTools.get(null);
-					if (l != null)
-						idx += l.size();
-				}
-				// toolPane.add(c, idx);
+			tcs.add(new Pair<JComponent, Integer>(c, layer));
+			if (contentPane.getSelectedComponent() == window)
 				mainPane.add(c, layer);
-			}
 		}
 	}
 
@@ -307,7 +290,6 @@ public class WindowSystemImpl implements WindowSystem {
 	public void disableAction(Action a) {
 		// find item that is labeled with action's name
 		for (int i = 0; i < fileMenu.getItemCount(); i++) {
-
 			if (fileMenu.getItem(i) != null
 					&& fileMenu.getItem(i).getText().equals(a.getName())) {
 				fileMenu.getItem(i).setEnabled(false);
@@ -354,12 +336,11 @@ public class WindowSystemImpl implements WindowSystem {
 	 */
 	@Override
 	public void removeToolWindow(JComponent window, JComponent c) {
-		List<JComponent> tcs = windowTools.get(window);
+		List<Pair<JComponent, Integer>> tcs = windowTools.get(window);
 		if (tcs != null) {
 			tcs.remove(c);
 		}
 		if (contentPane.getSelectedComponent() == window)
-			// toolPane.remove(c);
 			mainPane.remove(c);
 	}
 
