@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.xml.bind.DatatypeConverter;
 
 import org.vanda.types.Type;
+import org.vanda.workflows.data.Database;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
@@ -23,14 +24,16 @@ public final class DataflowAnalysis {
 	public static final String UNDEFINED = "UNDEFINED";
 
 	private final MutableWorkflow workflow;
+	private final Database db;
 	private final Map<Location, String> values;
 	private final Map<Tool, String> rootDirs;
 	private final Job[] jobs;
 	private final Type fragmentType;
 	private boolean connected;
 
-	public DataflowAnalysis(MutableWorkflow iwf, Job[] sorted, Type fragmentType) {
+	public DataflowAnalysis(MutableWorkflow iwf, Database db, Job[] sorted, Type fragmentType) {
 		workflow = iwf;
+		this.db = db;
 		values = new HashMap<Location, String>();
 		rootDirs = new HashMap<Tool, String>();
 		jobs = sorted;
@@ -56,7 +59,7 @@ public final class DataflowAnalysis {
 					@Override
 					public void visitLiteral(Literal lit) {
 						values.put(ji.bindings.get(ji.getOutputPorts().get(0)),
-								lit.getName());
+								db.get(lit.getKey()));
 					}
 
 					@Override

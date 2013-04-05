@@ -57,12 +57,14 @@ public class WindowSystemImpl implements WindowSystem {
 	protected ButtonGroup modeGroup;
 	protected HashMap<JComponent, JInternalFrame> frames;
 	
-    protected class ToolFrame extends JInternalFrame {
+    @SuppressWarnings("serial")
+	protected class ToolFrame extends JInternalFrame {
     	public ToolFrame(JComponent c) {
-    		super("", true);
+    		super(c.getName(), true);
     		add(c);
     		pack();
     		setVisible(true);
+    		setIconifiable(true);
     	}
     }
 	
