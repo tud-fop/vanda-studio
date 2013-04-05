@@ -32,11 +32,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.vanda.studio.app.Application;
+import org.vanda.studio.app.LayoutAssortment;
+import org.vanda.studio.app.LayoutSelector;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.util.Action;
 import org.vanda.util.Observer;
-import org.vanda.util.Pair;
 
 /**
  * @author buechse, rmueller
@@ -53,22 +54,21 @@ public class WindowSystemImpl implements WindowSystem {
 	protected JMenu fileMenu;
 	protected HashMap<UIMode, JRadioButtonMenuItem> modeMenuItems;
 	protected HashMap<JComponent, JMenu> windowMenus;
-	protected HashMap<JComponent, List<Pair<JComponent, Integer>>> windowTools;
+	protected HashMap<JComponent, List<JComponent>> windowTools;
 	protected ButtonGroup modeGroup;
 	protected HashMap<JComponent, JInternalFrame> frames;
 	
-    @SuppressWarnings("serial")
-	protected class ToolFrame extends JInternalFrame {
-    	public ToolFrame(JComponent c) {
-    		super(c.getName(), true);
-    		add(c);
-    		pack();
-    		setVisible(true);
-    		setIconifiable(true);
-    	}
-    }
+	@SuppressWarnings("serial")
+	private static class LayoutTabbedPane extends JTabbedPane implements LayoutSelector {
+
+		@Override
+		public <L> L selectLayout(LayoutAssortment<L> la) {
+			return la.getCenter();
+		}
+		
+	}
 	
-	/**
+    /**
 	 * @param a
 	 *            Vanda Composer Application root object
 	 */
@@ -137,13 +137,13 @@ public class WindowSystemImpl implements WindowSystem {
 		menuBar.add(optionsMenu);
 
 		windowMenus = new HashMap<JComponent, JMenu>();
-		windowTools = new HashMap<JComponent, List<Pair<JComponent, Integer>>>();
+		windowTools = new HashMap<JComponent, List<JComponent>>();
 		frames = new HashMap<JComponent, JInternalFrame>();
 
 		mainWindow.setJMenuBar(menuBar);
 
 		// Creates the library pane that contains the tabs with the palettes
-		contentPane = new JTabbedPane();
+		contentPane = new LayoutTabbedPane();
 		// toolPane = new JTabbedPane();
 		
 		// toolPanel = new JPanel(new BorderLayout());
@@ -168,7 +168,7 @@ public class WindowSystemImpl implements WindowSystem {
 		mainPane.setLayout(new LayerLayout());
 		// contentPane.setBounds(0, 0, 500, 500);
 		// inner2.setBounds(0, 300, 500, 500);
-		mainPane.add(contentPane, LayerLayout.CENTER);
+		mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
 		// inner.add(inner2, new Integer(1));
 		// mainPane.setBorder(BorderFactory.createTitledBorder(
         //        "Move the Mouse to Move Duke"));
@@ -192,16 +192,16 @@ public class WindowSystemImpl implements WindowSystem {
 				menuBar.revalidate();
 				menuBar.repaint();
 				mainPane.removeAll();
-				mainPane.add(contentPane, LayerLayout.CENTER);
-				List<Pair<JComponent, Integer>> tcs = windowTools.get(null);
+				mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
+				List<JComponent> tcs = windowTools.get(null);
 				if (tcs != null) {
-					for (Pair<JComponent, Integer> tc : tcs)
-						mainPane.add(frames.get(tc.fst), tc.snd);
+					for (JComponent tc : tcs)
+						mainPane.add(frames.get(tc), JLayeredPane.PALETTE_LAYER);
 				}
 				tcs = windowTools.get(c);
 				if (tcs != null) {
-					for (Pair<JComponent, Integer> tc : tcs)
-						mainPane.add(frames.get(tc.fst), tc.snd);
+					for (JComponent tc : tcs)
+						mainPane.add(frames.get(tc), JLayeredPane.PALETTE_LAYER);
 				}
 			}
 
@@ -241,6 +241,8 @@ public class WindowSystemImpl implements WindowSystem {
 			if (menu == null) {
 				menu = new JMenu(c.getName());
 				windowMenus.put(c, menu);
+				if (contentPane.getSelectedComponent() == c)
+					menuBar.add(menu, 1);
 			}
 			menu.add(item);
 		} else
@@ -285,20 +287,19 @@ public class WindowSystemImpl implements WindowSystem {
 	/**
 	 */
 	@Override
-	public void addToolWindow(JComponent window, Icon i, JComponent c, Integer layer) {
-		List<Pair<JComponent, Integer>> tcs = windowTools.get(window);
+	public void addToolWindow(JComponent window, Icon i, JComponent c, LayoutSelector layout) {
+		List<JComponent> tcs = windowTools.get(window);
 		if (tcs == null) {
-			tcs = new ArrayList<Pair<JComponent, Integer>>();
-			
+			tcs = new ArrayList<JComponent>();
+			windowTools.put(window, tcs);
 		}
-		ToolFrame f = new ToolFrame(c);
-		frames.put(c, f);
-		windowTools.put(window, tcs);
-		if (!tcs.contains(new Pair<JComponent, Integer>(c, layer))) {
-			tcs.add(new Pair<JComponent, Integer>(c, layer));
+		if (!tcs.contains(c)) {
+			tcs.add(c);
+			ToolFrame f = new ToolFrame(c, layout);
+			frames.put(c, f);
 			if (contentPane.getSelectedComponent() == window){
 				frames.put(c, f);
-				mainPane.add(f, layer);
+				mainPane.add(f, JLayeredPane.PALETTE_LAYER);
 			}
 		}
 	}
@@ -353,9 +354,9 @@ public class WindowSystemImpl implements WindowSystem {
 	 */
 	@Override
 	public void removeToolWindow(JComponent window, JComponent c) {
-		List<Pair<JComponent, Integer>> tcs = windowTools.get(window);
+		List<JComponent> tcs = windowTools.get(window);
 		if (tcs != null) {
-			tcs.remove(frames.get(c));
+			tcs.remove(c);
 		}
 		if (contentPane.getSelectedComponent() == window)
 			mainPane.remove(frames.get(c));

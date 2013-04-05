@@ -26,6 +26,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.vanda.studio.app.Application;
+import org.vanda.studio.app.LayoutSelector;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
@@ -342,8 +343,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 	}
 
 	@Override
-	public void addToolWindow(JComponent c, Integer layer) {
-		app.getWindowSystem().addToolWindow(component, null, c, layer);
+	public void addToolWindow(JComponent c, LayoutSelector layout) {
+		app.getWindowSystem().addToolWindow(component, null, c, layout);
 	}
 
 	@Override

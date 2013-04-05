@@ -1,5 +1,6 @@
 package org.vanda.studio.modules.workflows.tools;
 
+import java.awt.BorderLayout;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragSource;
 import java.awt.event.KeyAdapter;
@@ -12,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.GroupLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -53,11 +56,13 @@ public class PaletteTool implements ToolFactory {
 	public static class Palette {
 		protected final WorkflowEditor wfe;
 		protected mxGraphComponent searchGraph;
+		protected JPanel palette;
 		protected JXTaskPaneContainer taskPaneContainer;
 		protected JTextField textField;
 		// protected JSplitPane paletteComponent;
 		protected JScrollPane scrollPane;
-		protected JXTaskPane searchPane;
+		protected JXTaskPane resultPane;
+		protected JPanel searchPane;
 		protected final ArrayList<Job> templates;
 
 		public Palette(WorkflowEditor wfe) {
@@ -67,32 +72,50 @@ public class PaletteTool implements ToolFactory {
 			templates = new ArrayList<Job>();
 			// paletteComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 			// 		scrollPane, new JPanel());
-			scrollPane.setName("Palette");
-			update();
-			wfe.setPalette(scrollPane);
-		}
-
-		public void update() {
-			textField = new JTextField();
+			textField = new JTextField(20);
 			textField.setDragEnabled(true);
-			searchPane = new JXTaskPane("Search");
-			searchPane.add(textField);
-			if (searchGraph != null)
-				searchPane.add(searchGraph);
-			taskPaneContainer.add(searchPane);
-
 			textField.addKeyListener(new KeyAdapter() {
 				@Override
 				public void keyReleased(KeyEvent e) {
 					updateSearch(textField.getText());
 				}
 			});
+			resultPane = new JXTaskPane("Search Results");
+			resultPane.setVisible(false);
+			
+			JLabel lab = new JLabel("Search");
+			searchPane = new JPanel();
+			searchPane.add(lab);
+			searchPane.add(textField);
+			
+			GroupLayout layout = new GroupLayout(searchPane);
+			searchPane.setLayout(layout);
+			layout.setAutoCreateGaps(true);
+			layout.setAutoCreateContainerGaps(true);
+			layout.setHorizontalGroup(layout.createSequentialGroup()
+					.addGroup(layout.createParallelGroup().addComponent(lab))
+					.addGroup(layout.createParallelGroup().addComponent(textField)));
+
+			layout.setVerticalGroup(layout.createSequentialGroup().addGroup(
+					layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(lab).addComponent(textField)));
+
+			
+			palette = new JPanel(new BorderLayout());
+			palette.setName("Palette");
+			palette.add(searchPane, BorderLayout.NORTH);
+			palette.add(scrollPane, BorderLayout.CENTER);
+			update();
+			wfe.setPalette(palette);
+		}
+
+		public void update() {
+			taskPaneContainer.add(resultPane);
 
 			// get all palette items
 			for (Tool t : wfe.getApplication().getToolMetaRepository()
 					.getRepository().getItems()) {
-				// if ("".equals(t.getStatus()))
-				templates.add(new Job(new ToolAdapter(t)));
+				if ("".equals(t.getStatus()))
+					templates.add(new Job(new ToolAdapter(t)));
 			}
 			// templates.add(new AtomicJob(new Choice()));
 			// templates.add(new AtomicJob(new InputPort()));
@@ -139,7 +162,7 @@ public class PaletteTool implements ToolFactory {
 
 			// remove previous results
 			if (searchGraph != null) {
-				searchPane.remove(searchGraph);
+				resultPane.remove(searchGraph);
 				searchGraph = null;
 			}
 
@@ -155,11 +178,13 @@ public class PaletteTool implements ToolFactory {
 				// create graph with search results and add it to display
 				if (!searchResults.isEmpty()) {
 					searchGraph = renderTemplates(searchResults);
-					searchPane.add(searchGraph);
+					resultPane.add(searchGraph);
 				}
-			}
-			searchPane.revalidate(); // in particular if searchResults.isEmpty()
-			searchPane.setCollapsed(false);
+				resultPane.revalidate(); // in particular if searchResults.isEmpty()
+				resultPane.setCollapsed(false);
+				resultPane.setVisible(true);
+			} else
+				resultPane.setVisible(false);
 		}
 
 	}

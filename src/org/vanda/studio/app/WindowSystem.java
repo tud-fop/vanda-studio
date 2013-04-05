@@ -15,15 +15,78 @@ import org.vanda.util.Action;
  * @author buechse
  */
 public interface WindowSystem {
-	static final Integer CENTER = 0;
-	static final Integer NORTH = 1;
-	static final Integer NORTHWEST = 2;
-	static final Integer WEST = 3;
-	static final Integer SOUTHWEST = 4;
-	static final Integer SOUTH = 5;
-	static final Integer SOUTHEAST = 6;
-	static final Integer EAST = 7;
-	static final Integer NORTHEAST = 8;
+//	static final Integer CENTER = 0;
+//	static final Integer NORTH = 1;
+//	static final Integer NORTHWEST = 2;
+//	static final Integer WEST = 3;
+//	static final Integer SOUTHWEST = 4;
+//	static final Integer SOUTH = 5;
+//	static final Integer SOUTHEAST = 6;
+//	static final Integer EAST = 7;
+//	static final Integer NORTHEAST = 8;
+	
+	static final LayoutSelector CENTER = new LayoutSelector() {
+		@Override
+		public <L> L selectLayout(LayoutAssortment<L> la) {
+			return la.getCenter();
+		}
+	};
+	
+	static final LayoutSelector NORTH = new LayoutSelector() {
+		@Override
+		public <L> L selectLayout(LayoutAssortment<L> la) {
+			return la.getNorth();
+		}
+	};
+
+	static final LayoutSelector NORTHWEST = new LayoutSelector() {
+		@Override
+		public <L> L selectLayout(LayoutAssortment<L> la) {
+			return la.getNorthWest();
+		}
+	};
+
+	static final LayoutSelector WEST = new LayoutSelector() {
+		@Override
+		public <L> L selectLayout(LayoutAssortment<L> la) {
+			return la.getWest();
+		}
+	};
+
+	static final LayoutSelector SOUTHWEST = new LayoutSelector() {
+		@Override
+		public <L> L selectLayout(LayoutAssortment<L> la) {
+			return la.getSouthWest();
+		}
+	};
+
+	static final LayoutSelector SOUTH = new LayoutSelector() {
+		@Override
+		public <L> L selectLayout(LayoutAssortment<L> la) {
+			return la.getSouth();
+		}
+	};
+
+	static final LayoutSelector SOUTHEAST = new LayoutSelector() {
+		@Override
+		public <L> L selectLayout(LayoutAssortment<L> la) {
+			return la.getSouthEast();
+		}
+	};
+
+	static final LayoutSelector EAST = new LayoutSelector() {
+		@Override
+		public <L> L selectLayout(LayoutAssortment<L> la) {
+			return la.getEast();
+		}
+	};
+
+	static final LayoutSelector NORTHEAST = new LayoutSelector() {
+		@Override
+		public <L> L selectLayout(LayoutAssortment<L> la) {
+			return la.getNorthEast();
+		}
+	};
 	
 	/**
 	 * Call this *before* adding c as a contentWindow.
@@ -44,7 +107,7 @@ public interface WindowSystem {
 	
 	/**
 	 */
-	void addToolWindow(JComponent window, Icon i, JComponent c, Integer layer);
+	void addToolWindow(JComponent window, Icon i, JComponent c, LayoutSelector layout);
 
 	/**
 	 */

@@ -6,55 +6,24 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager2;
 import java.awt.Rectangle;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.vanda.studio.app.LayoutAssortment;
+import org.vanda.studio.app.LayoutSelector;
 
 public class LayerLayout implements LayoutManager2 {
 	
-	static final Integer CENTER = 0;
-	static final Integer NORTH = 1;
-	static final Integer NORTHWEST = 2;
-	static final Integer WEST = 3;
-	static final Integer SOUTHWEST = 4;
-	static final Integer SOUTH = 5;
-	static final Integer SOUTHEAST = 6;
-	static final Integer EAST = 7;
-	static final Integer NORTHEAST = 8;
-	
 	private interface LayerOuter {
-		Integer getLayer();
 		void layout(Component comp, Rectangle bounds);
 	}
 	
-	private static abstract class AbstractLayerOuter implements LayerOuter {
-		protected Integer layer;
-		
-		private AbstractLayerOuter(Integer layer) {
-			this.layer = layer;
-		}
-		
-		@Override
-		public Integer getLayer() {
-			return layer;
-		}
-	}
-	
-	private static class Center extends AbstractLayerOuter {
-		public Center() {
-			super(CENTER);
-		}
-
+	private static class Center implements LayerOuter {
 		@Override
 		public void layout(Component comp, Rectangle bounds) {
 			comp.setBounds(bounds);
 		}
 	}
 	
-	private static class North extends AbstractLayerOuter {
-		public North() {
-			super(NORTH);
-		}
-
+	private static class North implements LayerOuter {
 		@Override
 		public void layout(Component c, Rectangle bounds) {
 			Dimension d = c.getSize();
@@ -62,11 +31,7 @@ public class LayerLayout implements LayoutManager2 {
 		}
 	}
 	
-	private static class NorthWest extends AbstractLayerOuter {
-		public NorthWest() {
-			super(NORTHWEST);
-		}
-
+	private static class NorthWest implements LayerOuter {
 		@Override
 		public void layout(Component c, Rectangle bounds) {
 			Dimension d = c.getSize();
@@ -74,11 +39,7 @@ public class LayerLayout implements LayoutManager2 {
 		}
 	}
 	
-	private static class West extends AbstractLayerOuter {
-		public West() {
-			super(WEST);
-		}
-
+	private static class West implements LayerOuter {
 		@Override
 		public void layout(Component c, Rectangle bounds) {
 			Dimension d = c.getSize();
@@ -86,11 +47,7 @@ public class LayerLayout implements LayoutManager2 {
 		}
 	}
 
-	private static class SouthWest extends AbstractLayerOuter {
-		public SouthWest() {
-			super(SOUTHWEST);
-		}
-
+	private static class SouthWest implements LayerOuter {
 		@Override
 		public void layout(Component c, Rectangle bounds) {
 			Dimension d = c.getSize();
@@ -98,11 +55,7 @@ public class LayerLayout implements LayoutManager2 {
 		}
 	}
 
-	private static class South extends AbstractLayerOuter {
-		public South() {
-			super(SOUTH);
-		}
-
+	private static class South implements LayerOuter {
 		@Override
 		public void layout(Component c, Rectangle bounds) {
 			Dimension d = c.getSize();
@@ -110,11 +63,7 @@ public class LayerLayout implements LayoutManager2 {
 		}
 	}
 
-	private static class SouthEast extends AbstractLayerOuter {
-		public SouthEast() {
-			super(SOUTHEAST);
-		}
-
+	private static class SouthEast implements LayerOuter {
 		@Override
 		public void layout(Component c, Rectangle bounds) {
 			Dimension d = c.getSize();
@@ -122,11 +71,7 @@ public class LayerLayout implements LayoutManager2 {
 		}
 	}
 	
-	private static class East extends AbstractLayerOuter {
-		public East() {
-			super(EAST);
-		}
-
+	private static class East implements LayerOuter {
 		@Override
 		public void layout(Component c, Rectangle bounds) {
 			Dimension d = c.getSize();
@@ -134,11 +79,7 @@ public class LayerLayout implements LayoutManager2 {
 		}
 	}
 	
-	private static class NorthEast extends AbstractLayerOuter {
-		public NorthEast() {
-			super(NORTHEAST);
-		}
-
+	private static class NorthEast implements LayerOuter {
 		@Override
 		public void layout(Component c, Rectangle bounds) {
 			Dimension d = c.getSize();
@@ -146,21 +87,80 @@ public class LayerLayout implements LayoutManager2 {
 		}
 	}
 	
-	private LayerOuter[] layerOuters = { new Center(), new North(), new NorthWest(), new West(), new SouthWest(), new South(), new SouthEast(), new East(), new NorthEast() };
-	private HashMap<Component, LayerOuter> damap = new HashMap<Component, LayerOuter>();
+	private static class Assortment implements LayoutAssortment<LayerOuter> {
+
+		private LayerOuter center = new Center();
+		private LayerOuter north = new North();
+		private LayerOuter northWest = new NorthWest();
+		private LayerOuter west = new West();
+		private LayerOuter southWest = new SouthWest();
+		private LayerOuter south = new South();
+		private LayerOuter southEast = new SouthEast();
+		private LayerOuter east = new East();
+		private LayerOuter northEast = new NorthEast();
+
+		@Override
+		public LayerOuter getCenter() {
+			return center;
+		}
+
+		@Override
+		public LayerOuter getNorth() {
+			return north;
+		}
+
+		@Override
+		public LayerOuter getNorthWest() {
+			return northWest;
+		}
+
+		@Override
+		public LayerOuter getWest() {
+			return west;
+		}
+
+		@Override
+		public LayerOuter getSouthWest() {
+			return southWest;
+		}
+
+		@Override
+		public LayerOuter getSouth() {
+			return south;
+		}
+
+		@Override
+		public LayerOuter getSouthEast() {
+			return southEast;
+		}
+
+		@Override
+		public LayerOuter getEast() {
+			return east;
+		}
+
+		@Override
+		public LayerOuter getNorthEast() {
+			return northEast;
+		}
+		
+	}
+	
+	private static Assortment assortment = new Assortment();
 
 	@Override
 	public void addLayoutComponent(Component comp, Object constraints) {
-		for (LayerOuter lo : layerOuters)
-			if (lo.getLayer().equals(constraints))
-				damap.put(comp, lo);
 	}
 
 	@Override
 	public void layoutContainer(Container parent) {
 		Rectangle bounds = layoutBounds(parent);
-		for (Map.Entry<Component, LayerOuter> e : damap.entrySet())
-			e.getValue().layout(e.getKey(), bounds);
+		for (Component c : parent.getComponents()) {
+			if (c instanceof LayoutSelector) {
+				LayerOuter lo = ((LayoutSelector) c).selectLayout(assortment);
+				lo.layout(c, bounds);
+			}
+		}
 	}
 
 	private Rectangle layoutBounds(Container parent) {
@@ -175,7 +175,6 @@ public class LayerLayout implements LayoutManager2 {
 
 	@Override
 	public void removeLayoutComponent(Component comp) {
-		damap.remove(comp);
 	}
 
 	@Override
