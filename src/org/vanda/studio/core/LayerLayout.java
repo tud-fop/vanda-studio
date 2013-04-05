@@ -57,7 +57,7 @@ public class LayerLayout implements LayoutManager2 {
 
 		@Override
 		public void layout(Component c, Rectangle bounds) {
-			Dimension d = c.getPreferredSize();
+			Dimension d = c.getSize();
 			c.setBounds(bounds.x + (bounds.width - d.width) / 2, bounds.y, d.width, d.height);
 		}
 	}
@@ -69,7 +69,7 @@ public class LayerLayout implements LayoutManager2 {
 
 		@Override
 		public void layout(Component c, Rectangle bounds) {
-			Dimension d = c.getPreferredSize();
+			Dimension d = c.getSize();
 			c.setBounds(bounds.x, bounds.y, d.width, d.height);
 		}
 	}
@@ -81,7 +81,7 @@ public class LayerLayout implements LayoutManager2 {
 
 		@Override
 		public void layout(Component c, Rectangle bounds) {
-			Dimension d = c.getPreferredSize();
+			Dimension d = c.getSize();
 			c.setBounds(bounds.x, bounds.y + (bounds.height - d.height) / 2, d.width, d.height);
 		}
 	}
@@ -93,7 +93,7 @@ public class LayerLayout implements LayoutManager2 {
 
 		@Override
 		public void layout(Component c, Rectangle bounds) {
-			Dimension d = c.getPreferredSize();
+			Dimension d = c.getSize();
 			c.setBounds(bounds.x, bounds.y + bounds.height - d.height, d.width, d.height);
 		}
 	}
@@ -105,7 +105,7 @@ public class LayerLayout implements LayoutManager2 {
 
 		@Override
 		public void layout(Component c, Rectangle bounds) {
-			Dimension d = c.getPreferredSize();
+			Dimension d = c.getSize();
 			c.setBounds(bounds.x + (bounds.width - d.width) / 2, bounds.y + bounds.height - d.height, d.width, d.height);
 		}
 	}
@@ -117,7 +117,7 @@ public class LayerLayout implements LayoutManager2 {
 
 		@Override
 		public void layout(Component c, Rectangle bounds) {
-			Dimension d = c.getPreferredSize();
+			Dimension d = c.getSize();
 			c.setBounds(bounds.x + bounds.width - d.width, bounds.y + bounds.height - d.height, d.width, d.height);
 		}
 	}
@@ -129,7 +129,7 @@ public class LayerLayout implements LayoutManager2 {
 
 		@Override
 		public void layout(Component c, Rectangle bounds) {
-			Dimension d = c.getPreferredSize();
+			Dimension d = c.getSize();
 			c.setBounds(bounds.x + bounds.width - d.width, bounds.y + (bounds.height - d.height) / 2, d.width, d.height);
 		}
 	}
@@ -141,7 +141,7 @@ public class LayerLayout implements LayoutManager2 {
 
 		@Override
 		public void layout(Component c, Rectangle bounds) {
-			Dimension d = c.getPreferredSize();
+			Dimension d = c.getSize();
 			c.setBounds(bounds.x + bounds.width - d.width, bounds.y, d.width, d.height);
 		}
 	}
