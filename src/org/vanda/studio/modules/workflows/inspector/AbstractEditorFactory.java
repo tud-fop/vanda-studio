@@ -2,10 +2,10 @@ package org.vanda.studio.modules.workflows.inspector;
 
 import javax.swing.JComponent;
 
-import org.vanda.studio.app.Application;
+import org.vanda.workflows.data.Database;
 
 public interface AbstractEditorFactory {
 
-	JComponent createEditor(Application app);
+	JComponent createEditor(Database d);
 	
 }

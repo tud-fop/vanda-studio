@@ -98,7 +98,7 @@ public class PaletteTool implements ToolFactory {
 			// templates.add(new AtomicJob(new InputPort()));
 			// templates.add(new AtomicJob(new OutputPort()));
 			templates.add(new Job(new LiteralAdapter(new Literal(
-					Types.undefined, ""))));
+					Types.undefined, "literal", null))));
 			Collections.sort(templates, new Comparator<Job>() {
 				@Override
 				public int compare(Job o1, Job o2) {

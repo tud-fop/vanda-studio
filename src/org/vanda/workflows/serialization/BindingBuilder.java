@@ -7,8 +7,6 @@ import org.vanda.xml.SingleFieldProcessor;
 
 public final class BindingBuilder {
 
-	JobBuilder parent;
-
 	public String port;
 
 	public String variable;

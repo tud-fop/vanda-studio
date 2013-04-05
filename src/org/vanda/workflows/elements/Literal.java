@@ -6,15 +6,28 @@ import org.vanda.util.Observable;
 import org.vanda.workflows.elements.Elements.*;
 
 public final class Literal {
-	
+
+	private final Integer key;
+	private String name;
 	private Type type;
-	private String value;
 	private final MultiplexObserver<ElementEvent<Literal>> observable;
 	
-	public Literal(Type type, String value) {
+	public Literal(Type type, String name, Integer key) {
 		this.type = type;
-		this.value = value;
+		this.name = name;
+		if (key != null)
+			this.key = key;
+		else
+			this.key = hashCode();
 		observable = new MultiplexObserver<ElementEvent<Literal>>();
+	}
+	
+	public int getKey() {
+		return key;
+	}
+	
+	public String getName() {
+		return name;
 	}
 	
 	public Observable<ElementEvent<Literal>> getObservable() {
@@ -25,8 +38,11 @@ public final class Literal {
 		return type;
 	}
 	
-	public String getValue() {
-		return value;
+	public void setName(String name) {
+		if (!name.equals(this.name)) {
+			this.name = name;
+			observable.notify(new ValueChangeEvent<Literal>(this));
+		}
 	}
 	
 	public void setType(Type type) {
@@ -35,13 +51,5 @@ public final class Literal {
 			observable.notify(new TypeChangeEvent<Literal>(this));
 		}
 	}
-	
-	public void setValue(String value) {
-		if (!value.equals(this.value)) {
-			this.value = value;
-			observable.notify(new ValueChangeEvent<Literal>(this));
-		}
-	}
-	
 	
 }

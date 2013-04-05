@@ -36,6 +36,8 @@ import org.vanda.util.ExceptionMessage;
 import org.vanda.util.ExternalRepository;
 import org.vanda.util.ListRepository;
 import org.vanda.util.Observer;
+import org.vanda.util.Pair;
+import org.vanda.workflows.data.Database;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.serialization.Loader;
 
@@ -120,7 +122,8 @@ public class WorkflowModule implements Module {
 			@Override
 			public void invoke() {
 				MutableWorkflow mwf = new MutableWorkflow("Workflow");
-				new WorkflowEditorImpl(app, toolFactories, mwf);
+				Database d = new Database();
+				new WorkflowEditorImpl(app, toolFactories, new Pair<MutableWorkflow, Database>(mwf, d));
 				// something will hold a reference to it since it will be in the
 				// GUI
 			}
@@ -152,11 +155,11 @@ public class WorkflowModule implements Module {
 					app.setProperty("lastDir", chosenFile.getParentFile()
 							.getAbsolutePath());
 					String filePath = chosenFile.getPath();
-					MutableWorkflow hwf;
+					Pair<MutableWorkflow, Database> phd;
 					try {
-						hwf = new Loader(app.getToolMetaRepository()
+						phd = new Loader(app.getToolMetaRepository()
 								.getRepository()).load(filePath);
-						new WorkflowEditorImpl(app, toolFactories, hwf);
+						new WorkflowEditorImpl(app, toolFactories, phd);
 					} catch (Exception e) {
 						app.sendMessage(new ExceptionMessage(e));
 					}

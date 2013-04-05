@@ -56,7 +56,7 @@ public final class DataflowAnalysis {
 					@Override
 					public void visitLiteral(Literal lit) {
 						values.put(ji.bindings.get(ji.getOutputPorts().get(0)),
-								lit.getValue());
+								lit.getName());
 					}
 
 					@Override

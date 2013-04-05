@@ -77,7 +77,7 @@ public class InspectorTool implements SemanticsToolFactory {
 				editor = null;
 			}
 			if (editorFactory != null) {
-				editor = editorFactory.createEditor(wfe.getApplication());
+				editor = editorFactory.createEditor(wfe.getDatabase());
 				if (editor != null)
 					contentPane.add(editor, BorderLayout.EAST);
 			}
@@ -104,12 +104,17 @@ public class InspectorTool implements SemanticsToolFactory {
 		}
 
 		public void update() {
-			ws = wfe.getWorkflowDecoration().getSelection();
-			if (ws == null)
-				ws = new WorkflowSelection(wfe.getWorkflowDecoration().getRoot());
-			setInspection(InspectorialVisitor.inspect(mm, ws));
-			setEditor(EditorialVisitor.createAbstractFactory(eefs, ws));
-			setPreview(PreviewesqueVisitor.createPreviewFactory(mm, ws));
+			WorkflowSelection newws = wfe.getWorkflowDecoration().getSelection();
+			WorkflowSelection truews = newws;
+			if (truews == null)
+				truews = new WorkflowSelection(wfe.getWorkflowDecoration().getRoot());
+			setInspection(InspectorialVisitor.inspect(mm, truews));
+			if (newws != ws) {
+				// editor and preview keep track of changes on their own
+				setEditor(EditorialVisitor.createAbstractFactory(eefs, truews));
+				setPreview(PreviewesqueVisitor.createPreviewFactory(mm, truews));
+			}
+			ws = newws;
 		}
 
 		protected class CheckWorkflowAction implements Action {
