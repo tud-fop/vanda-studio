@@ -40,9 +40,11 @@ public final class Database {
 	}
 	
 	public String get(Integer key) {
-		String result = "";
+		String result = null;
 		if (cursor < assignments.size())
 			result = assignments.get(cursor).get(key);
+		if (result == null)
+			result = "";
 		return result;
 	}
 	

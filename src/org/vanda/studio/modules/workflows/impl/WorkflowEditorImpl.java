@@ -18,7 +18,6 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
