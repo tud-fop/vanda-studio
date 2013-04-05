@@ -19,6 +19,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -54,7 +55,17 @@ public class WindowSystemImpl implements WindowSystem {
 	protected HashMap<JComponent, JMenu> windowMenus;
 	protected HashMap<JComponent, List<Pair<JComponent, Integer>>> windowTools;
 	protected ButtonGroup modeGroup;
-
+	protected HashMap<JComponent, JInternalFrame> frames;
+	
+    protected class ToolFrame extends JInternalFrame {
+    	public ToolFrame(JComponent c) {
+    		super("", true);
+    		add(c);
+    		pack();
+    		setVisible(true);
+    	}
+    }
+	
 	/**
 	 * @param a
 	 *            Vanda Composer Application root object
@@ -125,6 +136,7 @@ public class WindowSystemImpl implements WindowSystem {
 
 		windowMenus = new HashMap<JComponent, JMenu>();
 		windowTools = new HashMap<JComponent, List<Pair<JComponent, Integer>>>();
+		frames = new HashMap<JComponent, JInternalFrame>();
 
 		mainWindow.setJMenuBar(menuBar);
 
@@ -182,14 +194,12 @@ public class WindowSystemImpl implements WindowSystem {
 				List<Pair<JComponent, Integer>> tcs = windowTools.get(null);
 				if (tcs != null) {
 					for (Pair<JComponent, Integer> tc : tcs)
-						mainPane.add(tc.fst, tc.snd);
-						// toolPane.add(tc);
+						mainPane.add(frames.get(tc.fst), tc.snd);
 				}
 				tcs = windowTools.get(c);
 				if (tcs != null) {
 					for (Pair<JComponent, Integer> tc : tcs)
-						mainPane.add(tc.fst, tc.snd);
-						// toolPane.add(tc);
+						mainPane.add(frames.get(tc.fst), tc.snd);
 				}
 			}
 
@@ -277,12 +287,17 @@ public class WindowSystemImpl implements WindowSystem {
 		List<Pair<JComponent, Integer>> tcs = windowTools.get(window);
 		if (tcs == null) {
 			tcs = new ArrayList<Pair<JComponent, Integer>>();
-			windowTools.put(window, tcs);
+			
 		}
-		if (!tcs.contains(c)) {
+		ToolFrame f = new ToolFrame(c);
+		frames.put(c, f);
+		windowTools.put(window, tcs);
+		if (!tcs.contains(new Pair<JComponent, Integer>(c, layer))) {
 			tcs.add(new Pair<JComponent, Integer>(c, layer));
-			if (contentPane.getSelectedComponent() == window)
-				mainPane.add(c, layer);
+			if (contentPane.getSelectedComponent() == window){
+				frames.put(c, f);
+				mainPane.add(f, layer);
+			}
 		}
 	}
 
@@ -329,7 +344,7 @@ public class WindowSystemImpl implements WindowSystem {
 	@Override
 	public void removeContentWindow(JComponent c) {
 		contentPane.remove(c);
-		windowTools.remove(c);
+		windowTools.remove(frames.get(c));
 	}
 
 	/**
@@ -338,10 +353,10 @@ public class WindowSystemImpl implements WindowSystem {
 	public void removeToolWindow(JComponent window, JComponent c) {
 		List<Pair<JComponent, Integer>> tcs = windowTools.get(window);
 		if (tcs != null) {
-			tcs.remove(c);
+			tcs.remove(frames.get(c));
 		}
 		if (contentPane.getSelectedComponent() == window)
-			mainPane.remove(c);
+			mainPane.remove(frames.get(c));
 	}
 
 }
