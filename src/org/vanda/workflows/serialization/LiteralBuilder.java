@@ -10,12 +10,14 @@ import org.vanda.xml.SingleFieldProcessor;
 
 public class LiteralBuilder {
 
+	public int key;
+
 	public Type type;
 
-	public String value;
+	public String name;
 
 	public Literal build() {
-		return new Literal(type, value);
+		return new Literal(type, name, key);
 	}
 
 	public static Factory<LiteralBuilder> createFactory() {
@@ -24,7 +26,8 @@ public class LiteralBuilder {
 
 	@SuppressWarnings("unchecked")
 	public static FieldProcessor<LiteralBuilder> createProcessor() {
-		return new CompositeFieldProcessor<LiteralBuilder>(new TypeProcessor(), new ValueProcessor());
+		return new CompositeFieldProcessor<LiteralBuilder>(new TypeProcessor(), new ValueProcessor(),
+				new NameProcessor(), new KeyProcessor());
 	}
 
 	public static final class Fäctory implements Factory<LiteralBuilder> {
@@ -46,10 +49,35 @@ public class LiteralBuilder {
 		}
 	}
 
+	public static final class KeyProcessor implements SingleFieldProcessor<LiteralBuilder> {
+		@Override
+		public void process(String name, String value, LiteralBuilder b) {
+			b.key = Integer.parseInt(value, 16);
+		}
+
+		@Override
+		public String getFieldName() {
+			return "key";
+		}
+	}
+
+	public static final class NameProcessor implements SingleFieldProcessor<LiteralBuilder> {
+		@Override
+		public void process(String name, String value, LiteralBuilder b) {
+			b.name = value;
+		}
+
+		@Override
+		public String getFieldName() {
+			return "name";
+		}
+	}
+
 	public static final class ValueProcessor implements SingleFieldProcessor<LiteralBuilder> {
 		@Override
 		public void process(String name, String value, LiteralBuilder b) {
-			b.value = value;
+			b.key = 0;
+			b.name = value;
 		}
 
 		@Override

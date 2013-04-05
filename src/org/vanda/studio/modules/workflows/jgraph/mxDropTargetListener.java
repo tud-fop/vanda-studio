@@ -55,7 +55,7 @@ public class mxDropTargetListener extends DropTargetAdapter implements
 				ElementAdapter ele;
 				// TODO literal should be recognized otherwise
 				if (id.equals("literal"))
-					ele = new LiteralAdapter(new Literal(Types.undefined, ""));
+					ele = new LiteralAdapter(new Literal(Types.undefined, "literal", null));
 				else
 					ele = new ToolAdapter(wfe.getApplication()
 							.getToolMetaRepository().getRepository()

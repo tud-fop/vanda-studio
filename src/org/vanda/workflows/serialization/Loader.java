@@ -115,10 +115,12 @@ public class Loader {
 				}, null, null);
 	}
 
+	@SuppressWarnings("unchecked")
 	private SingleElementHandlerFactory<Observer<Pair<MutableWorkflow, Database>>> workflowHandler(
 			SingleElementHandlerFactory<WorkflowBuilder> jobHandler,
 			SingleElementHandlerFactory<WorkflowBuilder> databaseHandler) {
-		return new SimpleElementHandlerFactory<Observer<Pair<MutableWorkflow, Database>>, WorkflowBuilder>("workflow", jobHandler,
+		return new SimpleElementHandlerFactory<Observer<Pair<MutableWorkflow, Database>>, WorkflowBuilder>("workflow",
+				new CompositeElementHandlerFactory<WorkflowBuilder>(jobHandler, databaseHandler),
 				WorkflowBuilder.createFactory(),
 				new ComplexFieldProcessor<Observer<Pair<MutableWorkflow, Database>>, WorkflowBuilder>() {
 					@Override
@@ -131,7 +133,7 @@ public class Loader {
 								j.visit(new ElementVisitor() {
 									@Override
 									public void visitLiteral(Literal l) {
-										d2.put(j.bindings.get(j.getOutputPorts().get(0)), l.getValue());
+										d2.put(l.getKey(), l.getName());
 									}
 
 									@Override
@@ -148,8 +150,9 @@ public class Loader {
 
 	private ParserImpl<Pair<MutableWorkflow, Database>> createParser(Observer<Pair<MutableWorkflow, Database>> o) {
 		ParserImpl<Pair<MutableWorkflow, Database>> p = new ParserImpl<Pair<MutableWorkflow, Database>>(o);
-		p.setRootState(new SimpleRootHandler<Pair<MutableWorkflow, Database>>(p, workflowHandler(jobHandler(
-				literalHandler(), toolHandler(), bindHandler(), geometryHandler()), databaseHandler(rowHandler(assignmentHandler())))));
+		p.setRootState(new SimpleRootHandler<Pair<MutableWorkflow, Database>>(p, workflowHandler(
+				jobHandler(literalHandler(), toolHandler(), bindHandler(), geometryHandler()),
+				databaseHandler(rowHandler(assignmentHandler())))));
 		return p;
 	}
 

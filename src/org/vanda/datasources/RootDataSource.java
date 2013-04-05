@@ -102,7 +102,7 @@ public class RootDataSource implements DataSource {
 					selector.add(component, BorderLayout.CENTER);
 				} else
 					elementSelector = null;
-				selector.revalidate();
+				selector.validate();
 			}
 		}
 

@@ -45,8 +45,8 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 			// event.doNotify(this);
 			Element e = event.getElement();
 			String s = e.toString();
-			if (!s.equals(l.getValue())) {
-				l.setValue(s);
+			if (!s.equals(d.get(l.getKey()))) {
+				d.put(l.getKey(), s);
 				l.setType(rds.getType(e));
 			}
 		}
@@ -72,37 +72,43 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 		@Override
 		public void valueChanged(Literal l) {
-			value.setText(l.getValue());
-			/*
-			 * Element el = Element.fromString(l.getValue()); ds.beginUpdate();
-			 * try { ds.setPrefix(el.getPrefix()); ds.setValue(el.getValue()); }
-			 * finally { ds.endUpdate(); }
-			 */
+			value.setText(l.getName());
 		}
 	}
 
 	public class DatabaseObserver implements Observer<DatabaseEvent<Database>>, DatabaseListener<Database> {
-		
+
+		final Literal l;
 		final Element e;
 
-		public DatabaseObserver(Element e) {
+		public DatabaseObserver(Literal l, Element e) {
+			this.l = l;
 			this.e = e;
 		}
 
 		@Override
 		public void notify(DatabaseEvent<Database> event) {
-			event.doNotify(this);
+			// event.doNotify(this);
+			Database d = event.getDatabase();
+			Element el = Element.fromString(d.get(l.getKey()));
+			e.beginUpdate();
+			try {
+				e.setPrefix(el.getPrefix());
+				e.setValue(el.getValue());
+			} finally {
+				e.endUpdate();
+			}
+
 		}
 
 		@Override
 		public void cursorChange(Database d) {
 			// TODO Auto-generated method stub
-			
 		}
 
 		@Override
 		public void dataChange(Database d, Object key) {
-			
+
 		}
 
 	}
@@ -110,19 +116,20 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 	@Override
 	public JComponent createEditor(Database d, MutableWorkflow wf, final Literal l) {
 		JLabel label1 = new JLabel("Name");
-		final JTextField value = new JTextField(l.getValue());
+		final JTextField value = new JTextField(l.getName());
 
-		Element cds = Element.fromString(l.getValue());
-		cds.getObservable().addObserver(new ElementObserver(d, l));
-		l.getObservable().addObserver(new LiteralObserver(value)); // FIXME memory leak
-		d.getObservable().addObserver(new DatabaseObserver(cds));
+		// FIXME memory leaks probable due to all the observers
+		final Element e = Element.fromString(d.get(l.getKey()));
+		e.getObservable().addObserver(new ElementObserver(d, l));
+		l.getObservable().addObserver(new LiteralObserver(value));
+		d.getObservable().addObserver(new DatabaseObserver(l, e));
 		ElementSelector selector = rds.createSelector();
-		selector.setElement(cds);
+		selector.setElement(e);
 
 		value.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				l.setValue(value.getText());
+			public void actionPerformed(ActionEvent _) {
+				l.setName(value.getText());
 			}
 		});
 

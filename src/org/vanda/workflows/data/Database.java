@@ -13,14 +13,14 @@ import org.vanda.workflows.data.Databases.DataChange;
 
 public final class Database {
 
-	private final ArrayList<HashMap<Object, String>> assignments;
+	private final ArrayList<HashMap<Integer, String>> assignments;
 	private int cursor;
 	private final MultiplexObserver<DatabaseEvent<Database>> observable;
 	private int update;
 	private LinkedList<DatabaseEvent<Database>> events;
 	
 	public Database() {
-		assignments = new ArrayList<HashMap<Object, String>>();
+		assignments = new ArrayList<HashMap<Integer, String>>();
 		cursor = 0;
 		observable = new MultiplexObserver<DatabaseEvent<Database>>();
 		events = new LinkedList<DatabaseEvent<Database>>();
@@ -39,15 +39,23 @@ public final class Database {
 		}
 	}
 	
-	public String get(String key) {
+	public String get(Integer key) {
 		String result = "";
 		if (cursor < assignments.size())
 			result = assignments.get(cursor).get(key);
 		return result;
 	}
 	
+	public HashMap<Integer, String> getRow(int location) {
+		return assignments.get(location);
+	}
+	
 	public Observable<DatabaseEvent<Database>> getObservable() {
 		return observable;
+	}
+	
+	public int getSize() {
+		return assignments.size();
 	}
 	
 	public boolean hasNext() {
@@ -57,7 +65,19 @@ public final class Database {
 	public boolean hasPrev() {
 		return cursor > 0;
 	}
-	
+
+	public void home() {
+		if (cursor != 0) {
+			beginUpdate();
+			try {
+				cursor = 0;
+				events.add(new CursorChange<Database>(this));
+			} finally {
+				endUpdate();
+			}
+		}
+	}
+
 	public void next() {
 		if (cursor < assignments.size()) {
 			beginUpdate();
@@ -82,8 +102,8 @@ public final class Database {
 		}
 	}
 	
-	public void put(Object key, String value) {
-		HashMap<Object, String> m;
+	public void put(Integer key, String value) {
+		HashMap<Integer, String> m;
 		beginUpdate();
 		try {
 			String oldvalue;
@@ -94,7 +114,7 @@ public final class Database {
 					oldvalue = assignments.get(cursor).remove(key);
 			} else {
 				if (cursor == assignments.size()) {
-					m = new HashMap<Object, String>();
+					m = new HashMap<Integer, String>();
 					assignments.add(m);
 				} else
 					m = assignments.get(cursor);
