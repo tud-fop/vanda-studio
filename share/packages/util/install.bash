@@ -1,6 +1,6 @@
 id="util"
 varname="UTIL"
-version="2013-03-07"
+version="2013-04-08"
 binpath="$id"
 
 install_me () {

@@ -1,3 +1,14 @@
+# Sink
+# Version: 2013-01-16
+# Contact: Matthias.Buechse@tu-dresden.de
+# Category: basics
+# IN in :: t0
+#
+# Sink tool.
+SinkTool () {
+	echo "Sink: $2"
+}
+
 # runs a tool
 # run <n> <tool> <root> <i1> ... <in> <o1> ... <om>
 # <n>     number of input arguments
