@@ -67,7 +67,7 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 			this.file = file;
 			als = new ArrayList<Alignment>();
 			jAls = new JList();
-			jMore = new JButton(new AbstractAction("more"){
+			jMore = new JButton(new AbstractAction("more") {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -75,20 +75,19 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 					load();
 					jAls.setSelectedIndex(idx);
 				}
-				
+
 			});
-			
+
 			JPanel pLeft = new JPanel(new BorderLayout());
 			pLeft.add(new JScrollPane(jAls), BorderLayout.CENTER);
 			pLeft.add(jMore, BorderLayout.SOUTH);
-			
+
 			jAl = new AlignmentView();
 			split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 			split.add(pLeft, 0);
 			sAl = new JScrollPane(jAl);
 			split.add(sAl, 1);
-			
-			
+
 			jAls.addListSelectionListener(new ListSelectionListener() {
 
 				@Override
@@ -104,20 +103,23 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 		}
 
 		public void initialize() throws FileNotFoundException {
-			Scanner mHandle = new Scanner(new File(file + ".meta"));
-			fHandle = new Scanner(new File(app.findFile(mHandle.nextLine())));
-			eHandle = new Scanner(new File(app.findFile(mHandle.nextLine())));
+			File f = new File(file + ".meta");
+			Scanner mHandle = new Scanner(f);
+			File f1 = new File(app.findFile(mHandle.nextLine()));
+			fHandle = new Scanner(f1);
+			File f2 = new File(app.findFile(mHandle.nextLine()));
+			eHandle = new Scanner(f2);
 			mHandle.close();
-			aHandle = new Scanner(new File(file));
-			load();
+			File f3 = new File(file);
+			aHandle = new Scanner(f3);
 		}
-		
+
 		public void load() {
 			int i = 10;
 			while (i > 0 && fHandle.hasNextLine() && eHandle.hasNextLine()
 					&& aHandle.hasNextLine()) {
 				als.add(new Alignment(fHandle.nextLine(), eHandle.nextLine(),
-						 aHandle.nextLine()));
+						aHandle.nextLine()));
 				i--;
 			}
 			jAls.setListData(als.toArray());
@@ -166,7 +168,7 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 				ali[Integer.parseInt(a.trim().split("-")[0])] = Integer
 						.parseInt(a.trim().split("-")[1]);
 			}
-			
+
 			// offset lines for centering
 			int w1 = 0, w2 = 0;
 			for (String a : al.as1)
@@ -183,7 +185,7 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 				x1 = DX + (w2 - w1) / 2;
 				x2 = DX;
 			}
-			
+
 			// initialize data
 			int[] midXs1 = new int[al.as1.length];
 			int width;
@@ -212,20 +214,20 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 				x2 += width + DX;
 				i++;
 			}
-			
+
 			// set width for getPreferredSize()
 			this.width = Math.max(x1, x2);
 		}
-		
+
 		public void setAlignment(Alignment al) {
 			this.al = al;
 			repaint();
 		}
-		
+
 	}
-	
+
 	private Application app;
-	
+
 	public AlignmentsPreviewFactory(Application app) {
 		super();
 		this.app = app;
@@ -238,7 +240,7 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 			aps.initialize();
 			return aps;
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			app.sendMessage(new ExceptionMessage(e));
 			return app.getPreviewFactory(null).createPreview(value);
 		}
 	}
