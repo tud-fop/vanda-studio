@@ -1,6 +1,11 @@
 package org.vanda.datasources;
 
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
@@ -26,6 +31,7 @@ public class IntegerDataSource implements DataSource {
 
 		public IntegerElement() {
 			jNumber = new JSpinner(new SpinnerNumberModel());
+			jNumber.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
 			jNumber.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
@@ -37,7 +43,12 @@ public class IntegerDataSource implements DataSource {
 
 		@Override
 		public JComponent getComponent() {
-			return jNumber;
+			JPanel pan = new JPanel(new GridBagLayout());
+			GridBagConstraints gbc = new GridBagConstraints();
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.weightx = 1;
+			pan.add(jNumber, gbc);
+			return pan;
 		}
 
 		@Override
