@@ -41,6 +41,7 @@ public class RootDataSource implements DataSource {
 
 		public RootElement() {
 			dsList = new ArrayList<String>(sources.keySet());
+			dsList.add("");
 			Collections.sort(dsList);
 
 			selector = new JPanel();
