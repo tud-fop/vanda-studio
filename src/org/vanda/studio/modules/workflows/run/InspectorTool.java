@@ -21,6 +21,7 @@ import org.vanda.types.Type;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
 import org.vanda.view.AbstractView.SelectionVisitor;
+import org.vanda.view.View;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
@@ -38,6 +39,7 @@ public class InspectorTool implements SemanticsToolFactory {
 		private GridBagConstraints gbc;
 		private JLabel dummyPreview;
 		private JComponent preview;
+		private final View view;
 
 		private class InspectorialVisitor implements SelectionVisitor {
 
@@ -66,9 +68,10 @@ public class InspectorTool implements SemanticsToolFactory {
 
 		}
 
-		public Inspector(WorkflowEditor wfe, Model mm) {
+		public Inspector(WorkflowEditor wfe, Model mm, View view) {
 			this.wfe = wfe;
 			this.mm = mm;
+			this.view = view;
 			fileName = new JLabel("Select a location or a connection.");
 			contentPane = new JPanel(new GridBagLayout());
 			@SuppressWarnings("serial")
@@ -135,8 +138,8 @@ public class InspectorTool implements SemanticsToolFactory {
 		public void update() {
 //			WorkflowSelection ws = wfe.getModel().getSelection();
 			List<AbstractView> ws = wfe.getView().getCurrentSelection();
-			if (ws == null)
-				ws = new WorkflowSelection(wfe.getModel().getRoot());
+//			if (ws == null)
+//				ws = new WorkflowSelection(wfe.getModel().getRoot());
 			// set inspector text
 			String newvalue = null;
 			JComponent newpreview = dummyPreview;
@@ -144,7 +147,12 @@ public class InspectorTool implements SemanticsToolFactory {
 			// if (frozen != null && dfa != null) {
 			InspectorialVisitor visitor = new InspectorialVisitor();
 			if (ws != null) // <--- always true for now
-				ws.visit(visitor);
+//				ws.visit(visitor);
+			{
+				for (AbstractView av : ws) {
+					av.visit(visitor, view);
+				}
+			}
 			newvalue = visitor.value;
 			type = visitor.type;
 			// }
@@ -175,8 +183,8 @@ public class InspectorTool implements SemanticsToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model model) {
-		return new Inspector(wfe, model);
+	public Object instantiate(WorkflowEditor wfe, Model model, View view) {
+		return new Inspector(wfe, model, view);
 	}
 
 	@Override

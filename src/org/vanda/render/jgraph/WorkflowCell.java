@@ -40,7 +40,7 @@ public class WorkflowCell extends Cell {
 
 	@Override
 	public AbstractView getView(View view) {
-		return null;
+		return view.getWorkflowView();
 	}
 
 }

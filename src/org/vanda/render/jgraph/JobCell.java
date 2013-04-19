@@ -27,6 +27,17 @@ public class JobCell extends Cell {
 			getObservable().notify(new SelectionChangedEvent<Cell>(JobCell.this)); 
 			
 		}
+
+		@Override
+		public void markChanged(AbstractView v) {
+			getObservable().notify(new MarkChangedEvent<Cell> (JobCell.this));
+		}
+
+		@Override
+		public void highlightingChanged(AbstractView v) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	private class JobListener implements Jobs.JobListener<Job> {
@@ -54,7 +65,8 @@ public class JobCell extends Cell {
 		this.job = job;
 		this.jobListerer = new JobListener();
 		this.jobViewListener = new JobViewListener();
-		
+		this.observable = new CellObservable();
+		setDimensions(new double [] {job.getX(), job.getY(), job.getWidth(), job.getHeight()});
 		// Register at JobView
 		graph.getView().getJobView(job).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
 
@@ -77,7 +89,8 @@ public class JobCell extends Cell {
 		});
 		
 		// Register at Job
-		job.getObservable().addObserver(new Observer<Jobs.JobEvent<Job>> (){
+		if (job.getObservable() != null)
+			job.getObservable().addObserver(new Observer<Jobs.JobEvent<Job>> (){
 
 			@Override
 			public void notify(JobEvent<Job> event) {
@@ -115,7 +128,9 @@ public class JobCell extends Cell {
 
 	@Override
 	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
-		// TODO Auto-generated method stub
+		for (int i = 0; i < getVisualization().getChildCount(); ++i ) {
+			((Cell) getVisualization().getChildAt(i).getValue()).updateLocation(job);
+		}
 		
 	}
 
@@ -164,6 +179,12 @@ public class JobCell extends Cell {
 	@Override
 	public AbstractView getView(View view) {
 		return view.getJobView(job);
+	}
+	
+	@Override 
+	public String getLabel() {
+		return job.getName();
+		
 	}
 
 }

@@ -3,6 +3,7 @@ package org.vanda.render.jgraph;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.view.AbstractView;
 import org.vanda.view.View;
+import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
@@ -94,6 +95,7 @@ public abstract class Cell {
 	public static interface CellListener<C> {
 		void propertyChanged(C c);
 		void selectionChanged(C c);
+		void markChanged(C c);
 	}
 	
 	public static class PropertyChangedEvent<C> implements CellEvent<C> {
@@ -121,6 +123,26 @@ public abstract class Cell {
 			cl.selectionChanged(c);
 		}
 		
+	}
+	
+	public static class MarkChangedEvent<C> implements CellEvent<C> {
+		private final C c;
+		public MarkChangedEvent(C c) {
+			this.c = c;
+		}
+		@Override
+		public void doNotify(CellListener<C> cl) {
+			cl.markChanged(c);
+		}
+		
+	}
+
+	public String getLabel() {
+		return "";
+	}
+	
+	public void updateLocation(Job job) {
+		// do Nothing
 	}
 	
 }

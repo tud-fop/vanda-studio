@@ -1,7 +1,7 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
 import org.vanda.studio.modules.workflows.model.Model;
-import org.vanda.studio.modules.workflows.model.Model.VariableSelection;
+//import org.vanda.studio.modules.workflows.model.Model.VariableSelection;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
@@ -55,7 +55,7 @@ public class LocationAdapter implements Adapter, Cloneable {
 
 	@Override
 	public void setSelection(Model m) {
-		m.setSelection(new VariableSelection(m.getRoot(), variable));
+//		m.setSelection(new VariableSelection(m.getRoot(), variable));
 		// TODO no nesting support here because of m.getRoot()
 	}
 	

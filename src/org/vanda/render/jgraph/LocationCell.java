@@ -14,21 +14,42 @@ import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
 public class LocationCell extends Cell {
+	private class LocationViewListener implements AbstractView.ViewListener<AbstractView> {
+		
+		@Override
+		public void selectionChanged(AbstractView v) {
+			getObservable().notify(new SelectionChangedEvent<Cell>(LocationCell.this)); 
+		}
 
+		@Override
+		public void markChanged(AbstractView v) {
+			getObservable().notify(new MarkChangedEvent<Cell>(LocationCell.this));
+		}
+
+		@Override
+		public void highlightingChanged(AbstractView v) {
+			// TODO Auto-generated method stub
+			
+		}
+	}
+	
+	
 	private final Port port;
 	private Location variable;
+	protected final LocationViewListener locationViewListener;
 	
 	public LocationCell(final Graph g, LayoutManagerInterface layout, Cell parent, Port port, Location variable) {
 		this.port = port;
 		this.variable = variable;
-		
+		this.observable = new CellObservable();
+		locationViewListener = new LocationViewListener();
+
 		// Register at LocationView
-		g.getView().getLocationView(variable).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
+		g.getView().getLocationView(port).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
 
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
-				getObservable().notify(new SelectionChangedEvent<Cell>(LocationCell.this));
-				
+				event.doNotify(locationViewListener);
 			}
 		});
 		
@@ -73,16 +94,17 @@ public class LocationCell extends Cell {
 
 	@Override
 	public void setSelection(View view) {
-		view.getLocationView(variable).setSelected(true);	
+		view.getLocationView(port).setSelected(true);	
 	}
 	
+	@Override
 	public void updateLocation(Job job) {
 		variable = job.bindings.get(port);
 	}
 
 	@Override
 	public AbstractView getView(View view) {
-		return view.getLocationView(variable);
+		return view.getLocationView(port);
 	}
 
 }

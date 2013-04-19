@@ -21,15 +21,28 @@ public class ConnectionCell extends Cell {
 		public void selectionChanged(AbstractView v) {
 			getObservable().notify(new SelectionChangedEvent<Cell>(ConnectionCell.this)); 
 		}
+
+		@Override
+		public void markChanged(AbstractView v) {
+			getObservable().notify(new MarkChangedEvent<Cell>(ConnectionCell.this));
+		}
+
+		@Override
+		public void highlightingChanged(AbstractView v) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	public ConnectionCell() {	
 		connectionKey = null;
+		this.observable = new CellObservable();
 	}
 	
 	public ConnectionCell(ConnectionKey connectionKey, final Graph graph, PortCell source, PortCell target) {
 		this.connectionKey = connectionKey;
 		this.connectionViewListener = new ConnectionViewListener();
+		this.observable = new CellObservable();
 		
 		// Register at ConnectionView
 		graph.getView().getConnectionView(connectionKey).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
@@ -115,6 +128,12 @@ public class ConnectionCell extends Cell {
 				PresentationModel pm = (PresentationModel) 
 						((WorkflowCell) sparval.getVisualization()
 								.getParent().getValue()).getPresentationModel();
+				
+				// Add Connection to Workflow
+				graph.getView().getWorkflow().addConnection(connectionKey, 
+							sparval.job.bindings.get(sval.port));
+				
+				// Add Connection to PM 
 				pm.addConnectionAdapter(this, connectionKey);
 				
 				this.connectionViewListener = new ConnectionViewListener();
@@ -130,7 +149,7 @@ public class ConnectionCell extends Cell {
 				});
 				
 				// Register at Graph
-				getObservable().addObserver(new org.vanda.util.Observer<CellEvent<Cell>> () {
+				getObservable().addObserver(new Observer<CellEvent<Cell>> () {
 
 					@Override
 					public void notify(CellEvent<Cell> event) {
@@ -139,9 +158,7 @@ public class ConnectionCell extends Cell {
 					
 				});
 				
-				// Add Connection to Workflow
-				graph.getView().getWorkflow().addConnection(connectionKey, 
-							sparval.job.bindings.get(sval.port));
+
 			}
 		} 		
 	}

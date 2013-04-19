@@ -1,6 +1,5 @@
 package org.vanda.studio.modules.workflows.model;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,7 @@ import org.vanda.util.Pair;
 import org.vanda.view.View;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.Location;
+//import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.TypeChecker;
 import org.vanda.workflows.hyper.TypeCheckingException;
@@ -144,7 +143,7 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 
 	public void checkWorkflow() throws Exception {
 //		markedElements.clear();
-		view.clearSelection();
+		view.clearMarked();
 		try {
 			sorted = null;
 			typeCheck();
@@ -157,7 +156,7 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 				Set<ConnectionKey> eqs = error.snd;
 				for (ConnectionKey eq : eqs) {
 //					markedElements.add(new ConnectionSelection(hwf, eq));
-					view.getConnectionView(eq).setSelected(true);
+					view.getConnectionView(eq).setMarked(true);
 					/*
 					for (Connection c : hwf.getConnections()) {
 						if (c.target.equals(eq.address)
@@ -260,4 +259,7 @@ public final class Model implements WorkflowListener<MutableWorkflow> {
 		return types.get(variable);
 	}
 
+	public View getView() {
+		return this.view;
+	}
 }

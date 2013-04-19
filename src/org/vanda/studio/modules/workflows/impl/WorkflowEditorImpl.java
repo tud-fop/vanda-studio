@@ -29,7 +29,7 @@ import org.vanda.presentationmodel.PresentationModel;
 import org.vanda.render.jgraph.mxDropTargetListener;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
-import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
+//import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
 import org.vanda.studio.modules.workflows.jgraph.WorkflowAdapter;
 //import org.vanda.studio.modules.workflows.jgraph.mxDropTargetListener;
@@ -66,7 +66,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 		WorkflowListener<MutableWorkflow> {
 
 	protected final Application app;
-//	protected final Model model;
+	protected final Model model;
 	protected final View view;
 	protected final PresentationModel presentationModel;
 	protected final MyMxGraphComponent component;
@@ -78,9 +78,10 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 	public WorkflowEditorImpl(Application app,
 			Repository<ToolFactory> toolFactories, MutableWorkflow hwf) {
 		this.app = app;
-//		model = new Model(hwf);
+		
 //		renderer = new DrecksAdapter(model);
 		view = new View(hwf);
+		model = new Model(view);
 		presentationModel = new PresentationModel(view);
 		
 		component = new MyMxGraphComponent(presentationModel.getVisualization().getGraph());
@@ -595,13 +596,18 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 
 	@Override
 	public Model getModel() {
-//		return model;
-		return null;
+		return model;
+//		return null;
 	}
 
 	@Override
 	public void updated(MutableWorkflow mwf) {
 		// FIXME FIXME FIXME
+	}
+
+	@Override
+	public View getView() {
+		return view;
 	}
 
 

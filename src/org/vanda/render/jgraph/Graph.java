@@ -84,7 +84,7 @@ public final class Graph{
 		public String convertValueToString(Object cell) {
 			Object value = model.getValue(cell);
 			if (value instanceof Cell)
-				return ((Cell) value).getType();
+				return ((Cell) value).getLabel();
 			else
 				return "";
 		}
@@ -133,13 +133,13 @@ public final class Graph{
 		@Override
 		public boolean isValidSource(Object cell) {
 			return super.isValidSource(cell)
-					&& (cell == null || ((PortCell) ((mxCell) cell).getValue()).getType() == "OutPortCell");
+					&& (cell == null || ((Cell) ((mxCell) cell).getValue()).getType() == "OutPortCell");
 		}
 
 		@Override
 		public boolean isValidTarget(Object cell) {
 			return super.isValidSource(cell) /* sic!! */
-					&& (cell == null || ((PortCell) ((mxCell) cell).getValue()).getType() == "InPortCell");
+					&& (cell == null || ((Cell) ((mxCell) cell).getValue()).getType() == "InPortCell");
 		}
 
 		@Override
@@ -259,12 +259,13 @@ public final class Graph{
 	public Graph(View view, WorkflowCell workflowCell) {
 		// Create graph and set graph properties
 		LayoutManagerFactoryInterface layoutFactory = new NaiveLayoutManagerFactory();
-		this.graph = new customMxGraph(layoutFactory.getStylesheet(), workflowCell);
 		this.view = view;
+		this.graph = new customMxGraph(layoutFactory.getStylesheet(), workflowCell);
+		cellChangeListener = new CellChangeListener();
 		changeListener = new ChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
 		graph.getSelectionModel().addListener(mxEvent.UNDO, changeListener);
-		cellChangeListener = new CellChangeListener();
+	
 	}
 	
 	public void refresh() {

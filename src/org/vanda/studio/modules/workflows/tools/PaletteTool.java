@@ -21,6 +21,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.vanda.presentationmodel.PresentationModel;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
+//import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.jgraph.mxDragGestureListener;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
@@ -180,14 +181,16 @@ public class PaletteTool implements ToolFactory {
 			for (Job template : ts) {
 				template.setDimensions(d);
 				mxICell cell = da.renderChild(null, template);
+//				mxICell cell = pm.addJobAdapter(template).getJobCell().getVisualization();
 				cell.setId(template.getElement().getId());
 				d[1] += cell.getGeometry().getHeight() + 10;
 			}
 		} finally {
-			//pm.getVisualization().getGraph().getModel().endUpdate();
+//			pm.getVisualization().getGraph().getModel().endUpdate();
 			da.getGraph().getModel().endUpdate();
 		}
 		mxGraphComponent c = new mxGraphComponent(da.getGraph());
+//		mxGraphComponent c = new mxGraphComponent(pm.getVisualization().getGraph());
 		c.setConnectable(false);
 		c.setDragEnabled(false);
 		DragSource ds = new DragSource();

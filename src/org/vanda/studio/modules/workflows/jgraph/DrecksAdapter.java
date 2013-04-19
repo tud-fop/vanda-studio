@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.vanda.studio.modules.workflows.model.Model;
-import org.vanda.studio.modules.workflows.model.Model.ConnectionSelection;
-import org.vanda.studio.modules.workflows.model.Model.SingleObjectSelection;
+//import org.vanda.studio.modules.workflows.model.Model.ConnectionSelection;
+//import org.vanda.studio.modules.workflows.model.Model.SingleObjectSelection;
 import org.vanda.util.Observer;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
@@ -66,8 +66,10 @@ public final class DrecksAdapter {
 					boolean refreshSelection = false;
 					if (cell == graph.getSelectionCell()) {
 						refreshSelection = true;
+//						if (model != null)
+//							model.setSelection(null);
 						if (model != null)
-							model.setSelection(null);
+							model.getView().clearSelection();
 					}
 					if (cc.getPrevious() != null) {
 						// something has been removed
@@ -91,7 +93,8 @@ public final class DrecksAdapter {
 					if (cell != null) {
 						((Adapter) gmodel.getValue(cell)).setSelection(model);
 					} else
-						model.setSelection(null);
+//						model.setSelection(null);
+						model.getView().clearSelection();
 				}
 			}
 		}
@@ -176,20 +179,20 @@ public final class DrecksAdapter {
 								}
 							});
 
-			model.getMarkedElementsObservable().addObserver(
-					new Observer<Model>() {
-						@Override
-						public void notify(Model m) {
-							List<mxICell> markedCells = transformElementsToCells(m
-									.getMarkedElements());
-
-							List<mxICell> inverseOfMarkedCells = calculateInverseCellList(
-									graph.getDefaultParent(), markedCells);
-
-							unhighlightCells(inverseOfMarkedCells);
-							highlightCells(markedCells);
-						}
-					});
+//			model.getMarkedElementsObservable().addObserver(
+//					new Observer<Model>() {
+//						@Override
+//						public void notify(Model m) {
+//							List<mxICell> markedCells = transformElementsToCells(m
+//									.getMarkedElements());
+//
+//							List<mxICell> inverseOfMarkedCells = calculateInverseCellList(
+//									graph.getDefaultParent(), markedCells);
+//
+//							unhighlightCells(inverseOfMarkedCells);
+//							highlightCells(markedCells);
+//						}
+//					});
 		} else {
 			workflowListener = null;
 			// adapter is responsible for palette graph component,
@@ -383,38 +386,38 @@ public final class DrecksAdapter {
 		}
 	}
 
-	private List<mxICell> transformElementsToCells(
-			final List<SingleObjectSelection> elements) {
-		List<mxICell> cellList = new ArrayList<mxICell>();
-		List<mxICell> activeInputPorts = new ArrayList<mxICell>();
-
-		for (SingleObjectSelection e : elements) {
-			// XXX nested Workflows are not supported by this code
-			MutableWorkflow hwf = model.getRoot();
-			if (e instanceof ConnectionSelection) {
-				mxICell c = ((WorkflowAdapter) translation.get(hwf).getValue())
-						.getConnection(((ConnectionSelection) e).cc);
-				cellList.add(c);
-			}
-		}
-
-		// check all suspected active input ports by looking for an edge cell
-		// that ends in the current input port cell suspect
-		for (mxICell suspectPort : activeInputPorts) {
-			for (int i = 0; i < cellList.size(); i++) {
-				mxICell highlightedCell = cellList.get(i);
-				if (highlightedCell.isEdge()
-						&& highlightedCell.getTerminal(false).equals(
-								suspectPort)) {
-
-					cellList.add(suspectPort);
-					break;
-				}
-			}
-
-		}
-		return cellList;
-	}
+//	private List<mxICell> transformElementsToCells(
+//			final List<SingleObjectSelection> elements) {
+//		List<mxICell> cellList = new ArrayList<mxICell>();
+//		List<mxICell> activeInputPorts = new ArrayList<mxICell>();
+//
+//		for (SingleObjectSelection e : elements) {
+//			// XXX nested Workflows are not supported by this code
+//			MutableWorkflow hwf = model.getRoot();
+//			if (e instanceof ConnectionSelection) {
+//				mxICell c = ((WorkflowAdapter) translation.get(hwf).getValue())
+//						.getConnection(((ConnectionSelection) e).cc);
+//				cellList.add(c);
+//			}
+//		}
+//
+//		// check all suspected active input ports by looking for an edge cell
+//		// that ends in the current input port cell suspect
+//		for (mxICell suspectPort : activeInputPorts) {
+//			for (int i = 0; i < cellList.size(); i++) {
+//				mxICell highlightedCell = cellList.get(i);
+//				if (highlightedCell.isEdge()
+//						&& highlightedCell.getTerminal(false).equals(
+//								suspectPort)) {
+//
+//					cellList.add(suspectPort);
+//					break;
+//				}
+//			}
+//
+//		}
+//		return cellList;
+//	}
 
 	private void unhighlightCells(List<mxICell> cells) {
 

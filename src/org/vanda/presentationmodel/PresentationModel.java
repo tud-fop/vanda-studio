@@ -1,7 +1,9 @@
 package org.vanda.presentationmodel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.vanda.render.jgraph.ConnectionCell;
 import org.vanda.render.jgraph.Graph;
@@ -41,12 +43,19 @@ public class PresentationModel {
 		return graph;
 	}
 	
-	public void addJobAdapter(Job job) {
+	public JobAdapter addJobAdapter(Job job) {
 		if (!view.getWorkflow().getChildren().contains(job)) {
 			view.getWorkflow().addChild(job);
 		}
-		jobs.add(new JobAdapter(job, selectLayout(job), graph));
+		for (JobAdapter ja : jobs) {
+			if (ja.getJob() == job)
+				return ja;
+		}
+		JobAdapter ja = new JobAdapter(job, selectLayout(job), graph);
+		jobs.add(ja);
 		graph.refresh();
+		System.out.print(job.getName());
+		return ja;
 	}
 
 	private LayoutManagerInterface selectLayout(Job job) {
@@ -117,7 +126,10 @@ public class PresentationModel {
 	}
 
 	public void removeConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
-		connections.remove(cc);
+		if (connections.containsKey(cc)) {
+			ConnectionAdapter ca = connections.remove(cc);
+			ca.destroy(graph);
+		}
 	}
 
 	public void addConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
@@ -126,7 +138,16 @@ public class PresentationModel {
 	}
 
 	public void removeJobAdatper(MutableWorkflow mwf, Job j) {
-		jobs.remove(j);
+		JobAdapter toDelete = null; 
+		for (JobAdapter ja : jobs) {
+			if (ja.getJob() == j)
+				toDelete = ja;
+		}
+		if (toDelete != null)
+		{
+			jobs.remove(toDelete);
+			toDelete.destroy(graph);
+		}
 	}
 
 	public List<JobAdapter> getJobs() {
@@ -137,6 +158,8 @@ public class PresentationModel {
 		this.view = view;
 		this.workflowCell = new WorkflowCell(this);
 		graph = new Graph(view, workflowCell);
+		jobs = new ArrayList<JobAdapter>();
+		connections = new WeakHashMap<ConnectionKey, ConnectionAdapter>();
 		workflowListener = new WorkflowListener();
 		view.getWorkflow()
 			.getObservable()
@@ -149,9 +172,9 @@ public class PresentationModel {
 						
 					}
 					
-				}); 
-		setupPresentationModel();		
-	}
+				});
+		setupPresentationModel();
+}
 
 	private void setupPresentationModel() {
 		for (Job j : view.getWorkflow().getChildren()) {
@@ -164,7 +187,8 @@ public class PresentationModel {
 
 	public void addConnectionAdapter(ConnectionCell connectionCell,
 			ConnectionKey connectionKey) {
-		connections.put(connectionKey, new ConnectionAdapter(connectionKey, connectionCell));
+		if (! connections.containsKey(connectionKey))
+			connections.put(connectionKey, new ConnectionAdapter(connectionKey, connectionCell));
 	}
 
 }

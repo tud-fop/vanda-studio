@@ -1,5 +1,6 @@
 package org.vanda.view;
 
+
 import org.vanda.util.MultiplexObserver;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
@@ -15,7 +16,16 @@ import org.vanda.workflows.hyper.MutableWorkflow;
 public abstract class AbstractView {
 	boolean selected;
 	boolean highlighted;
-	private MultiplexObserver<ViewEvent<AbstractView>> observable;
+	boolean marked;
+	public void setMarked(boolean marked) {
+		if (this.marked != marked) {
+			this.marked = marked;
+			observable.notify(new MarkChangedEvent<AbstractView>(this));
+		}
+		
+	}
+
+	private MultiplexObserver<ViewEvent<AbstractView>> observable = new MultiplexObserver<ViewEvent<AbstractView>>();
 
 	public MultiplexObserver<ViewEvent<AbstractView>> getObservable() {
 		return observable;
@@ -35,11 +45,15 @@ public abstract class AbstractView {
 	public boolean isHighlighted() {
 		return highlighted;
 	}
+	
+	public boolean isMarked() {
+		return marked;
+	}
 
 	public void setHighlighted(boolean highlighted) {
 		if (this.highlighted != highlighted) {
 			this.highlighted = highlighted;
-			observable.notify(new SelectionChangedEvent<AbstractView>(this));
+			//observable.notify(new HighEvent<AbstractView>(this));
 		}
 
 	}
@@ -51,6 +65,8 @@ public abstract class AbstractView {
 
 	public static interface ViewListener<V> {
 		void selectionChanged(V v);
+		void markChanged(V v);
+		void highlightingChanged(V v);
 	}
 
 	public static class SelectionChangedEvent<V> implements ViewEvent<V> {
@@ -64,6 +80,34 @@ public abstract class AbstractView {
 		public void doNotify(ViewListener<V> vl) {
 			vl.selectionChanged(v);
 		}
+	}
+	
+	public static class MarkChangedEvent<V> implements ViewEvent<V> {
+		private final V v;
+		
+		public MarkChangedEvent(V v) {
+			this.v = v;
+		}
+
+		@Override
+		public void doNotify(ViewListener<V> vl) {
+			vl.markChanged(v);
+		}
+		
+	}
+	
+	public static class HighlightingChangedEvent<V> implements ViewEvent<V> {
+		private final V v;
+		
+		public HighlightingChangedEvent(V v) {
+			this.v = v;
+		}
+
+		@Override
+		public void doNotify(ViewListener<V> vl) {
+			vl.highlightingChanged(v);
+		}
+		
 	}
 
 	public abstract void remove(View view);

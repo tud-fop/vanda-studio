@@ -159,9 +159,9 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 
 	protected class DefaultRenderer implements LayoutManagerInterface {
 		protected JobCell jobCell;
-		protected WeakHashMap<Integer, PortCell> inputs;
-		protected WeakHashMap<Integer, PortCell> outputs;
-		protected WeakHashMap<Integer, LocationCell> locations;
+		protected WeakHashMap<Integer, PortCell> inputs = new WeakHashMap<Integer, PortCell>();
+		protected WeakHashMap<Integer, PortCell> outputs = new WeakHashMap<Integer,PortCell>();
+		protected WeakHashMap<Integer, LocationCell> locations = new WeakHashMap<Integer, LocationCell>();
 		
 		public void addStyle(Map<String, Object> style) {
 			// style.put(mxConstants.STYLE_AUTOSIZE, "0");
@@ -188,8 +188,11 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		@Override
 		public void setUpLayout(Graph g) {
 			mxCell v = jobCell.getVisualization();
-			v.setStyle("bla");
+			v.setStyle(getStyleName());
+//			System.out.print(getStyleName());
 			v.setConnectable(false);
+			v.setGeometry(new mxGeometry(jobCell.getX(), jobCell.getY(), jobCell.getWidth(), jobCell.getHeight()));
+			v.setVertex(true);
 			if (g.getGraph().isAutoSizeCell(v))
 				g.getGraph().updateCellSize(v, true);
 			for (int i : inputs.keySet()) {
@@ -210,7 +213,7 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 				geo.setRelative(true);
 				mxCell port = outputs.get(i).getVisualization();
 				port.setGeometry(geo); 
-				port.setStyle("inport");
+				port.setStyle("outport");
 				port.setVertex(true);
 			}
 			for (int i : locations.keySet()) {

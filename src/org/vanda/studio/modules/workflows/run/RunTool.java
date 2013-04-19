@@ -44,6 +44,7 @@ import org.vanda.types.Types;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.RCChecker;
+import org.vanda.view.View;
 
 public class RunTool implements SemanticsToolFactory {
 
@@ -475,7 +476,7 @@ public class RunTool implements SemanticsToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model model) {
+	public Object instantiate(WorkflowEditor wfe, Model model, View view) {
 		return new Tool(wfe, model, prof);
 	}
 

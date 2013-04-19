@@ -59,7 +59,15 @@ public class JobAdapter {
 	public List<Cell> getCells() {
 		return cells;
 	}
+
+	public JobCell getJobCell() {
+		return jobCell;
+	}
 	
-	
+	public void destroy(Graph graph) {
+		if (jobCell != null) {
+			graph.getGraph().removeCells(new Object[] {jobCell.getVisualization()});
+		}
+	}	
 	
 }

@@ -8,17 +8,20 @@ import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.CompositeRepository;
 import org.vanda.util.MetaRepository;
 import org.vanda.util.Repository;
+import org.vanda.view.View;
 
 public class SemanticsTool implements ToolFactory {
 	
 	private final static class Tool {
 		
 		Model model;
+		View view;
 
 		public Tool(WorkflowEditor wfe, Collection<SemanticsToolFactory> stfs) {
 			model = new Model(wfe.getModel());
+			view  = wfe.getView();
 			for (SemanticsToolFactory stf : stfs)
-				stf.instantiate(wfe, model);
+				stf.instantiate(wfe, model, view);
 		}
 		
 	}

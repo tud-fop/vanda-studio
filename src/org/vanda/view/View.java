@@ -8,6 +8,7 @@ import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.view.AbstractView.ViewListener;
+import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
@@ -22,6 +23,7 @@ import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
  */
 public class View {
 	MutableWorkflow workflow;
+	private WorkflowView workflowView;
 	public MutableWorkflow getWorkflow() {
 		return workflow;
 	}
@@ -31,9 +33,9 @@ public class View {
 		@Override
 		public void childAdded(MutableWorkflow mwf, Job j) {
 			addJobView(j);
-			for (Location l : j.bindings.values())
+			for (Port p : j.getOutputPorts())
 			{
-				addLocationView(l);
+				addLocationView(p);
 			}
 		}
 
@@ -44,9 +46,9 @@ public class View {
 
 		@Override
 		public void childRemoved(MutableWorkflow mwf, Job j) {
-			for (Location l : j.bindings.values()) {
-				locations.remove(l);
-			}
+			if (j.bindings != null) 
+				for (Location l : j.bindings.values()) 
+					variables.remove(l);
 			jobs.remove(j);
 		}
 
@@ -73,32 +75,44 @@ public class View {
 	}
 	WeakHashMap<Job, JobView> jobs;
 	WeakHashMap<ConnectionKey, ConnectionView> connections;
-	WeakHashMap<Location, LocationView> locations;
+	WeakHashMap<Port, LocationView> variables;
 	WorkflowListener workflowListener;
-	ViewListener<AbstractView> selectionChangeListener;
+	ViewListener<AbstractView> viewEventListener;
 	
 	public View (MutableWorkflow workflow) {
 		this.workflow = workflow;
 		this.observable = new MultiplexObserver<GlobalViewEvent<View>>();
+		setWorkflowView(new WorkflowView());
 		jobs = new WeakHashMap<Job, JobView>();
 		connections = new WeakHashMap<ConnectionKey, ConnectionView>();
-		locations = new WeakHashMap<Location, LocationView>();
+		variables = new WeakHashMap<Port, LocationView>();
 		workflowListener = new WorkflowListener();
-		selectionChangeListener = new ViewListener<AbstractView>() {
+		viewEventListener = new ViewListener<AbstractView>() {
 
 			@Override
 			public void selectionChanged(AbstractView v) {
 				// TODO this will cause multiple notifications for one selection change
 				observable.notify(new SelectionChangedEvent<View>(View.this));
 			}
+
+			@Override
+			public void markChanged(AbstractView v) {
+				observable.notify(new MarkChangedEvent<View>(View.this));
+			}
+
+			@Override
+			public void highlightingChanged(AbstractView v) {
+				// TODO Auto-generated method stub
+				
+			}
 			
 		};
 		for (Job j : workflow.getChildren())
 		{
 			addJobView(j);
-			for (Location l : j.bindings.values())
+			for (Port p : j.getOutputPorts())
 			{
-				addLocationView(l);
+				addLocationView(p);
 			}
 		}
 		for (ConnectionKey ck : workflow.getConnections())
@@ -113,6 +127,10 @@ public class View {
 		});
 	}
 	
+	private void setWorkflowView(WorkflowView workflowView) {
+		this.workflowView = workflowView;
+	}
+
 	public JobView getJobView(Job job) {
 		return jobs.get(job);
 	}
@@ -121,15 +139,40 @@ public class View {
 		return connections.get(ck);
 	}
 	
-	public LocationView getLocationView(Location loc) {
-		return locations.get(loc);
+	public LocationView getLocationView(Port p) {
+		return variables.get(p);
 	}
+	
+	public List<AbstractView> getMarked() {
+		List<AbstractView> markedViews = new ArrayList<AbstractView>();
+		addMarked(jobs, markedViews);
+		addMarked(connections, markedViews);
+		addMarked(variables, markedViews);
+		return markedViews;
+	}
+	
+	public <T, T2 extends AbstractView> void addMarked(WeakHashMap<T,T2> whm, List<AbstractView> marked) {
+		for (T2 v : whm.values())
+			if (v.isMarked())
+				marked.add(v);
+	}
+	
+	public void clearMarked() {
+		 clearMarked(jobs);
+		 clearMarked(connections);
+		 clearMarked(variables);
+	}
+	public <T, T2 extends AbstractView> void clearMarked(WeakHashMap<T,T2> whm) {
+		for (T2 v : whm.values())
+			v.setMarked(false);
+	}
+	
 	
 	public List<AbstractView> getCurrentSelection() {
 		List<AbstractView> currentSelection = new ArrayList<AbstractView>();
 		addSelected(jobs, currentSelection);
 		addSelected(connections, currentSelection);
-		addSelected(locations, currentSelection);
+		addSelected(variables, currentSelection);
 		return currentSelection;
 	}
 	public <T, T2 extends AbstractView> void addSelected(WeakHashMap<T,T2> whm, List<AbstractView> selection) {
@@ -141,7 +184,7 @@ public class View {
 	public void clearSelection() {
 		 clearSelected(jobs);
 		 clearSelected(connections);
-		 clearSelected(locations);
+		 clearSelected(variables);
 	}
 	public <T, T2 extends AbstractView> void clearSelected(WeakHashMap<T,T2> whm) {
 		for (T2 v : whm.values())
@@ -153,25 +196,26 @@ public class View {
 	public MultiplexObserver<GlobalViewEvent<View>> getObservable() {
 		return observable;
 	}
-	private void addLocationView(Location l) {
-		locations.put(l, new LocationView());
-		locations.get(l).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
+	private void addLocationView(Port p) {
+		variables.put(p, new LocationView());
+		variables.get(p).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
 
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
-				event.doNotify(selectionChangeListener);
+				event.doNotify(viewEventListener);
 			}
 			
 		});
 	}
 	
 	private void addJobView(Job j) {
-		jobs.put(j, new JobView());
-		jobs.get(j).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
+		JobView jv = new JobView();
+		jobs.put(j, jv);
+		jv.getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
 
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
-				event.doNotify(selectionChangeListener);
+				event.doNotify(viewEventListener);
 			}
 			
 		});
@@ -183,17 +227,22 @@ public class View {
 
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
-				event.doNotify(selectionChangeListener);
+				event.doNotify(viewEventListener);
 			}
 			
 		});
 	}
+	public WorkflowView getWorkflowView() {
+		return workflowView;
+	}
+
 	public static interface GlobalViewEvent<V> {
 		void doNotify(GlobalViewListener<V> vl);
 	}
 
 	public static interface GlobalViewListener<V> {
 		void selectionChanged(V v);
+		void markChanged(V v);
 	}
 
 	public static class SelectionChangedEvent<V> implements GlobalViewEvent<V> {
@@ -206,6 +255,19 @@ public class View {
 		@Override
 		public void doNotify(GlobalViewListener<V> vl) {
 			vl.selectionChanged(v);
+		}
+	}
+	
+	public static class MarkChangedEvent<V> implements GlobalViewEvent<V> {
+		private final V v;
+
+		public MarkChangedEvent(V v) {
+			this.v = v;
+		}
+
+		@Override
+		public void doNotify(GlobalViewListener<V> vl) {
+			vl.markChanged(v);
 		}
 	}
 	

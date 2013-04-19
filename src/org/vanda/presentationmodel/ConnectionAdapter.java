@@ -2,6 +2,7 @@ package org.vanda.presentationmodel;
 
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.ConnectionCell;
+import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.PortCell;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
@@ -19,7 +20,7 @@ public class ConnectionAdapter {
 		Job sourceJob = mwf.getConnectionSource(cc).target;
 		Job targetJob = cc.target;
 		Port sourcePort = mwf.getConnectionSource(cc).targetPort;
-		Port targetPort = mwf.getConnectionSource(cc).targetPort;
+		Port targetPort = cc.targetPort;
 		JobAdapter sJA = null;
 		JobAdapter tJA = null;
 		for (JobAdapter jA : pm.getJobs()) {
@@ -32,11 +33,11 @@ public class ConnectionAdapter {
 		PortCell source = null;
 		PortCell target = null;
 		for (Cell c : sJA.getCells())
-			if (c.getType() == "PortCell") 
+			if (c.getType() == "OutPortCell") 
 				if (((PortCell) c).getPort() == sourcePort)
 					source = (PortCell) c;
 		for (Cell c : tJA.getCells())
-			if (c.getType() == "PortCell")
+			if (c.getType() == "InPortCell")
 				if (((PortCell) c).getPort() == targetPort)
 					target = (PortCell) c;
 		assert (source != null && target != null);
@@ -48,6 +49,10 @@ public class ConnectionAdapter {
 		this.visualization = visualization;
 		this.connectionKey = connectionKey;
 	}
-	
+
+	public void destroy(Graph graph) {
+		graph.getGraph().removeCells(new Object[] {visualization.getVisualization()});
+	}
+
 
 }

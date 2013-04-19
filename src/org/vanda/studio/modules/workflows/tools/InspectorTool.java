@@ -30,7 +30,8 @@ public class InspectorTool implements ToolFactory {
 		private final JEditorPane inspector;
 		private final JScrollPane therealinspector;
 		private JComponent editor;
-//		private WorkflowSelection ws;
+//		private WorkflowSelection 
+		private List<AbstractView> ws;
 		private final View view;
 
 		public Inspector(WorkflowEditor wfe) {
@@ -64,13 +65,19 @@ public class InspectorTool implements ToolFactory {
 		public void update() {
 //			WorkflowSelection ws = m.getSelection();
 			List<AbstractView> ws = view.getCurrentSelection();
-			if (ws == null)
-				ws = new WorkflowSelection(m.getRoot());
+//			if (ws == null)
+//				ws = new WorkflowSelection(m.getRoot());
 			// set inspector text
 			{
 				InspectorialVisitor visitor = new InspectorialVisitor();
 				if (ws != null) // <--- always true for now
-					ws.visit(visitor);
+				//	ws.visit(visitor);
+				{
+					for (AbstractView av : ws) {
+						av.visit(visitor, view);
+						
+					}
+				}
 				inspector.setText(visitor.getInspection());
 			}
 			// create editor
@@ -78,7 +85,14 @@ public class InspectorTool implements ToolFactory {
 				EditorialVisitor visitor = new EditorialVisitor(eefs,
 						wfe.getApplication());
 				if (ws != null) // <--- always true for now
-					ws.visit(visitor);
+//					ws.visit(visitor);
+				{
+					for (AbstractView av : ws) {
+						av.visit(visitor, view);
+					}
+					
+					
+				}
 				if (visitor.getEditor() != editor) {
 					if (editor != null) {
 						contentPane.remove(editor);
