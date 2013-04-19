@@ -57,7 +57,6 @@ public class InspectorTool implements ToolFactory {
 			this.view.getObservable().addObserver(obs);
 			this.m.getWorkflowCheckObservable().addObserver(obs);
 //			this.m.getWorkflowObservable().addObserver(obs);
-			this.view.getWorkflow().getObservable().addObserver(obs);
 //			this.m.getChildObservable().addObserver(obs);
 			this.wfe.focusToolWindow(contentPane);
 			update();

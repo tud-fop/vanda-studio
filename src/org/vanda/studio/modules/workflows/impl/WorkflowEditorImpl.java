@@ -409,7 +409,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 
 	private void recheck() {
 		try {
-			//model.checkWorkflow();
+			model.checkWorkflow();
 		} catch (Exception e) {
 			app.sendMessage(new ExceptionMessage(e));
 		}
