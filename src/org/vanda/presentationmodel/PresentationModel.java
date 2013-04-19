@@ -54,7 +54,7 @@ public class PresentationModel {
 		JobAdapter ja = new JobAdapter(job, selectLayout(job), graph);
 		jobs.add(ja);
 		graph.refresh();
-		System.out.print(job.getName());
+		System.out.println(job.getName());
 		return ja;
 	}
 
@@ -90,6 +90,7 @@ public class PresentationModel {
 		@Override
 		public void childRemoved(MutableWorkflow mwf, Job j) {
 			if (update == 0) {
+				System.out.println("job adapter removed PM");
 				removeJobAdatper(mwf, j);
 			}
 		}
@@ -104,6 +105,7 @@ public class PresentationModel {
 		@Override
 		public void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc) {
 			if (update == 0) {
+				System.out.println("connection adapter removed PM");
 				removeConnectionAdapter(mwf, cc);
 			}
 		}

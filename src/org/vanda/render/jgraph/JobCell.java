@@ -123,6 +123,7 @@ public class JobCell extends Cell {
 	@Override
 	public void onRemove(View view) {
 		if (job != null)
+			System.out.println("Job Removed JC");
 			view.getWorkflow().removeChild(job);
 	}
 

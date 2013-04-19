@@ -51,7 +51,8 @@ public class ConnectionAdapter {
 	}
 
 	public void destroy(Graph graph) {
-		graph.getGraph().removeCells(new Object[] {visualization.getVisualization()});
+		if (visualization != null)
+			graph.getGraph().removeCells(new Object[] {visualization.getVisualization()});
 	}
 
 

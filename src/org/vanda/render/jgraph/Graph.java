@@ -205,12 +205,13 @@ public final class Graph{
 					mxChildChange cc = (mxChildChange) c;
 					mxICell cell = (mxICell) cc.getChild();
 					Cell value = (Cell) gmodel.getValue(cell);
-//					boolean refreshSelection = false;
-//					if (cell == getSelectionCell()) {
-//						refreshSelection = true;
+					boolean refreshSelection = false;
+					if (cell == graph.getSelectionCell()) {
+						refreshSelection = true;
 //						if (model != null)
 //							model.setSelection(null);
-//					}
+						view.clearSelection();
+					}
 					if (cc.getPrevious() != null) {
 						// something has been removed
 						value.onRemove(view);
@@ -219,8 +220,9 @@ public final class Graph{
 					if (cc.getParent() != null
 							&& cell.getParent() == cc.getParent())
 						value.onInsert(Graph.this, cell.getParent(), cell);
-//					if (refreshSelection)
+					if (refreshSelection)
 //						setSelectionCell(cell);
+						graph.setSelectionCell(cell);
 				} else if (c instanceof mxValueChange) {
 					// not supposed to happen, or not relevant
 				} else if (c instanceof mxGeometryChange) {
@@ -278,10 +280,11 @@ public final class Graph{
 			if (! (gmodel.getValue(o) instanceof Cell))
 				continue;
 			Cell cell = (Cell) gmodel.getValue(o);
-			cell.setSelection(view);
 			AbstractView v = cell.getView(view);
+			if (v != null)
+				cell.setSelection(view);
 			if (v != null && toUnHighlight.contains(v))
-					toUnHighlight.remove(v);			
+				toUnHighlight.remove(v);			
 		}
 		for (AbstractView v : toUnHighlight)
 			v.setSelected(false);
@@ -300,6 +303,27 @@ public final class Graph{
 		@Override
 		public void selectionChanged(Cell c) {
 			setSelection(c);
+		}
+
+		@Override
+		public void markChanged(Cell c) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void removeCell(Cell c) {
+			mxCell cell = c.getVisualization();
+			if (cell != null) {
+				graph.getModel().beginUpdate();
+				try {
+					//graph.removeCells(new Object[] { cell });
+					graph.getModel().remove(cell);	
+				} finally {
+					graph.getModel().endUpdate();
+					graph.refresh();
+				}
+			}			
 		}
 		
 	}

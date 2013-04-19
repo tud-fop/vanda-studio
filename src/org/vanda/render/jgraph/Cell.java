@@ -96,6 +96,7 @@ public abstract class Cell {
 		void propertyChanged(C c);
 		void selectionChanged(C c);
 		void markChanged(C c);
+		void removeCell(C c);
 	}
 	
 	public static class PropertyChangedEvent<C> implements CellEvent<C> {
@@ -134,6 +135,19 @@ public abstract class Cell {
 		public void doNotify(CellListener<C> cl) {
 			cl.markChanged(c);
 		}
+		
+	}
+	
+	public static class CellRemovedEvent<C> implements CellEvent<C> {
+		private final C c;
+		public CellRemovedEvent(C c) {
+			this.c = c;
+		}
+		@Override
+		public void doNotify(CellListener<C> cl) {
+			cl.removeCell(c);
+		}
+		
 		
 	}
 

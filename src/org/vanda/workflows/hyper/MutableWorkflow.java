@@ -143,8 +143,10 @@ public final class MutableWorkflow implements JobListener<Job> {
 	public void removeConnection(ConnectionKey cc) {
 		beginUpdate();
 		try {
-			Location old = cc.target.bindings.remove(cc.targetPort);
-			if (old != null)
+			Location old = null;
+			if (cc.target.isInserted())
+				old = cc.target.bindings.remove(cc.targetPort);
+			//if (old != null)
 				events.add(new Workflows.ConnectionRemovedEvent<MutableWorkflow>(
 						this, cc));
 		} finally {

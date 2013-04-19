@@ -92,16 +92,21 @@ public class ConnectionCell extends Cell {
 
 	@Override
 	public void setSelection(View view) {
-		// TODO Auto-generated method stub
-		
+		if (connectionKey != null)
+			view.getConnectionView(connectionKey).setSelected(true);
+		else 
+			view.clearSelection();
 	}
 
 	@Override
 	public void onRemove(View view) {
+		System.out.println("remove Connection ConCell");
 		if (connectionKey != null) {
-			if (connectionKey.target.isInserted()) // TODO it could be necessary to do more checks here
+			//if (connectionKey.target.isInserted()) // TODO it could be necessary to do more checks here
 				view.getWorkflow().removeConnection(connectionKey);
 		}
+		//visualization.removeFromParent();
+		getObservable().notify(new CellRemovedEvent<Cell>(this));
 	}
 
 	@Override
@@ -123,6 +128,7 @@ public class ConnectionCell extends Cell {
 						.getParent(target));
 
 				connectionKey = new ConnectionKey(tparval.job, tval.port);
+				visualization = (mxCell) cell;
 				
 				//Create ConnectionAdapter
 				PresentationModel pm = (PresentationModel) 
