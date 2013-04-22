@@ -26,12 +26,16 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.vanda.presentationmodel.PresentationModel;
+import org.vanda.render.jgraph.Cell;
+import org.vanda.render.jgraph.ConnectionCell;
+import org.vanda.render.jgraph.JobCell;
+import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.render.jgraph.mxDropTargetListener;
 import org.vanda.studio.app.Application;
-import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
+//import org.vanda.studio.modules.workflows.jgraph.ConnectionAdapter;
 //import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
-import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
-import org.vanda.studio.modules.workflows.jgraph.WorkflowAdapter;
+//import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
+//import org.vanda.studio.modules.workflows.jgraph.WorkflowAdapter;
 //import org.vanda.studio.modules.workflows.jgraph.mxDropTargetListener;
 import org.vanda.studio.modules.workflows.model.Model;
 //import org.vanda.studio.modules.workflows.model.Model.SingleObjectSelection;
@@ -235,8 +239,10 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 				PopupMenu menu = null;
 
 				// create connection specific context menu
-				if (value instanceof ConnectionAdapter) {
-					menu = new PopupMenu(((ConnectionAdapter) value).toString());
+				Cell pmCell = (Cell) value;
+//				if (value instanceof ConnectionAdapter) {
+				if (value != null && pmCell.getType() == "ConnectionCell") {
+					menu = new PopupMenu(((ConnectionCell) pmCell).toString());
 					// menu = new PopupMenu(cell.toString());
 
 					@SuppressWarnings("serial")
@@ -253,8 +259,9 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 				}
 
 				// create node specific context menu
-				if (value instanceof JobAdapter) {
-					menu = new PopupMenu(((JobAdapter) value).getName());
+//				if (value instanceof JobAdapter) {
+				if (value != null && pmCell.getType() == "JobCell") {
+					menu = new PopupMenu(((JobCell) pmCell).getLabel());
 					@SuppressWarnings("serial")
 					JMenuItem item = new JMenuItem("Remove Job") {
 						@Override
@@ -469,7 +476,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 					mxCellState state = graph.getView().getState(cell);
 
 					if (state != null
-							&& graph.getModel().getValue(cell) instanceof WorkflowAdapter) {
+							&& graph.getModel().getValue(cell) instanceof WorkflowCell) {
 						state = graph.getView().getState(
 								graph.getModel().getParent(cell));
 
@@ -523,7 +530,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 			mxIGraphModel m = graphComponent.getGraph().getModel();
 
 			// if mouse is over an inner workflow's title bar
-			if (cell != null && m.getValue(cell) instanceof WorkflowAdapter) {
+			if (cell != null && m.getValue(cell) instanceof WorkflowCell) {
 
 				// check if the fold button of its parent job was hit and adjust
 				// cursor image
@@ -544,7 +551,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 
 			// if an inner workflow cell was clicked
 			if (cell != null
-					&& graphComponent.getGraph().getModel().getValue(cell) instanceof WorkflowAdapter) {
+					&& graphComponent.getGraph().getModel().getValue(cell) instanceof WorkflowCell) {
 
 				// if mouse is currently over the fold button of the parent job,
 				// collapse or expand parent

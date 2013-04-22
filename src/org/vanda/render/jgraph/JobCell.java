@@ -129,10 +129,19 @@ public class JobCell extends Cell {
 
 	@Override
 	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
+		// the following is necessary if the job is not in the model
+		// which happens in case of drag&drop (as opposed to render).
+		if (!job.isInserted()) {
+			mxGeometry geo = cell.getGeometry();
+			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
+					geo.getHeight() };
+			setDimensions(dim);
+			graph.getView().getWorkflow().addChild(job);
+		}
 		for (int i = 0; i < getVisualization().getChildCount(); ++i ) {
 			((Cell) getVisualization().getChildAt(i).getValue()).updateLocation(job);
 		}
-		
+	
 	}
 
 	@Override

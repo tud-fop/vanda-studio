@@ -307,8 +307,7 @@ public final class Graph{
 
 		@Override
 		public void markChanged(Cell c) {
-			// TODO Auto-generated method stub
-			
+			refresh();
 		}
 
 		@Override

@@ -24,6 +24,10 @@ public class ConnectionCell extends Cell {
 
 		@Override
 		public void markChanged(AbstractView v) {
+			if (v.isHighlighted())
+				visualization.setStyle("highlightededge");
+			else
+				visualization.setStyle("defaultEdge");
 			getObservable().notify(new MarkChangedEvent<Cell>(ConnectionCell.this));
 		}
 
@@ -102,11 +106,11 @@ public class ConnectionCell extends Cell {
 	public void onRemove(View view) {
 		System.out.println("remove Connection ConCell");
 		if (connectionKey != null) {
-			//if (connectionKey.target.isInserted()) // TODO it could be necessary to do more checks here
+			if (connectionKey.target.isInserted()) // TODO it could be necessary to do more checks here
 				view.getWorkflow().removeConnection(connectionKey);
 		}
 		//visualization.removeFromParent();
-		getObservable().notify(new CellRemovedEvent<Cell>(this));
+		//getObservable().notify(new CellRemovedEvent<Cell>(this));
 	}
 
 	@Override

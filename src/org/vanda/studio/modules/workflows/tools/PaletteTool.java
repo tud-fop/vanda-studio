@@ -19,7 +19,6 @@ import javax.swing.JTextField;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.vanda.presentationmodel.PresentationModel;
 import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 //import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.jgraph.mxDragGestureListener;

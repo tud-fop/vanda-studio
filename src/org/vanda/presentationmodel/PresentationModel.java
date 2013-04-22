@@ -44,7 +44,7 @@ public class PresentationModel {
 	}
 	
 	public JobAdapter addJobAdapter(Job job) {
-		if (!view.getWorkflow().getChildren().contains(job)) {
+		if (!job.isInserted()) {
 			view.getWorkflow().addChild(job);
 		}
 		for (JobAdapter ja : jobs) {
@@ -76,9 +76,7 @@ public class PresentationModel {
 
 		@Override
 		public void childAdded(MutableWorkflow mwf, Job j) {
-			if (update == 0) {
-				addJobAdapter(j);
-			}
+			addJobAdapter(j);
 		}
 
 		@Override
@@ -97,9 +95,7 @@ public class PresentationModel {
 
 		@Override
 		public void connectionAdded(MutableWorkflow mwf, ConnectionKey cc) {
-			if (update == 0) {
-				addConnectionAdapter(mwf, cc);
-			}
+			addConnectionAdapter(mwf, cc);
 		}
 
 		@Override
