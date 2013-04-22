@@ -3,13 +3,18 @@ package org.vanda.datasources;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
@@ -126,6 +131,17 @@ public class DirectoryDataSource implements DataSource {
 			pan = new JPanel(new GridBagLayout());
 			JLabel lFolder = new JLabel("Folder", JLabel.TRAILING);
 			tFolder = new JTextField(dir.getAbsolutePath());
+			JButton bFolder = new JButton(new AbstractAction("..."){
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					JFileChooser fc = new JFileChooser(new File(tFolder.getText()));
+					fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			        if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			            File file = fc.getSelectedFile();
+			            tFolder.setText(file.getAbsolutePath());
+			        }
+				}
+			});
 			JLabel lFilter = new JLabel("Filter", JLabel.TRAILING);
 			tFilter = new JTextField(filter);
 			JLabel lType = new JLabel("Type", JLabel.TRAILING);
@@ -155,6 +171,13 @@ public class DirectoryDataSource implements DataSource {
 			gbc.weightx = 1;
 			pan.add(tFolder, gbc);
 			
+			gbc.gridx = 2;
+			gbc.weightx = 0;
+			pan.add(bFolder, gbc);
+			
+			gbc.gridwidth = 2;
+			gbc.weightx = 1;
+			gbc.gridx = 1;
 			gbc.gridy = 1;
 			pan.add(tFilter, gbc);
 			
