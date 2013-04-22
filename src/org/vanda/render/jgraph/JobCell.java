@@ -13,6 +13,7 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
+import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.view.mxGraph;
 
 public class JobCell extends Cell {
@@ -30,6 +31,13 @@ public class JobCell extends Cell {
 
 		@Override
 		public void markChanged(AbstractView v) {
+			if (v.isMarked()) {
+				visualization.setStyle(mxStyleUtils.addStylename(visualization.getStyle(),
+					"highlighted"));
+			} else {
+				visualization.setStyle(mxStyleUtils.removeStylename(visualization.getStyle(),
+					"highlighted"));
+			}
 			getObservable().notify(new MarkChangedEvent<Cell> (JobCell.this));
 		}
 

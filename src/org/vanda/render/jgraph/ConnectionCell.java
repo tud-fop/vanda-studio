@@ -10,6 +10,7 @@ import org.vanda.workflows.hyper.ConnectionKey;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
+import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.view.mxGraph;
 
 public class ConnectionCell extends Cell {
@@ -24,10 +25,15 @@ public class ConnectionCell extends Cell {
 
 		@Override
 		public void markChanged(AbstractView v) {
-			if (v.isHighlighted())
-				visualization.setStyle("highlightededge");
-			else
-				visualization.setStyle("defaultEdge");
+			if (v.isMarked())
+				visualization.setStyle(mxStyleUtils.addStylename(visualization.getStyle(),
+						"highlightededge"));
+			else 
+			{
+				String st = mxStyleUtils.removeStylename(visualization.getStyle(),
+						"highlightededge");	
+				visualization.setStyle(st);	
+			}
 			getObservable().notify(new MarkChangedEvent<Cell>(ConnectionCell.this));
 		}
 
