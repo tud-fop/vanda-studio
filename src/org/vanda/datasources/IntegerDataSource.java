@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -13,6 +14,7 @@ import javax.swing.event.ChangeListener;
 
 import org.vanda.datasources.Elements.ElementEvent;
 import org.vanda.datasources.Elements.ElementListener;
+import org.vanda.studio.app.Application;
 import org.vanda.types.CompositeType;
 import org.vanda.types.Type;
 import org.vanda.util.Observer;
@@ -104,5 +106,28 @@ public class IntegerDataSource implements DataSource {
 	public Type getType(Element element) {
 		return TYPE;
 	}
+	
+	public class IntegerDataSourceEditor implements DataSourceEditor {
 
+		@Override
+		public JComponent getComponent() {
+			return new JLabel("IntegerDataSource");
+		}
+
+		@Override
+		public DataSource getDataSource() {
+			return IntegerDataSource.this;
+		}
+
+		@Override
+		public void writeChange() {
+			// do nothing since IntegerDataSource is not mutable
+		}
+		
+	}
+
+	@Override
+	public DataSourceEditor createEditor(Application app) {
+		return new IntegerDataSourceEditor();
+	}
 }

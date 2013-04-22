@@ -1,15 +1,25 @@
 package org.vanda.datasources;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.io.File;
 import java.io.FilenameFilter;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.vanda.datasources.Elements.ElementEvent;
 import org.vanda.datasources.Elements.ElementListener;
+import org.vanda.studio.app.Application;
 import org.vanda.types.Type;
 import org.vanda.util.Observer;
 
@@ -25,7 +35,8 @@ public class DirectoryDataSource implements DataSource {
 		this.dir = new File(path);
 	}
 
-	public class DirectoryElementSelector implements ElementSelector, Observer<ElementEvent<Element>>, ElementListener<Element> {
+	public class DirectoryElementSelector implements ElementSelector,
+			Observer<ElementEvent<Element>>, ElementListener<Element> {
 
 		private Element element;
 		private JList selector;
@@ -101,6 +112,78 @@ public class DirectoryDataSource implements DataSource {
 	@Override
 	public Type getType(Element element) {
 		return type;
+	}
+
+	public class DirectoryDataSourceEditor implements DataSourceEditor {
+
+		private JPanel pan;
+		private JTextField tFolder;
+		private JTextField tFilter;
+		private JComboBox cType;
+		
+
+		public DirectoryDataSourceEditor(Application app) {
+			pan = new JPanel(new GridBagLayout());
+			JLabel lFolder = new JLabel("Folder", JLabel.TRAILING);
+			tFolder = new JTextField(dir.getAbsolutePath());
+			JLabel lFilter = new JLabel("Filter", JLabel.TRAILING);
+			tFilter = new JTextField(filter);
+			JLabel lType = new JLabel("Type", JLabel.TRAILING);
+			cType = new JComboBox(app.getTypes().toArray());
+			cType.setSelectedItem(type);
+
+			pan.add(tFolder);
+			pan.add(tFilter);
+			
+			pan.add(cType);
+
+			GridBagConstraints gbc;
+			gbc = new GridBagConstraints(0, 0, 1, 1, 0, 0,
+					GridBagConstraints.ABOVE_BASELINE_LEADING,
+					GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0);
+			
+			pan.add(lFolder, gbc);
+			
+			gbc.gridy = 1;
+			pan.add(lFilter, gbc);
+			
+			gbc.gridy = 2;
+			pan.add(lType, gbc);
+			
+			gbc.gridy = 0;
+			gbc.gridx = 1;
+			gbc.weightx = 1;
+			pan.add(tFolder, gbc);
+			
+			gbc.gridy = 1;
+			pan.add(tFilter, gbc);
+			
+			gbc.gridy = 2;
+			pan.add(cType, gbc);
+		}
+
+		@Override
+		public JComponent getComponent() {
+			return pan;
+		}
+
+		@Override
+		public DataSource getDataSource() {
+			return DirectoryDataSource.this;
+		}
+
+		@Override
+		public void writeChange() {
+			dir = new File(tFolder.getText());
+			filter = tFilter.getText();
+			type = (Type) cType.getSelectedItem();
+		}
+
+	}
+
+	@Override
+	public DataSourceEditor createEditor(Application app) {
+		return new DirectoryDataSourceEditor(app);
 	}
 
 }
