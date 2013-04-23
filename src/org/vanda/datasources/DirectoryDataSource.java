@@ -119,7 +119,7 @@ public class DirectoryDataSource implements DataSource {
 		return type;
 	}
 
-	public class DirectoryDataSourceEditor implements DataSourceEditor {
+	public class DirectoryDataSourceEditor extends DataSourceEditor {
 
 		private JPanel pan;
 		private JTextField tFolder;
@@ -196,7 +196,7 @@ public class DirectoryDataSource implements DataSource {
 		}
 
 		@Override
-		public void writeChange() {
+		public void write() {
 			dir = new File(tFolder.getText());
 			filter = tFilter.getText();
 			type = (Type) cType.getSelectedItem();

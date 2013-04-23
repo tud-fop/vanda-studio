@@ -107,7 +107,7 @@ public class IntegerDataSource implements DataSource {
 		return TYPE;
 	}
 	
-	public class IntegerDataSourceEditor implements DataSourceEditor {
+	public class IntegerDataSourceEditor extends DataSourceEditor {
 
 		@Override
 		public JComponent getComponent() {
@@ -120,8 +120,8 @@ public class IntegerDataSource implements DataSource {
 		}
 
 		@Override
-		public void writeChange() {
-			// do nothing since IntegerDataSource is not mutable
+		public void write() {
+			// Do nothing.
 		}
 		
 	}

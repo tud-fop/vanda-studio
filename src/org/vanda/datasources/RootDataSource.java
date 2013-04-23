@@ -165,7 +165,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 		return ds != null ? ds.getValue(element) : "";
 	}
 
-	public class RootDataSourceEditor implements DataSourceEditor {
+	public class RootDataSourceEditor extends DataSourceEditor {
 
 		private JPanel editor;
 		private DataSourceEditor innerEditor;
@@ -295,11 +295,12 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 		}
 
 		@Override
-		public void writeChange() {
-			innerEditor.writeChange();
-			//TODO write to file
-			sources.remove(lDataSources.getSelectedValue());
-			sources.put(aId.getText(), innerEditor.getDataSource());
+		public void write() {
+			if (innerEditor != null) {
+				innerEditor.writeChange();
+				sources.remove(lDataSources.getSelectedValue());
+				sources.put(aId.getText(), innerEditor.getDataSource());
+			}
 			notifyMe();
 		}
 
