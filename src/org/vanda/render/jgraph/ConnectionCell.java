@@ -110,7 +110,7 @@ public class ConnectionCell extends Cell {
 
 	@Override
 	public void onRemove(View view) {
-		System.out.println("remove Connection ConCell");
+		System.out.println("onRemove Connection ConCell");
 		if (connectionKey != null) {
 			if (connectionKey.target.isInserted()) // TODO it could be necessary to do more checks here
 				view.getWorkflow().removeConnection(connectionKey);

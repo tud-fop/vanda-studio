@@ -144,6 +144,7 @@ public class JobCell extends Cell {
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 					geo.getHeight() };
 			setDimensions(dim);
+			job.setDimensions(dim);
 			graph.getView().getWorkflow().addChild(job);
 		}
 		for (int i = 0; i < getVisualization().getChildCount(); ++i ) {
@@ -156,22 +157,21 @@ public class JobCell extends Cell {
 	public void onResize(mxGraph graph) {
 		mxIGraphModel model = graph.getModel();
 		mxGeometry geo = model.getGeometry(visualization);
-		//if (wa.getChild(job) == cell) {
-			if (graph.isAutoSizeCell(visualization))
-				graph.updateCellSize(visualization, true); // was: resizeToFitLabel(cell)
-			preventTooSmallNested(graph, visualization);
-			graph.extendParent(visualization); // was: resizeParentOfCell(cell)
+		if (graph.isAutoSizeCell(visualization))
+			graph.updateCellSize(visualization, true); // was: resizeToFitLabel(cell)
+		preventTooSmallNested(graph, visualization);
+		graph.extendParent(visualization); // was: resizeParentOfCell(cell)
 
-			if (geo.getX() != getX() || geo.getY() != getY()
-					|| geo.getWidth() != getWidth()
-					|| geo.getHeight() != getHeight()) {
+		if (geo.getX() != getX() || geo.getY() != getY()
+				|| geo.getWidth() != getWidth()
+				|| geo.getHeight() != getHeight()) {
 
-				double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
-						geo.getHeight() };
-				setDimensions(dim);
-				sizeChanged(geo, graph, visualization);
-			}
-		//}		
+			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
+					geo.getHeight() };
+			setDimensions(dim);
+			job.setDimensions(dim);
+			sizeChanged(geo, graph, visualization);
+		}
 	}
 
 	private void sizeChanged(mxGeometry geo, mxGraph graph, mxICell cell) {

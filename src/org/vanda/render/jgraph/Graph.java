@@ -78,6 +78,7 @@ public final class Graph{
 						}
 					} });
 			((mxICell) getDefaultParent()).setValue(workflowCell);
+			workflowCell.visualization = (mxCell) getDefaultParent();
 		}
 
 		@Override

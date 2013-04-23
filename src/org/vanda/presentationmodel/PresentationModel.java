@@ -87,10 +87,7 @@ public class PresentationModel {
 
 		@Override
 		public void childRemoved(MutableWorkflow mwf, Job j) {
-			if (update == 0) {
-				System.out.println("job adapter removed PM");
-				removeJobAdatper(mwf, j);
-			}
+			removeJobAdatper(mwf, j);
 		}
 
 		@Override
@@ -100,10 +97,7 @@ public class PresentationModel {
 
 		@Override
 		public void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc) {
-			if (update == 0) {
-				System.out.println("connection adapter removed PM");
-				removeConnectionAdapter(mwf, cc);
-			}
+			removeConnectionAdapter(mwf, cc);
 		}
 
 		@Override
@@ -125,6 +119,7 @@ public class PresentationModel {
 
 	public void removeConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
 		if (connections.containsKey(cc)) {
+			System.out.println("connection adapter removed PM");
 			ConnectionAdapter ca = connections.remove(cc);
 			ca.destroy(graph);
 		}
@@ -143,6 +138,7 @@ public class PresentationModel {
 		}
 		if (toDelete != null)
 		{
+			System.out.println("job adapter removed PM");
 			jobs.remove(toDelete);
 			toDelete.destroy(graph);
 		}
