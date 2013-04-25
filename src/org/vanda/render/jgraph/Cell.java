@@ -25,6 +25,10 @@ public abstract class Cell {
 		return visualization;
 	}
 	
+	public void setVisualization(mxCell visualization) {
+		this.visualization = visualization;
+	}
+	
 	public double getX() {
 		return dimensions[0];
 	}

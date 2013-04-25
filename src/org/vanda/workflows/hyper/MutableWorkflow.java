@@ -131,6 +131,9 @@ public final class MutableWorkflow implements JobListener<Job> {
 								removeConnection(new ConnectionKey(j2, ip));
 					varSources.remove(var);
 				}
+				for (Port ip : ji.getInputPorts()) {
+					removeConnection(new ConnectionKey(ji, ip));
+				}
 				ji.uninsert();
 				events.add(new Workflows.ChildRemovedEvent<MutableWorkflow>(
 						this, ji));

@@ -16,6 +16,7 @@ import com.mxgraph.view.mxGraph;
 public class ConnectionCell extends Cell {
 	private ConnectionKey connectionKey;
 	private ConnectionViewListener connectionViewListener;
+	public Observer<ViewEvent<AbstractView>> connectionViewObserver;
 	private class ConnectionViewListener implements AbstractView.ViewListener<AbstractView> {
 	
 		@Override
@@ -153,16 +154,17 @@ public class ConnectionCell extends Cell {
 				pm.addConnectionAdapter(this, connectionKey);
 				
 				this.connectionViewListener = new ConnectionViewListener();
-				
-				// Register at ConnectionView
-				graph.getView().getConnectionView(connectionKey).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
+				this.connectionViewObserver = new Observer<ViewEvent<AbstractView>> () {
 
 					@Override
 					public void notify(ViewEvent<AbstractView> event) {
 						event.doNotify(connectionViewListener);
 					}
+				};
 					
-				});
+				
+				// Register at ConnectionView
+				graph.getView().getConnectionView(connectionKey).getObservable().addObserver(connectionViewObserver);
 				
 				// Register at Graph
 				getObservable().addObserver(new Observer<CellEvent<Cell>> () {

@@ -1,5 +1,7 @@
 package org.vanda.presentationmodel;
 
+import javax.swing.CellRendererPane;
+
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.ConnectionCell;
 import org.vanda.render.jgraph.Graph;
@@ -51,9 +53,11 @@ public class ConnectionAdapter {
 	}
 
 	public void destroy(Graph graph) {
-		if (visualization != null)
+		if (visualization != null) {
 			//graph.getGraph().removeCells(new Object[] {visualization.getVisualization()});
-			graph.getCellChangeListener().removeCell(visualization);
+			visualization.getObservable().notify(new Cell.CellRemovedEvent<Cell>(visualization));
+			//visualization.setVisualization(null);
+		}
 	}
 
 

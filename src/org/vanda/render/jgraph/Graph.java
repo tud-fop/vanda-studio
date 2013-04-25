@@ -314,13 +314,16 @@ public final class Graph{
 		@Override
 		public void removeCell(Cell c) {
 			mxCell cell = c.getVisualization();
+			c.setVisualization(null);
 			if (cell != null) {
-				graph.getModel().beginUpdate();
+				//graph.getModel().beginUpdate();
 				try {
-					//graph.removeCells(new Object[] { cell });
-					graph.getModel().remove(cell);	
+					System.out.println("Graph removes cell " + cell);
+					Object [] removed = graph.removeCells(new Object[] { cell });
+					System.out.println(removed.length);
+					//graph.getModel().remove(cell);	
 				} finally {
-					graph.getModel().endUpdate();
+					//graph.getModel().endUpdate();
 					graph.refresh();
 				}
 			}			

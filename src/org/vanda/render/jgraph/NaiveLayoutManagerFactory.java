@@ -123,37 +123,44 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 
 		@Override
 		public LayoutManagerInterface selectAlgorithmRenderer() {
-			return algorithmRenderer;
+			//return algorithmRenderer;
+			return new AlgorithmRenderer();
 		}
 
 		@Override
 		public LayoutManagerInterface selectCorpusRenderer() {
-			return corpusRenderer;
+			//return corpusRenderer;
+			return new CorpusRenderer();
 		}
 
 		@Override
 		public LayoutManagerInterface selectGrammarRenderer() {
-			return grammarRenderer;
+			//return grammarRenderer;
+			return new GrammarRenderer();
 		}
 
 		@Override
 		public LayoutManagerInterface selectOrRenderer() {
+			//return orRenderer;
 			return orRenderer;
 		}
 
 		@Override
 		public LayoutManagerInterface selectSinkRenderer() {
-			return sinkRenderer;
+			//return sinkRenderer;
+			return new SinkRenderer();
 		}
 
 		@Override
 		public LayoutManagerInterface selectLiteralRenderer() {
-			return literalRenderer;
+			//return literalRenderer;
+			return new LiteralRenderer();
 		}
 
 		@Override
 		public LayoutManagerInterface selectWorkflowRenderer() {
-			return workflowRenderer;
+			//return workflowRenderer;
+			return new WorkflowRenderer();
 		}
 	}
 
@@ -225,6 +232,8 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 				loc.setStyle("location");
 				loc.setVertex(true);
 			}
+			if (g.getGraph().isAutoSizeCell(v))
+				g.getGraph().updateCellSize(v, true);
 		}
 
 

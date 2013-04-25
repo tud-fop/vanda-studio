@@ -68,6 +68,10 @@ public class JobAdapter {
 		if (jobCell != null) {
 			graph.getGraph().removeCells(new Object[] {jobCell.getVisualization()});
 		}
+	}
+
+	public void updateLayout(Graph graph) {
+		jobCell.updateLayout(graph);
 	}	
 	
 }

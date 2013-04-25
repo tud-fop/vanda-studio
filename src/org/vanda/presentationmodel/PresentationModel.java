@@ -81,8 +81,8 @@ public class PresentationModel {
 
 		@Override
 		public void childModified(MutableWorkflow mwf, Job j) {
-//			modifyJobAdapter(j);
-//			graph.refresh();
+			modifyJobAdapter(j);
+			graph.refresh();
 		}
 
 		@Override
@@ -103,8 +103,8 @@ public class PresentationModel {
 		@Override
 		public void propertyChanged(MutableWorkflow mwf) {
 			// TODO improve
-//			if (mwf != DrecksAdapter.this.model.getRoot())
-//				graph.refresh();
+			if (mwf != PresentationModel.this.getView().getWorkflow())
+				graph.refresh();
 		}
 
 		@Override
@@ -115,6 +115,12 @@ public class PresentationModel {
 
 	public View getView() {
 		return view;
+	}
+
+	public void modifyJobAdapter(Job j) {
+		for (JobAdapter ja : jobs)
+			if (ja.getJob() == j)
+				ja.updateLayout(graph);
 	}
 
 	public void removeConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
