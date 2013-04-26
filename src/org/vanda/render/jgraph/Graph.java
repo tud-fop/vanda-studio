@@ -134,13 +134,13 @@ public final class Graph{
 		@Override
 		public boolean isValidSource(Object cell) {
 			return super.isValidSource(cell)
-					&& (cell == null || ((Cell) ((mxCell) cell).getValue()).getType() == "OutPortCell");
+					&& (cell == null || ((Cell) ((mxCell) cell).getValue()).getType().equals("OutPortCell"));
 		}
 
 		@Override
 		public boolean isValidTarget(Object cell) {
 			return super.isValidSource(cell) /* sic!! */
-					&& (cell == null || ((Cell) ((mxCell) cell).getValue()).getType() == "InPortCell");
+					&& (cell == null || ((Cell) ((mxCell) cell).getValue()).getType().equals("InPortCell"));
 		}
 
 		@Override

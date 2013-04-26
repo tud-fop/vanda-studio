@@ -24,7 +24,7 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 	protected LayoutManagerInterface sinkRenderer = new SinkRenderer();
 	protected LayoutManagerInterface workflowRenderer = new WorkflowRenderer();
 	protected LayoutManagerInterface literalRenderer = new LiteralRenderer();
-	protected LayoutManagerInterface[] renderers  = { corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
+	protected LayoutManagerInterface[] renderers  = { algorithmRenderer, corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
 			workflowRenderer, literalRenderer };
 	protected mxStylesheet staticStylesheet;
 	protected int refCount = 0;
@@ -164,7 +164,7 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		}
 	}
 
-	protected class DefaultRenderer implements LayoutManagerInterface {
+	protected abstract class DefaultRenderer implements LayoutManagerInterface {
 		protected JobCell jobCell;
 		protected WeakHashMap<Integer, PortCell> inputs = new WeakHashMap<Integer, PortCell>();
 		protected WeakHashMap<Integer, PortCell> outputs = new WeakHashMap<Integer,PortCell>();
@@ -181,13 +181,13 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 
 		@Override
 		public void register(Cell cell) {
-			if (cell.getType() == "JobCell")
+			if (cell.getType().equals("JobCell"))
 				jobCell = (JobCell) cell;
-			else if (cell.getType() == "InPortCell")
+			else if (cell.getType().equals("InPortCell"))
 				inputs.put(inputs.size() + 1, (PortCell) cell);
-			else if (cell.getType() == "OutPortCell")
+			else if (cell.getType().equals("OutPortCell"))
 				outputs.put(outputs.size() + 1, (PortCell) cell);
-			else if (cell.getType() == "LocationCell")
+			else if (cell.getType().equals("LocationCell"))
 				locations.put(locations.size() + 1, (LocationCell) cell);
 		}
 
@@ -196,7 +196,8 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		public void setUpLayout(Graph g) {
 			mxCell v = jobCell.getVisualization();
 			v.setStyle(getStyleName());
-//			System.out.print(getStyleName());
+			
+			System.out.print(getStyleName());
 			v.setConnectable(false);
 			v.setGeometry(new mxGeometry(jobCell.getX(), jobCell.getY(), jobCell.getWidth(), jobCell.getHeight()));
 			v.setVertex(true);
@@ -232,17 +233,7 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 				loc.setStyle("location");
 				loc.setVertex(true);
 			}
-			if (g.getGraph().isAutoSizeCell(v))
-				g.getGraph().updateCellSize(v, true);
 		}
-
-
-		@Override
-		public String getStyleName() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 
 	}
 
@@ -250,6 +241,7 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		@Override
 		public String getStyleName() {
 			return "algorithm";
+			//return "";
 		}
 
 	}
