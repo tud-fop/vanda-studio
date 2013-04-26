@@ -23,7 +23,6 @@ public class PresentationModel {
 	protected final Graph graph;
 	protected final WorkflowCell workflowCell;
 	private final WorkflowListener workflowListener;
-	private int update = 0;
 	List<JobAdapter> jobs;
 	Map<ConnectionKey, ConnectionAdapter> connections;
 	View view;
@@ -32,11 +31,9 @@ public class PresentationModel {
 	//static final Map<String, LayoutManager> layouts = null; //TODO define some Layouts
 	
 	void beginUpdate() {
-		update++;
 	}
 	
 	void endUpdate() {
-		update--;
 	}
 	
 	public Graph getVisualization () {

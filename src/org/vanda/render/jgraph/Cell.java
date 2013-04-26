@@ -61,36 +61,6 @@ public abstract class Cell {
 	public class CellObservable extends MultiplexObserver<CellEvent<Cell>> {
 		
 	}
-	/*public class CellObservable implements org.vanda.util.Observable<CellEvent<Cell>> {
-		
-		protected ArrayList<Observer<? super CellEvent<Cell>>> observers;
-		public CellObservable() {
-			observers = new ArrayList<Observer<? super CellEvent<Cell>>>();
-		}
-		@Override
-		public void addObserver(Observer<? super CellEvent<Cell>> o) {
-			if (o == null)
-				throw new IllegalArgumentException("observer must not be null");
-			if (!observers.add(o))
-				throw new UnsupportedOperationException("cannot add observer twice");
-		
-			
-		}
-
-		@Override
-		public void removeObserver(Observer<? super CellEvent<Cell>> o) {
-			if (o == null)
-				throw new IllegalArgumentException("observer must not be null");
-			if (!observers.remove(o))
-				throw new UnsupportedOperationException("attempt to remove unregistered observer");
-			
-		}
-		public void notify(CellEvent<Cell> event) {
-				for (Observer<? super CellEvent<Cell>> o : observers)
-					o.notify(event);
-		}
-		
-	}*/
 	
 	public static interface CellEvent<C> {
 		void doNotify(CellListener<C> cl);

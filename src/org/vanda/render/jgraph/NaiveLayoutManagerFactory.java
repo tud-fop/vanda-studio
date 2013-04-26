@@ -123,43 +123,36 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 
 		@Override
 		public LayoutManagerInterface selectAlgorithmRenderer() {
-			//return algorithmRenderer;
 			return new AlgorithmRenderer();
 		}
 
 		@Override
 		public LayoutManagerInterface selectCorpusRenderer() {
-			//return corpusRenderer;
 			return new CorpusRenderer();
 		}
 
 		@Override
 		public LayoutManagerInterface selectGrammarRenderer() {
-			//return grammarRenderer;
 			return new GrammarRenderer();
 		}
 
 		@Override
 		public LayoutManagerInterface selectOrRenderer() {
-			//return orRenderer;
 			return orRenderer;
 		}
 
 		@Override
 		public LayoutManagerInterface selectSinkRenderer() {
-			//return sinkRenderer;
 			return new SinkRenderer();
 		}
 
 		@Override
 		public LayoutManagerInterface selectLiteralRenderer() {
-			//return literalRenderer;
 			return new LiteralRenderer();
 		}
 
 		@Override
 		public LayoutManagerInterface selectWorkflowRenderer() {
-			//return workflowRenderer;
 			return new WorkflowRenderer();
 		}
 	}
@@ -171,7 +164,6 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		protected WeakHashMap<Integer, LocationCell> locations = new WeakHashMap<Integer, LocationCell>();
 		
 		public void addStyle(Map<String, Object> style) {
-			// style.put(mxConstants.STYLE_AUTOSIZE, "0");
 			style.put(mxConstants.STYLE_SPACING, 14);
 			style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
 			style.put(mxConstants.STYLE_AUTOSIZE, "1");
@@ -241,7 +233,6 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		@Override
 		public String getStyleName() {
 			return "algorithm";
-			//return "";
 		}
 
 	}

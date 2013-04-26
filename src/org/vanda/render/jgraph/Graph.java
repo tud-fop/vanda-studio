@@ -125,8 +125,7 @@ public final class Graph{
 
 		@Override
 		public boolean isCellSelectable(Object cell) {
-			if (getModel().getValue(cell) instanceof PortCell
-					&& !(getModel().getValue(cell) instanceof LocationCell))
+			if (((Cell) getModel().getValue(cell)).getType().equals("InPortCell"))
 				return false;
 			return super.isCellSelectable(cell);
 		}
@@ -147,7 +146,7 @@ public final class Graph{
 		public boolean isValidDropTarget(Object cell, Object[] cells) {
 			// return ((mxCell) cell).getValue() instanceof WorkflowAdapter;
 			// return super.isValidDropTarget(cell, cells);
-			return ((mxCell) cell).getValue() instanceof WorkflowCell
+			return ((Cell) ((mxCell) cell).getValue()).getType().equals("WorkflowCell")
 					&& super.isValidDropTarget(cell, cells);
 		}
 
@@ -278,8 +277,8 @@ public final class Graph{
 	private void updateSelection(mxIGraphModel gmodel, Object[] cells) {
 		List <AbstractView> toUnHighlight = view.getCurrentSelection();
 		for (Object o : cells) {
-			if (! (gmodel.getValue(o) instanceof Cell))
-				continue;
+//			if (! (gmodel.getValue(o) instanceof Cell))
+//				continue;
 			Cell cell = (Cell) gmodel.getValue(o);
 			AbstractView v = cell.getView(view);
 			if (v != null)
