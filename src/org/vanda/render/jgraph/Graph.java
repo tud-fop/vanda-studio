@@ -313,20 +313,28 @@ public final class Graph{
 
 		@Override
 		public void removeCell(Cell c) {
-			mxCell cell = c.getVisualization();
-			c.setVisualization(null);
-			if (cell != null) {
-				//graph.getModel().beginUpdate();
-				try {
-					System.out.println("Graph removes cell " + cell);
-					Object [] removed = graph.removeCells(new Object[] { cell });
-					System.out.println(removed.length);
-					//graph.getModel().remove(cell);	
-				} finally {
-					//graph.getModel().endUpdate();
-					graph.refresh();
-				}
-			}			
+//			mxCell cell = c.getVisualization();
+//			c.setVisualization(null);
+//			if (cell != null) {
+//				//graph.getModel().beginUpdate();
+//				try {
+//					mxICell parent = cell.getParent();
+//					System.out.println("Graph removes cell " + cell);
+//					Object [] removed = graph.removeCells(new Object[] { cell });
+//					System.out.println(removed.length);
+//					System.out.println("Model contains cell: " + graph.getModel().contains(cell));
+//					boolean child = false;
+//					for (int i = 0; i < parent.getChildCount(); ++i) 
+//						if (parent.getChildAt(i) == cell )
+//							child = true;
+//					System.out.println("Parent has child cell: " + child );
+//					
+//					//graph.getModel().remove(cell);	
+//				} finally {
+//					//graph.getModel().endUpdate();
+//					graph.refresh();
+//				}
+//			}
 		}
 		
 	}

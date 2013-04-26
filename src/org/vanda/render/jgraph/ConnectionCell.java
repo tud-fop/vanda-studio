@@ -146,12 +146,13 @@ public class ConnectionCell extends Cell {
 						((WorkflowCell) sparval.getVisualization()
 								.getParent().getValue()).getPresentationModel();
 				
+				// Add Connection to PM 
+				pm.addConnectionAdapter(this, connectionKey);
+								
 				// Add Connection to Workflow
 				graph.getView().getWorkflow().addConnection(connectionKey, 
 							sparval.job.bindings.get(sval.port));
 				
-				// Add Connection to PM 
-				pm.addConnectionAdapter(this, connectionKey);
 				
 				this.connectionViewListener = new ConnectionViewListener();
 				this.connectionViewObserver = new Observer<ViewEvent<AbstractView>> () {
