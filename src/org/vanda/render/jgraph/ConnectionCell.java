@@ -6,6 +6,8 @@ import org.vanda.view.AbstractView;
 import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.view.View;
 import org.vanda.workflows.hyper.ConnectionKey;
+import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.Workflows;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
@@ -141,19 +143,16 @@ public class ConnectionCell extends Cell {
 				connectionKey = new ConnectionKey(tparval.job, tval.port);
 				visualization = (mxCell) cell;
 				
-				//Create ConnectionAdapter
+				// Add ConnectionAdapter to PM 
 				PresentationModel pm = (PresentationModel) 
 						((WorkflowCell) sparval.getVisualization()
 								.getParent().getValue()).getPresentationModel();
-				
-				// Add Connection to PM 
-				pm.addConnectionAdapter(this, connectionKey);
 								
-				// Add Connection to Workflow
-				graph.getView().getWorkflow().addConnection(connectionKey, 
-							sparval.job.bindings.get(sval.port));
+				pm.addConnectionAdapter(this, connectionKey);
 				
-				
+				// Create ConnectionView
+				graph.getView().workflowListener.connectionAdded(graph.getView().getWorkflow(), connectionKey);
+							
 				this.connectionViewListener = new ConnectionViewListener();
 				this.connectionViewObserver = new Observer<ViewEvent<AbstractView>> () {
 
@@ -162,12 +161,12 @@ public class ConnectionCell extends Cell {
 						event.doNotify(connectionViewListener);
 					}
 				};
-					
 				
 				// Register at ConnectionView
 				graph.getView().getConnectionView(connectionKey).getObservable().addObserver(connectionViewObserver);
+									
 				
-				// Register at Graph
+				// register graph for cell changes
 				getObservable().addObserver(new Observer<CellEvent<Cell>> () {
 
 					@Override
@@ -176,6 +175,12 @@ public class ConnectionCell extends Cell {
 					}
 					
 				});
+				
+				// Add Connection to Workflow
+				// This is done last, because it will trigger the typecheck, 
+				// which requires the ConnectionView to work properly!
+				graph.getView().getWorkflow().addConnection(connectionKey, 
+							sparval.job.bindings.get(sval.port));
 				
 
 			}

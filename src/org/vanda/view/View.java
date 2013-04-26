@@ -27,7 +27,7 @@ public class View {
 	public MutableWorkflow getWorkflow() {
 		return workflow;
 	}
-	protected class WorkflowListener implements
+	public class WorkflowListener implements
 	Workflows.WorkflowListener<MutableWorkflow> {
 
 		@Override
@@ -76,7 +76,7 @@ public class View {
 	WeakHashMap<Job, JobView> jobs;
 	WeakHashMap<ConnectionKey, ConnectionView> connections;
 	WeakHashMap<Port, LocationView> variables;
-	WorkflowListener workflowListener;
+	public WorkflowListener workflowListener;
 	ViewListener<AbstractView> viewEventListener;
 	
 	public View (MutableWorkflow workflow) {
@@ -222,16 +222,19 @@ public class View {
 	}
 	
 	private void addConnectionView(ConnectionKey cc) {
-		connections.put(cc, new ConnectionView());
-		connections.get(cc).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
-
-			@Override
-			public void notify(ViewEvent<AbstractView> event) {
-				event.doNotify(viewEventListener);
-			}
-			
-		});
+		if (! connections.containsKey(cc)) {
+			connections.put(cc, new ConnectionView());
+			connections.get(cc).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
+	
+				@Override
+				public void notify(ViewEvent<AbstractView> event) {
+					event.doNotify(viewEventListener);
+				}
+				
+			});
+		}
 	}
+		
 	public WorkflowView getWorkflowView() {
 		return workflowView;
 	}
