@@ -6,9 +6,6 @@ import org.vanda.view.AbstractView;
 import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.view.View;
 import org.vanda.workflows.hyper.ConnectionKey;
-import org.vanda.workflows.hyper.MutableWorkflow;
-import org.vanda.workflows.hyper.Workflows;
-
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
