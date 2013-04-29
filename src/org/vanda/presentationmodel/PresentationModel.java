@@ -51,7 +51,6 @@ public class PresentationModel {
 		JobAdapter ja = new JobAdapter(job, selectLayout(job), graph);
 		jobs.add(ja);
 		graph.refresh();
-		System.out.println(job.getName());
 		return ja;
 	}
 

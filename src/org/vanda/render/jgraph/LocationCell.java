@@ -45,7 +45,7 @@ public class LocationCell extends Cell {
 		locationViewListener = new LocationViewListener();
 
 		// Register at LocationView
-		g.getView().getLocationView(port).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
+		g.getView().getLocationView(variable).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
 
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
@@ -94,7 +94,7 @@ public class LocationCell extends Cell {
 
 	@Override
 	public void setSelection(View view) {
-		view.getLocationView(port).setSelected(true);	
+		view.getLocationView(variable).setSelected(true);	
 	}
 	
 	@Override
@@ -104,7 +104,7 @@ public class LocationCell extends Cell {
 
 	@Override
 	public AbstractView getView(View view) {
-		return view.getLocationView(port);
+		return view.getLocationView(variable);
 	}
 
 }

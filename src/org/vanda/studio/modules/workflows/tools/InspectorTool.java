@@ -38,7 +38,7 @@ public class InspectorTool implements ToolFactory {
 			this.wfe = wfe;
 			this.m = wfe.getModel(); // XXX better not cache this
 			this.view = wfe.getView();
-//			ws = null;
+			ws = null;
 			inspector = new JEditorPane("text/html", "");
 			inspector.setEditable(false);
 			therealinspector = new JScrollPane(inspector);

@@ -1,7 +1,7 @@
 package org.vanda.view;
 
-import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.Location;
 
 public class LocationView extends AbstractView {
 
@@ -12,11 +12,11 @@ public class LocationView extends AbstractView {
 
 	@Override
 	public void visit(SelectionVisitor sv, View view) {
-		for (Port p : view.variables.keySet())
-			if (view.getLocationView(p) == this) { 
+		for (Location l : view.variables.keySet())
+			if (view.getLocationView(l) == this) { 
 				for (Job j : view.jobs.keySet()) 
-					if (j.bindings.containsKey(p)) {
-						sv.visitVariable(j.bindings.get(p), view.getWorkflow());
+					if (j.bindings.containsValue(l)) {
+						sv.visitVariable(l, view.getWorkflow());
 						return;
 					}
 				return;

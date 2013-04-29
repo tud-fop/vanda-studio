@@ -35,7 +35,7 @@ public class View {
 			addJobView(j);
 			for (Port p : j.getOutputPorts())
 			{
-				addLocationView(p);
+				addLocationView(j.bindings.get(p));
 			}
 		}
 
@@ -75,7 +75,7 @@ public class View {
 	}
 	WeakHashMap<Job, JobView> jobs;
 	WeakHashMap<ConnectionKey, ConnectionView> connections;
-	WeakHashMap<Port, LocationView> variables;
+	WeakHashMap<Location, LocationView> variables;
 	public WorkflowListener workflowListener;
 	ViewListener<AbstractView> viewEventListener;
 	
@@ -85,7 +85,7 @@ public class View {
 		setWorkflowView(new WorkflowView());
 		jobs = new WeakHashMap<Job, JobView>();
 		connections = new WeakHashMap<ConnectionKey, ConnectionView>();
-		variables = new WeakHashMap<Port, LocationView>();
+		variables = new WeakHashMap<Location, LocationView>();
 		workflowListener = new WorkflowListener();
 		viewEventListener = new ViewListener<AbstractView>() {
 
@@ -110,9 +110,9 @@ public class View {
 		for (Job j : workflow.getChildren())
 		{
 			addJobView(j);
-			for (Port p : j.getOutputPorts())
+			for (Port p : j.getOutputPorts()) 
 			{
-				addLocationView(p);
+				addLocationView(j.bindings.get(p));
 			}
 		}
 		for (ConnectionKey ck : workflow.getConnections())
@@ -139,8 +139,8 @@ public class View {
 		return connections.get(ck);
 	}
 	
-	public LocationView getLocationView(Port p) {
-		return variables.get(p);
+	public LocationView getLocationView(Location l) {
+		return variables.get(l);
 	}
 	
 	public List<AbstractView> getMarked() {
@@ -196,9 +196,9 @@ public class View {
 	public MultiplexObserver<GlobalViewEvent<View>> getObservable() {
 		return observable;
 	}
-	private void addLocationView(Port p) {
-		variables.put(p, new LocationView());
-		variables.get(p).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
+	private void addLocationView(Location l) {
+		variables.put(l, new LocationView());
+		variables.get(l).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
 
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
