@@ -135,7 +135,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		return new Tree(st.pop());
 	}
 
-	class DragScrollListener extends MouseAdapter implements MouseWheelListener {
+	class DragScrollListener extends MouseAdapter {
 		private final Cursor defCursor = Cursor
 				.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
 		private final Cursor hndCursor = Cursor
