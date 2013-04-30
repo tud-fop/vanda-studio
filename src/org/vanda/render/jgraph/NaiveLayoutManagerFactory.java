@@ -9,6 +9,7 @@ import org.vanda.workflows.hyper.Job;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxEdgeStyle;
@@ -159,10 +160,10 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 
 	protected abstract class DefaultRenderer implements LayoutManagerInterface {
 		protected JobCell jobCell;
-		protected WeakHashMap<Integer, PortCell> inputs = new WeakHashMap<Integer, PortCell>();
-		protected WeakHashMap<Integer, PortCell> outputs = new WeakHashMap<Integer,PortCell>();
-		protected WeakHashMap<Integer, LocationCell> locations = new WeakHashMap<Integer, LocationCell>();
-		
+		//protected WeakHashMap<Integer, PortCell> inputs = new WeakHashMap<Integer, PortCell>();
+		//protected WeakHashMap<Integer, PortCell> outputs = new WeakHashMap<Integer,PortCell>();
+		//protected WeakHashMap<Integer, LocationCell> locations = new WeakHashMap<Integer, LocationCell>();
+		int inputs = 0, outputs = 0, locations = 0; 
 		public void addStyle(Map<String, Object> style) {
 			style.put(mxConstants.STYLE_SPACING, 14);
 			style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
@@ -176,11 +177,22 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 			if (cell.getType().equals("JobCell"))
 				jobCell = (JobCell) cell;
 			else if (cell.getType().equals("InPortCell"))
-				inputs.put(inputs.size() + 1, (PortCell) cell);
+			{	inputs++;
+				cell.setZ(inputs);
+				//inputs.put(inputs.size() + 1, (PortCell) cell);
+			}
 			else if (cell.getType().equals("OutPortCell"))
-				outputs.put(outputs.size() + 1, (PortCell) cell);
+			{
+				outputs++;
+				cell.setZ(outputs);
+			//	outputs.put(outputs.size() + 1, (PortCell) cell);
+			}
 			else if (cell.getType().equals("LocationCell"))
-				locations.put(locations.size() + 1, (LocationCell) cell);
+			{
+				locations++;
+				cell.setZ(locations);
+				//locations.put(locations.size() + 1, (LocationCell) cell);
+			}
 		}
 
 
@@ -188,42 +200,55 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		public void setUpLayout(Graph g) {
 			mxCell v = jobCell.getVisualization();
 			v.setStyle(getStyleName());
-			
 			v.setConnectable(false);
 			v.setGeometry(new mxGeometry(jobCell.getX(), jobCell.getY(), jobCell.getWidth(), jobCell.getHeight()));
 			v.setVertex(true);
 			if (g.getGraph().isAutoSizeCell(v))
 				g.getGraph().updateCellSize(v, true);
-			for (int i : inputs.keySet()) {
-				mxGeometry geo = new mxGeometry(0, (i)
-						/ (inputs.size() + 1.0), PORT_DIAMETER, PORT_DIAMETER);
-				geo.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
-				geo.setRelative(true);
+			
+			for (int j = 0; j < jobCell.getVisualization().getChildCount(); ++j) {
+				mxICell vis = jobCell.getVisualization().getChildAt(j);
+				Cell cell = (Cell) vis.getValue();
+				
+				// Inports
+				if (cell.getType().equals("InPortCell")) {
+					mxGeometry geo = new mxGeometry(0, (int) cell.getZ()
+							/ (inputs + 1.0), PORT_DIAMETER, PORT_DIAMETER);
+					geo.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
+					geo.setRelative(true);
 
-				mxCell port = inputs.get(i).getVisualization(); 
-				port.setGeometry(geo); 
-				port.setStyle("inport");
-				port.setVertex(true);
+					mxCell port = (mxCell) vis;
+					port.setGeometry(geo); 
+					port.setStyle("inport");
+					port.setVertex(true);
+				}  
+			    
+			    // OutPorts
+				else if (cell.getType().equals("OutPortCell")) {
+					mxGeometry geo = new mxGeometry(1, (int) cell.getZ() / (outputs + 1.0),
+							OUTPORT_DIAMETER, OUTPORT_DIAMETER);
+					geo.setOffset(new mxPoint(LOCATION_RADIUS, -OUTPORT_RADIUS));
+					geo.setRelative(true);
+					mxCell port = (mxCell) vis;
+					port.setGeometry(geo); 
+					port.setStyle("outport");
+					port.setVertex(true);
+			    }  
+			    	
+			    // Locations
+				else if (cell.getType().equals("LocationCell")) {
+					mxGeometry geo = new mxGeometry(1, (int) cell.getZ()/ (locations + 1.0), 
+							LOCATION_DIAMETER, LOCATION_DIAMETER);
+					geo.setOffset(new mxPoint(-LOCATION_RADIUS, -LOCATION_RADIUS));
+					geo.setRelative(true);
+					mxCell loc = (mxCell) vis; 
+					loc.setGeometry(geo);
+					loc.setStyle("location");
+					loc.setVertex(true);
+			    }
 			}
-			for (int i : outputs.keySet()) {
-				mxGeometry geo = new mxGeometry(1, (i) / (outputs.size() + 1.0),
-						OUTPORT_DIAMETER, OUTPORT_DIAMETER);
-				geo.setOffset(new mxPoint(LOCATION_RADIUS, -OUTPORT_RADIUS));
-				geo.setRelative(true);
-				mxCell port = outputs.get(i).getVisualization();
-				port.setGeometry(geo); 
-				port.setStyle("outport");
-				port.setVertex(true);
-			}
-			for (int i : locations.keySet()) {
-				mxGeometry geo = new mxGeometry(1, (i ) / (locations.size() + 1.0), LOCATION_DIAMETER, LOCATION_DIAMETER);
-				geo.setOffset(new mxPoint(-LOCATION_RADIUS, -LOCATION_RADIUS));
-				geo.setRelative(true);
-				mxCell loc = locations.get(i).getVisualization(); 
-				loc.setGeometry(geo);
-				loc.setStyle("location");
-				loc.setVertex(true);
-			}
+			
+
 		}
 
 	}

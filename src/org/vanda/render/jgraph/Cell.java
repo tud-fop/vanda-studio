@@ -132,5 +132,8 @@ public abstract class Cell {
 	public void updateLocation(Job job) {
 		// do Nothing
 	}
+	public void setZ(int z) {
+		this.z = z;
+	}
 	
 }
