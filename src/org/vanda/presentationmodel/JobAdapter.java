@@ -14,14 +14,12 @@ import org.vanda.workflows.hyper.Job;
 
 public class JobAdapter {
 	JobCell jobCell;
-	List<Cell> cells;
 	
 	JobAdapter(Job job, LayoutManagerInterface layoutManager, Graph graph) {
 		setUpCells(layoutManager, graph, job);
 	}
 
 	private void setUpCells(LayoutManagerInterface layoutManager, Graph g, Job job) {
-		cells = new ArrayList<Cell>();
 		g.getGraph().getModel().beginUpdate();
 		try {
 			
@@ -31,17 +29,14 @@ public class JobAdapter {
 			List<Port> in = job.getInputPorts();
 			
 			for (Port ip : in) {	
-				PortCell newPort = new PortCell(g, layoutManager, jobCell, ip, "InPortCell");
-				cells.add(newPort);
+				new PortCell(g, layoutManager, jobCell, ip, "InPortCell");
 			}
 
 			// insert a cell for every output port
 			List<Port> out = job.getOutputPorts();
 			for (Port op : out) {
-				PortCell newPort = new PortCell(g, layoutManager, jobCell, op, "OutPortCell");
-				cells.add(newPort);
-				LocationCell newLoc = new LocationCell(g, layoutManager, jobCell, op, job.bindings.get(op));
-				cells.add(newLoc);
+				new PortCell(g, layoutManager, jobCell, op, "OutPortCell");
+				new LocationCell(g, layoutManager, jobCell, op, job.bindings.get(op));
 			}
 			
 			// setup Layout
@@ -57,6 +52,9 @@ public class JobAdapter {
 	}
 
 	public List<Cell> getCells() {
+		ArrayList<Cell> cells = new ArrayList<Cell>();
+		for (int i = 0; i < jobCell.getVisualization().getChildCount(); ++i)
+			cells.add((Cell) jobCell.getVisualization().getChildAt(i).getValue());
 		return cells;
 	}
 

@@ -179,19 +179,16 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 			else if (cell.getType().equals("InPortCell"))
 			{	inputs++;
 				cell.setZ(inputs);
-				//inputs.put(inputs.size() + 1, (PortCell) cell);
 			}
 			else if (cell.getType().equals("OutPortCell"))
 			{
 				outputs++;
 				cell.setZ(outputs);
-			//	outputs.put(outputs.size() + 1, (PortCell) cell);
 			}
 			else if (cell.getType().equals("LocationCell"))
 			{
 				locations++;
 				cell.setZ(locations);
-				//locations.put(locations.size() + 1, (LocationCell) cell);
 			}
 		}
 

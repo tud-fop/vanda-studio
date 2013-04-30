@@ -15,7 +15,7 @@ import com.mxgraph.view.mxGraph;
 public class ConnectionCell extends Cell {
 	private ConnectionKey connectionKey;
 	private ConnectionViewListener connectionViewListener;
-	public Observer<ViewEvent<AbstractView>> connectionViewObserver;
+	private Observer<ViewEvent<AbstractView>> connectionViewObserver;
 	private class ConnectionViewListener implements AbstractView.ViewListener<AbstractView> {
 	
 		@Override
