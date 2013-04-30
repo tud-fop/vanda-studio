@@ -121,7 +121,6 @@ public class PresentationModel {
 
 	public void removeConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
 		if (connections.containsKey(cc)) {
-			System.out.println("connection adapter removed PM");
 			ConnectionAdapter ca = connections.remove(cc);
 			ca.destroy(graph);
 		}
@@ -140,7 +139,6 @@ public class PresentationModel {
 		}
 		if (toDelete != null)
 		{
-			System.out.println("job adapter removed PM");
 			jobs.remove(toDelete);
 			toDelete.destroy(graph);
 		}

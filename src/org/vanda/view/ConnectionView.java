@@ -6,7 +6,6 @@ public class ConnectionView extends AbstractView {
 
 	@Override
 	public void remove(View view) {
-		System.out.println("Remove in ConnectionView");
 		for (ConnectionKey ck : view.connections.keySet())
 			if (view.getConnectionView(ck) == this) {
 				view.getWorkflow().removeConnection(ck);

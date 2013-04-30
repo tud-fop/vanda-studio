@@ -6,7 +6,6 @@ public class JobView extends AbstractView {
 
 	@Override
 	public void remove(View view) {
-		System.out.println("remove Job JobView");
 		for (Job j : view.jobs.keySet())
 			if (view.getJobView(j) == this) {
 				view.getWorkflow().removeChild(j);
