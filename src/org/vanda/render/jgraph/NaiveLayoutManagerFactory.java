@@ -189,7 +189,6 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 			mxCell v = jobCell.getVisualization();
 			v.setStyle(getStyleName());
 			
-			System.out.print(getStyleName());
 			v.setConnectable(false);
 			v.setGeometry(new mxGeometry(jobCell.getX(), jobCell.getY(), jobCell.getWidth(), jobCell.getHeight()));
 			v.setVertex(true);

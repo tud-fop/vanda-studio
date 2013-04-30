@@ -295,8 +295,9 @@ public final class Graph{
 
 		@Override
 		public void propertyChanged(Cell c) {
-			if (graph.isAutoSizeCell(c))
-				graph.updateCellSize(c, true);
+			graph.getModel().setGeometry(c.getVisualization(), c.getVisualization().getGeometry());
+			if (graph.isAutoSizeCell(c.getVisualization()))
+				graph.updateCellSize(c.getVisualization(), true);
 			refresh();
 		}
 

@@ -54,12 +54,12 @@ public class JobCell extends Cell {
 			if (getX() != j.getX() || getY() != j.getY()
 					|| getWidth() != j.getWidth()
 					|| getHeight() != j.getHeight()) {
-				setDimensions(new double [] {job.getX(), job.getY(), job.getWidth(), job.getHeight()});
 				mxGeometry ng = (mxGeometry) visualization.getGeometry().clone();
 				ng.setX(j.getX());
 				ng.setY(j.getY());
 				ng.setWidth(j.getWidth());
 				ng.setHeight(j.getHeight());
+				setDimensions(new double [] {job.getX(), job.getY(), job.getWidth(), job.getHeight()});
 				visualization.setGeometry(ng);
 				getObservable().notify(new Cell.PropertyChangedEvent<Cell>(JobCell.this));
 			}
@@ -142,7 +142,7 @@ public class JobCell extends Cell {
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 					geo.getHeight() };
 			setDimensions(dim);
-			//job.setDimensions(dim);
+			job.setDimensions(dim);
 			graph.getView().getWorkflow().addChild(job);
 		}
 		for (int i = 0; i < getVisualization().getChildCount(); ++i ) {
@@ -167,19 +167,17 @@ public class JobCell extends Cell {
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 					geo.getHeight() };
 			setDimensions(dim);
-			//job.setDimensions(dim);
+			job.setDimensions(dim);
 			sizeChanged(geo, graph, visualization);
 		}
 	}
 
 	private void sizeChanged(mxGeometry geo, mxGraph graph, mxICell cell) {
 		// do nothing
-		
 	}
 
 	private void preventTooSmallNested(mxGraph graph, mxICell cell) {
 		// do nothing
-		
 	}
 
 	@Override
@@ -201,26 +199,6 @@ public class JobCell extends Cell {
 	public String getLabel() {
 		return job.getName();
 		
-	}
-
-	//TODO -> see job Listener
-	public void updateLayout(Graph graph) {
-		mxGeometry geo = visualization.getGeometry(); 
-		if (geo.getX() != job.getX() || geo.getY() != job.getY()
-				|| geo.getWidth() != job.getWidth()
-				|| geo.getHeight() != job.getHeight()) {
-			mxGeometry ng = (mxGeometry) geo.clone();
-			ng.setX(job.getX());
-			ng.setY(job.getY());
-			ng.setWidth(job.getWidth());
-			ng.setHeight(job.getHeight());
-			setDimensions(new double [] {job.getX(), job.getY(), job.getWidth(), job.getHeight()});
-			visualization.setGeometry(ng);
-		}
-		// TODO make this principled
-		if (graph.getGraph().isAutoSizeCell(visualization))
-			graph.getGraph().updateCellSize(visualization, true);
-		graph.refresh();		
 	}
 
 }

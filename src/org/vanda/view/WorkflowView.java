@@ -4,7 +4,7 @@ public class WorkflowView extends AbstractView {
 
 	@Override
 	public void remove(View view) {
-		// TODO Auto-generated method stub
+		// do nothing
 	}
 
 	@Override

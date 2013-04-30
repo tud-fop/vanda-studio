@@ -111,11 +111,9 @@ public class ConnectionCell extends Cell {
 	@Override
 	public void onRemove(View view) {
 		if (connectionKey != null) {
-			if (connectionKey.target.isInserted()) // TODO it could be necessary to do more checks here
+			if (connectionKey.target.isInserted())
 				view.getWorkflow().removeConnection(connectionKey);
 		}
-		//visualization.removeFromParent();
-		//getObservable().notify(new CellRemovedEvent<Cell>(this));
 	}
 
 	@Override
@@ -174,7 +172,7 @@ public class ConnectionCell extends Cell {
 				
 				// Add Connection to Workflow
 				// This is done last, because it will trigger the typecheck, 
-				// which requires the ConnectionView to work properly!
+				// which requires the ConnectionView to be created before
 				graph.getView().getWorkflow().addConnection(connectionKey, 
 							sparval.job.bindings.get(sval.port));
 				

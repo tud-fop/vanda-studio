@@ -66,13 +66,7 @@ public class JobAdapter {
 	
 	public void destroy(Graph graph) {
 		if (jobCell != null) {
-			Object[] removed = graph.getGraph().removeCells(new Object[] {jobCell.getVisualization()});
-			System.out.println(removed);
+			graph.getGraph().removeCells(new Object[] {jobCell.getVisualization()});
 		}
 	}
-
-	public void updateLayout(Graph graph) {
-		jobCell.updateLayout(graph);
-	}	
-	
 }

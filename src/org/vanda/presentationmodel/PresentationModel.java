@@ -77,8 +77,7 @@ public class PresentationModel {
 
 		@Override
 		public void childModified(MutableWorkflow mwf, Job j) {
-			modifyJobAdapter(j);
-			graph.refresh();
+			//do nothing
 		}
 
 		@Override
@@ -111,12 +110,6 @@ public class PresentationModel {
 
 	public View getView() {
 		return view;
-	}
-
-	public void modifyJobAdapter(Job j) {
-		for (JobAdapter ja : jobs)
-			if (ja.getJob() == j)
-				ja.updateLayout(graph);
 	}
 
 	public void removeConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {

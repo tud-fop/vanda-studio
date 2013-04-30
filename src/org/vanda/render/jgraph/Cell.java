@@ -75,6 +75,7 @@ public abstract class Cell {
 	
 	public static class PropertyChangedEvent<C> implements CellEvent<C> {
 		private final C c;
+	
 		
 		public PropertyChangedEvent(C c) {
 			this.c = c;
@@ -84,7 +85,6 @@ public abstract class Cell {
 		public void doNotify(CellListener<C> cl) {
 			cl.propertyChanged(c);
 		}
-		
 	}
 	
 	public static class SelectionChangedEvent<C> implements CellEvent<C> {
