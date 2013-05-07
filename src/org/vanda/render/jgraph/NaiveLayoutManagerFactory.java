@@ -2,8 +2,6 @@ package org.vanda.render.jgraph;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
-
 import org.vanda.workflows.elements.RendererAssortment;
 import org.vanda.workflows.hyper.Job;
 
