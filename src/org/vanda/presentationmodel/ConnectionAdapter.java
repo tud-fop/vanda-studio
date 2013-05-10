@@ -1,64 +1,24 @@
 package org.vanda.presentationmodel;
 
 import org.vanda.render.jgraph.Cell;
+import org.vanda.render.jgraph.Cell.CellEvent;
+import org.vanda.render.jgraph.Cell.SelectionChangedEvent;
 import org.vanda.render.jgraph.ConnectionCell;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.PortCell;
 import org.vanda.render.jgraph.WorkflowCell;
-import org.vanda.render.jgraph.Cell.CellEvent;
-import org.vanda.render.jgraph.Cell.SelectionChangedEvent;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
-import org.vanda.view.View;
 import org.vanda.view.AbstractView.ViewEvent;
+import org.vanda.view.View;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class ConnectionAdapter {
-	private final ConnectionKey connectionKey;
-	private final ConnectionCell visualization;
-	View view;
-	ConnectionCellListener connectionCellListener;
-	Observer<ViewEvent<AbstractView>> connectionViewObserver;
-	ConnectionViewListener connectionViewListener;
-
 	private class ConnectionCellListener implements Cell.CellListener<Cell> {
-
-		private ConnectionViewListener connectionViewListener;
-
-		@Override
-		public void propertyChanged(Cell c) {
-			// do nothing
-		}
-
-		@Override
-		public void selectionChanged(Cell c, boolean selected) {
-			// do nothing
-
-		}
-
-		@Override
-		public void markChanged(Cell c) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void removeCell(Cell c) {
-			if (connectionKey != null) {
-				if (connectionKey.target.isInserted())
-					view.getWorkflow().removeConnection(connectionKey);
-			}
-		}
-
-		@Override
-		public void setSelection(Cell c, boolean selected) {
-			if (connectionKey != null)
-				view.getConnectionView(connectionKey).setSelected(selected);
-		}
 
 		@Override
 		public void insertCell(Cell c) {
@@ -109,16 +69,45 @@ public class ConnectionAdapter {
 					sourceJob.bindings.get(sourcePort));
 		}
 
-	}
+		@Override
+		public void markChanged(Cell c) {
+			// TODO Auto-generated method stub
 
+		}
+
+		@Override
+		public void propertyChanged(Cell c) {
+			// do nothing
+		}
+
+		@Override
+		public void removeCell(Cell c) {
+			if (connectionKey != null) {
+				if (connectionKey.target.isInserted())
+					view.getWorkflow().removeConnection(connectionKey);
+			}
+		}
+
+		@Override
+		public void selectionChanged(Cell c, boolean selected) {
+			// do nothing
+
+		}
+
+		@Override
+		public void setSelection(Cell c, boolean selected) {
+			if (connectionKey != null)
+				view.getConnectionView(connectionKey).setSelected(selected);
+		}
+
+	}
 	private class ConnectionViewListener implements
 			AbstractView.ViewListener<AbstractView> {
 
 		@Override
-		public void selectionChanged(AbstractView v) {
-			visualization.getObservable().notify(
-					new SelectionChangedEvent<Cell>(visualization, v
-							.isSelected()));
+		public void highlightingChanged(AbstractView v) {
+			// TODO Auto-generated method stub
+
 		}
 
 		@Override
@@ -130,10 +119,38 @@ public class ConnectionAdapter {
 		}
 
 		@Override
-		public void highlightingChanged(AbstractView v) {
-			// TODO Auto-generated method stub
-
+		public void selectionChanged(AbstractView v) {
+			visualization.getObservable().notify(
+					new SelectionChangedEvent<Cell>(visualization, v
+							.isSelected()));
 		}
+	}
+	ConnectionCellListener connectionCellListener;
+	
+	private final ConnectionKey connectionKey;
+	private ConnectionViewListener connectionViewListener;
+	
+	Observer<ViewEvent<AbstractView>> connectionViewObserver;
+		
+	View view;
+
+	private final ConnectionCell visualization;
+
+	public ConnectionAdapter(ConnectionKey connectionKey,
+			ConnectionCell visualization, View view) {
+		this.visualization = visualization;
+		this.connectionKey = connectionKey;
+		this.view = view;
+		connectionCellListener = new ConnectionCellListener();
+		visualization.getObservable().addObserver(
+				new Observer<CellEvent<Cell>>() {
+
+					@Override
+					public void notify(CellEvent<Cell> event) {
+						event.doNotify(connectionCellListener);
+					}
+
+				});
 	}
 
 	public ConnectionAdapter(ConnectionKey cc, PresentationModel pm,
@@ -182,23 +199,6 @@ public class ConnectionAdapter {
 
 				});
 		this.view = view;
-	}
-
-	public ConnectionAdapter(ConnectionKey connectionKey,
-			ConnectionCell visualization, View view) {
-		this.visualization = visualization;
-		this.connectionKey = connectionKey;
-		this.view = view;
-		connectionCellListener = new ConnectionCellListener();
-		visualization.getObservable().addObserver(
-				new Observer<CellEvent<Cell>>() {
-
-					@Override
-					public void notify(CellEvent<Cell> event) {
-						event.doNotify(connectionCellListener);
-					}
-
-				});
 	}
 
 	public void destroy(Graph graph) {

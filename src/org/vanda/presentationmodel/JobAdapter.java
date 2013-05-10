@@ -23,93 +23,7 @@ import org.vanda.workflows.hyper.Jobs.JobEvent;
 import org.vanda.workflows.hyper.Location;
 
 public class JobAdapter {
-	JobCell jobCell;
-	Job job;
-	JobListener jobListener;
-	JobViewListener jobViewListener;
-	JobCellListener jobCellListener;
-	View view;
-	Map<Port, PortCell> inports;
-	Map<Port, PortCell> outports;
-	Map<Location, LocationAdapter> locations;
-
-	private class JobListener implements Jobs.JobListener<Job> {
-		@Override
-		public void propertyChanged(Job j) {
-			if (jobCell.getX() != j.getX() || jobCell.getY() != j.getY()
-					|| jobCell.getWidth() != j.getWidth()
-					|| jobCell.getHeight() != j.getHeight()) {
-
-				jobCell.setDimensions(new double[] { job.getX(), job.getY(),
-						job.getWidth(), job.getHeight() });
-				jobCell.sizeChanged();
-
-			}
-		}
-	}
-
-	private class JobViewListener implements
-			AbstractView.ViewListener<AbstractView> {
-
-		@Override
-		public void selectionChanged(AbstractView v) {
-			jobCell.getObservable().notify(
-					new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
-		}
-
-		@Override
-		public void markChanged(AbstractView v) {
-			if (v.isMarked()) {
-				jobCell.highlight(true);
-
-			} else {
-				jobCell.highlight(false);
-			}
-		}
-
-		@Override
-		public void highlightingChanged(AbstractView v) {
-			// TODO Auto-generated method stub
-
-		}
-	}
-
 	private class JobCellListener implements Cell.CellListener<Cell> {
-
-		@Override
-		public void propertyChanged(Cell c) {
-			if (job.getX() != jobCell.getX() || job.getY() != jobCell.getY()
-					|| job.getWidth() != jobCell.getWidth()
-					|| job.getHeight() != jobCell.getHeight()) {
-				double[] dim = { jobCell.getX(), jobCell.getY(),
-						jobCell.getWidth(), jobCell.getHeight() };
-				job.setDimensions(dim);
-			}
-		}
-
-		@Override
-		public void selectionChanged(Cell c, boolean selected) {
-			// do nothing
-
-		}
-
-		@Override
-		public void markChanged(Cell c) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void removeCell(Cell c) {
-			if (job != null)
-				view.getWorkflow().removeChild(job);
-		}
-
-		@Override
-		public void setSelection(Cell c, boolean selected) {
-			JobView jv = view.getJobView(job);
-			jv.setSelected(selected);
-		}
 
 		@Override
 		public void insertCell(Cell c) {
@@ -129,7 +43,94 @@ public class JobAdapter {
 
 		}
 
+		@Override
+		public void markChanged(Cell c) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void propertyChanged(Cell c) {
+			if (job.getX() != jobCell.getX() || job.getY() != jobCell.getY()
+					|| job.getWidth() != jobCell.getWidth()
+					|| job.getHeight() != jobCell.getHeight()) {
+				double[] dim = { jobCell.getX(), jobCell.getY(),
+						jobCell.getWidth(), jobCell.getHeight() };
+				job.setDimensions(dim);
+			}
+		}
+
+		@Override
+		public void removeCell(Cell c) {
+			if (job != null)
+				view.getWorkflow().removeChild(job);
+		}
+
+		@Override
+		public void selectionChanged(Cell c, boolean selected) {
+			// do nothing
+
+		}
+
+		@Override
+		public void setSelection(Cell c, boolean selected) {
+			JobView jv = view.getJobView(job);
+			jv.setSelected(selected);
+		}
+
 	}
+	private class JobListener implements Jobs.JobListener<Job> {
+		@Override
+		public void propertyChanged(Job j) {
+			if (jobCell.getX() != j.getX() || jobCell.getY() != j.getY()
+					|| jobCell.getWidth() != j.getWidth()
+					|| jobCell.getHeight() != j.getHeight()) {
+
+				jobCell.setDimensions(new double[] { job.getX(), job.getY(),
+						job.getWidth(), job.getHeight() });
+				jobCell.sizeChanged();
+
+			}
+		}
+	}
+	private class JobViewListener implements
+			AbstractView.ViewListener<AbstractView> {
+
+		@Override
+		public void highlightingChanged(AbstractView v) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void markChanged(AbstractView v) {
+			if (v.isMarked()) {
+				jobCell.highlight(true);
+
+			} else {
+				jobCell.highlight(false);
+			}
+		}
+
+		@Override
+		public void selectionChanged(AbstractView v) {
+			jobCell.getObservable().notify(
+					new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
+		}
+	}
+	
+	Map<Port, PortCell> inports;
+	Job job;
+	JobCell jobCell;
+	JobCellListener jobCellListener;
+	JobListener jobListener;
+	JobViewListener jobViewListener;
+
+	Map<Location, LocationAdapter> locations;
+
+	Map<Port, PortCell> outports;
+
+	View view;
 
 	JobAdapter(Job job, LayoutManagerInterface layoutManager, Graph graph,
 			View view) {
@@ -162,6 +163,41 @@ public class JobAdapter {
 		// register at jobView
 		this.jobViewListener = new JobViewListener();
 
+	}
+
+	public void destroy(Graph graph) {
+		if (jobCell != null) {
+			graph.getGraph().removeCells(
+					new Object[] { jobCell.getVisualization() });
+		}
+	}
+
+	public List<Cell> getCells() {
+		ArrayList<Cell> cells = new ArrayList<Cell>();
+
+		for (LocationAdapter la : locations.values())
+			cells.add(la.locationCell);
+		cells.addAll(inports.values());
+		cells.addAll(outports.values());
+
+		return cells;
+	}
+
+	public PortCell getInPortCell(Port pi) {
+		return inports.get(pi);
+	}
+
+	public Job getJob() {
+		// return jobCell.getJob();
+		return job;
+	}
+
+	public JobCell getJobCell() {
+		return jobCell;
+	}
+
+	public PortCell getOutPortCell(Port po) {
+		return outports.get(po);
 	}
 
 	private void setUpCells(LayoutManagerInterface layoutManager, Graph g,
@@ -201,41 +237,6 @@ public class JobAdapter {
 		} finally {
 			g.endUpdate();
 		}
-	}
-
-	public Job getJob() {
-		// return jobCell.getJob();
-		return job;
-	}
-
-	public List<Cell> getCells() {
-		ArrayList<Cell> cells = new ArrayList<Cell>();
-
-		for (LocationAdapter la : locations.values())
-			cells.add(la.locationCell);
-		cells.addAll(inports.values());
-		cells.addAll(outports.values());
-
-		return cells;
-	}
-
-	public JobCell getJobCell() {
-		return jobCell;
-	}
-
-	public void destroy(Graph graph) {
-		if (jobCell != null) {
-			graph.getGraph().removeCells(
-					new Object[] { jobCell.getVisualization() });
-		}
-	}
-
-	public PortCell getInPortCell(Port pi) {
-		return inports.get(pi);
-	}
-
-	public PortCell getOutPortCell(Port po) {
-		return outports.get(po);
 	}
 
 }

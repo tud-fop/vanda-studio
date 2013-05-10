@@ -5,14 +5,15 @@ import java.util.List;
 
 import org.vanda.render.jgraph.Cell.CellListener;
 import org.vanda.view.View;
+
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
-import com.mxgraph.model.mxICell;
-import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
 import com.mxgraph.model.mxGraphModel.mxValueChange;
+import com.mxgraph.model.mxICell;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
@@ -20,8 +21,8 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxMultiplicity;
 import com.mxgraph.view.mxGraphSelectionModel.mxSelectionChange;
+import com.mxgraph.view.mxMultiplicity;
 import com.mxgraph.view.mxStylesheet;
 
 /**
@@ -30,7 +31,123 @@ import com.mxgraph.view.mxStylesheet;
  * 
  */
 public final class Graph {
+	protected class CellChangeListener implements Cell.CellListener<Cell> {
+
+		@Override
+		public void insertCell(Cell c) {
+			// do nothing
+
+		}
+
+		@Override
+		public void markChanged(Cell c) {
+			refresh();
+		}
+
+		@Override
+		public void propertyChanged(Cell c) {
+			graph.getModel().setGeometry(c.getVisualization(),
+					c.getVisualization().getGeometry());
+			if (graph.isAutoSizeCell(c.getVisualization()))
+				graph.updateCellSize(c.getVisualization(), true);
+			refresh();
+		}
+
+		@Override
+		public void removeCell(Cell c) {
+			// do nothing
+		}
+
+		@Override
+		public void selectionChanged(Cell c, boolean selected) {
+			Graph.this.setSelection(c, selected);
+
+		}
+
+		@Override
+		public void setSelection(Cell c, boolean selected) {
+			// do nothing
+		}
+
+	}
+
+	protected class ChangeListener implements mxIEventListener {
+		// edges: childChange, terminalChange, terminalChange, geometryChange,
+		// terminalChange
+		// the we are only interested in the final childChange!
+		// the first one is ignored using an additional conjunct (see below)
+		@Override
+		public void invoke(Object sender, mxEventObject evt) {
+			mxIGraphModel gmodel = graph.getModel();
+			mxUndoableEdit edit = (mxUndoableEdit) evt.getProperty("edit");
+			List<mxUndoableChange> changes = edit.getChanges();
+			for (mxUndoableChange c : changes) {
+				// process the following changes:
+				// - child change (add/remove)
+				// - value change
+				// - geometry change
+				if (c instanceof mxChildChange) {
+					mxChildChange cc = (mxChildChange) c;
+					mxICell cell = (mxICell) cc.getChild();
+					Cell value = (Cell) gmodel.getValue(cell);
+					boolean refreshSelection = false;
+					if (cell == graph.getSelectionCell()) {
+						refreshSelection = true;
+						// if (model != null)
+						// model.setSelection(null);
+						clearSelection();
+					}
+					if (cc.getPrevious() != null) {
+						// something has been removed
+						value.onRemove();
+					}
+					// the second conjunct is necessary for edges
+					if (cc.getParent() != null
+							&& cell.getParent() == cc.getParent())
+						value.onInsert(Graph.this, cell.getParent(), cell);
+					if (refreshSelection)
+						// setSelectionCell(cell);
+						graph.setSelectionCell(cell);
+				} else if (c instanceof mxValueChange) {
+					// not supposed to happen, or not relevant
+				} else if (c instanceof mxGeometryChange) {
+					mxICell cell = (mxICell) ((mxGeometryChange) c).getCell();
+					Cell value = (Cell) gmodel.getValue(cell);
+					if (cell.getParent() != null /* && value.inModel() */)
+						value.onResize(getGraph());
+				} else if (c instanceof mxSelectionChange) {
+					Object[] cells = graph.getSelectionCells();
+
+					if (cells != null) {
+						updateSelection(gmodel, cells);
+					} else
+						clearSelection();
+				}
+			}
+		}
+
+	}
+
 	private class customMxGraph extends mxGraph {
+		private class customMxCell extends mxCell {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 39927174614076724L;
+
+			public customMxCell(Object value, mxGeometry geometry, String style) {
+				super(value, geometry, style);
+			}
+
+			@Override
+			protected Object cloneValue() {
+				if (value instanceof Cell && value instanceof Cloneable) {
+					return value;
+				} else
+					return super.cloneValue();
+			}
+		}
+
 		public customMxGraph(mxStylesheet styleSheet, WorkflowCell workflowCell) {
 			super(styleSheet);
 			setCellsCloneable(false);
@@ -126,12 +243,28 @@ public final class Graph {
 			super.finalize();
 		}
 
+		// Removes the folding icon from simple jobs and disables folding
+		// Allows folding of NestedHyperworkflows
+		@Override
+		public boolean isCellFoldable(Object cell, boolean collapse) {
+			return false;
+			// mxCell c = (mxCell) cell;
+			// return c.getValue() instanceof CompositeJobAdapter;
+		}
+
 		@Override
 		public boolean isCellSelectable(Object cell) {
 			if (((Cell) getModel().getValue(cell)).getType().equals(
 					"InPortCell"))
 				return false;
 			return super.isCellSelectable(cell);
+		}
+
+		@Override
+		public boolean isValidDropTarget(Object cell, Object[] cells) {
+			return ((Cell) ((mxCell) cell).getValue()).getType().equals(
+					"WorkflowCell")
+					&& super.isValidDropTarget(cell, cells);
 		}
 
 		@Override
@@ -147,127 +280,12 @@ public final class Graph {
 					&& (cell == null || ((Cell) ((mxCell) cell).getValue())
 							.getType().equals("InPortCell"));
 		}
-
-		@Override
-		public boolean isValidDropTarget(Object cell, Object[] cells) {
-			// return ((mxCell) cell).getValue() instanceof WorkflowAdapter;
-			// return super.isValidDropTarget(cell, cells);
-			return ((Cell) ((mxCell) cell).getValue()).getType().equals(
-					"WorkflowCell")
-					&& super.isValidDropTarget(cell, cells);
-		}
-
-		// Removes the folding icon from simple jobs and disables folding
-		// Allows folding of NestedHyperworkflows
-		@Override
-		public boolean isCellFoldable(Object cell, boolean collapse) {
-			return false;
-			// mxCell c = (mxCell) cell;
-			// return c.getValue() instanceof CompositeJobAdapter;
-		}
-
-		private class customMxCell extends mxCell {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 39927174614076724L;
-
-			public customMxCell(Object value, mxGeometry geometry, String style) {
-				super(value, geometry, style);
-			}
-
-			@Override
-			protected Object cloneValue() {
-				// Object value = getValue();
-				if (value instanceof Cell && value instanceof Cloneable) {
-					// try {
-					return value;
-					// return ((Adapter) value).clone();
-					// } catch (CloneNotSupportedException e) {
-					// return super.cloneValue();
-					// }
-				} else
-					return super.cloneValue();
-			}
-		}
 	}
 
-	protected class ChangeListener implements mxIEventListener {
-		// edges: childChange, terminalChange, terminalChange, geometryChange,
-		// terminalChange
-		// the we are only interested in the final childChange!
-		// the first one is ignored using an additional conjunct (see below)
-		@Override
-		public void invoke(Object sender, mxEventObject evt) {
-			mxIGraphModel gmodel = graph.getModel();
-			mxUndoableEdit edit = (mxUndoableEdit) evt.getProperty("edit");
-			List<mxUndoableChange> changes = edit.getChanges();
-			for (mxUndoableChange c : changes) {
-				// process the following changes:
-				// - child change (add/remove)
-				// - value change
-				// - geometry change
-				if (c instanceof mxChildChange) {
-					mxChildChange cc = (mxChildChange) c;
-					mxICell cell = (mxICell) cc.getChild();
-					Cell value = (Cell) gmodel.getValue(cell);
-					boolean refreshSelection = false;
-					if (cell == graph.getSelectionCell()) {
-						refreshSelection = true;
-						// if (model != null)
-						// model.setSelection(null);
-						clearSelection();
-					}
-					if (cc.getPrevious() != null) {
-						// something has been removed
-						value.onRemove();
-					}
-					// the second conjunct is necessary for edges
-					if (cc.getParent() != null
-							&& cell.getParent() == cc.getParent())
-						value.onInsert(Graph.this, cell.getParent(), cell);
-					if (refreshSelection)
-						// setSelectionCell(cell);
-						graph.setSelectionCell(cell);
-				} else if (c instanceof mxValueChange) {
-					// not supposed to happen, or not relevant
-				} else if (c instanceof mxGeometryChange) {
-					mxICell cell = (mxICell) ((mxGeometryChange) c).getCell();
-					Cell value = (Cell) gmodel.getValue(cell);
-					if (cell.getParent() != null /* && value.inModel() */)
-						value.onResize(getGraph());
-				} else if (c instanceof mxSelectionChange) {
-					Object[] cells = graph.getSelectionCells();
-
-					if (cells != null) {
-						updateSelection(gmodel, cells);
-					} else
-						clearSelection();
-				}
-			}
-		}
-
-	}
-
-	private void clearSelection() {
-		for (Object c : ((mxGraphModel) (graph.getModel())).getCells().values()) {
-			if (((mxCell) c).getValue() != null)
-				((Cell) ((mxCell) c).getValue()).setSelection(false);
-		}
-	}
-
-	protected final ChangeListener changeListener;
-	protected final mxGraph graph;
 	// protected final View view;
 	protected final CellChangeListener cellChangeListener;
-
-	public CellListener<Cell> getCellChangeListener() {
-		return cellChangeListener;
-	}
-
-	public mxGraph getGraph() {
-		return graph;
-	}
+	protected final ChangeListener changeListener;
+	protected final mxGraph graph;
 
 	public Graph(View view, WorkflowCell workflowCell) {
 		// Create graph and set graph properties
@@ -281,60 +299,33 @@ public final class Graph {
 
 	}
 
+	public void beginUpdate() {
+		getGraph().getModel().beginUpdate();
+	}
+
+	private void clearSelection() {
+		for (Object c : ((mxGraphModel) (graph.getModel())).getCells().values()) {
+			if (((mxCell) c).getValue() != null)
+				((Cell) ((mxCell) c).getValue()).setSelection(false);
+		}
+	}
+
+	public void endUpdate() {
+		getGraph().getModel().endUpdate();
+	}
+
+	public CellListener<Cell> getCellChangeListener() {
+		return cellChangeListener;
+	}
+
+	public mxGraph getGraph() {
+		return graph;
+	}
+
 	public void refresh() {
 		graph.refresh();
 	}
-
-	private void updateSelection(mxIGraphModel gmodel, Object[] cells) {
-		clearSelection();
-
-		// set selection in View
-		for (Object o : cells) {
-			Cell cell = (Cell) gmodel.getValue(o);
-			cell.setSelection(true);
-		}
-	}
-
-	protected class CellChangeListener implements Cell.CellListener<Cell> {
-
-		@Override
-		public void propertyChanged(Cell c) {
-			graph.getModel().setGeometry(c.getVisualization(),
-					c.getVisualization().getGeometry());
-			if (graph.isAutoSizeCell(c.getVisualization()))
-				graph.updateCellSize(c.getVisualization(), true);
-			refresh();
-		}
-
-		@Override
-		public void markChanged(Cell c) {
-			refresh();
-		}
-
-		@Override
-		public void setSelection(Cell c, boolean selected) {
-			// do nothing
-		}
-
-		@Override
-		public void selectionChanged(Cell c, boolean selected) {
-			Graph.this.setSelection(c, selected);
-
-		}
-
-		@Override
-		public void removeCell(Cell c) {
-			// do nothing
-		}
-
-		@Override
-		public void insertCell(Cell c) {
-			// do nothing
-
-		}
-
-	}
-
+	
 	public void setSelection(Cell cell, boolean selected) {
 		if (selected)
 			graph.addSelectionCell(cell.getVisualization());
@@ -343,12 +334,14 @@ public final class Graph {
 
 	}
 	
-	public void beginUpdate() {
-		getGraph().getModel().beginUpdate();
-	}
-	
-	public void endUpdate() {
-		getGraph().getModel().endUpdate();
+	private void updateSelection(mxIGraphModel gmodel, Object[] cells) {
+		clearSelection();
+
+		// set selection in View
+		for (Object o : cells) {
+			Cell cell = (Cell) gmodel.getValue(o);
+			cell.setSelection(true);
+		}
 	}
 
 }

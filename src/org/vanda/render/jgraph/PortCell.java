@@ -6,10 +6,11 @@ import com.mxgraph.view.mxGraph;
 
 public class PortCell extends Cell {
 	final String portType; // input or output port
-	
-	public PortCell(Graph g, LayoutManagerInterface layout, Cell parent, String portType) {
+
+	public PortCell(Graph g, LayoutManagerInterface layout, Cell parent,
+			String portType) {
 		this.portType = portType;
-		
+
 		// Create Cell in Graph
 		g.beginUpdate();
 		try {
@@ -18,7 +19,7 @@ public class PortCell extends Cell {
 		} finally {
 			g.endUpdate();
 		}
-		
+
 		// Register at LayoutManager
 		layout.register(this);
 
@@ -30,12 +31,12 @@ public class PortCell extends Cell {
 	}
 
 	@Override
-	public void onRemove() {
+	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
 		// do nothing
 	}
 
 	@Override
-	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
+	public void onRemove() {
 		// do nothing
 	}
 

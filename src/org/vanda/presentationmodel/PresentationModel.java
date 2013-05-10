@@ -23,50 +23,6 @@ import org.vanda.workflows.hyper.Workflows;
 import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 
 public class PresentationModel {
-	protected final Graph graph;
-	protected final WorkflowCell workflowCell;
-	private final WorkflowListener workflowListener;
-	List<JobAdapter> jobs;
-	Map<ConnectionKey, ConnectionAdapter> connections;
-	View view;
-	LayoutManagerFactoryInterface layoutManager = new NaiveLayoutManagerFactory();
-
-	/*
-	 * map that holds Layouts for all Job-Types, where String is
-	 * <code>Job.getName()</code>
-	 */
-	// static final Map<String, LayoutManager> layouts = null; //TODO define
-	// some Layouts
-
-	void beginUpdate() {
-	}
-
-	void endUpdate() {
-	}
-
-	public Graph getVisualization() {
-		return graph;
-	}
-
-	public JobAdapter addJobAdapter(Job job) {
-		if (!job.isInserted()) {
-			view.getWorkflow().addChild(job);
-		}
-		for (JobAdapter ja : jobs) {
-			if (ja.getJob() == job)
-				return ja;
-		}
-		JobAdapter ja = new JobAdapter(job, selectLayout(job), graph, view);
-		jobs.add(ja);
-		graph.refresh();
-		return ja;
-	}
-
-	private LayoutManagerInterface selectLayout(Job job) {
-		// return layouts.get(job.getName());
-		return layoutManager.getLayoutManager(job);
-	}
-
 	/**
 	 * Listens for changes in Model, i.e. Job, Connections, ... and keeps
 	 * Presentation Model up to date and enforces mxGraph updates
@@ -114,38 +70,21 @@ public class PresentationModel {
 		}
 
 	}
+	Map<ConnectionKey, ConnectionAdapter> connections;
+	protected final Graph graph;
+	List<JobAdapter> jobs;
+	LayoutManagerFactoryInterface layoutManager = new NaiveLayoutManagerFactory();
+	View view;
+	protected final WorkflowCell workflowCell;
 
-	public View getView() {
-		return view;
-	}
+	/*
+	 * map that holds Layouts for all Job-Types, where String is
+	 * <code>Job.getName()</code>
+	 */
+	// static final Map<String, LayoutManager> layouts = null; //TODO define
+	// some Layouts
 
-	public void removeConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
-		if (connections.containsKey(cc)) {
-			ConnectionAdapter ca = connections.remove(cc);
-			ca.destroy(graph);
-		}
-	}
-
-	public void addConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
-		if (!connections.containsKey(cc))
-			connections.put(cc, new ConnectionAdapter(cc, this, mwf, view));
-	}
-
-	public void removeJobAdatper(MutableWorkflow mwf, Job j) {
-		JobAdapter toDelete = null;
-		for (JobAdapter ja : jobs) {
-			if (ja.getJob() == j)
-				toDelete = ja;
-		}
-		if (toDelete != null) {
-			jobs.remove(toDelete);
-			toDelete.destroy(graph);
-		}
-	}
-
-	public List<JobAdapter> getJobs() {
-		return jobs;
-	}
+	private final WorkflowListener workflowListener;
 
 	public PresentationModel(View view) {
 		this.view = view;
@@ -168,16 +107,6 @@ public class PresentationModel {
 
 						});
 		setupPresentationModel();
-	}
-
-	private void setupPresentationModel() {
-		for (Job j : view.getWorkflow().getChildren()) {
-			jobs.add(new JobAdapter(j, selectLayout(j), graph, view));
-		}
-		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
-			connections.put(ck,
-					new ConnectionAdapter(ck, this, view.getWorkflow(), view));
-		}
 	}
 
 	public void addConnectionAdapter(ConnectionCell connectionCell,
@@ -214,6 +143,77 @@ public class PresentationModel {
 			connections.put(connectionKey, new ConnectionAdapter(connectionKey,
 					connectionCell, view));
 
+	}
+
+	public void addConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
+		if (!connections.containsKey(cc))
+			connections.put(cc, new ConnectionAdapter(cc, this, mwf, view));
+	}
+
+	public JobAdapter addJobAdapter(Job job) {
+		if (!job.isInserted()) {
+			view.getWorkflow().addChild(job);
+		}
+		for (JobAdapter ja : jobs) {
+			if (ja.getJob() == job)
+				return ja;
+		}
+		JobAdapter ja = new JobAdapter(job, selectLayout(job), graph, view);
+		jobs.add(ja);
+		graph.refresh();
+		return ja;
+	}
+
+	void beginUpdate() {
+	}
+
+	void endUpdate() {
+	}
+
+	public List<JobAdapter> getJobs() {
+		return jobs;
+	}
+
+	public View getView() {
+		return view;
+	}
+
+	public Graph getVisualization() {
+		return graph;
+	}
+
+	public void removeConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
+		if (connections.containsKey(cc)) {
+			ConnectionAdapter ca = connections.remove(cc);
+			ca.destroy(graph);
+		}
+	}
+
+	public void removeJobAdatper(MutableWorkflow mwf, Job j) {
+		JobAdapter toDelete = null;
+		for (JobAdapter ja : jobs) {
+			if (ja.getJob() == j)
+				toDelete = ja;
+		}
+		if (toDelete != null) {
+			jobs.remove(toDelete);
+			toDelete.destroy(graph);
+		}
+	}
+
+	private LayoutManagerInterface selectLayout(Job job) {
+		// return layouts.get(job.getName());
+		return layoutManager.getLayoutManager(job);
+	}
+
+	private void setupPresentationModel() {
+		for (Job j : view.getWorkflow().getChildren()) {
+			jobs.add(new JobAdapter(j, selectLayout(j), graph, view));
+		}
+		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
+			connections.put(ck,
+					new ConnectionAdapter(ck, this, view.getWorkflow(), view));
+		}
 	}
 
 }

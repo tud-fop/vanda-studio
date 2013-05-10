@@ -1,6 +1,7 @@
 package org.vanda.render.jgraph;
 
 import org.vanda.util.Observer;
+
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
@@ -9,13 +10,12 @@ import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.view.mxGraph;
 
 public class JobCell extends Cell {
-	final LayoutManagerInterface layoutManager;
 	protected final String label;
+	final LayoutManagerInterface layoutManager;
 
 	public JobCell(final Graph graph, LayoutManagerInterface layoutManager,
 			String label, double x, double y, double w, double h) {
 		this.layoutManager = layoutManager;
-		// this.job = job;
 
 		this.label = label;
 		this.observable = new CellObservable();
@@ -48,19 +48,40 @@ public class JobCell extends Cell {
 	}
 
 	@Override
+	public String getLabel() {
+		return label;
+
+	}
+
+	@Override
 	public String getType() {
 		return "JobCell";
 	}
 
-	@Override
-	public void onRemove() {
-		getObservable().notify(new RemoveCellEvent<Cell>(this));
+	@ Override
+	public void highlight(boolean highlight) {
+		if (highlight) {
+			getVisualization().setStyle(
+					mxStyleUtils.addStylename(getVisualization()
+							.getStyle(), "highlighted"));
+		} else {
+			getVisualization().setStyle(
+					mxStyleUtils.removeStylename(getVisualization()
+							.getStyle(), "highlighted"));
+		}
+		getObservable().notify(new MarkChangedEvent<Cell>(this));
+
 	}
 
 	@Override
 	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
 		getObservable().notify(new InsertCellEvent<Cell>(this));
 
+	}
+
+	@Override
+	public void onRemove() {
+		getObservable().notify(new RemoveCellEvent<Cell>(this));
 	}
 
 	@Override
@@ -84,6 +105,15 @@ public class JobCell extends Cell {
 		}
 	}
 
+	private void preventTooSmallNested(mxGraph graph, mxICell cell) {
+		// do nothing
+	}
+
+	@Override
+	public void setSelection(boolean selected) {
+		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
+	}
+
 	public void sizeChanged() {
 		mxGeometry ng = (mxGeometry) getVisualization().getGeometry().clone();
 		ng.setX(getX());
@@ -94,41 +124,11 @@ public class JobCell extends Cell {
 		getObservable().notify(new Cell.PropertyChangedEvent<Cell>(this));
 	}
 
-	private void preventTooSmallNested(mxGraph graph, mxICell cell) {
-		// do nothing
-	}
-
-	@Override
-	public void setSelection(boolean selected) {
-		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
-	}
-
-	@Override
-	public String getLabel() {
-		return label;
-
-	}
-
 	public void updateDimensions() {
 		mxGeometry geo = getVisualization().getGeometry();
 		double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 				geo.getHeight() };
 		setDimensions(dim);
-	}
-
-	@ Override
-	public void highlight(boolean highlight) {
-		if (highlight) {
-			getVisualization().setStyle(
-					mxStyleUtils.addStylename(getVisualization()
-							.getStyle(), "highlighted"));
-		} else {
-			getVisualization().setStyle(
-					mxStyleUtils.removeStylename(getVisualization()
-							.getStyle(), "highlighted"));
-		}
-		getObservable().notify(new MarkChangedEvent<Cell>(this));
-
 	}
 
 }

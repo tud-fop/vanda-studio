@@ -52,19 +52,28 @@ public class ConnectionCell extends Cell {
 
 	}
 
+	public PortCell getSourceCell() {
+		return (PortCell) visualization.getSource().getValue();
+	}
+
 	@Override
 	public String getType() {
 		return "ConnectionCell";
 	}
 
 	@Override
-	public void setSelection(boolean selected) {
-		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
-	}
+	public void highlight(boolean highlight) {
+		if (highlight) {
+			getVisualization().setStyle(
+					mxStyleUtils.addStylename(getVisualization().getStyle(),
+							"highlightededge"));
+		} else {
+			getVisualization().setStyle(
+					mxStyleUtils.removeStylename(visualization.getStyle(),
+							"highlightededge"));
+		}
+		getObservable().notify(new MarkChangedEvent<Cell>(this));
 
-	@Override
-	public void onRemove() {
-		getObservable().notify(new RemoveCellEvent<Cell>(this));
 	}
 
 	@Override
@@ -78,45 +87,14 @@ public class ConnectionCell extends Cell {
 		// ignore "unfinished" edges
 		if (source != null && target != null) {
 			visualization = (mxCell) cell;
-			
+
 			PortCell tval = (PortCell) model.getValue(target);
-			JobCell tparval = (JobCell) model.getValue(model
-					.getParent(target));
-			
-			((WorkflowCell) ((mxICell) graph.getGraph().getDefaultParent()).getValue())
-					.getPresentationModel().addConnectionAdapter(this, tparval, tval);
-				
-			//
-			// PortCell sval = (PortCell) model.getValue(source);
-			// PortCell tval = (PortCell) model.getValue(target);
-			// JobCell sparval = (JobCell) model.getValue(model
-			// .getParent(source));
-			// JobCell tparval = (JobCell) model.getValue(model
-			// .getParent(target));
-			//
-			// Add ConnectionAdapter to PM
-			// PresentationModel pm = (PresentationModel)
-			// ((WorkflowCell) sparval.getVisualization()
-			// .getParent().getValue()).getPresentationModel();
-			//
-			// pm.addConnectionAdapter(this, connectionKey);
+			JobCell tparval = (JobCell) model.getValue(model.getParent(target));
 
-			// Create ConnectionView
-			// graph.getView().workflowListener.connectionAdded(graph.getView().getWorkflow(),
-			// connectionKey);
-			//
-			// this.connectionViewListener = new ConnectionViewListener();
-			// this.connectionViewObserver = new
-			// Observer<ViewEvent<AbstractView>> () {
-			//
-			// @Override
-			// public void notify(ViewEvent<AbstractView> event) {
-			// event.doNotify(connectionViewListener);
-			// }
-			// };
-
-			// Register at ConnectionView
-			// graph.getView().getConnectionView(connectionKey).getObservable().addObserver(connectionViewObserver);
+			// Create ConnectionAdapter
+			((WorkflowCell) ((mxICell) graph.getGraph().getDefaultParent())
+					.getValue()).getPresentationModel().addConnectionAdapter(
+					this, tparval, tval);
 
 			// register graph for cell changes
 			getObservable().addObserver(new Observer<CellEvent<Cell>>() {
@@ -127,17 +105,14 @@ public class ConnectionCell extends Cell {
 				}
 
 			});
-			
+
 			getObservable().notify(new InsertCellEvent<Cell>(this));
-
-			// Add Connection to Workflow
-			// This is done last, because it will trigger the typecheck,
-			// which requires the ConnectionView to be created before
-			// graph.getView().getWorkflow().addConnection(connectionKey,
-			// sparval.job.bindings.get(sval.port));
-
 		}
-		// }
+	}
+
+	@Override
+	public void onRemove() {
+		getObservable().notify(new RemoveCellEvent<Cell>(this));
 	}
 
 	@Override
@@ -145,23 +120,9 @@ public class ConnectionCell extends Cell {
 		// do nothing
 	}
 
-	public PortCell getSourceCell() {
-		return (PortCell) visualization.getSource().getValue();
-	}
-
 	@Override
-	public void highlight(boolean highlight) {
-		if (highlight) {
-			getVisualization().setStyle(
-					mxStyleUtils.addStylename(getVisualization().getStyle(),
-							"highlightededge"));
-		} else {
-			getVisualization().setStyle(
-					mxStyleUtils.removeStylename(visualization
-							.getStyle(), "highlightededge"));
-		}
-		getObservable().notify(new MarkChangedEvent<Cell>(this));
-
+	public void setSelection(boolean selected) {
+		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
 	}
 
 }
