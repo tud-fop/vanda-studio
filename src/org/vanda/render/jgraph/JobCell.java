@@ -5,20 +5,17 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
+import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.view.mxGraph;
 
 public class JobCell extends Cell {
 	final LayoutManagerInterface layoutManager;
 	protected final String label;
 
-	
-
-
-
-	public JobCell(final Graph graph, LayoutManagerInterface layoutManager, String label, double x, double y, double w, double h) {
+	public JobCell(final Graph graph, LayoutManagerInterface layoutManager,
+			String label, double x, double y, double w, double h) {
 		this.layoutManager = layoutManager;
-		//this.job = job;
-
+		// this.job = job;
 
 		this.label = label;
 		this.observable = new CellObservable();
@@ -83,13 +80,18 @@ public class JobCell extends Cell {
 			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 					geo.getHeight() };
 			setDimensions(dim);
-			//job.setDimensions(dim);
-			sizeChanged(geo, graph, visualization);
+			getObservable().notify(new PropertyChangedEvent<Cell>(this));
 		}
 	}
 
-	private void sizeChanged(mxGeometry geo, mxGraph graph, mxICell cell) {
-		// do nothing
+	public void sizeChanged() {
+		mxGeometry ng = (mxGeometry) getVisualization().getGeometry().clone();
+		ng.setX(getX());
+		ng.setY(getY());
+		ng.setWidth(getWidth());
+		ng.setHeight(getHeight());
+		getVisualization().setGeometry(ng);
+		getObservable().notify(new Cell.PropertyChangedEvent<Cell>(this));
 	}
 
 	private void preventTooSmallNested(mxGraph graph, mxICell cell) {
@@ -104,6 +106,28 @@ public class JobCell extends Cell {
 	@Override
 	public String getLabel() {
 		return label;
+
+	}
+
+	public void updateDimensions() {
+		mxGeometry geo = getVisualization().getGeometry();
+		double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
+				geo.getHeight() };
+		setDimensions(dim);
+	}
+
+	@ Override
+	public void highlight(boolean highlight) {
+		if (highlight) {
+			getVisualization().setStyle(
+					mxStyleUtils.addStylename(getVisualization()
+							.getStyle(), "highlighted"));
+		} else {
+			getVisualization().setStyle(
+					mxStyleUtils.removeStylename(getVisualization()
+							.getStyle(), "highlighted"));
+		}
+		getObservable().notify(new MarkChangedEvent<Cell>(this));
 
 	}
 

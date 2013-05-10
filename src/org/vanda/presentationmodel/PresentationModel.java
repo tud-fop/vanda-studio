@@ -30,19 +30,24 @@ public class PresentationModel {
 	Map<ConnectionKey, ConnectionAdapter> connections;
 	View view;
 	LayoutManagerFactoryInterface layoutManager = new NaiveLayoutManagerFactory();
-	/* map that holds Layouts for all Job-Types, where String is <code>Job.getName()</code> */
-	//static final Map<String, LayoutManager> layouts = null; //TODO define some Layouts
-	
+
+	/*
+	 * map that holds Layouts for all Job-Types, where String is
+	 * <code>Job.getName()</code>
+	 */
+	// static final Map<String, LayoutManager> layouts = null; //TODO define
+	// some Layouts
+
 	void beginUpdate() {
 	}
-	
+
 	void endUpdate() {
 	}
-	
-	public Graph getVisualization () {
+
+	public Graph getVisualization() {
 		return graph;
 	}
-	
+
 	public JobAdapter addJobAdapter(Job job) {
 		if (!job.isInserted()) {
 			view.getWorkflow().addChild(job);
@@ -58,20 +63,19 @@ public class PresentationModel {
 	}
 
 	private LayoutManagerInterface selectLayout(Job job) {
-		//return layouts.get(job.getName());
+		// return layouts.get(job.getName());
 		return layoutManager.getLayoutManager(job);
 	}
-	
+
 	/**
-	 * Listens for changes in Model, i.e. Job, Connections, ... 
-	 * and keeps Presentation Model up to date 
-	 * and enforces mxGraph updates
+	 * Listens for changes in Model, i.e. Job, Connections, ... and keeps
+	 * Presentation Model up to date and enforces mxGraph updates
 	 * 
 	 * @author kgebhardt
-	 *
+	 * 
 	 */
 	protected class WorkflowListener implements
-	Workflows.WorkflowListener<MutableWorkflow> {
+			Workflows.WorkflowListener<MutableWorkflow> {
 
 		@Override
 		public void childAdded(MutableWorkflow mwf, Job j) {
@@ -80,7 +84,7 @@ public class PresentationModel {
 
 		@Override
 		public void childModified(MutableWorkflow mwf, Job j) {
-			//do nothing
+			// do nothing
 		}
 
 		@Override
@@ -128,13 +132,12 @@ public class PresentationModel {
 	}
 
 	public void removeJobAdatper(MutableWorkflow mwf, Job j) {
-		JobAdapter toDelete = null; 
+		JobAdapter toDelete = null;
 		for (JobAdapter ja : jobs) {
 			if (ja.getJob() == j)
 				toDelete = ja;
 		}
-		if (toDelete != null)
-		{
+		if (toDelete != null) {
 			jobs.remove(toDelete);
 			toDelete.destroy(graph);
 		}
@@ -143,7 +146,7 @@ public class PresentationModel {
 	public List<JobAdapter> getJobs() {
 		return jobs;
 	}
-	
+
 	public PresentationModel(View view) {
 		this.view = view;
 		this.workflowCell = new WorkflowCell(this);
@@ -152,17 +155,18 @@ public class PresentationModel {
 		connections = new WeakHashMap<ConnectionKey, ConnectionAdapter>();
 		workflowListener = new WorkflowListener();
 		view.getWorkflow()
-			.getObservable()
-			.addObserver(
-				new Observer<Workflows.WorkflowEvent<MutableWorkflow>>() {
+				.getObservable()
+				.addObserver(
+						new Observer<Workflows.WorkflowEvent<MutableWorkflow>>() {
 
-					@Override
-					public void notify(WorkflowEvent<MutableWorkflow> event) {
-						event.doNotify(workflowListener);
-						
-					}
-					
-				});
+							@Override
+							public void notify(
+									WorkflowEvent<MutableWorkflow> event) {
+								event.doNotify(workflowListener);
+
+							}
+
+						});
 		setupPresentationModel();
 	}
 
@@ -171,47 +175,45 @@ public class PresentationModel {
 			jobs.add(new JobAdapter(j, selectLayout(j), graph, view));
 		}
 		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
-			connections.put(ck, new ConnectionAdapter(ck, this, view.getWorkflow(), view));
+			connections.put(ck,
+					new ConnectionAdapter(ck, this, view.getWorkflow(), view));
 		}
 	}
 
 	public void addConnectionAdapter(ConnectionCell connectionCell,
 			ConnectionKey connectionKey) {
-		if (! connections.containsKey(connectionKey))
-			connections.put(connectionKey, new ConnectionAdapter(connectionKey, connectionCell, view));
+		if (!connections.containsKey(connectionKey))
+			connections.put(connectionKey, new ConnectionAdapter(connectionKey,
+					connectionCell, view));
 	}
 
-	public void addConnectionAdapter(ConnectionCell connectionCell, JobCell tparval,
-			PortCell tval) {
+	public void addConnectionAdapter(ConnectionCell connectionCell,
+			JobCell tparval, PortCell tval) {
 		Job j = null;
 		Port p = null;
-		for (JobAdapter ja : jobs)
-		{
+		for (JobAdapter ja : jobs) {
 			if (ja.getJobCell() == tparval) {
 				j = ja.getJob();
 				break;
 			}
 		}
-		for (JobAdapter ja : jobs) 
-		{
-			if (ja.getJob() == j)
+		for (JobAdapter ja : jobs) {
+			if (ja.getJob() == j) {
 				for (Port pi : ja.getJob().getInputPorts()) {
 					if (ja.getInPortCell(pi) == tval) {
 						p = pi;
 						break;
 					}
-				for (Port po : ja.getJob().getOutputPorts()) {
-					if (ja.getOutPortCell(po) == tval) {
-						p = po;
-						break;
-					}
-				break;
 				}
+				break;
+			}
 		}
+		assert (j != null && p != null);
 		ConnectionKey connectionKey = new ConnectionKey(j, p);
-		 if (! connections.containsKey(connectionKey))
-			 connections.put(connectionKey, new ConnectionAdapter(connectionKey, connectionCell, view));
-		}
+		if (!connections.containsKey(connectionKey))
+			connections.put(connectionKey, new ConnectionAdapter(connectionKey,
+					connectionCell, view));
+
 	}
 
 }

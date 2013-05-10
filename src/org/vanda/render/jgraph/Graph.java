@@ -99,21 +99,7 @@ public final class Graph {
 				Object source, Object target, String style) {
 			if (value == null || "".equals(value)) {
 				value = new ConnectionCell();
-
-				// ignore "unfinished" edges
-				if (source != null && target != null) {
-
-					PortCell sval = (PortCell) model.getValue(source);
-					PortCell tval = (PortCell) model.getValue(target);
-					JobCell sparval = (JobCell) model.getValue(model
-							.getParent(source));
-					JobCell tparval = (JobCell) model.getValue(model
-							.getParent(target));
-
-					((WorkflowCell) ((mxICell) getDefaultParent()).getValue())
-							.getPresentationModel().addConnectionAdapter(
-									(ConnectionCell) value, tparval, tval);
-				}
+				
 			}
 			// XXX don't call with a constant
 			return super.createEdge(parent, id, value, source, target,
@@ -355,6 +341,14 @@ public final class Graph {
 		else
 			graph.removeSelectionCell(cell.getVisualization());
 
+	}
+	
+	public void beginUpdate() {
+		getGraph().getModel().beginUpdate();
+	}
+	
+	public void endUpdate() {
+		getGraph().getModel().endUpdate();
 	}
 
 }

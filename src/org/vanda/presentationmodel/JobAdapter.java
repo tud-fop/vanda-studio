@@ -7,7 +7,6 @@ import java.util.WeakHashMap;
 
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cell.CellEvent;
-import org.vanda.render.jgraph.Cell.MarkChangedEvent;
 import org.vanda.render.jgraph.Cell.SelectionChangedEvent;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
@@ -22,9 +21,6 @@ import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Jobs;
 import org.vanda.workflows.hyper.Jobs.JobEvent;
 import org.vanda.workflows.hyper.Location;
-
-import com.mxgraph.model.mxGeometry;
-import com.mxgraph.util.mxStyleUtils;
 
 public class JobAdapter {
 	JobCell jobCell;
@@ -43,17 +39,11 @@ public class JobAdapter {
 			if (jobCell.getX() != j.getX() || jobCell.getY() != j.getY()
 					|| jobCell.getWidth() != j.getWidth()
 					|| jobCell.getHeight() != j.getHeight()) {
-				mxGeometry ng = (mxGeometry) jobCell.getVisualization()
-						.getGeometry().clone();
-				ng.setX(j.getX());
-				ng.setY(j.getY());
-				ng.setWidth(j.getWidth());
-				ng.setHeight(j.getHeight());
+
 				jobCell.setDimensions(new double[] { job.getX(), job.getY(),
 						job.getWidth(), job.getHeight() });
-				jobCell.getVisualization().setGeometry(ng);
-				jobCell.getObservable().notify(
-						new Cell.PropertyChangedEvent<Cell>(jobCell));
+				jobCell.sizeChanged();
+
 			}
 		}
 	}
@@ -70,15 +60,11 @@ public class JobAdapter {
 		@Override
 		public void markChanged(AbstractView v) {
 			if (v.isMarked()) {
-				jobCell.getVisualization().setStyle(
-						mxStyleUtils.addStylename(jobCell.getVisualization()
-								.getStyle(), "highlighted"));
+				jobCell.highlight(true);
+
 			} else {
-				jobCell.getVisualization().setStyle(
-						mxStyleUtils.removeStylename(jobCell.getVisualization()
-								.getStyle(), "highlighted"));
+				jobCell.highlight(false);
 			}
-			jobCell.getObservable().notify(new MarkChangedEvent<Cell>(jobCell));
 		}
 
 		@Override
@@ -92,7 +78,13 @@ public class JobAdapter {
 
 		@Override
 		public void propertyChanged(Cell c) {
-			// do nothing
+			if (job.getX() != jobCell.getX() || job.getY() != jobCell.getY()
+					|| job.getWidth() != jobCell.getWidth()
+					|| job.getHeight() != jobCell.getHeight()) {
+				double[] dim = { jobCell.getX(), jobCell.getY(),
+						jobCell.getWidth(), jobCell.getHeight() };
+				job.setDimensions(dim);
+			}
 		}
 
 		@Override
@@ -124,11 +116,10 @@ public class JobAdapter {
 			// the following is necessary if the job is not in the model
 			// which happens in case of drag&drop (as opposed to render).
 			if (!job.isInserted()) {
-				mxGeometry geo = jobCell.getVisualization().getGeometry();
-				double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
-						geo.getHeight() };
-				jobCell.setDimensions(dim);
-				// job.setDimensions(dim);
+				jobCell.updateDimensions();
+				double[] dim = { jobCell.getX(), jobCell.getY(),
+						jobCell.getWidth(), jobCell.getHeight() };
+				job.setDimensions(dim);
 				view.getWorkflow().addChild(job);
 			}
 
@@ -146,7 +137,6 @@ public class JobAdapter {
 		setUpCells(layoutManager, graph, job);
 		this.jobListener = new JobListener();
 		this.jobCellListener = new JobCellListener();
-		
 
 		// Register at Job
 		if (job.getObservable() != null)
@@ -176,7 +166,7 @@ public class JobAdapter {
 
 	private void setUpCells(LayoutManagerInterface layoutManager, Graph g,
 			Job job) {
-		g.getGraph().getModel().beginUpdate();
+		g.beginUpdate();
 		try {
 			this.job = job;
 			inports = new WeakHashMap<Port, PortCell>();
@@ -189,14 +179,14 @@ public class JobAdapter {
 			List<Port> in = job.getInputPorts();
 
 			for (Port ip : in) {
-				inports.put(ip, new PortCell(g, layoutManager, jobCell, ip,
+				inports.put(ip, new PortCell(g, layoutManager, jobCell,
 						"InPortCell"));
 			}
 
 			// insert a cell for every output port
 			List<Port> out = job.getOutputPorts();
 			for (Port op : out) {
-				outports.put(op, new PortCell(g, layoutManager, jobCell, op,
+				outports.put(op, new PortCell(g, layoutManager, jobCell,
 						"OutPortCell"));
 				locations
 						.put(job.bindings.get(op),
@@ -209,7 +199,7 @@ public class JobAdapter {
 			layoutManager.setUpLayout(g);
 
 		} finally {
-			g.getGraph().getModel().endUpdate();
+			g.endUpdate();
 		}
 	}
 
@@ -220,9 +210,12 @@ public class JobAdapter {
 
 	public List<Cell> getCells() {
 		ArrayList<Cell> cells = new ArrayList<Cell>();
-		for (int i = 0; i < jobCell.getVisualization().getChildCount(); ++i)
-			cells.add((Cell) jobCell.getVisualization().getChildAt(i)
-					.getValue());
+
+		for (LocationAdapter la : locations.values())
+			cells.add(la.locationCell);
+		cells.addAll(inports.values());
+		cells.addAll(outports.values());
+
 		return cells;
 	}
 

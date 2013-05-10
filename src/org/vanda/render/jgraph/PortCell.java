@@ -1,26 +1,22 @@
 package org.vanda.render.jgraph;
 
-import org.vanda.workflows.elements.Port;
-
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
 public class PortCell extends Cell {
-	final Port port;
 	final String portType; // input or output port
 	
-	public PortCell(Graph g, LayoutManagerInterface layout, Cell parent, Port port, String portType) {
-		this.port = port;
+	public PortCell(Graph g, LayoutManagerInterface layout, Cell parent, String portType) {
 		this.portType = portType;
 		
 		// Create Cell in Graph
-		g.getGraph().getModel().beginUpdate();
+		g.beginUpdate();
 		try {
 			visualization = new mxCell(this);
 			g.getGraph().addCell(visualization, parent.getVisualization());
 		} finally {
-			g.getGraph().getModel().endUpdate();
+			g.endUpdate();
 		}
 		
 		// Register at LayoutManager

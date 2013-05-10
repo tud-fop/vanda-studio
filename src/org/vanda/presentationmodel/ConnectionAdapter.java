@@ -7,7 +7,6 @@ import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.PortCell;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.render.jgraph.Cell.CellEvent;
-import org.vanda.render.jgraph.Cell.MarkChangedEvent;
 import org.vanda.render.jgraph.Cell.SelectionChangedEvent;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
@@ -18,8 +17,6 @@ import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
-import com.mxgraph.util.mxStyleUtils;
-
 public class ConnectionAdapter {
 	private final ConnectionKey connectionKey;
 	private final ConnectionCell visualization;
@@ -27,7 +24,7 @@ public class ConnectionAdapter {
 	ConnectionCellListener connectionCellListener;
 	Observer<ViewEvent<AbstractView>> connectionViewObserver;
 	ConnectionViewListener connectionViewListener;
-	
+
 	private class ConnectionCellListener implements Cell.CellListener<Cell> {
 
 		private ConnectionViewListener connectionViewListener;
@@ -40,13 +37,13 @@ public class ConnectionAdapter {
 		@Override
 		public void selectionChanged(Cell c, boolean selected) {
 			// do nothing
-			
+
 		}
 
 		@Override
 		public void markChanged(Cell c) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -54,41 +51,43 @@ public class ConnectionAdapter {
 			if (connectionKey != null) {
 				if (connectionKey.target.isInserted())
 					view.getWorkflow().removeConnection(connectionKey);
-			}		
+			}
 		}
 
 		@Override
 		public void setSelection(Cell c, boolean selected) {
 			if (connectionKey != null)
-				view.getConnectionView(connectionKey).setSelected(true);
-			else 
-				view.clearSelection();
+				view.getConnectionView(connectionKey).setSelected(selected);
 		}
 
 		@Override
 		public void insertCell(Cell c) {
-			assert(connectionKey != null);
-			view.workflowListener.connectionAdded(view.getWorkflow(), connectionKey);
+			assert (connectionKey != null);
+			// create ConnectionView
+			view.workflowListener.connectionAdded(view.getWorkflow(),
+					connectionKey);
+
 			connectionViewListener = new ConnectionViewListener();
-			connectionViewObserver = new Observer<ViewEvent<AbstractView>> () {
+			connectionViewObserver = new Observer<ViewEvent<AbstractView>>() {
 
 				@Override
 				public void notify(ViewEvent<AbstractView> event) {
 					event.doNotify(connectionViewListener);
 				}
 			};
-			
+
 			// Register at ConnectionView
-			view.getConnectionView(connectionKey).getObservable().addObserver(connectionViewObserver);
-		
-			
-			PortCell sourcePortCell = (PortCell) visualization.getVisualization().getSource().getValue();
-			JobCell sourceJobCell = (JobCell) sourcePortCell.getVisualization().getParent().getValue();
-			PresentationModel pm = ((WorkflowCell) visualization.getVisualization().getParent().getValue()).getPresentationModel();
+			view.getConnectionView(connectionKey).getObservable()
+					.addObserver(connectionViewObserver);
+
+			PortCell sourcePortCell = visualization.getSourceCell();
+			JobCell sourceJobCell = (JobCell) sourcePortCell.getParentCell();
+			PresentationModel pm = ((WorkflowCell) visualization
+					.getParentCell()).getPresentationModel();
 			Job sourceJob = null;
 			JobAdapter sourceJobAdapter = null;
 			Port sourcePort = null;
-			
+
 			for (JobAdapter ja : pm.getJobs()) {
 				if (ja.getJobCell() == sourceJobCell) {
 					sourceJob = ja.getJob();
@@ -99,49 +98,48 @@ public class ConnectionAdapter {
 			for (Port op : sourceJob.getOutputPorts()) {
 				if (sourceJobAdapter.getOutPortCell(op) == sourcePortCell) {
 					sourcePort = op;
+					break;
 				}
-			} 
+			}
 
 			// Add Connection to Workflow
-			// This is done last, because it will trigger the typecheck, 
+			// This is done last, because it will trigger the typecheck,
 			// which requires the ConnectionView to be created before
-			view.getWorkflow().addConnection(connectionKey, sourceJob.bindings.get(sourcePort));
+			view.getWorkflow().addConnection(connectionKey,
+					sourceJob.bindings.get(sourcePort));
 		}
-			
-		
+
 	}
 
-	private class ConnectionViewListener implements AbstractView.ViewListener<AbstractView> {
-		
+	private class ConnectionViewListener implements
+			AbstractView.ViewListener<AbstractView> {
+
 		@Override
 		public void selectionChanged(AbstractView v) {
-			visualization.getObservable().notify(new SelectionChangedEvent<Cell>(visualization, v.isSelected())); 
+			visualization.getObservable().notify(
+					new SelectionChangedEvent<Cell>(visualization, v
+							.isSelected()));
 		}
-	
+
 		@Override
 		public void markChanged(AbstractView v) {
 			if (v.isMarked())
-				visualization.getVisualization().setStyle(mxStyleUtils.addStylename(visualization.getVisualization().getStyle(),
-						"highlightededge"));
-			else 
-			{
-				String st = mxStyleUtils.removeStylename(visualization.getVisualization().getStyle(),
-						"highlightededge");	
-				visualization.getVisualization().setStyle(st);	
-			}
-			visualization.getObservable().notify(new MarkChangedEvent<Cell>(visualization));
+				visualization.highlight(true);
+			else
+				visualization.highlight(false);
 		}
-	
+
 		@Override
 		public void highlightingChanged(AbstractView v) {
 			// TODO Auto-generated method stub
-			
+
 		}
 	}
-	
-	public ConnectionAdapter(ConnectionKey cc, PresentationModel pm, MutableWorkflow mwf, View view) {
+
+	public ConnectionAdapter(ConnectionKey cc, PresentationModel pm,
+			MutableWorkflow mwf, View view) {
 		this.connectionKey = cc;
-		
+
 		// find source and target JobCells
 		Job sourceJob = mwf.getConnectionSource(cc).target;
 		Job targetJob = cc.target;
@@ -152,48 +150,62 @@ public class ConnectionAdapter {
 		for (JobAdapter jA : pm.getJobs()) {
 			if (jA.getJob() == sourceJob)
 				sJA = jA;
-			if (jA.getJob() == targetJob) 
-				tJA = jA;				
+			if (jA.getJob() == targetJob)
+				tJA = jA;
 		}
 		assert (sJA != null && tJA != null);
 		PortCell source = sJA.getOutPortCell(sourcePort);
 		PortCell target = tJA.getInPortCell(targetPort);
 		assert (source != null && target != null);
 
-		this.visualization = new ConnectionCell(pm.getVisualization(), source, target);
+		this.visualization = new ConnectionCell(pm.getVisualization(), source,
+				target);
 		// Register at ConnectionView
-		view.getConnectionView(connectionKey).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
+		view.getConnectionView(connectionKey).getObservable()
+				.addObserver(new Observer<ViewEvent<AbstractView>>() {
 
-			@Override
-			public void notify(ViewEvent<AbstractView> event) {
-				event.doNotify(connectionViewListener);
-			}
-			
-		});
-		
+					@Override
+					public void notify(ViewEvent<AbstractView> event) {
+						event.doNotify(connectionViewListener);
+					}
+
+				});
+
 		connectionCellListener = new ConnectionCellListener();
-		visualization.getObservable().addObserver(new Observer<CellEvent<Cell>> () {
+		visualization.getObservable().addObserver(
+				new Observer<CellEvent<Cell>>() {
 
-			@Override
-			public void notify(CellEvent<Cell> event) {
-				event.doNotify(connectionCellListener);
-			}
-			
-		});
+					@Override
+					public void notify(CellEvent<Cell> event) {
+						event.doNotify(connectionCellListener);
+					}
+
+				});
 		this.view = view;
 	}
-	
-	public ConnectionAdapter(ConnectionKey connectionKey, ConnectionCell visualization, View view) {
+
+	public ConnectionAdapter(ConnectionKey connectionKey,
+			ConnectionCell visualization, View view) {
 		this.visualization = visualization;
 		this.connectionKey = connectionKey;
 		this.view = view;
+		connectionCellListener = new ConnectionCellListener();
+		visualization.getObservable().addObserver(
+				new Observer<CellEvent<Cell>>() {
+
+					@Override
+					public void notify(CellEvent<Cell> event) {
+						event.doNotify(connectionCellListener);
+					}
+
+				});
 	}
 
 	public void destroy(Graph graph) {
 		if (visualization != null) {
-			graph.getGraph().removeCells(new Object[] {visualization.getVisualization()});			
+			graph.getGraph().removeCells(
+					new Object[] { visualization.getVisualization() });
 		}
 	}
-
 
 }

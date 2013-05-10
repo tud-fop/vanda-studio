@@ -167,4 +167,12 @@ public abstract class Cell {
 		this.z = z;
 	}
 	
+	public Cell getParentCell() {
+		return (Cell) getVisualization().getParent().getValue();
+	}
+	
+	public void highlight(boolean highlight) {
+		// do nothing
+	}
+	
 }
