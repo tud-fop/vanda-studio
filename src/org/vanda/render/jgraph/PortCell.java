@@ -1,7 +1,5 @@
 package org.vanda.render.jgraph;
 
-import org.vanda.view.AbstractView;
-import org.vanda.view.View;
 import org.vanda.workflows.elements.Port;
 
 import com.mxgraph.model.mxCell;
@@ -36,29 +34,22 @@ public class PortCell extends Cell {
 	}
 
 	@Override
-	public void onRemove(View view) {
+	public void onRemove() {
+		// do nothing
 	}
 
 	@Override
 	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
+		// do nothing
 	}
 
 	@Override
 	public void onResize(mxGraph graph) {
-
+		// do nothing
 	}
 
 	@Override
-	public void setSelection(View view) {		
+	public void setSelection(boolean selected) {
+		// do nothing
 	}
-
-	@Override
-	public AbstractView getView(View view) {
-		return null;	// no view for Ports !
-	}
-
-	public Port getPort() {
-		return port;
-	}
-
 }

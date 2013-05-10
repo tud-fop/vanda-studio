@@ -1,58 +1,16 @@
 package org.vanda.render.jgraph;
 
 
-import org.vanda.util.Observer;
-import org.vanda.view.AbstractView;
-import org.vanda.view.View;
-import org.vanda.view.AbstractView.ViewEvent;
-import org.vanda.workflows.elements.Port;
-import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.Location;
-
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
 public class LocationCell extends Cell {
-	private class LocationViewListener implements AbstractView.ViewListener<AbstractView> {
-		
-		@Override
-		public void selectionChanged(AbstractView v) {
-			getObservable().notify(new SelectionChangedEvent<Cell>(LocationCell.this)); 
-		}
 
-		@Override
-		public void markChanged(AbstractView v) {
-			getObservable().notify(new MarkChangedEvent<Cell>(LocationCell.this));
-		}
+	public LocationCell(final Graph g, LayoutManagerInterface layout, Cell parent) {
 
-		@Override
-		public void highlightingChanged(AbstractView v) {
-			// TODO Auto-generated method stub
-			
-		}
-	}
-	
-	
-	private final Port port;
-	private Location variable;
-	protected final LocationViewListener locationViewListener;
-	
-	public LocationCell(final Graph g, LayoutManagerInterface layout, Cell parent, Port port, Location variable) {
-		this.port = port;
-		this.variable = variable;
 		this.observable = new CellObservable();
-		locationViewListener = new LocationViewListener();
 
-		// Register at LocationView
-		g.getView().getLocationView(variable).getObservable().addObserver(new Observer<ViewEvent<AbstractView>> () {
-
-			@Override
-			public void notify(ViewEvent<AbstractView> event) {
-				event.doNotify(locationViewListener);
-			}
-		});
-		
 		// Register at Graph
 		getObservable().addObserver(new org.vanda.util.Observer<CellEvent<Cell>> () {
 
@@ -81,30 +39,23 @@ public class LocationCell extends Cell {
 	}
 
 	@Override
-	public void onRemove(View view) {		
+	public void onRemove() {
+		// do nothing
 	}
 
 	@Override
 	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {		
+		// do nothing
 	}
 
 	@Override
-	public void onResize(mxGraph graph) {		
+	public void onResize(mxGraph graph) {
+		// do nothing
 	}
 
 	@Override
-	public void setSelection(View view) {
-		view.getLocationView(variable).setSelected(true);	
+	public void setSelection(boolean selected) {
+		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
 	}
 	
-	@Override
-	public void updateLocation(Job job) {
-		variable = job.bindings.get(port);
-	}
-
-	@Override
-	public AbstractView getView(View view) {
-		return view.getLocationView(variable);
-	}
-
 }

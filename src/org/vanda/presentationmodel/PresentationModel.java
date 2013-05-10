@@ -7,12 +7,15 @@ import java.util.WeakHashMap;
 
 import org.vanda.render.jgraph.ConnectionCell;
 import org.vanda.render.jgraph.Graph;
+import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.LayoutManagerFactoryInterface;
 import org.vanda.render.jgraph.LayoutManagerInterface;
 import org.vanda.render.jgraph.NaiveLayoutManagerFactory;
+import org.vanda.render.jgraph.PortCell;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.util.Observer;
 import org.vanda.view.View;
+import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
@@ -48,7 +51,7 @@ public class PresentationModel {
 			if (ja.getJob() == job)
 				return ja;
 		}
-		JobAdapter ja = new JobAdapter(job, selectLayout(job), graph);
+		JobAdapter ja = new JobAdapter(job, selectLayout(job), graph, view);
 		jobs.add(ja);
 		graph.refresh();
 		return ja;
@@ -121,7 +124,7 @@ public class PresentationModel {
 
 	public void addConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
 		if (!connections.containsKey(cc))
-			connections.put(cc, new ConnectionAdapter(cc, this, mwf));
+			connections.put(cc, new ConnectionAdapter(cc, this, mwf, view));
 	}
 
 	public void removeJobAdatper(MutableWorkflow mwf, Job j) {
@@ -161,21 +164,54 @@ public class PresentationModel {
 					
 				});
 		setupPresentationModel();
-}
+	}
 
 	private void setupPresentationModel() {
 		for (Job j : view.getWorkflow().getChildren()) {
-			jobs.add(new JobAdapter(j, selectLayout(j), graph));
+			jobs.add(new JobAdapter(j, selectLayout(j), graph, view));
 		}
 		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
-			connections.put(ck, new ConnectionAdapter(ck, this, view.getWorkflow()));
+			connections.put(ck, new ConnectionAdapter(ck, this, view.getWorkflow(), view));
 		}
 	}
 
 	public void addConnectionAdapter(ConnectionCell connectionCell,
 			ConnectionKey connectionKey) {
 		if (! connections.containsKey(connectionKey))
-			connections.put(connectionKey, new ConnectionAdapter(connectionKey, connectionCell));
+			connections.put(connectionKey, new ConnectionAdapter(connectionKey, connectionCell, view));
+	}
+
+	public void addConnectionAdapter(ConnectionCell connectionCell, JobCell tparval,
+			PortCell tval) {
+		Job j = null;
+		Port p = null;
+		for (JobAdapter ja : jobs)
+		{
+			if (ja.getJobCell() == tparval) {
+				j = ja.getJob();
+				break;
+			}
+		}
+		for (JobAdapter ja : jobs) 
+		{
+			if (ja.getJob() == j)
+				for (Port pi : ja.getJob().getInputPorts()) {
+					if (ja.getInPortCell(pi) == tval) {
+						p = pi;
+						break;
+					}
+				for (Port po : ja.getJob().getOutputPorts()) {
+					if (ja.getOutPortCell(po) == tval) {
+						p = po;
+						break;
+					}
+				break;
+				}
+		}
+		ConnectionKey connectionKey = new ConnectionKey(j, p);
+		 if (! connections.containsKey(connectionKey))
+			 connections.put(connectionKey, new ConnectionAdapter(connectionKey, connectionCell, view));
+		}
 	}
 
 }

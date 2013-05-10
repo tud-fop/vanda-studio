@@ -1,10 +1,6 @@
 package org.vanda.render.jgraph;
 
 import org.vanda.util.MultiplexObserver;
-import org.vanda.view.AbstractView;
-import org.vanda.view.View;
-import org.vanda.workflows.hyper.Job;
-
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
@@ -44,15 +40,15 @@ public abstract class Cell {
 	
 	public abstract String getType();
 	
-	public abstract void setSelection(View view); 
+	public abstract void setSelection(boolean selected); 
 	
-	public abstract void onRemove(View view); 
+	public abstract void onRemove(); 
 	
 	public abstract void onInsert(final Graph graph, mxICell parent, mxICell cell);
 	
 	public abstract void onResize(mxGraph graph); 
 	
-	public abstract AbstractView getView(View view);
+//	public abstract AbstractView getView(View view);
 	
 	public CellObservable getObservable() {
 		return observable;
@@ -68,9 +64,11 @@ public abstract class Cell {
 	
 	public static interface CellListener<C> {
 		void propertyChanged(C c);
-		void selectionChanged(C c);
+		void selectionChanged(C c, boolean selected);
 		void markChanged(C c);
 		void removeCell(C c);
+		void setSelection(C c, boolean selected);
+		void insertCell(C c);
 	}
 	
 	public static class PropertyChangedEvent<C> implements CellEvent<C> {
@@ -89,13 +87,32 @@ public abstract class Cell {
 	
 	public static class SelectionChangedEvent<C> implements CellEvent<C> {
 		private final C c;
+		boolean selected;
 		
-		public SelectionChangedEvent(C c) {
+		public SelectionChangedEvent(C c, boolean selected) {
 			this.c = c;
+			this.selected = selected;
+
 		}
 		@Override
 		public void doNotify(CellListener<C> cl) {
-			cl.selectionChanged(c);
+			cl.selectionChanged(c, selected);
+		}
+		
+	}
+	
+	public static class SetSelectionEvent<C> implements CellEvent<C> {
+		private final C c;
+		private final boolean selected;
+		
+		public SetSelectionEvent(C c, boolean selected) {
+			this. c = c; 
+			this.selected = selected;
+		}
+		
+		@Override
+		public void doNotify(CellListener<C> cl) {
+			cl.setSelection(c, selected);
 		}
 		
 	}
@@ -112,11 +129,14 @@ public abstract class Cell {
 		
 	}
 	
-	public static class CellRemovedEvent<C> implements CellEvent<C> {
+	public static class RemoveCellEvent<C> implements CellEvent<C> {
 		private final C c;
-		public CellRemovedEvent(C c) {
+		
+		public RemoveCellEvent(C c) {
 			this.c = c;
+
 		}
+		
 		@Override
 		public void doNotify(CellListener<C> cl) {
 			cl.removeCell(c);
@@ -124,14 +144,25 @@ public abstract class Cell {
 		
 		
 	}
+	
+	public static class InsertCellEvent<C> implements CellEvent<C> {
+		private final C c;
+		
+		public InsertCellEvent(C c) {
+			this.c = c;
+		}
+
+		@Override
+		public void doNotify(CellListener<C> cl) {
+			cl.insertCell(c);
+		}
+		
+	}
 
 	public String getLabel() {
 		return "";
 	}
-	
-	public void updateLocation(Job job) {
-		// do Nothing
-	}
+
 	public void setZ(int z) {
 		this.z = z;
 	}
