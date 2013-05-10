@@ -6,6 +6,7 @@ import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.PortCell;
 import org.vanda.render.jgraph.WorkflowCell;
+import org.vanda.render.jgraph.Cell.CellEvent;
 import org.vanda.render.jgraph.Cell.MarkChangedEvent;
 import org.vanda.render.jgraph.Cell.SelectionChangedEvent;
 import org.vanda.util.Observer;
@@ -166,6 +167,16 @@ public class ConnectionAdapter {
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
 				event.doNotify(connectionViewListener);
+			}
+			
+		});
+		
+		connectionCellListener = new ConnectionCellListener();
+		visualization.getObservable().addObserver(new Observer<CellEvent<Cell>> () {
+
+			@Override
+			public void notify(CellEvent<Cell> event) {
+				event.doNotify(connectionCellListener);
 			}
 			
 		});

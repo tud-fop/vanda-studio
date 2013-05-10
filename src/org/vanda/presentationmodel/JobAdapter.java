@@ -3,6 +3,7 @@ package org.vanda.presentationmodel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cell.CellEvent;
@@ -141,10 +142,11 @@ public class JobAdapter {
 
 	JobAdapter(Job job, LayoutManagerInterface layoutManager, Graph graph,
 			View view) {
+		this.view = view;
 		setUpCells(layoutManager, graph, job);
 		this.jobListener = new JobListener();
 		this.jobCellListener = new JobCellListener();
-		this.view = view;
+		
 
 		// Register at Job
 		if (job.getObservable() != null)
@@ -177,6 +179,9 @@ public class JobAdapter {
 		g.getGraph().getModel().beginUpdate();
 		try {
 			this.job = job;
+			inports = new WeakHashMap<Port, PortCell>();
+			outports = new WeakHashMap<Port, PortCell>();
+			locations = new WeakHashMap<Location, LocationAdapter>();
 			jobCell = new JobCell(g, layoutManager, job.getName(), job.getX(),
 					job.getY(), job.getWidth(), job.getHeight());
 
@@ -193,8 +198,10 @@ public class JobAdapter {
 			for (Port op : out) {
 				outports.put(op, new PortCell(g, layoutManager, jobCell, op,
 						"OutPortCell"));
-				locations.put(job.bindings.get(op), new LocationAdapter(g,
-						layoutManager, jobCell, op, job.bindings.get(op)));
+				locations
+						.put(job.bindings.get(op),
+								new LocationAdapter(g, view, layoutManager,
+										jobCell, op, job.bindings.get(op)));
 
 			}
 

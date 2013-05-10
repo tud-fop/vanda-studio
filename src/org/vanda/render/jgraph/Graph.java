@@ -265,7 +265,8 @@ public final class Graph {
 
 	private void clearSelection() {
 		for (Object c : ((mxGraphModel) (graph.getModel())).getCells().values()) {
-			((Cell) ((mxCell) c).getValue()).setSelection(false);
+			if (((mxCell) c).getValue() != null)
+				((Cell) ((mxCell) c).getValue()).setSelection(false);
 		}
 	}
 
