@@ -11,6 +11,7 @@ import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
 import org.vanda.view.AbstractView.ViewEvent;
+import org.vanda.view.ConnectionView;
 import org.vanda.view.View;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
@@ -22,51 +23,7 @@ public class ConnectionAdapter {
 
 		@Override
 		public void insertCell(Cell c) {
-			assert (connectionKey != null);
-			// create ConnectionView
-			view.workflowListener.connectionAdded(view.getWorkflow(),
-					connectionKey);
-
-			connectionViewListener = new ConnectionViewListener();
-			connectionViewObserver = new Observer<ViewEvent<AbstractView>>() {
-
-				@Override
-				public void notify(ViewEvent<AbstractView> event) {
-					event.doNotify(connectionViewListener);
-				}
-			};
-
-			// Register at ConnectionView
-			view.getConnectionView(connectionKey).getObservable()
-					.addObserver(connectionViewObserver);
-
-			PortCell sourcePortCell = visualization.getSourceCell();
-			JobCell sourceJobCell = (JobCell) sourcePortCell.getParentCell();
-			PresentationModel pm = ((WorkflowCell) visualization
-					.getParentCell()).getPresentationModel();
-			Job sourceJob = null;
-			JobAdapter sourceJobAdapter = null;
-			Port sourcePort = null;
-
-			for (JobAdapter ja : pm.getJobs()) {
-				if (ja.getJobCell() == sourceJobCell) {
-					sourceJob = ja.getJob();
-					sourceJobAdapter = ja;
-					break;
-				}
-			}
-			for (Port op : sourceJob.getOutputPorts()) {
-				if (sourceJobAdapter.getOutPortCell(op) == sourcePortCell) {
-					sourcePort = op;
-					break;
-				}
-			}
-
-			// Add Connection to Workflow
-			// This is done last, because it will trigger the typecheck,
-			// which requires the ConnectionView to be created before
-			view.getWorkflow().addConnection(connectionKey,
-					sourceJob.bindings.get(sourcePort));
+			// do nothing
 		}
 
 		@Override
@@ -96,11 +53,15 @@ public class ConnectionAdapter {
 
 		@Override
 		public void setSelection(Cell c, boolean selected) {
-			if (connectionKey != null)
-				view.getConnectionView(connectionKey).setSelected(selected);
+			if (connectionKey != null) {
+				ConnectionView cv = view.getConnectionView(connectionKey);
+				if (cv != null)
+					cv.setSelected(selected);
+			}
 		}
 
 	}
+
 	private class ConnectionViewListener implements
 			AbstractView.ViewListener<AbstractView> {
 
@@ -125,22 +86,33 @@ public class ConnectionAdapter {
 							.isSelected()));
 		}
 	}
+
 	ConnectionCellListener connectionCellListener;
-	
+
 	private final ConnectionKey connectionKey;
 	private ConnectionViewListener connectionViewListener;
-	
+
 	Observer<ViewEvent<AbstractView>> connectionViewObserver;
-		
+
 	View view;
 
 	private final ConnectionCell visualization;
 
+	/**
+	 * Constructor in case of hand-drawn edge creation
+	 * 
+	 * @param connectionKey
+	 * @param visualization
+	 * @param view
+	 */
 	public ConnectionAdapter(ConnectionKey connectionKey,
 			ConnectionCell visualization, View view) {
+		//System.out.println("Hand-Drawn edge!");
 		this.visualization = visualization;
 		this.connectionKey = connectionKey;
 		this.view = view;
+
+		// register at Connection View
 		connectionCellListener = new ConnectionCellListener();
 		visualization.getObservable().addObserver(
 				new Observer<CellEvent<Cell>>() {
@@ -151,11 +123,65 @@ public class ConnectionAdapter {
 					}
 
 				});
+
+		// create ConnectionView
+		view.addConnectionView(connectionKey);
+
+		connectionViewListener = new ConnectionViewListener();
+		connectionViewObserver = new Observer<ViewEvent<AbstractView>>() {
+
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				event.doNotify(connectionViewListener);
+			}
+		};
+
+		// Register at ConnectionView
+		view.getConnectionView(connectionKey).getObservable()
+				.addObserver(connectionViewObserver);
+
+		// identify Source Job and Source Port
+		PortCell sourcePortCell = visualization.getSourceCell();
+		JobCell sourceJobCell = (JobCell) sourcePortCell.getParentCell();
+		PresentationModel pm = ((WorkflowCell) visualization.getParentCell())
+				.getPresentationModel();
+		Job sourceJob = null;
+		JobAdapter sourceJobAdapter = null;
+		Port sourcePort = null;
+
+		for (JobAdapter ja : pm.getJobs()) {
+			if (ja.getJobCell() == sourceJobCell) {
+				sourceJob = ja.getJob();
+				sourceJobAdapter = ja;
+				break;
+			}
+		}
+		for (Port op : sourceJob.getOutputPorts()) {
+			if (sourceJobAdapter.getOutPortCell(op) == sourcePortCell) {
+				sourcePort = op;
+				break;
+			}
+		}
+
+		// Add Connection to Workflow
+		// This is done last, because it will trigger the typecheck,
+		// which requires the ConnectionView to be created before
+		view.getWorkflow().addConnection(connectionKey,
+				sourceJob.bindings.get(sourcePort));
 	}
 
+	/**
+	 * Constructor in case of loading a workflow
+	 * 
+	 * @param cc
+	 * @param pm
+	 * @param mwf
+	 * @param view
+	 */
 	public ConnectionAdapter(ConnectionKey cc, PresentationModel pm,
 			MutableWorkflow mwf, View view) {
 		this.connectionKey = cc;
+		this.view = view;
 
 		// find source and target JobCells
 		Job sourceJob = mwf.getConnectionSource(cc).target;
@@ -175,9 +201,11 @@ public class ConnectionAdapter {
 		PortCell target = tJA.getInPortCell(targetPort);
 		assert (source != null && target != null);
 
-		this.visualization = new ConnectionCell(pm.getVisualization(), source,
+		visualization = new ConnectionCell(pm.getVisualization(), source,
 				target);
+		
 		// Register at ConnectionView
+		connectionViewListener = new ConnectionViewListener();
 		view.getConnectionView(connectionKey).getObservable()
 				.addObserver(new Observer<ViewEvent<AbstractView>>() {
 
@@ -198,7 +226,6 @@ public class ConnectionAdapter {
 					}
 
 				});
-		this.view = view;
 	}
 
 	public void destroy(Graph graph) {

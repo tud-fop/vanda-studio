@@ -21,5 +21,4 @@ public class ConnectionView extends AbstractView {
 				break;
 			}
 	}
-
 }

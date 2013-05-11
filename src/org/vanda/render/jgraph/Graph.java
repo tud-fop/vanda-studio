@@ -214,7 +214,12 @@ public final class Graph {
 		@Override
 		public Object createEdge(Object parent, String id, Object value,
 				Object source, Object target, String style) {
+			if (value != null) 
+				System.out.println(value);
+			else 
+				System.out.print("null - Edge: ");
 			if (value == null || "".equals(value)) {
+				System.out.println("New Connection Cell");
 				value = new ConnectionCell();
 				
 			}
@@ -282,10 +287,10 @@ public final class Graph {
 		}
 	}
 
-	// protected final View view;
 	protected final CellChangeListener cellChangeListener;
 	protected final ChangeListener changeListener;
 	protected final mxGraph graph;
+	private int selectionUpdate = 0;
 
 	public Graph(View view, WorkflowCell workflowCell) {
 		// Create graph and set graph properties
@@ -327,6 +332,8 @@ public final class Graph {
 	}
 	
 	public void setSelection(Cell cell, boolean selected) {
+		if (selectionUpdate > 0)
+			return;
 		if (selected)
 			graph.addSelectionCell(cell.getVisualization());
 		else
@@ -335,6 +342,7 @@ public final class Graph {
 	}
 	
 	private void updateSelection(mxIGraphModel gmodel, Object[] cells) {
+		selectionUpdate++;
 		clearSelection();
 
 		// set selection in View
@@ -342,6 +350,7 @@ public final class Graph {
 			Cell cell = (Cell) gmodel.getValue(o);
 			cell.setSelection(true);
 		}
+		selectionUpdate--;
 	}
 
 }

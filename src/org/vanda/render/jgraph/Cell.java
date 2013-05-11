@@ -1,6 +1,7 @@
 package org.vanda.render.jgraph;
 
 import org.vanda.util.MultiplexObserver;
+import org.vanda.util.Observer;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
@@ -26,7 +27,22 @@ public abstract class Cell {
 	}
 
 	public class CellObservable extends MultiplexObserver<CellEvent<Cell>> {
-
+		int observers = 0;
+		@Override
+		public void addObserver(Observer<? super CellEvent<Cell>> o) {
+			observers++;
+			super.addObserver(o);
+		}
+		
+		@Override
+		public void removeObserver(Observer<? super CellEvent<Cell>> o) {
+			observers--;
+			super.removeObserver(o);
+		}
+		
+		public int getObserverCount() {
+			return observers;
+		}
 	}
 
 	public static class InsertCellEvent<C> implements CellEvent<C> {

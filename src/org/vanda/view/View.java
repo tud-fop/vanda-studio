@@ -111,7 +111,7 @@ public class View {
 
 	MutableWorkflow workflow;
 
-	public WorkflowListener workflowListener;
+	private WorkflowListener workflowListener;
 
 	private WorkflowView workflowView;
 
@@ -163,7 +163,7 @@ public class View {
 				});
 	}
 
-	private void addConnectionView(ConnectionKey cc) {
+	public void addConnectionView(ConnectionKey cc) {
 		if (!connections.containsKey(cc)) {
 			connections.put(cc, new ConnectionView());
 			connections.get(cc).getObservable()

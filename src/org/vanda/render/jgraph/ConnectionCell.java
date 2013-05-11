@@ -8,15 +8,15 @@ import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.view.mxGraph;
 
 public class ConnectionCell extends Cell {
-	// private ConnectionKey connectionKey;
-
+	boolean handdrawn;
+	
 	public ConnectionCell() {
-		// connectionKey = null;
+		handdrawn = true;
 		this.observable = new CellObservable();
 	}
 
 	public ConnectionCell(final Graph graph, PortCell source, PortCell target) {
-		// this.connectionKey = connectionKey;
+		handdrawn = false;
 		this.observable = new CellObservable();
 
 		// Register at Graph
@@ -78,35 +78,36 @@ public class ConnectionCell extends Cell {
 
 	@Override
 	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
-		// not in the model -> hand-drawn edge
-		// if (connectionKey == null) {
-		mxIGraphModel model = graph.getGraph().getModel();
-		Object source = model.getTerminal(cell, true);
-		Object target = model.getTerminal(cell, false);
+		// no observers (-> no ConnectionAdapter) -> hand-drawn edge
+		if (handdrawn) {
+			mxIGraphModel model = graph.getGraph().getModel();
+			Object source = model.getTerminal(cell, true);
+			Object target = model.getTerminal(cell, false);
 
-		// ignore "unfinished" edges
-		if (source != null && target != null) {
-			visualization = (mxCell) cell;
+			// ignore "unfinished" edges
+			if (source != null && target != null) {
+				visualization = (mxCell) cell;
 
-			PortCell tval = (PortCell) model.getValue(target);
-			JobCell tparval = (JobCell) model.getValue(model.getParent(target));
+				PortCell tval = (PortCell) model.getValue(target);
+				JobCell tparval = (JobCell) model.getValue(model
+						.getParent(target));
 
-			// Create ConnectionAdapter
-			((WorkflowCell) ((mxICell) graph.getGraph().getDefaultParent())
-					.getValue()).getPresentationModel().addConnectionAdapter(
-					this, tparval, tval);
+				// register graph for cell changes
+				getObservable().addObserver(new Observer<CellEvent<Cell>>() {
 
-			// register graph for cell changes
-			getObservable().addObserver(new Observer<CellEvent<Cell>>() {
+					@Override
+					public void notify(CellEvent<Cell> event) {
+						event.doNotify(graph.getCellChangeListener());
+					}
 
-				@Override
-				public void notify(CellEvent<Cell> event) {
-					event.doNotify(graph.getCellChangeListener());
-				}
+				});
 
-			});
+				// Create ConnectionAdapter
+				((WorkflowCell) ((mxICell) graph.getGraph().getDefaultParent())
+						.getValue()).getPresentationModel()
+						.addConnectionAdapter(this, tparval, tval);
 
-			getObservable().notify(new InsertCellEvent<Cell>(this));
+			}
 		}
 	}
 

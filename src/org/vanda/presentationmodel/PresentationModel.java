@@ -50,7 +50,8 @@ public class PresentationModel {
 
 		@Override
 		public void connectionAdded(MutableWorkflow mwf, ConnectionKey cc) {
-			addConnectionAdapter(mwf, cc);
+			if (update == 0)
+				addConnectionAdapter(mwf, cc);
 		}
 
 		@Override
@@ -70,12 +71,14 @@ public class PresentationModel {
 		}
 
 	}
+
 	Map<ConnectionKey, ConnectionAdapter> connections;
 	protected final Graph graph;
 	List<JobAdapter> jobs;
 	LayoutManagerFactoryInterface layoutManager = new NaiveLayoutManagerFactory();
 	View view;
 	protected final WorkflowCell workflowCell;
+	private int update = 0;
 
 	/*
 	 * map that holds Layouts for all Job-Types, where String is
@@ -109,13 +112,13 @@ public class PresentationModel {
 		setupPresentationModel();
 	}
 
-	public void addConnectionAdapter(ConnectionCell connectionCell,
-			ConnectionKey connectionKey) {
-		if (!connections.containsKey(connectionKey))
-			connections.put(connectionKey, new ConnectionAdapter(connectionKey,
-					connectionCell, view));
-	}
-
+	/**
+	 * called in case of hand-drawn edge insertion
+	 * 
+	 * @param connectionCell
+	 * @param tparval
+	 * @param tval
+	 */
 	public void addConnectionAdapter(ConnectionCell connectionCell,
 			JobCell tparval, PortCell tval) {
 		Job j = null;
@@ -139,12 +142,20 @@ public class PresentationModel {
 		}
 		assert (j != null && p != null);
 		ConnectionKey connectionKey = new ConnectionKey(j, p);
+		beginUpdate();
 		if (!connections.containsKey(connectionKey))
 			connections.put(connectionKey, new ConnectionAdapter(connectionKey,
 					connectionCell, view));
+		endUpdate();
 
 	}
 
+	/**
+	 * called in case of edge insertion by workflow (never ???)
+	 * 
+	 * @param mwf
+	 * @param cc
+	 */
 	public void addConnectionAdapter(MutableWorkflow mwf, ConnectionKey cc) {
 		if (!connections.containsKey(cc))
 			connections.put(cc, new ConnectionAdapter(cc, this, mwf, view));
@@ -165,9 +176,11 @@ public class PresentationModel {
 	}
 
 	void beginUpdate() {
+		update++;
 	}
 
 	void endUpdate() {
+		update--;
 	}
 
 	public List<JobAdapter> getJobs() {
@@ -211,8 +224,10 @@ public class PresentationModel {
 			jobs.add(new JobAdapter(j, selectLayout(j), graph, view));
 		}
 		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
-			connections.put(ck,
-					new ConnectionAdapter(ck, this, view.getWorkflow(), view));
+			if (connections.get(ck) == null)
+				connections.put(ck,
+						new ConnectionAdapter(ck, this, view.getWorkflow(),
+								view));
 		}
 	}
 
