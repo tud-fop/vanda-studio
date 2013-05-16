@@ -48,7 +48,7 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 			if (result == JFileChooser.APPROVE_OPTION) {
 				File chosenFile = chooser.getSelectedFile();
 				try {
-					DrecksAdapter da = new DrecksAdapter(wfe.getModel());
+					DrecksAdapter da = new DrecksAdapter(wfe.getWorkflowDecoration());
 					mxGraph graph = da.getGraph();
 					Document svg = mxCellRenderer.createSvgDocument(graph,
 							null, 1, null, null);
@@ -74,36 +74,6 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 	public WorkflowToPDFToolFactory(Application app) {
 		super();
 		this.app = app;
-	}
-	
-	@Override
-	public String getCategory() {
-		return "Export";
-	}
-
-	@Override
-	public String getContact() {
-		return "Matthias.Buechse@tu-dresden.de";
-	}
-
-	@Override
-	public String getDescription() {
-		return "Permits exporting the workflow to PDF";
-	}
-
-	@Override
-	public String getId() {
-		return "export-to-pdf";
-	}
-
-	@Override
-	public String getName() {
-		return "PDF export";
-	}
-
-	@Override
-	public String getVersion() {
-		return "2012-12-14";
 	}
 
 	@Override

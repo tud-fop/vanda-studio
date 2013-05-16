@@ -33,7 +33,7 @@ public class ScoresPreviewFactory implements PreviewFactory {
 			// read stuff from file
 			sScores = new Scanner(scores);
 			sMeta = new Scanner(meta);
-			File sentences = new File(sMeta.nextLine());
+			File sentences = new File(app.findFile(sMeta.nextLine()));
 			sMeta.close();
 			sSentences = new Scanner(sentences);
 			List<String> left = new ArrayList<String>();
@@ -52,7 +52,7 @@ public class ScoresPreviewFactory implements PreviewFactory {
 				data[i][1] = right.get(i);
 			}
 			// build GUI
-			JTable jTable = new JTable(data, new String[] {"sentence", "score"});
+			JTable jTable = new JTable(data, new String[] {"element", "score"});
 			JComponent result = new JScrollPane(jTable);
 			return result;
 		} catch (FileNotFoundException e) {

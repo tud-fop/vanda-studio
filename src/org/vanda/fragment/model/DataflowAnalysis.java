@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.xml.bind.DatatypeConverter;
 
 import org.vanda.types.Type;
+import org.vanda.workflows.data.Database;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
@@ -19,23 +20,25 @@ import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 // XXX removed: handle ports (see older versions)
-// XXX I've had it with all of this instanceof/typecast bullshit
-// find a principled solution (e.g., visitor)
 public final class DataflowAnalysis {
 	public static final String UNDEFINED = "UNDEFINED";
 
 	private final MutableWorkflow workflow;
+	private final Database db;
 	private final Map<Location, String> values;
 	private final Map<Tool, String> rootDirs;
 	private final Job[] jobs;
 	private final Type fragmentType;
+	private boolean connected;
 
-	public DataflowAnalysis(MutableWorkflow iwf, Job[] sorted, Type fragmentType) {
+	public DataflowAnalysis(MutableWorkflow iwf, Database db, Job[] sorted, Type fragmentType) {
 		workflow = iwf;
+		this.db = db;
 		values = new HashMap<Location, String>();
 		rootDirs = new HashMap<Tool, String>();
 		jobs = sorted;
 		this.fragmentType = fragmentType;
+		connected = false;
 	}
 
 	public Type getFragmentType() {
@@ -47,6 +50,7 @@ public final class DataflowAnalysis {
 	}
 
 	public void init() {
+		Boolean cc = true;
 		if (jobs == null)
 			return;
 		for (final Job ji : jobs) {
@@ -55,7 +59,7 @@ public final class DataflowAnalysis {
 					@Override
 					public void visitLiteral(Literal lit) {
 						values.put(ji.bindings.get(ji.getOutputPorts().get(0)),
-								lit.getValue());
+								db.get(lit.getKey()));
 					}
 
 					@Override
@@ -91,11 +95,13 @@ public final class DataflowAnalysis {
 					sb.append(variable.toString());
 					values.put(variable, sb.toString());
 				}
+				cc = false;
 			}
 		}
+		connected = cc;
 	}
 
-	private String md5sum(String in) {
+	private static String md5sum(String in) {
 		try {
 			byte[] bytesOfMessage = in.getBytes(Charset.forName("UTF-8"));
 			MessageDigest md = MessageDigest.getInstance("MD5");
@@ -122,5 +128,9 @@ public final class DataflowAnalysis {
 
 	public MutableWorkflow getWorkflow() {
 		return workflow;
+	}
+	
+	public boolean isConnected() {
+		return connected;
 	}
 }

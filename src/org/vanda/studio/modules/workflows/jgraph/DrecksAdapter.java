@@ -68,8 +68,8 @@ public final class DrecksAdapter {
 						refreshSelection = true;
 //						if (model != null)
 //							model.setSelection(null);
-						if (model != null)
-							model.getView().clearSelection();
+//						if (model != null)
+//							model.getView().clearSelection();
 					}
 					if (cc.getPrevious() != null) {
 						// something has been removed
@@ -92,9 +92,10 @@ public final class DrecksAdapter {
 					Object cell = graph.getSelectionCell();
 					if (cell != null) {
 						((Adapter) gmodel.getValue(cell)).setSelection(model);
-					} else
+					}
+//					} else
 //						model.setSelection(null);
-						model.getView().clearSelection();
+//						model.getView().clearSelection();
 				}
 			}
 		}
@@ -179,10 +180,11 @@ public final class DrecksAdapter {
 								}
 							});
 
+
 //			model.getMarkedElementsObservable().addObserver(
-//					new Observer<Model>() {
+//					new Observer<WorkflowDecoration>() {
 //						@Override
-//						public void notify(Model m) {
+//						public void notify(WorkflowDecoration m) {
 //							List<mxICell> markedCells = transformElementsToCells(m
 //									.getMarkedElements());
 //

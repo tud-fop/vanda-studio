@@ -18,7 +18,7 @@ public class DebuggerTool implements ToolFactory {
 
 		public Tool(WorkflowEditor wfe) {
 			this.wfe = wfe;
-			this.m = wfe.getModel(); // XXX better not cache this
+			this.m = wfe.getWorkflowDecoration(); // XXX better not cache this
 			debugger = new JTextArea();
 			this.m.getWorkflowCheckObservable().addObserver(
 					new Observer<WorkflowDecoration>() {
@@ -29,7 +29,7 @@ public class DebuggerTool implements ToolFactory {
 					});
 			therealdebugger = new JScrollPane(debugger);
 			therealdebugger.setName("Debugger");
-			this.wfe.addToolWindow(therealdebugger);
+			// FIXME this.wfe.addToolWindow(therealdebugger);
 		}
 
 		public void update(WorkflowDecoration model) {
@@ -48,36 +48,6 @@ public class DebuggerTool implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe) {
 		return new Tool(wfe);
-	}
-
-	@Override
-	public String getCategory() {
-		return "Workflow Inspection";
-	}
-
-	@Override
-	public String getContact() {
-		return "Matthias.Buechse@tu-dresden.de";
-	}
-
-	@Override
-	public String getDescription() {
-		return "Shows the system of equations behind the workflow.";
-	}
-
-	@Override
-	public String getId() {
-		return "debugger-tool";
-	}
-
-	@Override
-	public String getName() {
-		return "Debugger Tool";
-	}
-
-	@Override
-	public String getVersion() {
-		return "2012-12-12";
 	}
 
 }

@@ -6,13 +6,13 @@ public class SimpleElementHandlerFactory<Builder1, Builder2> implements
 	private final String tag;
 	private final ElementHandlerFactory<Builder2> ehf;
 	private final Factory<Builder2> factory;
-	private final ComplexFieldProcessor<Builder1, Builder2> cfp;
+	private final ComplexFieldProcessor<Builder1, ? super Builder2> cfp;
 	private final FieldProcessor<Builder2> fp;
 	private final FieldProcessor<Builder2> tfp;
 
 	public SimpleElementHandlerFactory(String tag,
 			ElementHandlerFactory<Builder2> ehf, Factory<Builder2> factory,
-			ComplexFieldProcessor<Builder1, Builder2> cfp,
+			ComplexFieldProcessor<Builder1, ? super Builder2> cfp,
 			FieldProcessor<Builder2> fp, FieldProcessor<Builder2> tfp) {
 		this.tag = tag;
 		this.ehf = ehf;
@@ -62,7 +62,8 @@ public class SimpleElementHandlerFactory<Builder1, Builder2> implements
 
 		@Override
 		public void endElement(String namespace, String name) {
-			cfp.process(b1, b2);
+			if (cfp != null)
+				cfp.process(b1, b2);
 		}
 
 		@Override

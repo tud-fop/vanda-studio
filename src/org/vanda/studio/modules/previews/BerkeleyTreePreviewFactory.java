@@ -110,8 +110,8 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		string = string.trim();
 		if (string.equals("(())") || string.equals("(no parse)"))
 			return new Tree("[no parse]");
-		if (string.startsWith("( (") && string.endsWith(") )"))
-			string = string.substring(1, string.length() - 1).trim();
+		if (string.startsWith("( ("))
+			string = string.substring(1).trim();
 		Lexer lex = new Lexer("()", " ");
 		Stack<String> st = lex.lex(string);
 		Tree t = parseTree(st);
@@ -135,7 +135,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		return new Tree(st.pop());
 	}
 
-	class DragScrollListener extends MouseAdapter implements MouseWheelListener {
+	class DragScrollListener extends MouseAdapter {
 		private final Cursor defCursor = Cursor
 				.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
 		private final Cursor hndCursor = Cursor
@@ -522,10 +522,12 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		public void more() {
 			int i = 0;
 			String line;
-			while (i < SIZE & scan.hasNextLine()) {
-				line = scan.nextLine();
-				trees.add(new Pair<String, Tree>(line, parseTree(line)));
-				i++;
+			while (i < SIZE && scan.hasNextLine()) {
+				line = scan.nextLine().trim();
+				if (!line.isEmpty() && line.startsWith("(")) {
+					trees.add(new Pair<String, Tree>(line, parseTree(line)));
+					i++;
+				}
 			}
 			if (!scan.hasNextLine())
 				bMore.setEnabled(false);

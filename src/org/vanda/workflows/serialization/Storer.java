@@ -3,8 +3,10 @@ package org.vanda.workflows.serialization;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.vanda.workflows.data.Database;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
@@ -17,7 +19,7 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 
 public class Storer {
 
-	public void store(MutableWorkflow w, String filename) throws Exception {
+	public void store(MutableWorkflow w, Database d, String filename) throws Exception {
 		Writer writer = new FileWriter(new File(filename));
 		final PrettyPrintWriter ppw = new PrettyPrintWriter(writer);
 		ppw.startNode("workflow");
@@ -29,7 +31,9 @@ public class Storer {
 				public void visitLiteral(Literal l) {
 					ppw.startNode("literal");
 					ppw.addAttribute("type", l.getType().toString());
-					ppw.addAttribute("value", l.getValue());
+					// ppw.addAttribute("value", l.getName());
+					ppw.addAttribute("name", l.getName());
+					ppw.addAttribute("key", Integer.toHexString(l.getKey()));
 					ppw.endNode(); // literal
 				}
 
@@ -55,6 +59,19 @@ public class Storer {
 			ppw.endNode(); // geometry
 			ppw.endNode(); // job
 		}
+		ppw.startNode("database");
+		for (int i = 0; i < d.getSize(); i++) {
+			HashMap<Integer, String> row = d.getRow(i);
+			ppw.startNode("row");
+			for (Map.Entry<Integer, String> e : row.entrySet()) {
+				ppw.startNode("assignment");
+				ppw.addAttribute("key", Integer.toHexString(e.getKey().intValue()));
+				ppw.addAttribute("value", e.getValue());
+				ppw.endNode(); // assignment
+			}
+			ppw.endNode(); // row
+		}
+		ppw.endNode(); // database
 		ppw.endNode(); // workflow
 	}
 

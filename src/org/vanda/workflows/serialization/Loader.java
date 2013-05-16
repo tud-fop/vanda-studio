@@ -3,8 +3,13 @@ package org.vanda.workflows.serialization;
 import java.io.File;
 
 import org.vanda.util.Observer;
+import org.vanda.util.Pair;
 import org.vanda.util.Repository;
+import org.vanda.workflows.data.Database;
+import org.vanda.workflows.elements.ElementVisitor;
+import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.LiteralAdapter;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.ToolAdapter;
@@ -78,28 +83,82 @@ public class Loader {
 				}, null, null);
 	}
 
-	private SingleElementHandlerFactory<Observer<MutableWorkflow>> workflowHandler(
-			SingleElementHandlerFactory<WorkflowBuilder> jobHandler) {
-		return new SimpleElementHandlerFactory<Observer<MutableWorkflow>, WorkflowBuilder>("workflow", jobHandler,
-				WorkflowBuilder.createFactory(),
-				new ComplexFieldProcessor<Observer<MutableWorkflow>, WorkflowBuilder>() {
+	private SingleElementHandlerFactory<RowBuilder> assignmentHandler() {
+		return new SimpleElementHandlerFactory<RowBuilder, AssignmentBuilder>("assignment", null,
+				AssignmentBuilder.createFactory(), new ComplexFieldProcessor<RowBuilder, AssignmentBuilder>() {
 					@Override
-					public void process(Observer<MutableWorkflow> b1, WorkflowBuilder b2) {
-						b1.notify(b2.build());
+					public void process(RowBuilder b1, AssignmentBuilder b2) {
+						b1.assignment.put(b2.key, b2.value);
+					}
+				}, AssignmentBuilder.createProcessor(), null);
+	}
+
+	private SingleElementHandlerFactory<DatabaseBuilder> rowHandler(
+			SingleElementHandlerFactory<RowBuilder> assignmentHandler) {
+		return new SimpleElementHandlerFactory<DatabaseBuilder, RowBuilder>("row", assignmentHandler,
+				RowBuilder.createFactory(), new ComplexFieldProcessor<DatabaseBuilder, RowBuilder>() {
+					@Override
+					public void process(DatabaseBuilder b1, RowBuilder b2) {
+						b1.assignments.add(b2.assignment);
+					}
+				}, null, null);
+	}
+
+	private SingleElementHandlerFactory<WorkflowBuilder> databaseHandler(
+			SingleElementHandlerFactory<DatabaseBuilder> rowHandler) {
+		return new SimpleElementHandlerFactory<WorkflowBuilder, DatabaseBuilder>("database", rowHandler,
+				DatabaseBuilder.createFactory(), new ComplexFieldProcessor<WorkflowBuilder, DatabaseBuilder>() {
+					@Override
+					public void process(WorkflowBuilder b1, DatabaseBuilder b2) {
+						b1.database = b2.build();
+					}
+				}, null, null);
+	}
+
+	@SuppressWarnings("unchecked")
+	private SingleElementHandlerFactory<Observer<Pair<MutableWorkflow, Database>>> workflowHandler(
+			SingleElementHandlerFactory<WorkflowBuilder> jobHandler,
+			SingleElementHandlerFactory<WorkflowBuilder> databaseHandler) {
+		return new SimpleElementHandlerFactory<Observer<Pair<MutableWorkflow, Database>>, WorkflowBuilder>("workflow",
+				new CompositeElementHandlerFactory<WorkflowBuilder>(jobHandler, databaseHandler),
+				WorkflowBuilder.createFactory(),
+				new ComplexFieldProcessor<Observer<Pair<MutableWorkflow, Database>>, WorkflowBuilder>() {
+					@Override
+					public void process(Observer<Pair<MutableWorkflow, Database>> b1, WorkflowBuilder b2) {
+						MutableWorkflow w = b2.build();
+						Database d = b2.database;
+						if (d == null) {
+							final Database d2 = new Database();
+							for (final Job j : w.getChildren()) {
+								j.visit(new ElementVisitor() {
+									@Override
+									public void visitLiteral(Literal l) {
+										d2.put(l.getKey(), l.getName());
+									}
+
+									@Override
+									public void visitTool(Tool t) {
+									}
+								});
+							}
+							d = d2;
+						}
+						b1.notify(new Pair<MutableWorkflow, Database>(w, d));
 					}
 				}, WorkflowBuilder.createProcessor(), null);
 	}
 
-	private ParserImpl<MutableWorkflow> createParser(Observer<MutableWorkflow> o) {
-		ParserImpl<MutableWorkflow> p = new ParserImpl<MutableWorkflow>(o);
-		p.setRootState(new SimpleRootHandler<MutableWorkflow>(p, workflowHandler(jobHandler(literalHandler(),
-				toolHandler(), bindHandler(), geometryHandler()))));
+	private ParserImpl<Pair<MutableWorkflow, Database>> createParser(Observer<Pair<MutableWorkflow, Database>> o) {
+		ParserImpl<Pair<MutableWorkflow, Database>> p = new ParserImpl<Pair<MutableWorkflow, Database>>(o);
+		p.setRootState(new SimpleRootHandler<Pair<MutableWorkflow, Database>>(p, workflowHandler(
+				jobHandler(literalHandler(), toolHandler(), bindHandler(), geometryHandler()),
+				databaseHandler(rowHandler(assignmentHandler())))));
 		return p;
 	}
 
-	public MutableWorkflow load(String filename) throws Exception {
+	public Pair<MutableWorkflow, Database> load(String filename) throws Exception {
 		WorkflowObserver o = new WorkflowObserver();
-		ParserImpl<MutableWorkflow> p = createParser(o);
+		ParserImpl<Pair<MutableWorkflow, Database>> p = createParser(o);
 		try {
 			p.init(new File(filename));
 			p.process();
@@ -109,16 +168,16 @@ public class Loader {
 		return o.getWorkflow();
 	}
 
-	private static final class WorkflowObserver implements Observer<MutableWorkflow> {
-		private MutableWorkflow w;
+	private static final class WorkflowObserver implements Observer<Pair<MutableWorkflow, Database>> {
+		private Pair<MutableWorkflow, Database> p;
 
-		public MutableWorkflow getWorkflow() {
-			return w;
+		public Pair<MutableWorkflow, Database> getWorkflow() {
+			return p;
 		}
 
 		@Override
-		public void notify(MutableWorkflow event) {
-			w = event;
+		public void notify(Pair<MutableWorkflow, Database> event) {
+			p = event;
 		}
 	}
 }

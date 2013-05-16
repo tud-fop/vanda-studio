@@ -47,21 +47,21 @@ public class ShellCompiler implements FragmentCompiler {
 					// ^^ this comes from the fragment
 					// ^^ and it is propagated via the dependency
 					assert (frag != null);
-					sb.append("  ");
-					sb.append("run ");
-					sb.append(frag.getInputPorts().size() + " ");
+					sb.append("  run ");
+					sb.append(frag.getInputPorts().size());
+					sb.append(' ');
 					sb.append(Fragments.normalize(frag.getId()));
-					sb.append("  ");
+					sb.append(' ');
 					sb.append(dfa.getRootDir(t));
 					for (Port ip : frag.getInputPorts()) {
 						sb.append(" \"");
 						sb.append(fio.findFile(dfa.getValue(ji.bindings.get(ip))));
-						sb.append("\"");
+						sb.append('\"');
 					}
 					for (Port op : frag.getOutputPorts()) {
 						sb.append(" \"");
 						sb.append(fio.findFile(dfa.getValue(ji.bindings.get(op))));
-						sb.append("\"");
+						sb.append('\"');
 					}
 					sb.append('\n');
 					dependencies.add(frag.getId());

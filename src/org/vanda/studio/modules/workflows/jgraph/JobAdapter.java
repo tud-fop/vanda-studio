@@ -86,7 +86,9 @@ public class JobAdapter implements Adapter, Cloneable {
 
 	@Override
 	public void setSelection(WorkflowDecoration m) {
+
 //		m.setSelection(new JobSelection(m.getRoot(), job));
+
 		// TODO no nesting support here because of m.getRoot()
 	}
 

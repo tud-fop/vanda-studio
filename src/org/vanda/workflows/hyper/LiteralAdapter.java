@@ -62,7 +62,7 @@ public final class LiteralAdapter implements ElementAdapter, ElementListener<Lit
 
 	@Override
 	public String getName() {
-		return "literal[" + lit.getValue() + "]";
+		return lit.getName();
 	}
 
 	@Override
@@ -107,8 +107,13 @@ public final class LiteralAdapter implements ElementAdapter, ElementListener<Lit
 	}
 
 	@Override
-	public void propertyChanged(Literal e) {
+	public void typeChanged(Literal e) {
 		port.setType(lit.getType());
+		observable.notify(new PropertyChangedEvent<ElementAdapter>(this));
+	}
+
+	@Override
+	public void valueChanged(Literal e) {
 		observable.notify(new PropertyChangedEvent<ElementAdapter>(this));
 	}
 

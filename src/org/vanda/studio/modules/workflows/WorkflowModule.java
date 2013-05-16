@@ -2,6 +2,7 @@ package org.vanda.studio.modules.workflows;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.LinkedList;
 
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
@@ -22,11 +23,11 @@ import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.inspector.LiteralEditor;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
+import org.vanda.studio.modules.workflows.run.InspectorTool;
 import org.vanda.studio.modules.workflows.run.ProfileManager;
 import org.vanda.studio.modules.workflows.run.RunTool;
 import org.vanda.studio.modules.workflows.run.SemanticsTool;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
-import org.vanda.studio.modules.workflows.tools.InspectorTool;
 import org.vanda.studio.modules.workflows.tools.PaletteTool;
 import org.vanda.studio.modules.workflows.tools.SaveTool;
 import org.vanda.studio.modules.workflows.tools.WorkflowToPDFToolFactory;
@@ -35,6 +36,8 @@ import org.vanda.util.ExceptionMessage;
 import org.vanda.util.ExternalRepository;
 import org.vanda.util.ListRepository;
 import org.vanda.util.Observer;
+import org.vanda.util.Pair;
+import org.vanda.workflows.data.Database;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.serialization.Loader;
 
@@ -57,7 +60,7 @@ public class WorkflowModule implements Module {
 		private final ListRepository<Profile> repository;
 		private final Profile profile;
 		private ProfileManager manager;
-		private final ListRepository<ToolFactory> toolFactories;
+		private final LinkedList<ToolFactory> toolFactories;
 
 		public static String TOOL_PATH_KEY = "profileToolPath";
 		public static String TOOL_PATH_DEFAULT = System
@@ -90,18 +93,17 @@ public class WorkflowModule implements Module {
 			eefs = new ElementEditorFactories();
 			eefs.workflowFactories
 					.add(new org.vanda.studio.modules.workflows.inspector.WorkflowEditor());
-			eefs.literalFactories.add(new LiteralEditor());
+			eefs.literalFactories.add(new LiteralEditor(app));
 
-			ListRepository<SemanticsToolFactory> srep = new ListRepository<SemanticsToolFactory>();
-			srep.addItem(new RunTool(new GeneratorImpl(app, profile)));
-			srep.addItem(new org.vanda.studio.modules.workflows.run.InspectorTool());
+			LinkedList<SemanticsToolFactory> srep = new LinkedList<SemanticsToolFactory>();
+			srep.add(new RunTool(new GeneratorImpl(app, profile)));
+			srep.add(new InspectorTool(eefs));
 
-			toolFactories = new ListRepository<ToolFactory>();
-			toolFactories.addItem(new InspectorTool(eefs));
-			toolFactories.addItem(new PaletteTool());
-			toolFactories.addItem(new SaveTool());
-			toolFactories.addItem(new WorkflowToPDFToolFactory(app));
-			toolFactories.addItem(new SemanticsTool(srep));
+			toolFactories = new LinkedList<ToolFactory>();
+			toolFactories.add(new PaletteTool());
+			toolFactories.add(new SaveTool());
+			toolFactories.add(new WorkflowToPDFToolFactory(app));
+			toolFactories.add(new SemanticsTool(srep));
 
 			app.getWindowSystem()
 					.addAction(null, new OpenManagerAction(), null);
@@ -120,7 +122,8 @@ public class WorkflowModule implements Module {
 			@Override
 			public void invoke() {
 				MutableWorkflow mwf = new MutableWorkflow("Workflow");
-				new WorkflowEditorImpl(app, toolFactories, mwf);
+				Database d = new Database();
+				new WorkflowEditorImpl(app, toolFactories, new Pair<MutableWorkflow, Database>(mwf, d));
 				// something will hold a reference to it since it will be in the
 				// GUI
 			}
@@ -152,18 +155,11 @@ public class WorkflowModule implements Module {
 					app.setProperty("lastDir", chosenFile.getParentFile()
 							.getAbsolutePath());
 					String filePath = chosenFile.getPath();
-					MutableWorkflow hwf;
+					Pair<MutableWorkflow, Database> phd;
 					try {
-						/*
-						 * app .getSemanticsModuleMetaRepository()
-						 * .getRepository().getItem("profile");
-						 */
-						// Serialization ser = new Serialization(app
-						// .getToolMetaRepository()
-						// .getRepository());
-						hwf = new Loader(app.getToolMetaRepository()
+						phd = new Loader(app.getToolMetaRepository()
 								.getRepository()).load(filePath);
-						new WorkflowEditorImpl(app, toolFactories, hwf);
+						new WorkflowEditorImpl(app, toolFactories, phd);
 					} catch (Exception e) {
 						app.sendMessage(new ExceptionMessage(e));
 					}
@@ -194,36 +190,6 @@ public class WorkflowModule implements Module {
 				manager = null;
 			}
 		}
-		//
-		// @Override
-		// public String getName() {
-		// return "Profile Semantics";
-		// }
-		//
-		// @Override
-		// public String getCategory() {
-		// return "Profile Semantics";
-		// }
-		//
-		// @Override
-		// public String getContact() {
-		// return "Matthias.Buechse@tu-dresden.de";
-		// }
-		//
-		// @Override
-		// public String getDescription() {
-		// return "Semantics module based on fragment profiles";
-		// }
-		//
-		// @Override
-		// public String getId() {
-		// return "profile";
-		// }
-		//
-		// @Override
-		// public String getVersion() {
-		// return "2012-12-12";
-		// }
 
 	}
 }

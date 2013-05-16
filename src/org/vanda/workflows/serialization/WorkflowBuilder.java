@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.vanda.util.Pair;
+import org.vanda.workflows.data.Database;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
@@ -21,6 +22,8 @@ public class WorkflowBuilder {
 	public String name;
 
 	public final List<Pair<Job, Map<Port, String>>> jbs;
+	
+	Database database;
 
 	public WorkflowBuilder() {
 		jbs = new LinkedList<Pair<Job, Map<Port, String>>>();

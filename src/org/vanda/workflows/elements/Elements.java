@@ -6,24 +6,40 @@ public class Elements {
 		// removed: see older versions
 		// void inputPortAdded(Element e, int index);
 		// void inputPortRemoved(Element e, int index);
-		void propertyChanged(E e);
+		void typeChanged(E e);
+		void valueChanged(E e);
 	}
 	
 	public static interface ElementEvent<E> {
 		void doNotify(ElementListener<E> el);
 	}
 	
-	public static class PropertyChangeEvent<E> implements ElementEvent<E> {
+	public static class TypeChangeEvent<E> implements ElementEvent<E> {
 		
 		private final E e;
 		
-		public PropertyChangeEvent(E e) {
+		public TypeChangeEvent(E e) {
 			this.e = e;
 		}
 
 		@Override
 		public void doNotify(ElementListener<E> el) {
-			el.propertyChanged(e);
+			el.typeChanged(e);
+		}
+		
+	}
+
+	public static class ValueChangeEvent<E> implements ElementEvent<E> {
+		
+		private final E e;
+		
+		public ValueChangeEvent(E e) {
+			this.e = e;
+		}
+
+		@Override
+		public void doNotify(ElementListener<E> el) {
+			el.valueChanged(e);
 		}
 		
 	}

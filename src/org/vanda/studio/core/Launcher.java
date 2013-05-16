@@ -41,7 +41,8 @@ public final class Launcher implements Runnable {
 				new org.vanda.studio.modules.messages.MessageModule(),
 				new org.vanda.studio.modules.tools.ToolsModule(),
 				new org.vanda.studio.modules.previews.PreviewsModule(),
-				new org.vanda.studio.modules.workflows.WorkflowModule() };
+				new org.vanda.studio.modules.workflows.WorkflowModule(),
+				new org.vanda.studio.modules.datasources.DataSourceModule() };
 		// app.registerPreviewFactory(null, new DefaultPreviewFactory(app));
 
 		ModuleManager moduleManager = new ModuleManager(app);
@@ -50,10 +51,6 @@ public final class Launcher implements Runnable {
 			moduleManager.loadModule(m);
 		moduleManager.initModules();
 
-		// outdated
-		// app.getToolMetaRepository().getRepository().refresh();
-		// System.out.println(app.getToolMetaRepository().getRepository()
-		//		.getItems());
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(app));
 		// throw new NullPointerException("brain is null");
 	}

@@ -1,5 +1,8 @@
 package org.vanda.studio.modules.workflows.inspector;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 import javax.swing.GroupLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -8,33 +11,47 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.vanda.studio.app.Application;
+import org.vanda.workflows.data.Database;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class WorkflowEditor implements ElementEditorFactory<MutableWorkflow> {
 
 	@Override
-	public JComponent createEditor(Application app, MutableWorkflow wf,
+	public JComponent createEditor(Database d, MutableWorkflow wf,
 			final MutableWorkflow mwf) {
 		final JLabel label = new JLabel("Name:");
 		final JTextField text = new JTextField(mwf.getName(), 20);
-		text.getDocument().addDocumentListener(new DocumentListener() {
-
+		text.addKeyListener(new KeyListener() {		
 			@Override
-			public void insertUpdate(DocumentEvent e) {
-				mwf.setName(text.getText());
-			}
-
+			public void keyTyped(KeyEvent e) { }
+			
 			@Override
-			public void removeUpdate(DocumentEvent e) {
-				mwf.setName(text.getText());
-			}
-
+			public void keyReleased(KeyEvent e) { }
+			
 			@Override
-			public void changedUpdate(DocumentEvent e) {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+					mwf.setName(text.getText());	
 			}
-
 		});
+		
+//		text.getDocument().addDocumentListener(new DocumentListener() {
+//
+//			@Override
+//			public void insertUpdate(DocumentEvent e) {
+//				mwf.setName(text.getText());
+//			}
+//
+//			@Override
+//			public void removeUpdate(DocumentEvent e) {
+//				mwf.setName(text.getText());
+//			}
+//
+//			@Override
+//			public void changedUpdate(DocumentEvent e) {
+//			}
+//
+//		});
 
 		JPanel editor = new JPanel();
 		GroupLayout layout = new GroupLayout(editor);

@@ -73,7 +73,6 @@ public class WorkflowAdapter implements Adapter {
 	@Override
 	public void setSelection(WorkflowDecoration m) {
 //		m.setSelection(new WorkflowSelection(workflow));
-		
 	}
 
 	@Override

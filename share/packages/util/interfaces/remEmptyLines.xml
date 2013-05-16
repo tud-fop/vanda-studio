@@ -1,0 +1,45 @@
+<root>
+	<toolinterface
+		id="remEmptyLines1"
+		name="remove empty lines"
+		version="2013-01-17"
+		contact="Matthias.Buechse@tu-dresden.de"
+		category="Corpus Tools">
+
+		<description>Tools to remove empty lines from parallel corpora.</description>
+
+		<tool
+			type="Shell"
+			id="remEmptyLines2"
+			name="removeEmptyLines"
+			version="2013-01-17"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="Corpus Tools">
+			
+			<description><![CDATA[Removes empty lines from parallel corpora]]>.</description>
+	
+			<in name="corpus #1" type="t1" />
+			<in name="corpus #2" type="t2" />
+			<out name="corpus #1 without empty lines" type="t1" />
+			<out name="corpus #2 without empty lines" type="t2" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="remEmptyLines3"
+			name="removeEmptyLines"
+			version="2013-01-17"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="Corpus Tools">
+			
+			<description><![CDATA[Removes empty lines from parallel corpora]]>.</description>
+	
+			<in name="corpus #1" type="t1" />
+			<in name="corpus #2" type="t2" />
+			<in name="corpus #3" type="t3" />
+			<out name="corpus #1 without empty lines" type="t1" />
+			<out name="corpus #2 without empty lines" type="t2" />
+			<out name="corpus #3 without empty lines" type="t3" />
+		</tool>
+	</toolinterface>
+</root>

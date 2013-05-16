@@ -38,10 +38,7 @@ class Graph extends mxGraph {
 					public String check(mxGraph graph, Object edge,
 							Object source, Object target, int sourceOut,
 							int targetIn) {
-						if (targetIn == 0)
-							return null;
-						else
-							return countError;
+						return targetIn == 0 ? null : countError;
 					}
 				},
 				new mxMultiplicity(false, null, null, null, 0, "1", null, ".",

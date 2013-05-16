@@ -56,7 +56,9 @@ public class MultiplexObserver<T> implements Observable<T>, Observer<T>, Cloneab
 	 */
 	@Override
 	public void notify(T event) {
-		for (Observer<? super T> o : observers)
+		// FIXME the following is to circumvent concurrent modification
+		ArrayList<Observer<? super T>> obs = new ArrayList<Observer<? super T>>(observers);
+		for (Observer<? super T> o : obs)
 			o.notify(event);
 	}
 
