@@ -63,7 +63,7 @@ public class mxDropTargetListener extends DropTargetAdapter implements
 				Job j = new Job(ele);
 				j.setDimensions(d);
 
-				da.renderChild(wfe.getWorkflowDecoration().getRoot(), j);
+//				da.renderChild(wfe.getWorkflowDecoration().getRoot(), j);
 
 				da.getGraph().getModel().endUpdate();
 				event.dropComplete(true);

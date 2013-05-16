@@ -245,7 +245,7 @@ public class PresentationModel implements DataInterface {
 		// TODO literal should be recognized otherwise
 		if (id.equals("literal"))
 			ele = new LiteralAdapter(new Literal(new CompositeType("String"),
-					""));
+					"",null));
 		else
 			ele = new ToolAdapter(wfe.getApplication().getToolMetaRepository()
 					.getRepository().getItem(id));

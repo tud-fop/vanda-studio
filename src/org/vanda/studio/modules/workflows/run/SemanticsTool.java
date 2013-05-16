@@ -19,9 +19,9 @@ public class SemanticsTool implements ToolFactory {
 		public Tool(WorkflowEditor wfe, Collection<SemanticsToolFactory> stfs) {
 
 			view  = wfe.getView();
-			model = new Model(wfe.getWorkflowDecoration(), wfe.getDatabase());
+			model = new Model(view, wfe.getDatabase());
 			for (SemanticsToolFactory stf : stfs)
-				stf.instantiate(wfe, model, view);
+				stf.instantiate(wfe, null, view);
 		}
 		
 	}

@@ -88,7 +88,7 @@ public final class SaveTool implements ToolFactory {
 				try {
 //					Serialization ser = new Serialization(wfe.getApplication()
 //							.getToolMetaRepository().getRepository());
-					new Storer().store(wfe.getWorkflowDecoration().getRoot(), wfe.getDatabase(), filePath);
+					new Storer().store(wfe.getView().getWorkflow(), wfe.getDatabase(), filePath);
 				} catch (Exception e) {
 					wfe.getApplication().sendMessage(new ExceptionMessage(e));
 				}

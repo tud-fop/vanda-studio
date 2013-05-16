@@ -11,6 +11,8 @@ import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
 import org.vanda.util.Observer;
 import org.vanda.util.Pair;
+import org.vanda.view.View;
+import org.vanda.view.View.GlobalViewEvent;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
@@ -33,20 +35,20 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 	
 
 	// FIXME package dependency: WorkflowDecoration is in a Vanda Studio module
-	public Model(WorkflowDecoration deco, Database db) {
-		hwf = deco.getRoot();
+	public Model(View view, Database db) {
+		hwf = view.getWorkflow();
 		this.db = db;
 		// this.model = model;
 		dfaChangedObservable = new MultiplexObserver<DataflowAnalysis>();
-		deco.getWorkflowCheckObservable().addObserver(new Observer<WorkflowDecoration>() {
+		view.getObservable().addObserver(new Observer<GlobalViewEvent<View>>() {
 
 			@Override
-			public void notify(org.vanda.studio.modules.workflows.model.WorkflowDecoration event) {
-				dfa = new DataflowAnalysis(event.getRoot(), event.getSorted(), event.getFragmentType());
-				dfa.init();
-				dfaChangedObservable.notify(dfa);
+			public void notify(GlobalViewEvent<View> event) {
+				checkWorkflow();
 			}
-		};
+			
+		});
+		
 	}
 	
 	public void typeCheck() throws TypeCheckingException {
@@ -67,7 +69,6 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 				sorted = hwf.getSorted();
 			} catch (Exception e) {
 				// FIXME send message that there are cycles
->>>>>>> vanilla
 			}
 			dfa = new DataflowAnalysis(hwf, db, sorted, fragmentType);
 			dfa.init();

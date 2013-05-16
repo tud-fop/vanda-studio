@@ -32,6 +32,8 @@ import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.render.jgraph.mxDropTargetListener;
 import org.vanda.studio.app.Application;
+import org.vanda.studio.app.LayoutSelector;
+import org.vanda.studio.app.WindowSystem;
 
 import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 
@@ -68,7 +70,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 	protected final Application app;
 
-	protected final WorkflowDecoration model;
+//	protected final WorkflowDecoration model;
 	protected final View view;
 	protected final PresentationModel presentationModel;
 
@@ -125,7 +127,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 //		mainpane.setBorder(null);
 //		mainpane.setName(model.getRoot().getName());
 //		mainpane.setDividerLocation(0.7);
-		component.setName(model.getRoot().getName());
+		component.setName(view.getWorkflow().getName());
 
 		app.getUIModeObservable().addObserver(new Observer<Application>() {
 			@Override
@@ -161,8 +163,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 		});
 		// send some initial event ("updated" will be sent)
-		model.getRoot().beginUpdate();
-		model.getRoot().endUpdate();
+		view.getWorkflow().beginUpdate();
+		view.getWorkflow().endUpdate();
 	}
 
 	static {
@@ -391,23 +393,10 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 	@Override
 	public void propertyChanged(MutableWorkflow mwf) {
-<<<<<<< HEAD
 		if (mwf == view.getWorkflow()) {
-			mainpane.setName(mwf.getName());
-			app.getWindowSystem().addContentWindow(null, mainpane, null);
-		}
-	}
-
-	private void recheck() {
-		try {
-			model.checkWorkflow();
-		} catch (Exception e) {
-			app.sendMessage(new ExceptionMessage(e));
-=======
-		if (mwf == model.getRoot()) {
 			component.setName(mwf.getName());
 			app.getWindowSystem().addContentWindow(null, component, null);
->>>>>>> vanilla
+
 		}
 	}
 
@@ -588,11 +577,6 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 		return database;
 	}
 
-
-	@Override
-	public WorkflowDecoration getWorkflowDecoration() {
-		return model;
-	}
 
 	@Override
 	public View getView() {
