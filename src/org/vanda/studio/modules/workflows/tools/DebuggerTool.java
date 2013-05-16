@@ -3,7 +3,7 @@ package org.vanda.studio.modules.workflows.tools;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Observer;
@@ -12,7 +12,7 @@ public class DebuggerTool implements ToolFactory {
 
 	private static final class Tool {
 		private final WorkflowEditor wfe;
-		private final Model m;
+		private final WorkflowDecoration m;
 		private final JTextArea debugger;
 		private final JScrollPane therealdebugger;
 
@@ -21,9 +21,9 @@ public class DebuggerTool implements ToolFactory {
 			this.m = wfe.getModel(); // XXX better not cache this
 			debugger = new JTextArea();
 			this.m.getWorkflowCheckObservable().addObserver(
-					new Observer<Model>() {
+					new Observer<WorkflowDecoration>() {
 						@Override
-						public void notify(Model event) {
+						public void notify(WorkflowDecoration event) {
 							update(event);
 						}
 					});
@@ -32,7 +32,7 @@ public class DebuggerTool implements ToolFactory {
 			this.wfe.addToolWindow(therealdebugger);
 		}
 
-		public void update(Model model) {
+		public void update(WorkflowDecoration model) {
 //			StringBuilder sb = new StringBuilder();
 //			model.getFrozen().appendText(sb);
 //			if (!model.getFrozen().isSane()) {

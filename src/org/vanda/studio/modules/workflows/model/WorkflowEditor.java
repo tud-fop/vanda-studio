@@ -12,7 +12,7 @@ public interface WorkflowEditor {
 	void addToolWindow(JComponent c);
 	void focusToolWindow(JComponent c);
 	Application getApplication();
-	Model getModel();
+	WorkflowDecoration getModel();
 	void removeToolWindow(JComponent c);
 	void setPalette(JComponent c);
 	View getView();

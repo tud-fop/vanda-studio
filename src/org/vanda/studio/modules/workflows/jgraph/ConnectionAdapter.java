@@ -1,6 +1,6 @@
 package org.vanda.studio.modules.workflows.jgraph;
 
-import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 //import org.vanda.studio.modules.workflows.model.Model.ConnectionSelection;
 import org.vanda.workflows.hyper.ConnectionKey;
 
@@ -66,7 +66,7 @@ public class ConnectionAdapter implements Adapter {
 	}
 
 	@Override
-	public void setSelection(Model m) {
+	public void setSelection(WorkflowDecoration m) {
 //		if (cc != null)
 //			m.setSelection(new ConnectionSelection(m.getRoot(), cc));
 //		else

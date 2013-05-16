@@ -11,7 +11,7 @@ import javax.swing.JScrollPane;
 import org.vanda.studio.modules.workflows.inspector.EditorialVisitor;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.inspector.InspectorialVisitor;
-import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 //import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
@@ -25,7 +25,7 @@ public class InspectorTool implements ToolFactory {
 
 	public final class Inspector {
 		private final WorkflowEditor wfe;
-		private final Model m;
+		private final WorkflowDecoration m;
 		private final JPanel contentPane;
 		private final JEditorPane inspector;
 		private final JScrollPane therealinspector;

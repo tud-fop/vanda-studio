@@ -37,7 +37,7 @@ import org.vanda.studio.app.Application;
 //import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
 //import org.vanda.studio.modules.workflows.jgraph.WorkflowAdapter;
 //import org.vanda.studio.modules.workflows.jgraph.mxDropTargetListener;
-import org.vanda.studio.modules.workflows.model.Model;
+import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 //import org.vanda.studio.modules.workflows.model.Model.SingleObjectSelection;
 //import org.vanda.studio.modules.workflows.model.Model.WorkflowSelection;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
@@ -70,7 +70,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 		WorkflowListener<MutableWorkflow> {
 
 	protected final Application app;
-	protected final Model model;
+	protected final WorkflowDecoration model;
 	protected final View view;
 	protected final PresentationModel presentationModel;
 	protected final MyMxGraphComponent component;
@@ -85,7 +85,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 		
 //		renderer = new DrecksAdapter(model);
 		view = new View(hwf);
-		model = new Model(view);
+		model = new WorkflowDecoration(view);
 		presentationModel = new PresentationModel(view, this);
 		
 		component = new MyMxGraphComponent(presentationModel.getVisualization().getGraph());
@@ -602,7 +602,7 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 	}
 
 	@Override
-	public Model getModel() {
+	public WorkflowDecoration getModel() {
 		return model;
 //		return null;
 	}

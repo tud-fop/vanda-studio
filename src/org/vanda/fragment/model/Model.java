@@ -10,13 +10,13 @@ public class Model {
 	private DataflowAnalysis dfa;
 	private MultiplexObserver<DataflowAnalysis> dfaChangedObservable;
 	
-	public Model(org.vanda.studio.modules.workflows.model.Model model) {
+	public Model(org.vanda.studio.modules.workflows.model.WorkflowDecoration model) {
 		// this.model = model;
 		dfaChangedObservable = new MultiplexObserver<DataflowAnalysis>();
-		model.getWorkflowCheckObservable().addObserver(new Observer<org.vanda.studio.modules.workflows.model.Model>() {
+		model.getWorkflowCheckObservable().addObserver(new Observer<org.vanda.studio.modules.workflows.model.WorkflowDecoration>() {
 
 			@Override
-			public void notify(org.vanda.studio.modules.workflows.model.Model event) {
+			public void notify(org.vanda.studio.modules.workflows.model.WorkflowDecoration event) {
 				dfa = new DataflowAnalysis(event.getRoot(), event.getSorted(), event.getFragmentType());
 				dfa.init();
 				dfaChangedObservable.notify(dfa);
