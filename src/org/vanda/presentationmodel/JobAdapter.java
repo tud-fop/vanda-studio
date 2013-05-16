@@ -79,6 +79,7 @@ public class JobAdapter {
 		}
 
 	}
+
 	private class JobListener implements Jobs.JobListener<Job> {
 		@Override
 		public void propertyChanged(Job j) {
@@ -93,6 +94,7 @@ public class JobAdapter {
 			}
 		}
 	}
+
 	private class JobViewListener implements
 			AbstractView.ViewListener<AbstractView> {
 
@@ -118,7 +120,7 @@ public class JobAdapter {
 					new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
 		}
 	}
-	
+
 	Map<Port, PortCell> inports;
 	Job job;
 	JobCell jobCell;

@@ -86,10 +86,10 @@ public class WorkflowEditorImpl implements WorkflowEditor,
 //		renderer = new DrecksAdapter(model);
 		view = new View(hwf);
 		model = new Model(view);
-		presentationModel = new PresentationModel(view);
+		presentationModel = new PresentationModel(view, this);
 		
 		component = new MyMxGraphComponent(presentationModel.getVisualization().getGraph());
-		new mxDropTargetListener(this, presentationModel, component);
+		new mxDropTargetListener(presentationModel, component);
 		
 		component.setDragEnabled(false);
 		component.getGraphControl().addMouseListener(new EditMouseAdapter());

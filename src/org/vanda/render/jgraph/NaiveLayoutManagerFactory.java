@@ -3,8 +3,6 @@ package org.vanda.render.jgraph;
 import java.util.HashMap;
 import java.util.Map;
 import org.vanda.workflows.elements.RendererAssortment;
-import org.vanda.workflows.hyper.Job;
-
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
@@ -16,24 +14,24 @@ import com.mxgraph.view.mxStylesheet;
 
 public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface {
 
-	protected LayoutManagerInterface algorithmRenderer = new AlgorithmRenderer();
-	protected LayoutManagerInterface corpusRenderer = new CorpusRenderer();
-	protected LayoutManagerInterface grammarRenderer = new GrammarRenderer();
-	protected LayoutManagerInterface orRenderer = new ChoiceNodeRenderer();
-	protected LayoutManagerInterface sinkRenderer = new SinkRenderer();
-	protected LayoutManagerInterface workflowRenderer = new WorkflowRenderer();
-	protected LayoutManagerInterface literalRenderer = new LiteralRenderer();
-	protected LayoutManagerInterface[] renderers  = { algorithmRenderer, corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
+	protected NaiveLayoutManagerInterface algorithmRenderer = new AlgorithmRenderer();
+	protected NaiveLayoutManagerInterface corpusRenderer = new CorpusRenderer();
+	protected NaiveLayoutManagerInterface grammarRenderer = new GrammarRenderer();
+	protected NaiveLayoutManagerInterface orRenderer = new ChoiceNodeRenderer();
+	protected NaiveLayoutManagerInterface sinkRenderer = new SinkRenderer();
+	protected NaiveLayoutManagerInterface workflowRenderer = new WorkflowRenderer();
+	protected NaiveLayoutManagerInterface literalRenderer = new LiteralRenderer();
+	protected NaiveLayoutManagerInterface[] renderers  = { algorithmRenderer, corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
 			workflowRenderer, literalRenderer };
 	protected mxStylesheet staticStylesheet;
 	protected int refCount = 0;
-	private JGraphRendererAssortment rs = new JGraphRendererAssortment();
-
+	protected RendererAssortment<LayoutManagerInterface> rs = new JGraphRendererAssortment();
+	
 	protected mxStylesheet createStylesheet() {
 		mxStylesheet stylesheet = new mxStylesheet();
 		Map<String, Object> style;
 
-		for (LayoutManagerInterface r : renderers) {
+		for (NaiveLayoutManagerInterface r : renderers) {
 			style = new HashMap<String, Object>(
 					stylesheet.getDefaultVertexStyle());
 			r.addStyle(style);
@@ -111,10 +109,6 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 			staticStylesheet = null;
 	}
 
-	public JGraphRendererAssortment getRendererAssortment() {
-		return rs;
-	}
-
 	public class JGraphRendererAssortment implements
 			RendererAssortment<LayoutManagerInterface> {
 		protected JGraphRendererAssortment() {
@@ -156,7 +150,7 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 		}
 	}
 
-	protected abstract class DefaultRenderer implements LayoutManagerInterface {
+	protected abstract class DefaultRenderer implements NaiveLayoutManagerInterface {
 		protected JobCell jobCell;
 		//protected WeakHashMap<Integer, PortCell> inputs = new WeakHashMap<Integer, PortCell>();
 		//protected WeakHashMap<Integer, PortCell> outputs = new WeakHashMap<Integer,PortCell>();
@@ -335,9 +329,16 @@ public class NaiveLayoutManagerFactory implements LayoutManagerFactoryInterface 
 	protected static final int LOCATION_DIAMETER = 16;
 
 	protected static final int LOCATION_RADIUS = LOCATION_DIAMETER / 2;
-	
+
 	@Override
-	public LayoutManagerInterface getLayoutManager(Job job) {
-		return job.selectRenderer(rs);
+	public RendererAssortment<LayoutManagerInterface> getRendererAssortment() {
+		return rs;
 	}
+	
+	private interface NaiveLayoutManagerInterface extends LayoutManagerInterface {
+		public String getStyleName();
+
+		public void addStyle(Map<String, Object> style);
+	}
+	
 }

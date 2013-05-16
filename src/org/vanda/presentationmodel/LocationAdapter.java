@@ -57,6 +57,7 @@ public class LocationAdapter {
 		}
 
 	}
+
 	private class LocationViewListener implements
 			AbstractView.ViewListener<AbstractView> {
 
@@ -79,6 +80,7 @@ public class LocationAdapter {
 							.isSelected()));
 		}
 	}
+
 	LocationCell locationCell;
 	LocationCellListener locationCellListener;
 	LocationViewListener locationViewListener;

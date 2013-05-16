@@ -104,8 +104,7 @@ public class ConnectionCell extends Cell {
 
 				// Create ConnectionAdapter
 				((WorkflowCell) ((mxICell) graph.getGraph().getDefaultParent())
-						.getValue()).getPresentationModel()
-						.addConnectionAdapter(this, tparval, tval);
+						.getValue()).getDataInterface().createConnection(this, tparval, tval);
 
 			}
 		}

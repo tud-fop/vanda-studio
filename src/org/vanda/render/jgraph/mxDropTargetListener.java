@@ -8,26 +8,15 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetListener;
 
-import org.vanda.presentationmodel.PresentationModel;
-import org.vanda.studio.modules.workflows.model.WorkflowEditor;
-import org.vanda.types.CompositeType;
-import org.vanda.workflows.elements.Literal;
-import org.vanda.workflows.hyper.ElementAdapter;
-import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.LiteralAdapter;
-import org.vanda.workflows.hyper.ToolAdapter;
-
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxPoint;
 
 public class mxDropTargetListener extends DropTargetAdapter implements
 DropTargetListener {
-	private final WorkflowEditor wfe;
-	private final PresentationModel pm;
+	private final DataInterface di;
 	private final mxGraphComponent c;
-	public mxDropTargetListener(WorkflowEditor wfe, PresentationModel pm, mxGraphComponent c) {
-		this.wfe = wfe;
-		this.pm = pm;
+	public mxDropTargetListener(DataInterface di, mxGraphComponent c) {
+		this.di = di;
 		this.c = c;
 		c.setDropTarget(new DropTarget(c, DnDConstants.ACTION_COPY, this, true,
 				null));
@@ -40,7 +29,7 @@ DropTargetListener {
 				String id = (String) event.getTransferable().getTransferData(DataFlavor.stringFlavor);
 				event.acceptDrop(DnDConstants.ACTION_COPY);
 				
-				Graph g = pm.getVisualization();
+				Graph g = di.getGraph();
 				g.getGraph().getModel().beginUpdate();
 				Point loc = event.getLocation();
 				Point view = c.getViewport().getViewPosition();
@@ -50,20 +39,9 @@ DropTargetListener {
 				double x = (loc.x + view.x) / zoom - tr.getX();
 				double y = (loc.y + view.y) / zoom - tr.getY();
 				double[] d = { x, y, 100, 80 };
-
-				ElementAdapter ele;
-				// TODO literal should be recognized otherwise
-				if (id.equals("literal"))
-					ele = new LiteralAdapter(new Literal(new CompositeType(
-							"String"), ""));
-				else
-					ele = new ToolAdapter(wfe.getApplication()
-							.getToolMetaRepository().getRepository()
-							.getItem(id));
-				Job j = new Job(ele);
-				j.setDimensions(d);
 				
-				pm.addJobAdapter(j);
+				di.createJob(id, d);
+				
 				g.getGraph().getModel().endUpdate();
 				
 				event.dropComplete(true);

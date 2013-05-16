@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.vanda.render.jgraph.DataInterface;
 import org.vanda.render.jgraph.ConnectionCell;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
@@ -13,16 +14,22 @@ import org.vanda.render.jgraph.LayoutManagerInterface;
 import org.vanda.render.jgraph.NaiveLayoutManagerFactory;
 import org.vanda.render.jgraph.PortCell;
 import org.vanda.render.jgraph.WorkflowCell;
+import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl;
+import org.vanda.types.CompositeType;
 import org.vanda.util.Observer;
 import org.vanda.view.View;
+import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
+import org.vanda.workflows.hyper.ElementAdapter;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.LiteralAdapter;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.ToolAdapter;
 import org.vanda.workflows.hyper.Workflows;
 import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 
-public class PresentationModel {
+public class PresentationModel implements DataInterface {
 	/**
 	 * Listens for changes in Model, i.e. Job, Connections, ... and keeps
 	 * Presentation Model up to date and enforces mxGraph updates
@@ -79,6 +86,7 @@ public class PresentationModel {
 	View view;
 	protected final WorkflowCell workflowCell;
 	private int update = 0;
+	private final WorkflowEditorImpl wfe;
 
 	/*
 	 * map that holds Layouts for all Job-Types, where String is
@@ -89,10 +97,11 @@ public class PresentationModel {
 
 	private final WorkflowListener workflowListener;
 
-	public PresentationModel(View view) {
+	public PresentationModel(View view, WorkflowEditorImpl wfe) {
 		this.view = view;
+		this.wfe = wfe;
 		this.workflowCell = new WorkflowCell(this);
-		graph = new Graph(view, workflowCell);
+		graph = new Graph(workflowCell);
 		jobs = new ArrayList<JobAdapter>();
 		connections = new WeakHashMap<ConnectionKey, ConnectionAdapter>();
 		workflowListener = new WorkflowListener();
@@ -119,7 +128,7 @@ public class PresentationModel {
 	 * @param tparval
 	 * @param tval
 	 */
-	public void addConnectionAdapter(ConnectionCell connectionCell,
+	private void addConnectionAdapter(ConnectionCell connectionCell,
 			JobCell tparval, PortCell tval) {
 		Job j = null;
 		Port p = null;
@@ -215,8 +224,7 @@ public class PresentationModel {
 	}
 
 	private LayoutManagerInterface selectLayout(Job job) {
-		// return layouts.get(job.getName());
-		return layoutManager.getLayoutManager(job);
+		return job.selectRenderer(layoutManager.getRendererAssortment());
 	}
 
 	private void setupPresentationModel() {
@@ -229,6 +237,32 @@ public class PresentationModel {
 						new ConnectionAdapter(ck, this, view.getWorkflow(),
 								view));
 		}
+	}
+
+	@Override
+	public void createJob(String id, double[] d) {
+		ElementAdapter ele;
+		// TODO literal should be recognized otherwise
+		if (id.equals("literal"))
+			ele = new LiteralAdapter(new Literal(new CompositeType("String"),
+					""));
+		else
+			ele = new ToolAdapter(wfe.getApplication().getToolMetaRepository()
+					.getRepository().getItem(id));
+		Job j = new Job(ele);
+		j.setDimensions(d);
+		addJobAdapter(j);
+	}
+
+	@Override
+	public Graph getGraph() {
+		return graph;
+	}
+
+	@Override
+	public void createConnection(ConnectionCell connectionCell,
+			JobCell tparval, PortCell tval) {
+		addConnectionAdapter(connectionCell, tparval, tval);
 	}
 
 }

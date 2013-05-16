@@ -107,7 +107,7 @@ public class ConnectionAdapter {
 	 */
 	public ConnectionAdapter(ConnectionKey connectionKey,
 			ConnectionCell visualization, View view) {
-		//System.out.println("Hand-Drawn edge!");
+		// System.out.println("Hand-Drawn edge!");
 		this.visualization = visualization;
 		this.connectionKey = connectionKey;
 		this.view = view;
@@ -143,8 +143,8 @@ public class ConnectionAdapter {
 		// identify Source Job and Source Port
 		PortCell sourcePortCell = visualization.getSourceCell();
 		JobCell sourceJobCell = (JobCell) sourcePortCell.getParentCell();
-		PresentationModel pm = ((WorkflowCell) visualization.getParentCell())
-				.getPresentationModel();
+		PresentationModel pm = (PresentationModel) ((WorkflowCell) visualization
+				.getParentCell()).getDataInterface();
 		Job sourceJob = null;
 		JobAdapter sourceJobAdapter = null;
 		Port sourcePort = null;
@@ -203,7 +203,7 @@ public class ConnectionAdapter {
 
 		visualization = new ConnectionCell(pm.getVisualization(), source,
 				target);
-		
+
 		// Register at ConnectionView
 		connectionViewListener = new ConnectionViewListener();
 		view.getConnectionView(connectionKey).getObservable()

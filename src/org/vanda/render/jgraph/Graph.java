@@ -4,7 +4,6 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.vanda.render.jgraph.Cell.CellListener;
-import org.vanda.view.View;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -214,14 +213,9 @@ public final class Graph {
 		@Override
 		public Object createEdge(Object parent, String id, Object value,
 				Object source, Object target, String style) {
-			if (value != null) 
-				System.out.println(value);
-			else 
-				System.out.print("null - Edge: ");
 			if (value == null || "".equals(value)) {
-				System.out.println("New Connection Cell");
 				value = new ConnectionCell();
-				
+
 			}
 			// XXX don't call with a constant
 			return super.createEdge(parent, id, value, source, target,
@@ -292,7 +286,7 @@ public final class Graph {
 	protected final mxGraph graph;
 	private int selectionUpdate = 0;
 
-	public Graph(View view, WorkflowCell workflowCell) {
+	public Graph(WorkflowCell workflowCell) {
 		// Create graph and set graph properties
 		LayoutManagerFactoryInterface layoutFactory = new NaiveLayoutManagerFactory();
 		this.graph = new customMxGraph(layoutFactory.getStylesheet(),
@@ -330,7 +324,7 @@ public final class Graph {
 	public void refresh() {
 		graph.refresh();
 	}
-	
+
 	public void setSelection(Cell cell, boolean selected) {
 		if (selectionUpdate > 0)
 			return;
@@ -340,7 +334,7 @@ public final class Graph {
 			graph.removeSelectionCell(cell.getVisualization());
 
 	}
-	
+
 	private void updateSelection(mxIGraphModel gmodel, Object[] cells) {
 		selectionUpdate++;
 		clearSelection();
