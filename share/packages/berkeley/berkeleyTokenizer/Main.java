@@ -1,5 +1,3 @@
-// package edu.berkeley.nlp.PCFGLA;
-
 import edu.berkeley.nlp.io.PTBLineLexer;
 
 import java.io.BufferedOutputStream;
@@ -20,26 +18,25 @@ import java.io.StringReader;
 import java.util.*;
 
 public class Main {
-  @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws IOException {
-    BufferedReader inputData = new BufferedReader(new InputStreamReader(System.in));
-    PrintWriter outputData = new PrintWriter(new OutputStreamWriter(System.out));
-   	PTBLineLexer tokenizer = new PTBLineLexer();
-   	String line = "";
-   	while((line=inputData.readLine()) != null){
-     	List<String> sentence = tokenizer.tokenizeLine(line);
-     	boolean first = true;
-     	for (String word : sentence) {
-     		if (!first)
-     			outputData.write(" ");
-     		else
-     			first = false;
-     		outputData.write(word);
-     	}
+		BufferedReader inputData = new BufferedReader(new InputStreamReader(System.in));
+		PrintWriter outputData = new PrintWriter(new OutputStreamWriter(System.out));
+		PTBLineLexer tokenizer = new PTBLineLexer();
+		String line = "";
+		while((line=inputData.readLine()) != null){
+			List<String> sentence = tokenizer.tokenizeLine(line);
+			boolean first = true;
+			for (String word : sentence) {
+				if (!first)
+					outputData.write(" ");
+				else
+					first = false;
+				outputData.write(word);
+			}
 			outputData.write("\n");
-    }
-  	outputData.flush();
-  	outputData.close();
-  }
+		}
+		outputData.flush();
+		outputData.close();
+	}
 }
-
