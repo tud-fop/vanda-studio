@@ -17,19 +17,20 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 
 	private final Model mm;
 	private AbstractPreviewFactory apf;
-	
+
 	public PreviewesqueVisitor(Model mm) {
 		this.mm = mm;
 		apf = null;
 	}
-	
-	public static AbstractPreviewFactory createPreviewFactory(Model mm, View view) {
+
+	public static AbstractPreviewFactory createPreviewFactory(Model mm,
+			View view) {
 		PreviewesqueVisitor visitor = new PreviewesqueVisitor(mm);
 		for (AbstractView av : view.getCurrentSelection())
 			av.visit((SelectionVisitor) visitor, view);
 		return visitor.getPreviewFactory();
 	}
-	
+
 	public AbstractPreviewFactory getPreviewFactory() {
 		return apf;
 	}
@@ -55,9 +56,11 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 		apf = new AbstractPreviewFactory() {
 			@Override
 			public JComponent createPreview(Application app) {
-				return app.getPreviewFactory(type).createPreview(app.findFile(value));
+				return app.getPreviewFactory(type).createPreview(
+						app.findFile(value));
 			}
 		};
+
 	}
 
 }

@@ -35,8 +35,6 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.app.LayoutSelector;
 import org.vanda.studio.app.WindowSystem;
 
-import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
-
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
@@ -70,7 +68,6 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 	protected final Application app;
 
-//	protected final WorkflowDecoration model;
 	protected final View view;
 	protected final PresentationModel presentationModel;
 
@@ -86,7 +83,6 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 		this.app = app;
 
 		view = new View(phd.fst);
-//		model = new WorkflowDecoration(view);
 		presentationModel = new PresentationModel(view, this);
 		
 		component = new MyMxGraphComponent(presentationModel.getVisualization().getGraph());

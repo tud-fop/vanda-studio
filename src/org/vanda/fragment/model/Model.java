@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 import org.vanda.types.Type;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
@@ -38,16 +37,8 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 	public Model(View view, Database db) {
 		hwf = view.getWorkflow();
 		this.db = db;
-		// this.model = model;
+		hwf.getObservable().addObserver(this);
 		dfaChangedObservable = new MultiplexObserver<DataflowAnalysis>();
-		view.getObservable().addObserver(new Observer<GlobalViewEvent<View>>() {
-
-			@Override
-			public void notify(GlobalViewEvent<View> event) {
-				checkWorkflow();
-			}
-			
-		});
 		
 	}
 	

@@ -21,7 +21,7 @@ public class SemanticsTool implements ToolFactory {
 			view  = wfe.getView();
 			model = new Model(view, wfe.getDatabase());
 			for (SemanticsToolFactory stf : stfs)
-				stf.instantiate(wfe, null, view);
+				stf.instantiate(wfe, model, view);
 		}
 		
 	}

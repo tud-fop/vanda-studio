@@ -15,7 +15,7 @@ import org.vanda.render.jgraph.NaiveLayoutManagerFactory;
 import org.vanda.render.jgraph.PortCell;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl;
-import org.vanda.types.CompositeType;
+import org.vanda.types.Types;
 import org.vanda.util.Observer;
 import org.vanda.view.View;
 import org.vanda.workflows.elements.Literal;
@@ -244,8 +244,7 @@ public class PresentationModel implements DataInterface {
 		ElementAdapter ele;
 		// TODO literal should be recognized otherwise
 		if (id.equals("literal"))
-			ele = new LiteralAdapter(new Literal(new CompositeType("String"),
-					"",null));
+			ele = new LiteralAdapter(new Literal(Types.undefined, "literal", null));
 		else
 			ele = new ToolAdapter(wfe.getApplication().getToolMetaRepository()
 					.getRepository().getItem(id));

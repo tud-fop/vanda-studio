@@ -1,7 +1,5 @@
 package org.vanda.studio.modules.workflows.run;
 
-
-import java.util.List;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -25,18 +23,11 @@ import org.vanda.studio.modules.workflows.inspector.InspectorialVisitor;
 import org.vanda.studio.modules.workflows.inspector.PreviewesqueVisitor;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 
-import org.vanda.types.Type;
 import org.vanda.util.Observer;
-import org.vanda.view.AbstractView;
-import org.vanda.view.AbstractView.SelectionVisitor;
 import org.vanda.view.View;
-import org.vanda.workflows.hyper.ConnectionKey;
-import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.Location;
-import org.vanda.workflows.hyper.MutableWorkflow;
-
+import org.vanda.view.View.GlobalViewEvent;
+import org.vanda.view.View.GlobalViewListener;
 import org.vanda.util.Action;
-
 
 public class InspectorTool implements SemanticsToolFactory {
 
@@ -50,51 +41,21 @@ public class InspectorTool implements SemanticsToolFactory {
 		private final JScrollPane therealinspector;
 		private JComponent editor;
 		private JComponent preview;
-//<<<<<<< HEAD
 		private final View view;
-//
-//		private class InspectorialVisitor implements SelectionVisitor {
-//
-//			String value = null;
-//			Type type = null;
-//
-//			@Override
-//			public void visitWorkflow(MutableWorkflow wf) {
-//			}
-//
-//			@Override
-//			public void visitConnection(MutableWorkflow wf, ConnectionKey cc) {
-//				visitVariable(wf.getConnectionValue(cc), wf);
-//			}
-//
-//			@Override
-//			public void visitJob(MutableWorkflow wf, Job j) {
-//			}
-//
-//			@Override
-//			public void visitVariable(Location variable, MutableWorkflow wf) {
-//				type = wfe.getModel().getType(variable);
-//				value = mm.getDataflowAnalysis().getValue(variable);
-//				// XXX no support for nested workflows because wf is ignored
-//			}
-//
-//		}
-//=======
-//		private WorkflowSelection ws;
-
 
 		public Inspector(WorkflowEditor wfe, Model mm, View view) {
 			this.wfe = wfe;
 			this.mm = mm;
 			this.view = view;
-	
-//			ws = null;
+
+			// ws = null;
 			inspector = new JEditorPane("text/html", "");
 			inspector.setEditable(false);
 			Font font = UIManager.getFont("Label.font");
-	        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
-	                "font-size: " + font.getSize() + "pt; }";
-	        ((HTMLDocument) inspector.getDocument()).getStyleSheet().addRule(bodyRule);
+			String bodyRule = "body { font-family: " + font.getFamily() + "; "
+					+ "font-size: " + font.getSize() + "pt; }";
+			((HTMLDocument) inspector.getDocument()).getStyleSheet().addRule(
+					bodyRule);
 			therealinspector = new JScrollPane(inspector);
 			contentPane = new JPanel(new BorderLayout());
 			contentPane.add(therealinspector, BorderLayout.CENTER);
@@ -103,20 +64,45 @@ public class InspectorTool implements SemanticsToolFactory {
 			editor = null;
 			this.wfe.addToolWindow(contentPane, WindowSystem.SOUTH);
 
-			Observer<Object> obs = new Observer<Object>() {
+			final GlobalViewListener<View> listener = new GlobalViewListener<View>() {
+
 				@Override
-				public void notify(Object event) {
+				public void markChanged(View v) {
+					// do nothing
+				}
+
+				@Override
+				public void selectionChanged(View v) {
 					update();
 				}
+
 			};
 			wfe.addAction(new CheckWorkflowAction(),
 					KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
-//			this.wfe.getWorkflowDecoration().getSelectionChangeObservable().addObserver(obs);
-			wfe.getView().getObservable().addObserver(obs);
+
+			wfe.getView().getObservable()
+					.addObserver(new Observer<GlobalViewEvent<View>>() {
+
+						@Override
+						public void notify(GlobalViewEvent<View> event) {
+							event.doNotify(listener);
+						}
+					});
+
+			wfe.getView().getWorkflow().getObservable()
+					.addObserver(new Observer<Object>() {
+
+						@Override
+						public void notify(Object event) {
+							update();
+						}
+
+					});
+
 			this.wfe.focusToolWindow(contentPane);
 			update();
 		}
-		
+
 		public void setEditor(AbstractEditorFactory editorFactory) {
 			if (editor != null) {
 				contentPane.remove(editor);
@@ -129,11 +115,11 @@ public class InspectorTool implements SemanticsToolFactory {
 			}
 			contentPane.validate();
 		}
-		
+
 		public void setInspection(String inspection) {
 			inspector.setText(inspection);
 		}
-		
+
 		public void setPreview(AbstractPreviewFactory previewFactory) {
 			if (preview != null) {
 				contentPane.remove(preview);
@@ -151,31 +137,22 @@ public class InspectorTool implements SemanticsToolFactory {
 
 		public void update() {
 
-//			WorkflowSelection newws = wfe.getWorkflowDecoration().getSelection();
-			List<AbstractView> ws = wfe.getView().getCurrentSelection();
+			// WorkflowSelection newws =
+			// wfe.getWorkflowDecoration().getSelection();
+			// List<AbstractView> ws = wfe.getView().getCurrentSelection();
 
-//			WorkflowSelection truews = newws;
-//			if (truews == null)
-//				truews = new WorkflowSelection(wfe.getWorkflowDecoration().getRoot());
+			// WorkflowSelection truews = newws;
+			// if (truews == null)
+			// truews = new
+			// WorkflowSelection(wfe.getWorkflowDecoration().getRoot());
 			setInspection(InspectorialVisitor.inspect(mm, view));
-//			if (newws != ws) {
-				// editor and preview keep track of changes on their own
-				setEditor(EditorialVisitor.createAbstractFactory(eefs, view));
-				setPreview(PreviewesqueVisitor.createPreviewFactory(mm, view));
-//>>>>>>> vanilla
-//			}
-//			ws = newws;
+			// if (newws != ws) {
+			// editor and preview keep track of changes on their own
+			setEditor(EditorialVisitor.createAbstractFactory(eefs, view));
+			setPreview(PreviewesqueVisitor.createPreviewFactory(mm, view));
+			// }
+			// ws = newws;
 		}
-	
-
-
-	
-
-//	@Override
-//	public String getCategory() {
-//		return "Workflow Inspection";
-//	}
-
 
 		protected class CheckWorkflowAction implements Action {
 
@@ -190,7 +167,6 @@ public class InspectorTool implements SemanticsToolFactory {
 			}
 		}
 	}
-	
 
 	public InspectorTool(ElementEditorFactories eefs) {
 		this.eefs = eefs;
