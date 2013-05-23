@@ -11,7 +11,6 @@ import org.vanda.util.Observable;
 import org.vanda.util.Observer;
 import org.vanda.util.Pair;
 import org.vanda.view.View;
-import org.vanda.view.View.GlobalViewEvent;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;

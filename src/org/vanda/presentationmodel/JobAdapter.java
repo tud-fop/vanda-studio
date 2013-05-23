@@ -169,8 +169,7 @@ public class JobAdapter {
 
 	public void destroy(Graph graph) {
 		if (jobCell != null) {
-			graph.getGraph().removeCells(
-					new Object[] { jobCell.getVisualization() });
+			graph.removeCell(jobCell);
 		}
 	}
 

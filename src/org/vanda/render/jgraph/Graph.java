@@ -347,4 +347,9 @@ public final class Graph {
 		selectionUpdate--;
 	}
 
+	public void removeCell(Cell cell) {
+		getGraph().removeCells(	new Object[] { cell.getVisualization() });
+		
+	}
+
 }

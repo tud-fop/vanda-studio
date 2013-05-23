@@ -14,7 +14,7 @@ import org.vanda.render.jgraph.LayoutManagerInterface;
 import org.vanda.render.jgraph.NaiveLayoutManagerFactory;
 import org.vanda.render.jgraph.PortCell;
 import org.vanda.render.jgraph.WorkflowCell;
-import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl;
+import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.Types;
 import org.vanda.util.Observer;
 import org.vanda.view.View;
@@ -86,7 +86,7 @@ public class PresentationModel implements DataInterface {
 	View view;
 	protected final WorkflowCell workflowCell;
 	private int update = 0;
-	private final WorkflowEditorImpl wfe;
+	protected final WorkflowEditor wfe;
 
 	/*
 	 * map that holds Layouts for all Job-Types, where String is
@@ -97,7 +97,7 @@ public class PresentationModel implements DataInterface {
 
 	private final WorkflowListener workflowListener;
 
-	public PresentationModel(View view, WorkflowEditorImpl wfe) {
+	public PresentationModel(View view, WorkflowEditor wfe) {
 		this.view = view;
 		this.wfe = wfe;
 		this.workflowCell = new WorkflowCell(this);

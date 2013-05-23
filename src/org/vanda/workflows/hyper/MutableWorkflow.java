@@ -2,7 +2,6 @@ package org.vanda.workflows.hyper;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -150,7 +149,7 @@ public final class MutableWorkflow implements JobListener<Job> {
 			Location old = null;
 			if (cc.target.isInserted())
 				old = cc.target.bindings.remove(cc.targetPort);
-			//if (old != null)
+			if (old != null)
 				events.add(new Workflows.ConnectionRemovedEvent<MutableWorkflow>(
 						this, cc));
 		} finally {
