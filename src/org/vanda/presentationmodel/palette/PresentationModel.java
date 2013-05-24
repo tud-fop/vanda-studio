@@ -1,8 +1,6 @@
 package org.vanda.presentationmodel.palette;
 
 import java.awt.Component;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DragSource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +13,8 @@ import org.vanda.render.jgraph.LayoutManagerInterface;
 import org.vanda.render.jgraph.NaiveLayoutManagerFactory;
 import org.vanda.render.jgraph.PortCell;
 import org.vanda.render.jgraph.WorkflowCell;
-import org.vanda.render.jgraph.mxDragGestureListener;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
-
-import com.mxgraph.swing.mxGraphComponent;
 
 public class PresentationModel implements DataInterface {
 	/**
