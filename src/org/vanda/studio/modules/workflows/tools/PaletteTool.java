@@ -1,8 +1,7 @@
 package org.vanda.studio.modules.workflows.tools;
 
 import java.awt.BorderLayout;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DragSource;
+import java.awt.Component;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import javax.swing.JTextField;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.vanda.presentationmodel.palette.PresentationModel;
-import org.vanda.render.jgraph.mxDragGestureListener;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.Types;
@@ -31,8 +29,6 @@ import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.LiteralAdapter;
 import org.vanda.workflows.hyper.ToolAdapter;
-
-import com.mxgraph.swing.mxGraphComponent;
 
 public class PaletteTool implements ToolFactory {
 	// TODO see below: beamer mode and stuff
@@ -53,7 +49,7 @@ public class PaletteTool implements ToolFactory {
 
 	public static class Palette {
 		protected final WorkflowEditor wfe;
-		protected mxGraphComponent searchGraph;
+		protected Component searchGraph;
 		protected JPanel palette;
 		protected JXTaskPaneContainer taskPaneContainer;
 		protected JTextField textField;
@@ -149,7 +145,7 @@ public class PaletteTool implements ToolFactory {
 			Collections.sort(categories);
 			for (String category : categories) {
 				JXTaskPane categoryPane = new JXTaskPane(category);
-				mxGraphComponent graphComp = renderTemplates(catMap
+				Component graphComp = renderTemplates(catMap
 						.get(category));
 				categoryPane.add(graphComp);
 				categoryPane.setCollapsed(true);
@@ -191,7 +187,7 @@ public class PaletteTool implements ToolFactory {
 
 	}
 
-	protected static mxGraphComponent renderTemplates(List<Job> ts) {
+	protected static Component renderTemplates(List<Job> ts) {
 		PresentationModel pm = new PresentationModel();
 
 		// top left corner of first palette tool, width, height
@@ -202,15 +198,7 @@ public class PaletteTool implements ToolFactory {
 		}
 
 		// mxGraphComponent c = new mxGraphComponent(da.getGraph());
-		mxGraphComponent c = new mxGraphComponent(pm.getVisualization()
-				.getGraph());
-		c.setConnectable(false);
-		c.setDragEnabled(false);
-		DragSource ds = new DragSource();
-		ds.createDefaultDragGestureRecognizer(c.getGraphControl(),
-				DnDConstants.ACTION_COPY_OR_MOVE,
-				new mxDragGestureListener(c.getGraph()));
-		return c;
+		return pm.getComponent();
 	}
 
 	@Override

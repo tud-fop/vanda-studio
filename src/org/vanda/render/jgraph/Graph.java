@@ -1,5 +1,8 @@
 package org.vanda.render.jgraph;
 
+import java.awt.Component;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragSource;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -13,6 +16,7 @@ import com.mxgraph.model.mxGraphModel.mxGeometryChange;
 import com.mxgraph.model.mxGraphModel.mxValueChange;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
+import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
@@ -358,6 +362,20 @@ public final class Graph {
 	public void setPaletteStyle() {
 		getGraph().setCellsLocked(true);
 		getGraph().setDropEnabled(false);
+	}
+
+	/**
+	 * @return
+	 */
+	public Component getPaletteComponent() {
+		mxGraphComponent c = new mxGraphComponent(getGraph());
+		c.setConnectable(false);
+		c.setDragEnabled(false);
+		DragSource ds = new DragSource();
+		ds.createDefaultDragGestureRecognizer(c.getGraphControl(),
+				DnDConstants.ACTION_COPY_OR_MOVE,
+				new mxDragGestureListener(c.getGraph()));
+		return c;
 	}
 
 }
