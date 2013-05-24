@@ -1,7 +1,6 @@
 package org.vanda.render.jgraph;
 
 import org.vanda.util.Observer;
-
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
@@ -129,6 +128,10 @@ public class JobCell extends Cell {
 		double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
 				geo.getHeight() };
 		setDimensions(dim);
+	}
+	
+	public void setId(String id) {
+		getVisualization().setId(id);
 	}
 
 }

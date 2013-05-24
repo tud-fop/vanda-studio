@@ -351,5 +351,13 @@ public final class Graph {
 		getGraph().removeCells(	new Object[] { cell.getVisualization() });
 		
 	}
+	
+	/**
+	 * Make the visualization immutable (used for palette) 
+	 */
+	public void setPaletteStyle() {
+		getGraph().setCellsLocked(true);
+		getGraph().setDropEnabled(false);
+	}
 
 }
