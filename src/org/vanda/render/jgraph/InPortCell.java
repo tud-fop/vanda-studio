@@ -4,24 +4,23 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
-public class PortCell extends Cell {
+public class InPortCell extends Cell {
 	final String portType; // input or output port
 
-	public PortCell(Graph g, LayoutManagerInterface layout, Cell parent,
+	public InPortCell(Graph g, LayoutManager layout, Cell parent,
 			String portType) {
+		// super(JGraphRendering.inportRenderer, null);
 		this.portType = portType;
 
 		// Create Cell in Graph
 		g.beginUpdate();
 		try {
 			visualization = new mxCell(this);
+			JGraphRendering.inPortRenderer.render(g, this);
 			g.getGraph().addCell(visualization, parent.getVisualization());
 		} finally {
 			g.endUpdate();
 		}
-
-		// Register at LayoutManager
-		layout.register(this);
 
 	}
 

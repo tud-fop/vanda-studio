@@ -9,9 +9,9 @@ import org.vanda.render.jgraph.ConnectionCell;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.LayoutManagerFactoryInterface;
-import org.vanda.render.jgraph.LayoutManagerInterface;
-import org.vanda.render.jgraph.NaiveLayoutManagerFactory;
-import org.vanda.render.jgraph.PortCell;
+import org.vanda.render.jgraph.LayoutManager;
+import org.vanda.render.jgraph.JGraphRendering;
+import org.vanda.render.jgraph.InPortCell;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
@@ -27,7 +27,7 @@ public class PresentationModel implements DataInterface {
 
 	protected final Graph graph;
 	List<JobAdapter> jobs;
-	LayoutManagerFactoryInterface layoutManager = new NaiveLayoutManagerFactory();
+	// LayoutManagerFactoryInterface layoutManager = new JGraphRendering();
 	protected final WorkflowCell workflowCell;
 	Component comp;
 
@@ -46,7 +46,7 @@ public class PresentationModel implements DataInterface {
 	}
 
 	public double addJobAdapter(Job job) {
-		JobAdapter ja = new JobAdapter(job, selectLayout(job), graph);
+		JobAdapter ja = new JobAdapter(job, graph);
 		jobs.add(ja);
 		graph.refresh();
 		return ja.getVisualizationHeight();
@@ -72,23 +72,14 @@ public class PresentationModel implements DataInterface {
 		}
 	}
 
-	private LayoutManagerInterface selectLayout(Job job) {
-		return job.selectRenderer(layoutManager.getRendererAssortment());
-	}
-
 	@Override
 	public void createJob(String id, double[] d) {
 		// do nothing
 	}
 
 	@Override
-	public Graph getGraph() {
-		return graph;
-	}
-
-	@Override
 	public void createConnection(ConnectionCell connectionCell,
-			JobCell tparval, PortCell tval) {
+			JobCell tparval, InPortCell tval) {
 		// do nothing
 	}
 

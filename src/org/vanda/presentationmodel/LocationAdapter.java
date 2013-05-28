@@ -1,13 +1,14 @@
 package org.vanda.presentationmodel;
 
 import org.vanda.render.jgraph.Cell;
+import org.vanda.render.jgraph.Cells.CellListener;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
-import org.vanda.render.jgraph.LayoutManagerInterface;
+import org.vanda.render.jgraph.LayoutManager;
 import org.vanda.render.jgraph.LocationCell;
-import org.vanda.render.jgraph.Cell.CellEvent;
-import org.vanda.render.jgraph.Cell.MarkChangedEvent;
-import org.vanda.render.jgraph.Cell.SelectionChangedEvent;
+import org.vanda.render.jgraph.Cells.CellEvent;
+import org.vanda.render.jgraph.Cells.MarkChangedEvent;
+import org.vanda.render.jgraph.Cells.SelectionChangedEvent;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
 import org.vanda.view.AbstractView.ViewEvent;
@@ -18,7 +19,7 @@ import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
 
 public class LocationAdapter {
-	private class LocationCellListener implements Cell.CellListener<Cell> {
+	private class LocationCellListener implements CellListener<Cell> {
 
 		@Override
 		public void insertCell(Cell c) {
@@ -92,7 +93,7 @@ public class LocationAdapter {
 	View view;
 
 	public LocationAdapter(Graph g, View view,
-			LayoutManagerInterface layoutManager, JobCell jobCell, Port port,
+			LayoutManager layoutManager, JobCell jobCell, Port port,
 			Location location) {
 		locationCell = new LocationCell(g, layoutManager, jobCell);
 

@@ -1,15 +1,19 @@
 package org.vanda.render.jgraph;
 
+import org.vanda.render.jgraph.Cells.CellEvent;
+import org.vanda.render.jgraph.Cells.CellObservable;
+import org.vanda.render.jgraph.Cells.SetSelectionEvent;
+
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
 public class LocationCell extends Cell {
 
-	public LocationCell(final Graph g, LayoutManagerInterface layout,
+	public LocationCell(final Graph g, LayoutManager layout,
 			Cell parent) {
 
-		this.observable = new CellObservable();
+		this.observable = new CellObservable<Cell>();
 
 		// Register at Graph
 		getObservable().addObserver(
@@ -25,13 +29,11 @@ public class LocationCell extends Cell {
 		g.getGraph().getModel().beginUpdate();
 		try {
 			visualization = new mxCell(this);
+			JGraphRendering.locationRenderer.render(g, this);
 			g.getGraph().addCell(visualization, parent.getVisualization());
 		} finally {
 			g.getGraph().getModel().endUpdate();
 		}
-
-		// Register at LayoutManager
-		layout.register(this);
 	}
 
 	@Override

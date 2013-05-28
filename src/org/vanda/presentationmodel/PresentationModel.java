@@ -10,9 +10,9 @@ import org.vanda.render.jgraph.ConnectionCell;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.LayoutManagerFactoryInterface;
-import org.vanda.render.jgraph.LayoutManagerInterface;
-import org.vanda.render.jgraph.NaiveLayoutManagerFactory;
-import org.vanda.render.jgraph.PortCell;
+import org.vanda.render.jgraph.LayoutManager;
+import org.vanda.render.jgraph.JGraphRendering;
+import org.vanda.render.jgraph.InPortCell;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.Types;
@@ -52,7 +52,7 @@ public class PresentationModel implements DataInterface {
 
 		@Override
 		public void childRemoved(MutableWorkflow mwf, Job j) {
-			removeJobAdatper(mwf, j);
+			removeJobAdapter(mwf, j);
 		}
 
 		@Override
@@ -82,7 +82,7 @@ public class PresentationModel implements DataInterface {
 	Map<ConnectionKey, ConnectionAdapter> connections;
 	protected final Graph graph;
 	List<JobAdapter> jobs;
-	LayoutManagerFactoryInterface layoutManager = new NaiveLayoutManagerFactory();
+	// LayoutManagerFactoryInterface layoutManager = new JGraphRendering();
 	View view;
 	protected final WorkflowCell workflowCell;
 	private int update = 0;
@@ -129,7 +129,7 @@ public class PresentationModel implements DataInterface {
 	 * @param tval
 	 */
 	private void addConnectionAdapter(ConnectionCell connectionCell,
-			JobCell tparval, PortCell tval) {
+			JobCell tparval, InPortCell tval) {
 		Job j = null;
 		Port p = null;
 		for (JobAdapter ja : jobs) {
@@ -178,7 +178,7 @@ public class PresentationModel implements DataInterface {
 			if (ja.getJob() == job)
 				return ja;
 		}
-		JobAdapter ja = new JobAdapter(job, selectLayout(job), graph, view);
+		JobAdapter ja = new JobAdapter(job, graph, view);
 		jobs.add(ja);
 		graph.refresh();
 		return ja;
@@ -211,7 +211,7 @@ public class PresentationModel implements DataInterface {
 		}
 	}
 
-	public void removeJobAdatper(MutableWorkflow mwf, Job j) {
+	public void removeJobAdapter(MutableWorkflow mwf, Job j) {
 		JobAdapter toDelete = null;
 		for (JobAdapter ja : jobs) {
 			if (ja.getJob() == j)
@@ -223,13 +223,9 @@ public class PresentationModel implements DataInterface {
 		}
 	}
 
-	private LayoutManagerInterface selectLayout(Job job) {
-		return job.selectRenderer(layoutManager.getRendererAssortment());
-	}
-
 	private void setupPresentationModel() {
 		for (Job j : view.getWorkflow().getChildren()) {
-			jobs.add(new JobAdapter(j, selectLayout(j), graph, view));
+			jobs.add(new JobAdapter(j, graph, view));
 		}
 		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
 			if (connections.get(ck) == null)
@@ -254,13 +250,8 @@ public class PresentationModel implements DataInterface {
 	}
 
 	@Override
-	public Graph getGraph() {
-		return graph;
-	}
-
-	@Override
 	public void createConnection(ConnectionCell connectionCell,
-			JobCell tparval, PortCell tval) {
+			JobCell tparval, InPortCell tval) {
 		addConnectionAdapter(connectionCell, tparval, tval);
 	}
 

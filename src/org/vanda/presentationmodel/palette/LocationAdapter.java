@@ -1,15 +1,16 @@
 package org.vanda.presentationmodel.palette;
 
 import org.vanda.render.jgraph.Cell;
+import org.vanda.render.jgraph.Cells.CellListener;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
-import org.vanda.render.jgraph.LayoutManagerInterface;
+import org.vanda.render.jgraph.LayoutManager;
 import org.vanda.render.jgraph.LocationCell;
-import org.vanda.render.jgraph.Cell.CellEvent;
+import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.util.Observer;
 
 public class LocationAdapter {
-	private class LocationCellListener implements Cell.CellListener<Cell> {
+	private class LocationCellListener implements CellListener<Cell> {
 
 		@Override
 		public void insertCell(Cell c) {
@@ -51,7 +52,7 @@ public class LocationAdapter {
 	LocationCell locationCell;
 	LocationCellListener locationCellListener;
 
-	public LocationAdapter(Graph g, LayoutManagerInterface layoutManager, JobCell jobCell) {
+	public LocationAdapter(Graph g, LayoutManager layoutManager, JobCell jobCell) {
 		locationCell = new LocationCell(g, layoutManager, jobCell);
 
 		this.locationCellListener = new LocationCellListener();

@@ -6,12 +6,15 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.vanda.render.jgraph.Cell;
-import org.vanda.render.jgraph.Cell.CellEvent;
-import org.vanda.render.jgraph.Cell.SelectionChangedEvent;
+import org.vanda.render.jgraph.Cells.CellEvent;
+import org.vanda.render.jgraph.Cells.CellListener;
+import org.vanda.render.jgraph.Cells.SelectionChangedEvent;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
-import org.vanda.render.jgraph.LayoutManagerInterface;
-import org.vanda.render.jgraph.PortCell;
+import org.vanda.render.jgraph.LayoutManager;
+import org.vanda.render.jgraph.NaiveLayoutManager;
+import org.vanda.render.jgraph.InPortCell;
+import org.vanda.render.jgraph.OutPortCell;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
 import org.vanda.view.JobView;
@@ -23,7 +26,7 @@ import org.vanda.workflows.hyper.Jobs.JobEvent;
 import org.vanda.workflows.hyper.Location;
 
 public class JobAdapter {
-	private class JobCellListener implements Cell.CellListener<Cell> {
+	private class JobCellListener implements CellListener<Cell> {
 
 		@Override
 		public void insertCell(Cell c) {
@@ -31,8 +34,7 @@ public class JobAdapter {
 			// which happens in case of drag&drop (as opposed to render).
 			if (!job.isInserted()) {
 				jobCell.updateDimensions();
-				double[] dim = { jobCell.getX(), jobCell.getY(),
-						jobCell.getWidth(), jobCell.getHeight() };
+				double[] dim = { jobCell.getX(), jobCell.getY(), jobCell.getWidth(), jobCell.getHeight() };
 				job.setDimensions(dim);
 				view.getWorkflow().addChild(job);
 			}
@@ -51,11 +53,9 @@ public class JobAdapter {
 
 		@Override
 		public void propertyChanged(Cell c) {
-			if (job.getX() != jobCell.getX() || job.getY() != jobCell.getY()
-					|| job.getWidth() != jobCell.getWidth()
+			if (job.getX() != jobCell.getX() || job.getY() != jobCell.getY() || job.getWidth() != jobCell.getWidth()
 					|| job.getHeight() != jobCell.getHeight()) {
-				double[] dim = { jobCell.getX(), jobCell.getY(),
-						jobCell.getWidth(), jobCell.getHeight() };
+				double[] dim = { jobCell.getX(), jobCell.getY(), jobCell.getWidth(), jobCell.getHeight() };
 				job.setDimensions(dim);
 			}
 		}
@@ -83,20 +83,17 @@ public class JobAdapter {
 	private class JobListener implements Jobs.JobListener<Job> {
 		@Override
 		public void propertyChanged(Job j) {
-			if (jobCell.getX() != j.getX() || jobCell.getY() != j.getY()
-					|| jobCell.getWidth() != j.getWidth()
+			if (jobCell.getX() != j.getX() || jobCell.getY() != j.getY() || jobCell.getWidth() != j.getWidth()
 					|| jobCell.getHeight() != j.getHeight()) {
 
-				jobCell.setDimensions(new double[] { job.getX(), job.getY(),
-						job.getWidth(), job.getHeight() });
+				jobCell.setDimensions(new double[] { job.getX(), job.getY(), job.getWidth(), job.getHeight() });
 				jobCell.sizeChanged();
 
 			}
 		}
 	}
 
-	private class JobViewListener implements
-			AbstractView.ViewListener<AbstractView> {
+	private class JobViewListener implements AbstractView.ViewListener<AbstractView> {
 
 		@Override
 		public void highlightingChanged(AbstractView v) {
@@ -116,12 +113,11 @@ public class JobAdapter {
 
 		@Override
 		public void selectionChanged(AbstractView v) {
-			jobCell.getObservable().notify(
-					new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
+			jobCell.getObservable().notify(new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
 		}
 	}
 
-	Map<Port, PortCell> inports;
+	Map<Port, InPortCell> inports;
 	Job job;
 	JobCell jobCell;
 	JobCellListener jobCellListener;
@@ -130,14 +126,13 @@ public class JobAdapter {
 
 	Map<Location, LocationAdapter> locations;
 
-	Map<Port, PortCell> outports;
+	Map<Port, OutPortCell> outports;
 
 	View view;
 
-	JobAdapter(Job job, LayoutManagerInterface layoutManager, Graph graph,
-			View view) {
+	JobAdapter(Job job, Graph graph, View view) {
 		this.view = view;
-		setUpCells(layoutManager, graph, job);
+		setUpCells(graph, job);
 		this.jobListener = new JobListener();
 		this.jobCellListener = new JobCellListener();
 
@@ -184,7 +179,7 @@ public class JobAdapter {
 		return cells;
 	}
 
-	public PortCell getInPortCell(Port pi) {
+	public InPortCell getInPortCell(Port pi) {
 		return inports.get(pi);
 	}
 
@@ -197,43 +192,39 @@ public class JobAdapter {
 		return jobCell;
 	}
 
-	public PortCell getOutPortCell(Port po) {
+	public OutPortCell getOutPortCell(Port po) {
 		return outports.get(po);
 	}
 
-	private void setUpCells(LayoutManagerInterface layoutManager, Graph g,
-			Job job) {
+	private void setUpCells(Graph g, Job job) {
 		g.beginUpdate();
 		try {
+			LayoutManager layoutManager = new NaiveLayoutManager();
 			this.job = job;
-			inports = new WeakHashMap<Port, PortCell>();
-			outports = new WeakHashMap<Port, PortCell>();
+			inports = new WeakHashMap<Port, InPortCell>();
+			outports = new WeakHashMap<Port, OutPortCell>();
 			locations = new WeakHashMap<Location, LocationAdapter>();
-			jobCell = new JobCell(g, layoutManager, job.getName(), job.getX(),
-					job.getY(), job.getWidth(), job.getHeight());
+			jobCell = new JobCell(g, layoutManager, job.getName(), job.getX(), job.getY(), job.getWidth(),
+					job.getHeight());
 
 			// insert a cell for every input port
 			List<Port> in = job.getInputPorts();
 
 			for (Port ip : in) {
-				inports.put(ip, new PortCell(g, layoutManager, jobCell,
-						"InPortCell"));
+				inports.put(ip, new InPortCell(g, layoutManager, jobCell, "InPortCell"));
 			}
 
 			// insert a cell for every output port
 			List<Port> out = job.getOutputPorts();
 			for (Port op : out) {
-				outports.put(op, new PortCell(g, layoutManager, jobCell,
-						"OutPortCell"));
-				locations
-						.put(job.bindings.get(op),
-								new LocationAdapter(g, view, layoutManager,
-										jobCell, op, job.bindings.get(op)));
+				outports.put(op, new OutPortCell(g, layoutManager, jobCell, "OutPortCell"));
+				locations.put(job.bindings.get(op), new LocationAdapter(g, view, layoutManager, jobCell, op,
+						job.bindings.get(op)));
 
 			}
 
 			// setup Layout
-			layoutManager.setUpLayout(g);
+			layoutManager.setUpLayout(g, jobCell);
 
 		} finally {
 			g.endUpdate();

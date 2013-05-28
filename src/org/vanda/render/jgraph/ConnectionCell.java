@@ -1,5 +1,10 @@
 package org.vanda.render.jgraph;
 
+import org.vanda.render.jgraph.Cells.CellEvent;
+import org.vanda.render.jgraph.Cells.CellObservable;
+import org.vanda.render.jgraph.Cells.MarkChangedEvent;
+import org.vanda.render.jgraph.Cells.RemoveCellEvent;
+import org.vanda.render.jgraph.Cells.SetSelectionEvent;
 import org.vanda.util.Observer;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
@@ -12,12 +17,12 @@ public class ConnectionCell extends Cell {
 	
 	public ConnectionCell() {
 		handdrawn = true;
-		this.observable = new CellObservable();
+		this.observable = new CellObservable<Cell>();
 	}
 
-	public ConnectionCell(final Graph graph, PortCell source, PortCell target) {
+	public ConnectionCell(final Graph graph, OutPortCell source, InPortCell target) {
 		handdrawn = false;
-		this.observable = new CellObservable();
+		this.observable = new CellObservable<Cell>();
 
 		// Register at Graph
 		getObservable().addObserver(
@@ -52,8 +57,8 @@ public class ConnectionCell extends Cell {
 
 	}
 
-	public PortCell getSourceCell() {
-		return (PortCell) visualization.getSource().getValue();
+	public OutPortCell getSourceCell() {
+		return (OutPortCell) visualization.getSource().getValue();
 	}
 
 	@Override
@@ -88,7 +93,7 @@ public class ConnectionCell extends Cell {
 			if (source != null && target != null) {
 				visualization = (mxCell) cell;
 
-				PortCell tval = (PortCell) model.getValue(target);
+				InPortCell tval = (InPortCell) model.getValue(target);
 				JobCell tparval = (JobCell) model.getValue(model
 						.getParent(target));
 

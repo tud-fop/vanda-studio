@@ -1,12 +1,14 @@
 package org.vanda.presentationmodel;
 
 import org.vanda.render.jgraph.Cell;
-import org.vanda.render.jgraph.Cell.CellEvent;
-import org.vanda.render.jgraph.Cell.SelectionChangedEvent;
+import org.vanda.render.jgraph.Cells.CellEvent;
+import org.vanda.render.jgraph.Cells.CellListener;
+import org.vanda.render.jgraph.Cells.SelectionChangedEvent;
 import org.vanda.render.jgraph.ConnectionCell;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
-import org.vanda.render.jgraph.PortCell;
+import org.vanda.render.jgraph.InPortCell;
+import org.vanda.render.jgraph.OutPortCell;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
@@ -19,7 +21,7 @@ import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class ConnectionAdapter {
-	private class ConnectionCellListener implements Cell.CellListener<Cell> {
+	private class ConnectionCellListener implements CellListener<Cell> {
 
 		@Override
 		public void insertCell(Cell c) {
@@ -141,7 +143,7 @@ public class ConnectionAdapter {
 				.addObserver(connectionViewObserver);
 
 		// identify Source Job and Source Port
-		PortCell sourcePortCell = visualization.getSourceCell();
+		OutPortCell sourcePortCell = visualization.getSourceCell();
 		JobCell sourceJobCell = (JobCell) sourcePortCell.getParentCell();
 		PresentationModel pm = (PresentationModel) ((WorkflowCell) visualization
 				.getParentCell()).getDataInterface();
@@ -197,8 +199,8 @@ public class ConnectionAdapter {
 				tJA = jA;
 		}
 		assert (sJA != null && tJA != null);
-		PortCell source = sJA.getOutPortCell(sourcePort);
-		PortCell target = tJA.getInPortCell(targetPort);
+		OutPortCell source = sJA.getOutPortCell(sourcePort);
+		InPortCell target = tJA.getInPortCell(targetPort);
 		assert (source != null && target != null);
 
 		visualization = new ConnectionCell(pm.getVisualization(), source,

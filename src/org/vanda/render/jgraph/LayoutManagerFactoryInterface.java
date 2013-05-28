@@ -4,6 +4,6 @@ import org.vanda.workflows.elements.RendererAssortment;
 import com.mxgraph.view.mxStylesheet;
 
 public interface LayoutManagerFactoryInterface {
-	public RendererAssortment<LayoutManagerInterface> getRendererAssortment();
+	public RendererAssortment<LayoutManager> getRendererAssortment();
 	public abstract mxStylesheet getStylesheet();
 }

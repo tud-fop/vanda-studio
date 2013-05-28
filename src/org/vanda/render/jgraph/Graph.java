@@ -6,7 +6,7 @@ import java.awt.dnd.DragSource;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.vanda.render.jgraph.Cell.CellListener;
+import org.vanda.render.jgraph.Cells.CellListener;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -34,7 +34,7 @@ import com.mxgraph.view.mxStylesheet;
  * 
  */
 public final class Graph {
-	protected class CellChangeListener implements Cell.CellListener<Cell> {
+	protected class CellChangeListener implements CellListener<Cell> {
 
 		@Override
 		public void insertCell(Cell c) {
@@ -292,9 +292,10 @@ public final class Graph {
 
 	public Graph(WorkflowCell workflowCell) {
 		// Create graph and set graph properties
-		LayoutManagerFactoryInterface layoutFactory = new NaiveLayoutManagerFactory();
-		this.graph = new customMxGraph(layoutFactory.getStylesheet(),
+		// LayoutManagerFactoryInterface layoutFactory = new JGraphRendering();
+		this.graph = new customMxGraph(JGraphRendering.getStylesheet(),
 				workflowCell);
+		JGraphRendering.refStylesheet(1);
 		cellChangeListener = new CellChangeListener();
 		changeListener = new ChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
@@ -317,6 +318,12 @@ public final class Graph {
 		getGraph().getModel().endUpdate();
 	}
 
+	@Override
+	public void finalize() throws Throwable {
+		JGraphRendering.refStylesheet(-1);
+		super.finalize();
+	}
+	
 	public CellListener<Cell> getCellChangeListener() {
 		return cellChangeListener;
 	}

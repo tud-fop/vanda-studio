@@ -1,5 +1,12 @@
 package org.vanda.render.jgraph;
 
+import org.vanda.render.jgraph.Cells.CellEvent;
+import org.vanda.render.jgraph.Cells.CellObservable;
+import org.vanda.render.jgraph.Cells.InsertCellEvent;
+import org.vanda.render.jgraph.Cells.MarkChangedEvent;
+import org.vanda.render.jgraph.Cells.PropertyChangedEvent;
+import org.vanda.render.jgraph.Cells.RemoveCellEvent;
+import org.vanda.render.jgraph.Cells.SetSelectionEvent;
 import org.vanda.util.Observer;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -10,14 +17,14 @@ import com.mxgraph.view.mxGraph;
 
 public class JobCell extends Cell {
 	protected final String label;
-	final LayoutManagerInterface layoutManager;
+	final LayoutManager layoutManager;
 
-	public JobCell(final Graph graph, LayoutManagerInterface layoutManager,
+	public JobCell(final Graph graph, LayoutManager layoutManager,
 			String label, double x, double y, double w, double h) {
 		this.layoutManager = layoutManager;
 
 		this.label = label;
-		this.observable = new CellObservable();
+		this.observable = new CellObservable<Cell>();
 		setDimensions(new double[] { x, y, w, h });
 
 		// Register at Graph
@@ -35,15 +42,13 @@ public class JobCell extends Cell {
 		try {
 
 			visualization = new mxCell(this);
+			JGraphRendering.getRendererAssortment().selectAlgorithmRenderer().render(graph, this);
 			graph.getGraph().addCell(visualization,
 					graph.getGraph().getDefaultParent());
 
 		} finally {
 			graph.getGraph().getModel().endUpdate();
 		}
-
-		// Register at LayoutManager
-		layoutManager.register(this);
 	}
 
 	@Override
@@ -120,7 +125,7 @@ public class JobCell extends Cell {
 		ng.setWidth(getWidth());
 		ng.setHeight(getHeight());
 		getVisualization().setGeometry(ng);
-		getObservable().notify(new Cell.PropertyChangedEvent<Cell>(this));
+		getObservable().notify(new PropertyChangedEvent<Cell>(this));
 	}
 
 	public void updateDimensions() {
