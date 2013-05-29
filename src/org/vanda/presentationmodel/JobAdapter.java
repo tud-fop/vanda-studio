@@ -33,7 +33,6 @@ public class JobAdapter {
 			// the following is necessary if the job is not in the model
 			// which happens in case of drag&drop (as opposed to render).
 			if (!job.isInserted()) {
-				jobCell.updateDimensions();
 				double[] dim = { jobCell.getX(), jobCell.getY(), jobCell.getWidth(), jobCell.getHeight() };
 				job.setDimensions(dim);
 				view.getWorkflow().addChild(job);
@@ -87,8 +86,6 @@ public class JobAdapter {
 					|| jobCell.getHeight() != j.getHeight()) {
 
 				jobCell.setDimensions(new double[] { job.getX(), job.getY(), job.getWidth(), job.getHeight() });
-				jobCell.sizeChanged();
-
 			}
 		}
 	}

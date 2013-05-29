@@ -11,7 +11,6 @@ import org.vanda.util.Observer;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
-import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.view.mxGraph;
 
@@ -25,7 +24,6 @@ public class JobCell extends Cell {
 
 		this.label = label;
 		this.observable = new CellObservable<Cell>();
-		setDimensions(new double[] { x, y, w, h });
 
 		// Register at Graph
 		getObservable().addObserver(new Observer<CellEvent<Cell>>() {
@@ -40,8 +38,8 @@ public class JobCell extends Cell {
 		// Create mxCell and add it to Graph
 		graph.getGraph().getModel().beginUpdate();
 		try {
-
-			visualization = new mxCell(this);
+			visualization = new mxCell(this, new mxGeometry(), null);
+			setDimensions(new double[] { x, y, w, h });
 			JGraphRendering.getRendererAssortment().selectAlgorithmRenderer().render(graph, this);
 			graph.getGraph().addCell(visualization,
 					graph.getGraph().getDefaultParent());
@@ -90,23 +88,13 @@ public class JobCell extends Cell {
 
 	@Override
 	public void onResize(mxGraph graph) {
-		mxIGraphModel model = graph.getModel();
-		mxGeometry geo = model.getGeometry(visualization);
 		if (graph.isAutoSizeCell(visualization))
 			graph.updateCellSize(visualization, true); // was:
 														// resizeToFitLabel(cell)
 		preventTooSmallNested(graph, visualization);
 		graph.extendParent(visualization); // was: resizeParentOfCell(cell)
 
-		if (geo.getX() != getX() || geo.getY() != getY()
-				|| geo.getWidth() != getWidth()
-				|| geo.getHeight() != getHeight()) {
-
-			double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
-					geo.getHeight() };
-			setDimensions(dim);
-			getObservable().notify(new PropertyChangedEvent<Cell>(this));
-		}
+		getObservable().notify(new PropertyChangedEvent<Cell>(this));
 	}
 
 	private void preventTooSmallNested(mxGraph graph, mxICell cell) {
@@ -114,27 +102,21 @@ public class JobCell extends Cell {
 	}
 
 	@Override
+	public void setDimensions(double [] dimensions) {
+		mxGeometry ng = (mxGeometry) getVisualization().getGeometry().clone();
+		ng.setX(dimensions[0]);
+		ng.setY(dimensions[1]);
+		ng.setWidth(dimensions[2]);
+		ng.setHeight(dimensions[3]);
+		getVisualization().setGeometry(ng);
+		getObservable().notify(new PropertyChangedEvent<Cell>(this));	
+	}
+	
+	@Override
 	public void setSelection(boolean selected) {
 		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
 	}
 
-	public void sizeChanged() {
-		mxGeometry ng = (mxGeometry) getVisualization().getGeometry().clone();
-		ng.setX(getX());
-		ng.setY(getY());
-		ng.setWidth(getWidth());
-		ng.setHeight(getHeight());
-		getVisualization().setGeometry(ng);
-		getObservable().notify(new PropertyChangedEvent<Cell>(this));
-	}
-
-	public void updateDimensions() {
-		mxGeometry geo = getVisualization().getGeometry();
-		double[] dim = { geo.getX(), geo.getY(), geo.getWidth(),
-				geo.getHeight() };
-		setDimensions(dim);
-	}
-	
 	public void setId(String id) {
 		getVisualization().setId(id);
 	}

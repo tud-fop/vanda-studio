@@ -8,23 +8,22 @@ import com.mxgraph.view.mxGraph;
 
 public abstract class Cell {
 
-	protected double[] dimensions = new double[4];
 	protected CellObservable<Cell> observable;
 	protected mxCell visualization;
 
 	protected Object z;
-	
+
 	// TODO implement me
 	// protected Cell(Renderer r, LayoutManager layoutManager) {
-		
+
 	// }
-	
+
 	public void addCell(Cell cell, Object layout) {
 		// TODO implement me
 	}
 
 	public double getHeight() {
-		return dimensions[3];
+		return visualization.getGeometry().getHeight();
 	}
 
 	public String getLabel() {
@@ -39,8 +38,6 @@ public abstract class Cell {
 		return (Cell) getVisualization().getParent().getValue();
 	}
 
-	// public abstract AbstractView getView(View view);
-
 	public abstract String getType();
 
 	public mxCell getVisualization() {
@@ -48,15 +45,15 @@ public abstract class Cell {
 	}
 
 	public double getWidth() {
-		return dimensions[2];
+		return visualization.getGeometry().getWidth();
 	}
 
 	public double getX() {
-		return dimensions[0];
+		return visualization.getGeometry().getX();
 	}
 
 	public double getY() {
-		return dimensions[1];
+		return visualization.getGeometry().getY();
 	}
 
 	public Object getZ() {
@@ -73,13 +70,12 @@ public abstract class Cell {
 	public abstract void onRemove();
 
 	public abstract void onResize(mxGraph graph);
-	
+
 	public void removeCell(Cell cell) {
 		// TODO implement me
 	}
 
 	public void setDimensions(double[] dimensions) {
-		this.dimensions = dimensions;
 	}
 
 	public abstract void setSelection(boolean selected);
