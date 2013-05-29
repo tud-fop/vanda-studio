@@ -6,6 +6,7 @@ import com.mxgraph.view.mxGraph;
 public class WorkflowCell extends Cell {
 	DataInterface di;
 	public WorkflowCell(DataInterface di) {
+		super(null, null, null, null);
 		this.di = di;
 	}
 

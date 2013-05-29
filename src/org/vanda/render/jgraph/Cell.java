@@ -14,10 +14,36 @@ public abstract class Cell {
 
 	protected Object z;
 
-	// TODO implement me
-	// protected Cell(Renderer r, LayoutManager layoutManager) {
+	// FIXME remove parent
+	protected Cell(Renderer r, LayoutManager layoutManager, final Graph graph,
+			Cell parent) {
+		observable = new MultiplexObserver<CellEvent<Cell>>();
 
-	// }
+		// Register at Graph
+		if (graph != null) {
+			getObservable().addObserver(
+					new org.vanda.util.Observer<CellEvent<Cell>>() {
+
+						@Override
+						public void notify(CellEvent<Cell> event) {
+							event.doNotify(graph.getCellChangeListener());
+						}
+
+					});
+		}
+		if (r != null && graph != null && parent != null) {
+			// Create mxCell and add it to Graph
+			graph.getGraph().getModel().beginUpdate();
+			try {
+				visualization = new mxCell(this);
+				r.render(graph, this);
+				graph.getGraph().addCell(visualization,
+						parent.getVisualization());
+			} finally {
+				graph.getGraph().getModel().endUpdate();
+			}
+		}
+	}
 
 	public void addCell(Cell cell, Object layout) {
 		// TODO implement me

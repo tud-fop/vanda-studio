@@ -1,39 +1,14 @@
 package org.vanda.render.jgraph;
 
-import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.SetSelectionEvent;
-import org.vanda.util.MultiplexObserver;
-
-import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
 public class LocationCell extends Cell {
 
-	public LocationCell(final Graph g, LayoutManager layout,
-			Cell parent) {
+	public LocationCell(final Graph graph, LayoutManager layout, Cell parent) {
 
-		this.observable = new MultiplexObserver<CellEvent<Cell>>();
-
-		// Register at Graph
-		getObservable().addObserver(
-				new org.vanda.util.Observer<CellEvent<Cell>>() {
-
-					@Override
-					public void notify(CellEvent<Cell> event) {
-						event.doNotify(g.getCellChangeListener());
-					}
-				});
-
-		// Create mxCell and add it to Graph
-		g.getGraph().getModel().beginUpdate();
-		try {
-			visualization = new mxCell(this);
-			JGraphRendering.locationRenderer.render(g, this);
-			g.getGraph().addCell(visualization, parent.getVisualization());
-		} finally {
-			g.getGraph().getModel().endUpdate();
-		}
+		super(JGraphRendering.locationRenderer, layout, graph, parent);
 	}
 
 	@Override

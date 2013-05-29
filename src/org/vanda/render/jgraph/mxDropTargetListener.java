@@ -32,19 +32,20 @@ public class mxDropTargetListener extends DropTargetAdapter implements DropTarge
 
 				mxGraph g = c.getGraph();
 				g.getModel().beginUpdate();
-				Point loc = event.getLocation();
-				Point view = c.getViewport().getViewPosition();
-				mxPoint tr = g.getView().getTranslate();
-				double zoom = g.getView().getScale();
-
-				double x = (loc.x + view.x) / zoom - tr.getX();
-				double y = (loc.y + view.y) / zoom - tr.getY();
-				double[] d = { x, y, 100, 80 };
-
-				di.createJob(id, d);
-
-				g.getModel().endUpdate();
-
+				try {
+					Point loc = event.getLocation();
+					Point view = c.getViewport().getViewPosition();
+					mxPoint tr = g.getView().getTranslate();
+					double zoom = g.getView().getScale();
+	
+					double x = (loc.x + view.x) / zoom - tr.getX();
+					double y = (loc.y + view.y) / zoom - tr.getY();
+					double[] d = { x, y, 100, 80 };
+	
+					di.createJob(id, d);
+				} finally {
+					g.getModel().endUpdate();
+				}
 				event.dropComplete(true);
 				return;
 			} else {

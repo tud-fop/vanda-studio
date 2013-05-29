@@ -4,7 +4,6 @@ import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.MarkChangedEvent;
 import org.vanda.render.jgraph.Cells.RemoveCellEvent;
 import org.vanda.render.jgraph.Cells.SetSelectionEvent;
-import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observer;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
@@ -16,14 +15,14 @@ public class ConnectionCell extends Cell {
 	boolean handdrawn;
 	
 	public ConnectionCell() {
+		super(null, null, null, null);
 		handdrawn = true;
-		this.observable = new MultiplexObserver<CellEvent<Cell>>();
 	}
 
 	public ConnectionCell(final Graph graph, OutPortCell source, InPortCell target) {
+		super(null, null, graph, null);
 		handdrawn = false;
-		this.observable = new MultiplexObserver<CellEvent<Cell>>();
-
+		
 		// Register at Graph
 		getObservable().addObserver(
 				new org.vanda.util.Observer<CellEvent<Cell>>() {

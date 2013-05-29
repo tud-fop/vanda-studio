@@ -1,27 +1,16 @@
 package org.vanda.render.jgraph;
 
-import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
 public class InPortCell extends Cell {
 	final String portType; // input or output port
 
-	public InPortCell(Graph g, LayoutManager layout, Cell parent,
+	public InPortCell(Graph graph, LayoutManager layout, Cell parent,
 			String portType) {
-		// super(JGraphRendering.inportRenderer, null);
+		
+		super(JGraphRendering.inPortRenderer, null, graph, parent);
 		this.portType = portType;
-
-		// Create Cell in Graph
-		g.beginUpdate();
-		try {
-			visualization = new mxCell(this);
-			JGraphRendering.inPortRenderer.render(g, this);
-			g.getGraph().addCell(visualization, parent.getVisualization());
-		} finally {
-			g.endUpdate();
-		}
-
 	}
 
 	@Override

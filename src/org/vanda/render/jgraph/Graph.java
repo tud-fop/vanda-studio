@@ -258,7 +258,8 @@ public final class Graph {
 		@Override
 		public boolean isCellSelectable(Object cell) {
 			if (((Cell) getModel().getValue(cell)).getType().equals(
-					"InPortCell"))
+					"InPortCell") || ((Cell) getModel().getValue(cell)).getType().equals(
+							"OutPortCell"))
 				return false;
 			return super.isCellSelectable(cell);
 		}
