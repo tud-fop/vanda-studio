@@ -1,8 +1,8 @@
 package org.vanda.render.jgraph;
 
 import org.vanda.render.jgraph.Cells.CellEvent;
-import org.vanda.render.jgraph.Cells.CellObservable;
 import org.vanda.render.jgraph.Cells.SetSelectionEvent;
+import org.vanda.util.MultiplexObserver;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
@@ -13,7 +13,7 @@ public class LocationCell extends Cell {
 	public LocationCell(final Graph g, LayoutManager layout,
 			Cell parent) {
 
-		this.observable = new CellObservable<Cell>();
+		this.observable = new MultiplexObserver<CellEvent<Cell>>();
 
 		// Register at Graph
 		getObservable().addObserver(

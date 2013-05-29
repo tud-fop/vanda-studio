@@ -1,6 +1,7 @@
 package org.vanda.render.jgraph;
 
-import org.vanda.render.jgraph.Cells.CellObservable;
+import org.vanda.render.jgraph.Cells.CellEvent;
+import org.vanda.util.MultiplexObserver;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
@@ -8,7 +9,7 @@ import com.mxgraph.view.mxGraph;
 
 public abstract class Cell {
 
-	protected CellObservable<Cell> observable;
+	protected MultiplexObserver<CellEvent<Cell>> observable;
 	protected mxCell visualization;
 
 	protected Object z;
@@ -30,7 +31,7 @@ public abstract class Cell {
 		return "";
 	}
 
-	public CellObservable<Cell> getObservable() {
+	public MultiplexObserver<CellEvent<Cell>> getObservable() {
 		return observable;
 	}
 

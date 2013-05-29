@@ -1,25 +1,6 @@
 package org.vanda.render.jgraph;
 
-import org.vanda.util.MultiplexObserver;
-import org.vanda.util.Observer;
-
 public final class Cells {
-	public static class CellObservable<C> extends MultiplexObserver<CellEvent<C>> {
-		@Override
-		public void addObserver(Observer<? super CellEvent<C>> o) {
-			super.addObserver(o);
-		}
-		
-		@Override
-		public void removeObserver(Observer<? super CellEvent<C>> o) {
-			super.removeObserver(o);
-		}
-		
-		public int getObserverCount() {
-			return observers.size();
-		}
-	}
-
 	public static interface CellEvent<C> {
 		void doNotify(CellListener<C> cl);
 	}

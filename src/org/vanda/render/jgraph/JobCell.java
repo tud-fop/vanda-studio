@@ -1,12 +1,12 @@
 package org.vanda.render.jgraph;
 
 import org.vanda.render.jgraph.Cells.CellEvent;
-import org.vanda.render.jgraph.Cells.CellObservable;
 import org.vanda.render.jgraph.Cells.InsertCellEvent;
 import org.vanda.render.jgraph.Cells.MarkChangedEvent;
 import org.vanda.render.jgraph.Cells.PropertyChangedEvent;
 import org.vanda.render.jgraph.Cells.RemoveCellEvent;
 import org.vanda.render.jgraph.Cells.SetSelectionEvent;
+import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observer;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
@@ -23,7 +23,7 @@ public class JobCell extends Cell {
 		this.layoutManager = layoutManager;
 
 		this.label = label;
-		this.observable = new CellObservable<Cell>();
+		this.observable = new MultiplexObserver<CellEvent<Cell>>();
 
 		// Register at Graph
 		getObservable().addObserver(new Observer<CellEvent<Cell>>() {
