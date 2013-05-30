@@ -9,7 +9,7 @@ public class OutPortCell extends Cell {
 	public OutPortCell(Graph graph, LayoutManager layout, Cell parent,
 			String portType) 
 	{
-		super(JGraphRendering.outPortRenderer, layout, graph, parent);
+		super(JGraphRendering.outPortRenderer, layout, graph);
 		this.portType = portType;
 	}
 
@@ -36,5 +36,10 @@ public class OutPortCell extends Cell {
 	@Override
 	public void setSelection(boolean selected) {
 		// do nothing
+	}
+
+	@Override
+	public LayoutSelector getLayoutSelector() {
+		return LayoutManager.OUTPORT;
 	}
 }

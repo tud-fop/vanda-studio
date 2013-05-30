@@ -15,12 +15,12 @@ public class ConnectionCell extends Cell {
 	boolean handdrawn;
 	
 	public ConnectionCell() {
-		super(null, null, null, null);
+		super(null, null, null);
 		handdrawn = true;
 	}
 
 	public ConnectionCell(final Graph graph, OutPortCell source, InPortCell target) {
-		super(null, null, graph, null);
+		super(null, null, graph);
 		handdrawn = false;
 		
 		// Register at Graph
@@ -127,6 +127,11 @@ public class ConnectionCell extends Cell {
 	@Override
 	public void setSelection(boolean selected) {
 		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
+	}
+
+	@Override
+	public LayoutSelector getLayoutSelector() {
+		return LayoutManager.CONNECTION;
 	}
 
 }

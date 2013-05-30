@@ -10,6 +10,7 @@ import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.CellListener;
 import org.vanda.render.jgraph.Cells.SelectionChangedEvent;
 import org.vanda.render.jgraph.Graph;
+import org.vanda.render.jgraph.JGraphRendering;
 import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.LayoutManager;
 import org.vanda.render.jgraph.NaiveLayoutManager;
@@ -33,7 +34,8 @@ public class JobAdapter {
 			// the following is necessary if the job is not in the model
 			// which happens in case of drag&drop (as opposed to render).
 			if (!job.isInserted()) {
-				double[] dim = { jobCell.getX(), jobCell.getY(), jobCell.getWidth(), jobCell.getHeight() };
+				double[] dim = { jobCell.getX(), jobCell.getY(),
+						jobCell.getWidth(), jobCell.getHeight() };
 				job.setDimensions(dim);
 				view.getWorkflow().addChild(job);
 			}
@@ -52,9 +54,11 @@ public class JobAdapter {
 
 		@Override
 		public void propertyChanged(Cell c) {
-			if (job.getX() != jobCell.getX() || job.getY() != jobCell.getY() || job.getWidth() != jobCell.getWidth()
+			if (job.getX() != jobCell.getX() || job.getY() != jobCell.getY()
+					|| job.getWidth() != jobCell.getWidth()
 					|| job.getHeight() != jobCell.getHeight()) {
-				double[] dim = { jobCell.getX(), jobCell.getY(), jobCell.getWidth(), jobCell.getHeight() };
+				double[] dim = { jobCell.getX(), jobCell.getY(),
+						jobCell.getWidth(), jobCell.getHeight() };
 				job.setDimensions(dim);
 			}
 		}
@@ -82,15 +86,18 @@ public class JobAdapter {
 	private class JobListener implements Jobs.JobListener<Job> {
 		@Override
 		public void propertyChanged(Job j) {
-			if (jobCell.getX() != j.getX() || jobCell.getY() != j.getY() || jobCell.getWidth() != j.getWidth()
+			if (jobCell.getX() != j.getX() || jobCell.getY() != j.getY()
+					|| jobCell.getWidth() != j.getWidth()
 					|| jobCell.getHeight() != j.getHeight()) {
 
-				jobCell.setDimensions(new double[] { job.getX(), job.getY(), job.getWidth(), job.getHeight() });
+				jobCell.setDimensions(new double[] { job.getX(), job.getY(),
+						job.getWidth(), job.getHeight() });
 			}
 		}
 	}
 
-	private class JobViewListener implements AbstractView.ViewListener<AbstractView> {
+	private class JobViewListener implements
+			AbstractView.ViewListener<AbstractView> {
 
 		@Override
 		public void highlightingChanged(AbstractView v) {
@@ -110,7 +117,8 @@ public class JobAdapter {
 
 		@Override
 		public void selectionChanged(AbstractView v) {
-			jobCell.getObservable().notify(new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
+			jobCell.getObservable().notify(
+					new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
 		}
 	}
 
@@ -201,28 +209,40 @@ public class JobAdapter {
 			inports = new WeakHashMap<Port, InPortCell>();
 			outports = new WeakHashMap<Port, OutPortCell>();
 			locations = new WeakHashMap<Location, LocationAdapter>();
-			jobCell = new JobCell(g, layoutManager, job.getName(), job.getX(), job.getY(), job.getWidth(),
-					job.getHeight());
+			jobCell = new JobCell(g, job.selectRenderer(JGraphRendering
+					.getRendererAssortment()), job.getName(), job.getX(),
+					job.getY(), job.getWidth(), job.getHeight());
 
 			// insert a cell for every input port
 			List<Port> in = job.getInputPorts();
 
 			for (Port ip : in) {
-				inports.put(ip, new InPortCell(g, layoutManager, jobCell, "InPortCell"));
+				InPortCell ipc = new InPortCell(g, layoutManager, jobCell,
+						"InPortCell");
+				inports.put(ip, ipc);
+				jobCell.addCell(ipc, null);
 			}
 
 			// insert a cell for every output port
 			List<Port> out = job.getOutputPorts();
 			for (Port op : out) {
-				outports.put(op, new OutPortCell(g, layoutManager, jobCell, "OutPortCell"));
-				locations.put(job.bindings.get(op), new LocationAdapter(g, view, layoutManager, jobCell, op,
-						job.bindings.get(op)));
-
+				OutPortCell opc = new OutPortCell(g, layoutManager, jobCell,
+						"OutPortCell");
+				outports.put(op, opc);
+				jobCell.addCell(opc, null);
+				LocationAdapter locA = new LocationAdapter(g, view,
+						layoutManager, jobCell, op, job.bindings.get(op));
+				locations.put(job.bindings.get(op), locA);
+				jobCell.addCell(locA.locationCell, null);
 			}
 
 			// setup Layout
 			layoutManager.setUpLayout(g, jobCell);
 
+			// render Job
+			job.selectRenderer(JGraphRendering.getRendererAssortment()).render(
+					g, jobCell);
+			
 		} finally {
 			g.endUpdate();
 		}

@@ -5,6 +5,7 @@ import java.util.Map;
 import org.vanda.workflows.elements.RendererAssortment;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxEdgeStyle;
 import com.mxgraph.view.mxPerimeter;
@@ -19,7 +20,7 @@ public class JGraphRendering {
 		}
 
 	}
-	
+
 	protected static class ChoiceNodeRenderer extends DefaultRenderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
@@ -34,19 +35,15 @@ public class JGraphRendering {
 			return "or";
 		}
 	}
-	
+
 	protected static class CorpusRenderer extends DefaultRenderer {
 		@Override
 		public String getStyleName() {
 			return "corpus";
 		}
 	}
-	
+
 	protected static abstract class DefaultRenderer implements Renderer {
-		// protected JobCell jobCell;
-		//protected WeakHashMap<Integer, PortCell> inputs = new WeakHashMap<Integer, PortCell>();
-		//protected WeakHashMap<Integer, PortCell> outputs = new WeakHashMap<Integer,PortCell>();
-		//protected WeakHashMap<Integer, LocationCell> locations = new WeakHashMap<Integer, LocationCell>();
 		public void addStyle(Map<String, Object> style) {
 			style.put(mxConstants.STYLE_SPACING, 14);
 			style.put(mxConstants.STYLE_SPACING_BOTTOM, -2);
@@ -57,16 +54,28 @@ public class JGraphRendering {
 		@Override
 		public void render(Graph g, Cell container) {
 			mxCell v = container.getVisualization();
-			
+
 			v.setStyle(getStyleName());
 			v.setConnectable(false);
-			v.setGeometry(new mxGeometry(container.getX(), container.getY(), container.getWidth(), container.getHeight()));
+			v.setGeometry(new mxGeometry(container.getX(), container.getY(),
+					container.getWidth(), container.getHeight()));
 			v.setVertex(true);
-			if (g.getGraph().isAutoSizeCell(v))
-				g.getGraph().updateCellSize(v, true);
+			g.beginUpdate();
+			try {
+				g.getGraph().addCell(v, v.getParent());
+
+				if (g.getGraph().isAutoSizeCell(v))
+					g.getGraph().updateCellSize(v, true);
+
+				for (int i = 0; i < v.getChildCount(); ++i)
+					((Renderer) ((Cell) v.getChildAt(i).getValue()).getZ())
+							.render(g, (Cell) v.getChildAt(i).getValue());
+			} finally {
+				g.endUpdate();
+			}
 		}
 	}
-	
+
 	protected static class GrammarRenderer extends DefaultRenderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
@@ -80,16 +89,18 @@ public class JGraphRendering {
 			return "grammar";
 		}
 	}
-	
+
 	protected static class InPortRenderer implements Renderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
 			style.put(mxConstants.STYLE_MOVABLE, "false");
 			style.put(mxConstants.STYLE_NOLABEL, "true");
 			style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_LINE);
-			style.put(mxConstants.STYLE_PERIMETER, mxPerimeter.RectanglePerimeter);
+			style.put(mxConstants.STYLE_PERIMETER,
+					mxPerimeter.RectanglePerimeter);
 			style.put(mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_WEST);
-			style.put(mxConstants.STYLE_PORT_CONSTRAINT, mxConstants.DIRECTION_WEST);
+			style.put(mxConstants.STYLE_PORT_CONSTRAINT,
+					mxConstants.DIRECTION_WEST);
 		}
 
 		@Override
@@ -102,9 +113,18 @@ public class JGraphRendering {
 			mxCell port = container.visualization;
 			port.setStyle("inport");
 			port.setVertex(true);
+			mxICell parent = port.getParent();
+			port.setParent(null);
+			parent.remove(port);
+			g.beginUpdate();
+			try {
+				g.getGraph().addCell(port, parent);
+			} finally {
+				g.endUpdate();
+			}
 		}
 	}
-	
+
 	public static class JGraphRendererAssortment implements
 			RendererAssortment<Renderer> {
 		protected JGraphRendererAssortment() {
@@ -145,14 +165,14 @@ public class JGraphRendering {
 			return new WorkflowRenderer();
 		}
 	}
-	
+
 	protected static class LiteralRenderer extends DefaultRenderer {
 		@Override
 		public String getStyleName() {
 			return "text";
 		}
 	}
-	
+
 	protected static class LocationRenderer implements Renderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
@@ -170,21 +190,32 @@ public class JGraphRendering {
 
 		@Override
 		public void render(Graph g, Cell container) {
-			mxCell port = container.visualization;
-			port.setStyle("location");
-			port.setVertex(true);
+			mxCell loc = container.visualization;
+			loc.setStyle("location");
+			loc.setVertex(true);
+			mxICell parent = loc.getParent();
+			parent.remove(loc);
+			loc.setParent(null);
+			g.beginUpdate();
+			try {
+				g.getGraph().addCell(loc, parent);
+			} finally {
+				g.endUpdate();
+			}
 		}
 	}
-	
+
 	protected static class OutPortRenderer implements Renderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
 			style.put(mxConstants.STYLE_MOVABLE, "false");
 			style.put(mxConstants.STYLE_NOLABEL, "true");
 			style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_LINE);
-			style.put(mxConstants.STYLE_PERIMETER, mxPerimeter.RectanglePerimeter);
+			style.put(mxConstants.STYLE_PERIMETER,
+					mxPerimeter.RectanglePerimeter);
 			style.put(mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
-			style.put(mxConstants.STYLE_PORT_CONSTRAINT, mxConstants.DIRECTION_EAST);
+			style.put(mxConstants.STYLE_PORT_CONSTRAINT,
+					mxConstants.DIRECTION_EAST);
 		}
 
 		@Override
@@ -196,17 +227,26 @@ public class JGraphRendering {
 		public void render(Graph g, Cell container) {
 			mxCell port = container.visualization;
 			port.setStyle("outport");
-			port.setVertex(true);			
+			port.setVertex(true);
+			mxICell parent = port.getParent();
+			port.setParent(null);
+			parent.remove(port);
+			g.beginUpdate();
+			try {
+				g.getGraph().addCell(port, parent);
+			} finally {
+				g.endUpdate();
+			}
 		}
 	}
-	
+
 	protected static class SinkRenderer extends DefaultRenderer {
 		@Override
 		public String getStyleName() {
 			return "sink";
 		}
 	}
-	
+
 	protected static class WorkflowRenderer extends DefaultRenderer {
 		@Override
 		public void addStyle(Map<String, Object> style) {
@@ -222,7 +262,7 @@ public class JGraphRendering {
 			return "workflow";
 		}
 	}
-	
+
 	protected static Renderer algorithmRenderer = new AlgorithmRenderer();
 	protected static Renderer corpusRenderer = new CorpusRenderer();
 	protected static Renderer grammarRenderer = new GrammarRenderer();
@@ -234,8 +274,10 @@ public class JGraphRendering {
 	protected static Renderer outPortRenderer = new OutPortRenderer();
 	protected static Renderer locationRenderer = new LocationRenderer();
 
-	protected static Renderer[] renderers  = { algorithmRenderer, corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
-			workflowRenderer, literalRenderer, inPortRenderer, outPortRenderer, locationRenderer };
+	protected static Renderer[] renderers = { algorithmRenderer,
+			corpusRenderer, grammarRenderer, orRenderer, sinkRenderer,
+			workflowRenderer, literalRenderer, inPortRenderer, outPortRenderer,
+			locationRenderer };
 
 	protected static mxStylesheet staticStylesheet;
 
@@ -299,5 +341,5 @@ public class JGraphRendering {
 		if (refCount == 0)
 			staticStylesheet = null;
 	}
-	
+
 }

@@ -6,7 +6,7 @@ import com.mxgraph.view.mxGraph;
 public class WorkflowCell extends Cell {
 	DataInterface di;
 	public WorkflowCell(DataInterface di) {
-		super(null, null, null, null);
+		super(null, null, null);
 		this.di = di;
 	}
 
@@ -34,6 +34,11 @@ public class WorkflowCell extends Cell {
 
 	public DataInterface getDataInterface() {
 		return di;
+	}
+
+	@Override
+	public LayoutSelector getLayoutSelector() {
+		return LayoutManager.WORKFLOW;
 	}
 
 }

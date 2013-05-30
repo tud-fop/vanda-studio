@@ -9,10 +9,12 @@ import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.CellListener;
 import org.vanda.render.jgraph.Graph;
+import org.vanda.render.jgraph.JGraphRendering;
 import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.LayoutManager;
 import org.vanda.render.jgraph.NaiveLayoutManager;
 import org.vanda.render.jgraph.InPortCell;
+import org.vanda.render.jgraph.OutPortCell;
 import org.vanda.util.Observer;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
@@ -46,9 +48,11 @@ public class JobAdapter {
 
 		@Override
 		public void propertyChanged(Cell c) {
-			if (job.getX() != jobCell.getX() || job.getY() != jobCell.getY() || job.getWidth() != jobCell.getWidth()
+			if (job.getX() != jobCell.getX() || job.getY() != jobCell.getY()
+					|| job.getWidth() != jobCell.getWidth()
 					|| job.getHeight() != jobCell.getHeight()) {
-				double[] dim = { jobCell.getX(), jobCell.getY(), jobCell.getWidth(), jobCell.getHeight() };
+				double[] dim = { jobCell.getX(), jobCell.getY(),
+						jobCell.getWidth(), jobCell.getHeight() };
 				job.setDimensions(dim);
 			}
 		}
@@ -80,7 +84,7 @@ public class JobAdapter {
 
 	Map<Port, LocationAdapter> locations;
 
-	Map<Port, InPortCell> outports;
+	Map<Port, OutPortCell> outports;
 
 	JobAdapter(Job job, Graph graph) {
 		setUpCells(graph, job);
@@ -127,7 +131,7 @@ public class JobAdapter {
 		return jobCell;
 	}
 
-	public InPortCell getOutPortCell(Port po) {
+	public OutPortCell getOutPortCell(Port po) {
 		return outports.get(po);
 	}
 
@@ -137,28 +141,41 @@ public class JobAdapter {
 			LayoutManager layoutManager = new NaiveLayoutManager();
 			this.job = job;
 			inports = new WeakHashMap<Port, InPortCell>();
-			outports = new WeakHashMap<Port, InPortCell>();
+			outports = new WeakHashMap<Port, OutPortCell>();
 			locations = new WeakHashMap<Port, LocationAdapter>();
-			jobCell = new JobCell(g, layoutManager, job.getName(), job.getX(), job.getY(), job.getWidth(),
-					job.getHeight());
+			jobCell = new JobCell(g, job.selectRenderer(JGraphRendering
+					.getRendererAssortment()), job.getName(), job.getX(),
+					job.getY(), job.getWidth(), job.getHeight());
 			jobCell.setId(job.getElement().getId());
 			// insert a cell for every input port
 			List<Port> in = job.getInputPorts();
 
 			for (Port ip : in) {
-				inports.put(ip, new InPortCell(g, layoutManager, jobCell, "InPortCell"));
+				InPortCell ipc = new InPortCell(g, layoutManager, jobCell,
+						"InPortCell");
+				inports.put(ip, ipc);
+				jobCell.addCell(ipc, null);
 			}
 
 			// insert a cell for every output port
 			List<Port> out = job.getOutputPorts();
 			for (Port op : out) {
-				outports.put(op, new InPortCell(g, layoutManager, jobCell, "OutPortCell"));
-				locations.put(op, new LocationAdapter(g, layoutManager, jobCell));
-
+				OutPortCell opc = new OutPortCell(g, layoutManager, jobCell,
+						"OutPortCell");
+				outports.put(op, opc);
+				jobCell.addCell(opc, null);
+				LocationAdapter locA = new LocationAdapter(g, layoutManager,
+						jobCell);
+				locations.put(op, locA);
+				jobCell.addCell(locA.locationCell, null);
 			}
 
 			// setup Layout
 			layoutManager.setUpLayout(g, jobCell);
+
+			// render Job
+			job.selectRenderer(JGraphRendering.getRendererAssortment()).render(
+					g, jobCell);
 
 		} finally {
 			g.endUpdate();

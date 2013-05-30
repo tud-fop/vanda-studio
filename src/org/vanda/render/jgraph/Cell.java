@@ -15,10 +15,13 @@ public abstract class Cell {
 	protected Object z;
 
 	// FIXME remove parent
-	protected Cell(Renderer r, LayoutManager layoutManager, final Graph graph,
-			Cell parent) {
+	protected Cell(Renderer r, LayoutManager layoutManager, final Graph graph/*
+																			 * ,
+																			 * Cell
+																			 * parent
+																			 */) {
 		observable = new MultiplexObserver<CellEvent<Cell>>();
-
+		setZ(r);
 		// Register at Graph
 		if (graph != null) {
 			getObservable().addObserver(
@@ -31,22 +34,23 @@ public abstract class Cell {
 
 					});
 		}
-		if (r != null && graph != null && parent != null) {
-			// Create mxCell and add it to Graph
-			graph.getGraph().getModel().beginUpdate();
-			try {
-				visualization = new mxCell(this);
-				r.render(graph, this);
-				graph.getGraph().addCell(visualization,
-						parent.getVisualization());
-			} finally {
-				graph.getGraph().getModel().endUpdate();
-			}
-		}
+		// if (r != null && graph != null && parent != null) {
+		// Create mxCell and add it to Graph
+		// graph.getGraph().getModel().beginUpdate();
+		// try {
+		visualization = new mxCell(this);
+		visualization.setVisible(true);
+		// r.render(graph, this);
+		// graph.getGraph().addCell(visualization,
+		// parent.getVisualization());
+		// } finally {
+		// graph.getGraph().getModel().endUpdate();
+		// }
+		// }
 	}
 
 	public void addCell(Cell cell, Object layout) {
-		// TODO implement me
+		getVisualization().insert(cell.getVisualization());
 	}
 
 	public double getHeight() {
@@ -56,6 +60,8 @@ public abstract class Cell {
 	public String getLabel() {
 		return "";
 	}
+
+	public abstract LayoutSelector getLayoutSelector();
 
 	public MultiplexObserver<CellEvent<Cell>> getObservable() {
 		return observable;
@@ -99,7 +105,8 @@ public abstract class Cell {
 	public abstract void onResize(mxGraph graph);
 
 	public void removeCell(Cell cell) {
-		// TODO implement me
+		getVisualization().remove(cell.getVisualization());
+		cell.getVisualization().setParent(null);
 	}
 
 	public void setDimensions(double[] dimensions) {
@@ -111,7 +118,7 @@ public abstract class Cell {
 		this.visualization = visualization;
 	}
 
-	public void setZ(int z) {
+	public void setZ(Object z) {
 		this.z = z;
 	}
 

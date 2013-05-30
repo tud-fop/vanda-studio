@@ -13,26 +13,26 @@ import com.mxgraph.view.mxGraph;
 
 public class JobCell extends Cell {
 	protected final String label;
-	final LayoutManager layoutManager;
+//	final LayoutManager layoutManager;
 
-	public JobCell(final Graph graph, LayoutManager layoutManager,
+	public JobCell(final Graph graph, Renderer r,
 			String label, double x, double y, double w, double h) {
-		super(JGraphRendering.algorithmRenderer, layoutManager, graph, null);
-		this.layoutManager = layoutManager;
+		super(r, null, graph);
+//		this.layoutManager = layoutManager;
 		this.label = label;
 
 		// Create mxCell and add it to Graph
-		graph.getGraph().getModel().beginUpdate();
-		try {
+//		graph.getGraph().getModel().beginUpdate();
+//		try {
 			visualization = new mxCell(this, new mxGeometry(), null);
 			setDimensions(new double[] { x, y, w, h });
-			JGraphRendering.getRendererAssortment().selectAlgorithmRenderer().render(graph, this);
-			graph.getGraph().addCell(visualization,
-					graph.getGraph().getDefaultParent());
+//			JGraphRendering.getRendererAssortment().selectAlgorithmRenderer().render(graph, this);
+//			graph.getGraph().addCell(visualization,
+//					graph.getGraph().getDefaultParent());
 
-		} finally {
-			graph.getGraph().getModel().endUpdate();
-		}
+//		} finally {
+//			graph.getGraph().getModel().endUpdate();
+//		}
 	}
 
 	@Override
@@ -105,6 +105,11 @@ public class JobCell extends Cell {
 
 	public void setId(String id) {
 		getVisualization().setId(id);
+	}
+
+	@Override
+	public LayoutSelector getLayoutSelector() {
+		return LayoutManager.JOBCELL;
 	}
 
 }

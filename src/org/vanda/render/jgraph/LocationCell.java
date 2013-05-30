@@ -8,7 +8,7 @@ public class LocationCell extends Cell {
 
 	public LocationCell(final Graph graph, LayoutManager layout, Cell parent) {
 
-		super(JGraphRendering.locationRenderer, layout, graph, parent);
+		super(JGraphRendering.locationRenderer, layout, graph);
 	}
 
 	@Override
@@ -34,6 +34,11 @@ public class LocationCell extends Cell {
 	@Override
 	public void setSelection(boolean selected) {
 		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
+	}
+
+	@Override
+	public LayoutSelector getLayoutSelector() {
+		return LayoutManager.LOCATION;
 	}
 
 }
