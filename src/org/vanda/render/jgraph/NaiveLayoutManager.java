@@ -54,9 +54,6 @@ public class NaiveLayoutManager implements LayoutManager {
 					PORT_DIAMETER);
 			geo.setOffset(new mxPoint(-PORT_DIAMETER, -PORT_RADIUS));
 			geo.setRelative(true);
-			//FIXME: MOVE THOSE LINES
-			cell.getVisualization().setVertex(true);
-			cell.getVisualization().setStyle("inport");
 			
 			cell.getVisualization().setGeometry(geo);
 
@@ -77,9 +74,6 @@ public class NaiveLayoutManager implements LayoutManager {
 					OUTPORT_DIAMETER);
 			geo.setOffset(new mxPoint(LOCATION_RADIUS, -OUTPORT_RADIUS));
 			geo.setRelative(true);
-			//FIXME: MOVE THOSE LINES
-			cell.getVisualization().setVertex(true);
-			cell.getVisualization().setStyle("outport");
 			
 			cell.getVisualization().setGeometry(geo);
 			
@@ -101,9 +95,6 @@ public class NaiveLayoutManager implements LayoutManager {
 					LOCATION_DIAMETER);
 			geo.setOffset(new mxPoint(-LOCATION_RADIUS, -LOCATION_RADIUS));
 			geo.setRelative(true);
-			//FIXME: MOVE THOSE LINES
-			cell.getVisualization().setVertex(true);
-			cell.getVisualization().setStyle("location");
 			
 			cell.getVisualization().setGeometry(geo);
 			// increment counter

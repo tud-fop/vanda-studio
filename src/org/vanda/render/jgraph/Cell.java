@@ -20,8 +20,10 @@ public abstract class Cell {
 																			 * Cell
 																			 * parent
 																			 */) {
+		
 		observable = new MultiplexObserver<CellEvent<Cell>>();
 		setZ(r);
+		
 		// Register at Graph
 		if (graph != null) {
 			getObservable().addObserver(
@@ -34,19 +36,10 @@ public abstract class Cell {
 
 					});
 		}
-		// if (r != null && graph != null && parent != null) {
-		// Create mxCell and add it to Graph
-		// graph.getGraph().getModel().beginUpdate();
-		// try {
+
 		visualization = new mxCell(this);
-		visualization.setVisible(true);
-		// r.render(graph, this);
-		// graph.getGraph().addCell(visualization,
-		// parent.getVisualization());
-		// } finally {
-		// graph.getGraph().getModel().endUpdate();
-		// }
-		// }
+		if (r != null)
+			r.render(this);
 	}
 
 	public void addCell(Cell cell, Object layout) {

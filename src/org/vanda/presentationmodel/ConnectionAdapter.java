@@ -57,8 +57,22 @@ public class ConnectionAdapter {
 		public void setSelection(Cell c, boolean selected) {
 			if (connectionKey != null) {
 				ConnectionView cv = view.getConnectionView(connectionKey);
-				if (cv != null)
-					cv.setSelected(selected);
+				if (cv != null) cv.setSelected(selected);
+				// FIXME: why are the connectionkeys removed from the WeakHashMap in View?
+				// Then remove this hack
+				else 
+				{
+					view.addConnectionView(connectionKey);
+					view.getConnectionView(connectionKey).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
+
+						@Override
+						public void notify(ViewEvent<AbstractView> event) {
+							event.doNotify(connectionViewListener);
+						}
+
+					});
+					view.getConnectionView(connectionKey).setSelected(selected);
+				}
 			}
 		}
 
@@ -109,7 +123,7 @@ public class ConnectionAdapter {
 	 */
 	public ConnectionAdapter(ConnectionKey connectionKey,
 			ConnectionCell visualization, View view) {
-		// System.out.println("Hand-Drawn edge!");
+//		System.out.println("Hand-Drawn edge!");
 		this.visualization = visualization;
 		this.connectionKey = connectionKey;
 		this.view = view;
@@ -182,6 +196,7 @@ public class ConnectionAdapter {
 	 */
 	public ConnectionAdapter(ConnectionKey cc, PresentationModel pm,
 			MutableWorkflow mwf, View view) {
+//		System.out.println("loaded edge" + cc);
 		this.connectionKey = cc;
 		this.view = view;
 
@@ -206,6 +221,7 @@ public class ConnectionAdapter {
 		visualization = new ConnectionCell(pm.getVisualization(), source,
 				target);
 
+		
 		// Register at ConnectionView
 		connectionViewListener = new ConnectionViewListener();
 		view.getConnectionView(connectionKey).getObservable()
@@ -217,6 +233,7 @@ public class ConnectionAdapter {
 					}
 
 				});
+
 
 		connectionCellListener = new ConnectionCellListener();
 		visualization.getObservable().addObserver(

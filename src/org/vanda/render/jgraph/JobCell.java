@@ -13,26 +13,19 @@ import com.mxgraph.view.mxGraph;
 
 public class JobCell extends Cell {
 	protected final String label;
-//	final LayoutManager layoutManager;
 
-	public JobCell(final Graph graph, Renderer r,
-			String label, double x, double y, double w, double h) {
-		super(r, null, graph);
-//		this.layoutManager = layoutManager;
+	// final LayoutManager layoutManager;
+
+	public JobCell(final Graph graph, Renderer r, String label, double x,
+			double y, double w, double h) {
+
+		// r = null to prevent rendering in supertype
+		super(null, null, graph);
 		this.label = label;
-
-		// Create mxCell and add it to Graph
-//		graph.getGraph().getModel().beginUpdate();
-//		try {
-			visualization = new mxCell(this, new mxGeometry(), null);
-			setDimensions(new double[] { x, y, w, h });
-//			JGraphRendering.getRendererAssortment().selectAlgorithmRenderer().render(graph, this);
-//			graph.getGraph().addCell(visualization,
-//					graph.getGraph().getDefaultParent());
-
-//		} finally {
-//			graph.getGraph().getModel().endUpdate();
-//		}
+		setZ(r);
+		visualization = new mxCell(this, new mxGeometry(), null);
+		setDimensions(new double[] { x, y, w, h });
+		r.render(this);
 	}
 
 	@Override
@@ -46,16 +39,16 @@ public class JobCell extends Cell {
 		return "JobCell";
 	}
 
-	@ Override
+	@Override
 	public void highlight(boolean highlight) {
 		if (highlight) {
 			getVisualization().setStyle(
-					mxStyleUtils.addStylename(getVisualization()
-							.getStyle(), "highlighted"));
+					mxStyleUtils.addStylename(getVisualization().getStyle(),
+							"highlighted"));
 		} else {
 			getVisualization().setStyle(
-					mxStyleUtils.removeStylename(getVisualization()
-							.getStyle(), "highlighted"));
+					mxStyleUtils.removeStylename(getVisualization().getStyle(),
+							"highlighted"));
 		}
 		getObservable().notify(new MarkChangedEvent<Cell>(this));
 
@@ -88,16 +81,16 @@ public class JobCell extends Cell {
 	}
 
 	@Override
-	public void setDimensions(double [] dimensions) {
+	public void setDimensions(double[] dimensions) {
 		mxGeometry ng = (mxGeometry) getVisualization().getGeometry().clone();
 		ng.setX(dimensions[0]);
 		ng.setY(dimensions[1]);
 		ng.setWidth(dimensions[2]);
 		ng.setHeight(dimensions[3]);
 		getVisualization().setGeometry(ng);
-		getObservable().notify(new PropertyChangedEvent<Cell>(this));	
+		getObservable().notify(new PropertyChangedEvent<Cell>(this));
 	}
-	
+
 	@Override
 	public void setSelection(boolean selected) {
 		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));

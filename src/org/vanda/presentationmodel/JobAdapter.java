@@ -240,12 +240,11 @@ public class JobAdapter {
 			layoutManager.setUpLayout(g, jobCell);
 
 			// render Job
-			job.selectRenderer(JGraphRendering.getRendererAssortment()).render(
-					g, jobCell);
-			
+			job.selectRenderer(JGraphRendering.getRendererAssortment())
+					.addToGraph(g, jobCell);
+
 		} finally {
 			g.endUpdate();
 		}
 	}
-
 }

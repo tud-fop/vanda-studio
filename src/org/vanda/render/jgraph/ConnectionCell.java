@@ -20,26 +20,16 @@ public class ConnectionCell extends Cell {
 	}
 
 	public ConnectionCell(final Graph graph, OutPortCell source, InPortCell target) {
+		// r = null, to fit connection creation scheme
 		super(null, null, graph);
 		handdrawn = false;
 		
-		// Register at Graph
-		getObservable().addObserver(
-				new org.vanda.util.Observer<CellEvent<Cell>>() {
-
-					@Override
-					public void notify(CellEvent<Cell> event) {
-						event.doNotify(graph.getCellChangeListener());
-					}
-
-				});
-
 		// create mxCell and add it to Graph
 		mxICell sourceVis = source.getVisualization();
 		mxICell targetVis = target.getVisualization();
 
 		if (sourceVis != null && targetVis != null) {
-			graph.getGraph().getModel().beginUpdate();
+			graph.beginUpdate();
 			try {
 				visualization = (mxCell) graph.getGraph().createEdge(
 						graph.getGraph().getDefaultParent(), null, this,
@@ -49,7 +39,7 @@ public class ConnectionCell extends Cell {
 						graph.getGraph().getDefaultParent(), sourceVis,
 						targetVis, null);
 			} finally {
-				graph.getGraph().getModel().endUpdate();
+				graph.endUpdate();
 			}
 		} else
 			assert (false);
