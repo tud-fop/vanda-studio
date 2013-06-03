@@ -1,5 +1,12 @@
 package org.vanda.presentationmodel;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
+
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.CellListener;
@@ -10,6 +17,7 @@ import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.InPortCell;
 import org.vanda.render.jgraph.OutPortCell;
 import org.vanda.render.jgraph.WorkflowCell;
+import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl.PopupMenu;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
 import org.vanda.view.AbstractView.ViewEvent;
@@ -74,6 +82,23 @@ public class ConnectionAdapter {
 					view.getConnectionView(connectionKey).setSelected(selected);
 				}
 			}
+		}
+
+		@Override
+		public void rightClick(MouseEvent e) {
+			PopupMenu menu = new PopupMenu(((ConnectionCell) visualization).toString());
+			 
+			@SuppressWarnings("serial")
+			JMenuItem item = new JMenuItem("Remove Connection") {
+				@Override
+				public void fireActionPerformed(ActionEvent _) {
+					view.removeSelectedCell();
+				}
+			};
+
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+			menu.add(item);
+			menu.show(e.getComponent(), e.getX(), e.getY());		
 		}
 
 	}

@@ -14,7 +14,7 @@ public class NaiveLayoutManager implements LayoutManager {
 	private static Assortment assortment = new Assortment();
 
 	@Override
-	public void setUpLayout(Graph g, Cell container) {
+	public void setUpLayout(Graph graph, Cell container) {
 		Map<LayoutSelector, Pair<Integer, Integer>> layout = new HashMap<LayoutSelector, Pair<Integer, Integer>>();
 		layout.put(INPORT, new Pair<Integer, Integer>(0, 0));
 		layout.put(OUTPORT, new Pair<Integer, Integer>(0, 0));
@@ -36,6 +36,8 @@ public class NaiveLayoutManager implements LayoutManager {
 			cell.getLayoutSelector().selectLayout(assortment)
 					.layout(cell, layout);
 		}
+		
+		container.onResize(graph);
 
 	}
 

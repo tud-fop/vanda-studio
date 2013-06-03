@@ -35,11 +35,6 @@ public class JobCell extends Cell {
 	}
 
 	@Override
-	public String getType() {
-		return "JobCell";
-	}
-
-	@Override
 	public void highlight(boolean highlight) {
 		if (highlight) {
 			getVisualization().setStyle(
@@ -57,7 +52,6 @@ public class JobCell extends Cell {
 	@Override
 	public void onInsert(final Graph graph, mxICell parent, mxICell cell) {
 		getObservable().notify(new InsertCellEvent<Cell>(this));
-
 	}
 
 	@Override
@@ -66,12 +60,12 @@ public class JobCell extends Cell {
 	}
 
 	@Override
-	public void onResize(mxGraph graph) {
-		if (graph.isAutoSizeCell(visualization))
-			graph.updateCellSize(visualization, true); // was:
+	public void onResize(Graph graph) {
+		if (graph.getGraph().isAutoSizeCell(visualization))
+			graph.getGraph().updateCellSize(visualization, true); // was:
 														// resizeToFitLabel(cell)
-		preventTooSmallNested(graph, visualization);
-		graph.extendParent(visualization); // was: resizeParentOfCell(cell)
+		preventTooSmallNested(graph.getGraph(), visualization);
+		graph.getGraph().extendParent(visualization); // was: resizeParentOfCell(cell)
 
 		getObservable().notify(new PropertyChangedEvent<Cell>(this));
 	}
@@ -96,13 +90,31 @@ public class JobCell extends Cell {
 		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
 	}
 
-	public void setId(String id) {
-		getVisualization().setId(id);
-	}
+
 
 	@Override
 	public LayoutSelector getLayoutSelector() {
 		return LayoutManager.JOBCELL;
+	}
+
+	@Override
+	public boolean isSelectable() {
+		return true;
+	}
+
+	@Override
+	public boolean isValidConnectionSource() {
+		return false;
+	}
+
+	@Override
+	public boolean isValidConnectionTarget() {
+		return false;
+	}
+
+	@Override
+	public boolean isValidDropTarget() {
+		return false;
 	}
 
 }

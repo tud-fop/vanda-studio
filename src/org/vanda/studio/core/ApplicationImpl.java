@@ -127,6 +127,8 @@ public final class ApplicationImpl implements Application {
 	@Override
 	public String findFile(String value) {
 		// System.out.println(getProperty("inputPath"));
+		if (value == null)
+			return "";
 		if (value.startsWith("/"))
 			return value;
 		if (value.contains(":")) {

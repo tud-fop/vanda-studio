@@ -1,5 +1,6 @@
 package org.vanda.presentationmodel.palette;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.vanda.render.jgraph.LayoutManager;
 import org.vanda.render.jgraph.NaiveLayoutManager;
 import org.vanda.render.jgraph.InPortCell;
 import org.vanda.render.jgraph.OutPortCell;
+import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.util.Observer;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
@@ -75,6 +77,11 @@ public class JobAdapter {
 			// jv.setSelected(selected);
 		}
 
+		@Override
+		public void rightClick(MouseEvent e) {
+			// do nothing
+		}
+
 	}
 
 	Map<Port, InPortCell> inports;
@@ -86,8 +93,8 @@ public class JobAdapter {
 
 	Map<Port, OutPortCell> outports;
 
-	JobAdapter(Job job, Graph graph) {
-		setUpCells(graph, job);
+	JobAdapter(Job job, Graph graph, WorkflowCell wfc) {
+		setUpCells(graph, job, wfc);
 		this.jobCellListener = new JobCellListener();
 
 		// register at jobCell
@@ -135,7 +142,7 @@ public class JobAdapter {
 		return outports.get(po);
 	}
 
-	private void setUpCells(Graph g, Job job) {
+	private void setUpCells(Graph g, Job job, WorkflowCell wfc) {
 		g.beginUpdate();
 		try {
 			LayoutManager layoutManager = new NaiveLayoutManager();
@@ -168,14 +175,16 @@ public class JobAdapter {
 						jobCell);
 				locations.put(op, locA);
 				jobCell.addCell(locA.locationCell, null);
+
+				// set jobID to LocationCell to enable LocationDragging
+				locA.locationCell.setId(job.getElement().getId());
 			}
 
 			// setup Layout
 			layoutManager.setUpLayout(g, jobCell);
+//			jobCell.onResize(g.getGraph());
 
-			// render Job
-			job.selectRenderer(JGraphRendering.getRendererAssortment())
-					.addToGraph(g, jobCell);
+			wfc.addCell(jobCell, null);
 
 		} finally {
 			g.endUpdate();

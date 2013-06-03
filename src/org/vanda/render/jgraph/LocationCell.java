@@ -2,18 +2,12 @@ package org.vanda.render.jgraph;
 
 import org.vanda.render.jgraph.Cells.SetSelectionEvent;
 import com.mxgraph.model.mxICell;
-import com.mxgraph.view.mxGraph;
 
 public class LocationCell extends Cell {
 
 	public LocationCell(final Graph graph, LayoutManager layout, Cell parent) {
 
 		super(JGraphRendering.locationRenderer, layout, graph);
-	}
-
-	@Override
-	public String getType() {
-		return "LocationCell";
 	}
 
 	@Override
@@ -27,7 +21,7 @@ public class LocationCell extends Cell {
 	}
 
 	@Override
-	public void onResize(mxGraph graph) {
+	public void onResize(Graph graph) {
 		// do nothing
 	}
 
@@ -39,6 +33,26 @@ public class LocationCell extends Cell {
 	@Override
 	public LayoutSelector getLayoutSelector() {
 		return LayoutManager.LOCATION;
+	}
+
+	@Override
+	public boolean isSelectable() {
+		return true;
+	}
+
+	@Override
+	public boolean isValidConnectionSource() {
+		return false;
+	}
+
+	@Override
+	public boolean isValidConnectionTarget() {
+		return false;
+	}
+
+	@Override
+	public boolean isValidDropTarget() {
+		return false;
 	}
 
 }

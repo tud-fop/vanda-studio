@@ -175,7 +175,7 @@ public class PresentationModel implements DataInterface {
 			if (ja.getJob() == job)
 				return ja;
 		}
-		JobAdapter ja = new JobAdapter(job, graph, view);
+		JobAdapter ja = new JobAdapter(job, graph, view, workflowCell);
 		jobs.add(ja);
 		graph.refresh();
 		return ja;
@@ -222,7 +222,7 @@ public class PresentationModel implements DataInterface {
 
 	private void setupPresentationModel() {
 		for (Job j : view.getWorkflow().getChildren()) {
-			jobs.add(new JobAdapter(j, graph, view));
+			jobs.add(new JobAdapter(j, graph, view, workflowCell));
 		}
 		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
 			if (connections.get(ck) == null)

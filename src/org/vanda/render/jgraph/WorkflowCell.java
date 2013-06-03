@@ -1,18 +1,12 @@
 package org.vanda.render.jgraph;
 
 import com.mxgraph.model.mxICell;
-import com.mxgraph.view.mxGraph;
 
 public class WorkflowCell extends Cell {
 	DataInterface di;
 	public WorkflowCell(DataInterface di) {
 		super(null, null, null);
 		this.di = di;
-	}
-
-	@Override
-	public String getType() {
-		return "WorkflowCell";
 	}
 
 	@Override
@@ -24,7 +18,8 @@ public class WorkflowCell extends Cell {
 	}
 
 	@Override
-	public void onResize(mxGraph graph) {
+	public void onResize(Graph graph) {
+		// do nothing
 	}
 
 	@Override
@@ -39,6 +34,26 @@ public class WorkflowCell extends Cell {
 	@Override
 	public LayoutSelector getLayoutSelector() {
 		return LayoutManager.WORKFLOW;
+	}
+
+	@Override
+	public boolean isSelectable() {
+		return true;
+	}
+
+	@Override
+	public boolean isValidConnectionSource() {
+		return false;
+	}
+
+	@Override
+	public boolean isValidConnectionTarget() {
+		return false;
+	}
+
+	@Override
+	public boolean isValidDropTarget() {
+		return true;
 	}
 
 }

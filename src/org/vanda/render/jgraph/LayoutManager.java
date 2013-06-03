@@ -1,7 +1,7 @@
 package org.vanda.render.jgraph;
 
 public interface LayoutManager {
-	public void setUpLayout(Graph g, Cell container);
+	public void setUpLayout(Graph graph, Cell container);
 	
 	static final LayoutSelector INPORT = new LayoutSelector() {
 		@Override

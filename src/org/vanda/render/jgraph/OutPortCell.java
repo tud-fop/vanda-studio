@@ -1,7 +1,6 @@
 package org.vanda.render.jgraph;
 
 import com.mxgraph.model.mxICell;
-import com.mxgraph.view.mxGraph;
 
 public class OutPortCell extends Cell {
 	final String portType; // input or output port
@@ -11,11 +10,6 @@ public class OutPortCell extends Cell {
 	{
 		super(JGraphRendering.outPortRenderer, layout, graph);
 		this.portType = portType;
-	}
-
-	@Override
-	public String getType() {
-		return portType;
 	}
 
 	@Override
@@ -29,7 +23,7 @@ public class OutPortCell extends Cell {
 	}
 
 	@Override
-	public void onResize(mxGraph graph) {
+	public void onResize(Graph graph) {
 		// do nothing
 	}
 
@@ -41,5 +35,25 @@ public class OutPortCell extends Cell {
 	@Override
 	public LayoutSelector getLayoutSelector() {
 		return LayoutManager.OUTPORT;
+	}
+
+	@Override
+	public boolean isSelectable() {
+		return false;
+	}
+
+	@Override
+	public boolean isValidConnectionSource() {
+		return true;
+	}
+
+	@Override
+	public boolean isValidConnectionTarget() {
+		return false;
+	}
+
+	@Override
+	public boolean isValidDropTarget() {
+		return false;
 	}
 }

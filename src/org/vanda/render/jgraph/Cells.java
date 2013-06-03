@@ -1,5 +1,7 @@
 package org.vanda.render.jgraph;
 
+import java.awt.event.MouseEvent;
+
 public final class Cells {
 	public static interface CellEvent<C> {
 		void doNotify(CellListener<C> cl);
@@ -17,6 +19,8 @@ public final class Cells {
 		void selectionChanged(C c, boolean selected);
 
 		void setSelection(C c, boolean selected);
+
+		void rightClick(MouseEvent e);
 	}
 
 	public static class InsertCellEvent<C> implements CellEvent<C> {
@@ -105,6 +109,19 @@ public final class Cells {
 			cl.setSelection(c, selected);
 		}
 
+	}
+	
+	public static class RightClickEvent<C> implements CellEvent<C> {
+		private final MouseEvent e;
+		
+		public RightClickEvent(MouseEvent e) {
+			this.e = e;
+		}
+		
+		@Override
+		public void doNotify(CellListener<C> cl) {
+			cl.rightClick(e);
+		}
 	}
 
 

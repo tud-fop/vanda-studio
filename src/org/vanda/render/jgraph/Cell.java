@@ -1,11 +1,13 @@
 package org.vanda.render.jgraph;
 
+import java.awt.event.MouseEvent;
+
 import org.vanda.render.jgraph.Cells.CellEvent;
+import org.vanda.render.jgraph.Cells.RightClickEvent;
 import org.vanda.util.MultiplexObserver;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
-import com.mxgraph.view.mxGraph;
 
 public abstract class Cell {
 
@@ -14,12 +16,7 @@ public abstract class Cell {
 
 	protected Object z;
 
-	// FIXME remove parent
-	protected Cell(Renderer r, LayoutManager layoutManager, final Graph graph/*
-																			 * ,
-																			 * Cell
-																			 * parent
-																			 */) {
+	protected Cell(Renderer r, LayoutManager layoutManager, final Graph graph) {
 		
 		observable = new MultiplexObserver<CellEvent<Cell>>();
 		setZ(r);
@@ -64,8 +61,6 @@ public abstract class Cell {
 		return (Cell) getVisualization().getParent().getValue();
 	}
 
-	public abstract String getType();
-
 	public mxCell getVisualization() {
 		return visualization;
 	}
@@ -90,29 +85,51 @@ public abstract class Cell {
 		// do nothing
 	}
 
+	public abstract boolean isSelectable();
+
+	public abstract boolean isValidConnectionSource();
+
+	public abstract boolean isValidConnectionTarget();
+
+	public abstract boolean isValidDropTarget();
+
 	public abstract void onInsert(final Graph graph, mxICell parent,
 			mxICell cell);
 
 	public abstract void onRemove();
 
-	public abstract void onResize(mxGraph graph);
+	public abstract void onResize(Graph graph);
 
 	public void removeCell(Cell cell) {
 		getVisualization().remove(cell.getVisualization());
 		cell.getVisualization().setParent(null);
 	}
-
+	
 	public void setDimensions(double[] dimensions) {
 	}
-
+	
+	public void setId(String id) {
+		getVisualization().setId(id);
+	}
+	
 	public abstract void setSelection(boolean selected);
-
 	public void setVisualization(mxCell visualization) {
 		this.visualization = visualization;
 	}
-
 	public void setZ(Object z) {
 		this.z = z;
 	}
-
+	
+	public void rightMouseClick(MouseEvent e) {
+		getObservable().notify(new RightClickEvent<Cell>(e));
+	}
+	
+	public int getChildCount() {
+		return visualization.getChildCount();
+	}
+	
+	public Cell getChildAt(int i) {
+		return (Cell) visualization.getChildAt(i).getValue();
+ 	}
+	
 }

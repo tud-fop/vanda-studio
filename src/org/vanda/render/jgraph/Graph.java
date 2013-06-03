@@ -3,6 +3,7 @@ package org.vanda.render.jgraph;
 import java.awt.Component;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragSource;
+import java.awt.event.MouseEvent;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -72,6 +73,11 @@ public final class Graph {
 			// do nothing
 		}
 
+		@Override
+		public void rightClick(MouseEvent e) {
+			// do nothing
+		}
+
 	}
 
 	protected class ChangeListener implements mxIEventListener {
@@ -96,9 +102,8 @@ public final class Graph {
 					boolean refreshSelection = false;
 					if (cell == graph.getSelectionCell()) {
 						refreshSelection = true;
-						// if (model != null)
-						// model.setSelection(null);
-						clearSelection();
+						clearSelection((Cell) ((mxCell) graph
+								.getDefaultParent()).getValue());
 					}
 					if (cc.getPrevious() != null) {
 						// something has been removed
@@ -109,7 +114,6 @@ public final class Graph {
 							&& cell.getParent() == cc.getParent())
 						value.onInsert(Graph.this, cell.getParent(), cell);
 					if (refreshSelection)
-						// setSelectionCell(cell);
 						graph.setSelectionCell(cell);
 				} else if (c instanceof mxValueChange) {
 					// not supposed to happen, or not relevant
@@ -117,21 +121,22 @@ public final class Graph {
 					mxICell cell = (mxICell) ((mxGeometryChange) c).getCell();
 					Cell value = (Cell) gmodel.getValue(cell);
 					if (cell.getParent() != null /* && value.inModel() */)
-						value.onResize(getGraph());
+						value.onResize(Graph.this);
 				} else if (c instanceof mxSelectionChange) {
 					Object[] cells = graph.getSelectionCells();
 
 					if (cells != null) {
 						updateSelection(gmodel, cells);
 					} else
-						clearSelection();
+						clearSelection((Cell) ((mxCell) graph
+								.getDefaultParent()).getValue());
 				}
 			}
 		}
 
 	}
 
-	private class customMxGraph extends mxGraph {
+	private class CustomMxGraph extends mxGraph {
 		private class customMxCell extends mxCell {
 			/**
 			 * 
@@ -151,7 +156,7 @@ public final class Graph {
 			}
 		}
 
-		public customMxGraph(mxStylesheet styleSheet, WorkflowCell workflowCell) {
+		public CustomMxGraph(mxStylesheet styleSheet, WorkflowCell workflowCell) {
 			super(styleSheet);
 			setCellsCloneable(false);
 			setSplitEnabled(false);
@@ -204,7 +209,7 @@ public final class Graph {
 		@Override
 		public String convertValueToString(Object cell) {
 			Object value = model.getValue(cell);
-			if (value instanceof Cell)
+			if (value != null)
 				return ((Cell) value).getLabel();
 			else
 				return "";
@@ -257,17 +262,13 @@ public final class Graph {
 
 		@Override
 		public boolean isCellSelectable(Object cell) {
-			if (((Cell) getModel().getValue(cell)).getType().equals(
-					"InPortCell") || ((Cell) getModel().getValue(cell)).getType().equals(
-							"OutPortCell"))
-				return false;
-			return super.isCellSelectable(cell);
+			return (((Cell) getModel().getValue(cell)).isSelectable() && super
+					.isCellSelectable(cell));
 		}
 
 		@Override
 		public boolean isValidDropTarget(Object cell, Object[] cells) {
-			return ((Cell) ((mxCell) cell).getValue()).getType().equals(
-					"WorkflowCell")
+			return ((Cell) ((mxCell) cell).getValue()).isValidDropTarget()
 					&& super.isValidDropTarget(cell, cells);
 		}
 
@@ -275,14 +276,14 @@ public final class Graph {
 		public boolean isValidSource(Object cell) {
 			return super.isValidSource(cell)
 					&& (cell == null || ((Cell) ((mxCell) cell).getValue())
-							.getType().equals("OutPortCell"));
+							.isValidConnectionSource());
 		}
 
 		@Override
 		public boolean isValidTarget(Object cell) {
 			return super.isValidSource(cell) /* sic!! */
 					&& (cell == null || ((Cell) ((mxCell) cell).getValue())
-							.getType().equals("InPortCell"));
+							.isValidConnectionTarget());
 		}
 	}
 
@@ -294,7 +295,7 @@ public final class Graph {
 	public Graph(WorkflowCell workflowCell) {
 		// Create graph and set graph properties
 		// LayoutManagerFactoryInterface layoutFactory = new JGraphRendering();
-		this.graph = new customMxGraph(JGraphRendering.getStylesheet(),
+		this.graph = new CustomMxGraph(JGraphRendering.getStylesheet(),
 				workflowCell);
 		JGraphRendering.refStylesheet(1);
 		cellChangeListener = new CellChangeListener();
@@ -308,10 +309,10 @@ public final class Graph {
 		getGraph().getModel().beginUpdate();
 	}
 
-	private void clearSelection() {
-		for (Object c : ((mxGraphModel) (graph.getModel())).getCells().values()) {
-			if (((mxCell) c).getValue() != null)
-				((Cell) ((mxCell) c).getValue()).setSelection(false);
+	private void clearSelection(Cell container) {
+		container.setSelection(false);
+		for (int i = 0; i < container.getChildCount(); ++i) {
+			clearSelection(container.getChildAt(i));
 		}
 	}
 
@@ -324,7 +325,7 @@ public final class Graph {
 		JGraphRendering.refStylesheet(-1);
 		super.finalize();
 	}
-	
+
 	public CellListener<Cell> getCellChangeListener() {
 		return cellChangeListener;
 	}
@@ -349,7 +350,7 @@ public final class Graph {
 
 	private void updateSelection(mxIGraphModel gmodel, Object[] cells) {
 		selectionUpdate++;
-		clearSelection();
+		clearSelection((Cell) ((mxCell) graph.getDefaultParent()).getValue());
 
 		// set selection in View
 		for (Object o : cells) {
@@ -360,12 +361,12 @@ public final class Graph {
 	}
 
 	public void removeCell(Cell cell) {
-		getGraph().removeCells(	new Object[] { cell.getVisualization() });
-		
+		getGraph().removeCells(new Object[] { cell.getVisualization() });
+
 	}
-	
+
 	/**
-	 * Make the visualization immutable (used for palette) 
+	 * Make the visualization immutable (used for palette)
 	 */
 	public void setPaletteStyle() {
 		getGraph().setCellsLocked(true);

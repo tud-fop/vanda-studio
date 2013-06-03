@@ -9,21 +9,21 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.util.mxStyleUtils;
-import com.mxgraph.view.mxGraph;
 
 public class ConnectionCell extends Cell {
 	boolean handdrawn;
-	
+
 	public ConnectionCell() {
 		super(null, null, null);
 		handdrawn = true;
 	}
 
-	public ConnectionCell(final Graph graph, OutPortCell source, InPortCell target) {
+	public ConnectionCell(final Graph graph, OutPortCell source,
+			InPortCell target) {
 		// r = null, to fit connection creation scheme
 		super(null, null, graph);
 		handdrawn = false;
-		
+
 		// create mxCell and add it to Graph
 		mxICell sourceVis = source.getVisualization();
 		mxICell targetVis = target.getVisualization();
@@ -48,11 +48,6 @@ public class ConnectionCell extends Cell {
 
 	public OutPortCell getSourceCell() {
 		return (OutPortCell) visualization.getSource().getValue();
-	}
-
-	@Override
-	public String getType() {
-		return "ConnectionCell";
 	}
 
 	@Override
@@ -98,7 +93,8 @@ public class ConnectionCell extends Cell {
 
 				// Create ConnectionAdapter
 				((WorkflowCell) ((mxICell) graph.getGraph().getDefaultParent())
-						.getValue()).getDataInterface().createConnection(this, tparval, tval);
+						.getValue()).getDataInterface().createConnection(this,
+						tparval, tval);
 
 			}
 		}
@@ -110,7 +106,7 @@ public class ConnectionCell extends Cell {
 	}
 
 	@Override
-	public void onResize(mxGraph graph) {
+	public void onResize(Graph graph) {
 		// do nothing
 	}
 
@@ -124,4 +120,28 @@ public class ConnectionCell extends Cell {
 		return LayoutManager.CONNECTION;
 	}
 
+	@Override
+	public boolean isSelectable() {
+		return true;
+	}
+
+	@Override
+	public boolean isValidConnectionSource() {
+		return false;
+	}
+
+	@Override
+	public boolean isValidConnectionTarget() {
+		return false;
+	}
+
+	@Override
+	public boolean isValidDropTarget() {
+		return false;
+	}
+
+	@Override
+	public String getLabel() {
+		return ""; //this.toString();
+	}
 }

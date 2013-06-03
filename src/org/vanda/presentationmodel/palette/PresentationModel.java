@@ -43,7 +43,7 @@ public class PresentationModel implements DataInterface {
 	}
 
 	public double addJobAdapter(Job job) {
-		JobAdapter ja = new JobAdapter(job, graph);
+		JobAdapter ja = new JobAdapter(job, graph, workflowCell);
 		jobs.add(ja);
 		graph.refresh();
 		return ja.getVisualizationHeight();

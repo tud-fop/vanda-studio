@@ -8,6 +8,4 @@ public interface Renderer {
 	public void addStyle(Map<String, Object> style);
 	
 	public void render(Cell container);
-	
-	public void addToGraph(Graph g, Cell container);
 }

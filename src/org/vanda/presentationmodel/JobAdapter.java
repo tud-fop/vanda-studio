@@ -1,9 +1,16 @@
 package org.vanda.presentationmodel;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellEvent;
@@ -16,6 +23,10 @@ import org.vanda.render.jgraph.LayoutManager;
 import org.vanda.render.jgraph.NaiveLayoutManager;
 import org.vanda.render.jgraph.InPortCell;
 import org.vanda.render.jgraph.OutPortCell;
+import org.vanda.render.jgraph.WorkflowCell;
+import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl.PopupMenu;
+import org.vanda.util.Action;
+import org.vanda.util.HasActions;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
 import org.vanda.view.JobView;
@@ -81,6 +92,37 @@ public class JobAdapter {
 			jv.setSelected(selected);
 		}
 
+		@Override
+		public void rightClick(MouseEvent e) {
+			PopupMenu menu = new PopupMenu(jobCell.getLabel());
+			@SuppressWarnings("serial")
+			JMenuItem item = new JMenuItem("Remove Job") {
+				@Override
+				public void fireActionPerformed(ActionEvent _) {
+					view.removeSelectedCell();
+				}
+			};
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+			menu.add(item);
+
+			if (jobCell instanceof HasActions) {
+				HasActions ha = (HasActions) jobCell;
+				LinkedList<Action> as = new LinkedList<Action>();
+				ha.appendActions(as);
+				for (final Action a : as) {
+					@SuppressWarnings("serial")
+					JMenuItem item2 = new JMenuItem(a.getName()) {
+						@Override
+						public void fireActionPerformed(ActionEvent _) {
+							a.invoke();
+						}
+					};
+					menu.add(item2);
+				}
+			}
+			menu.show(e.getComponent(), e.getX(), e.getY());
+		}
+
 	}
 
 	private class JobListener implements Jobs.JobListener<Job> {
@@ -135,9 +177,9 @@ public class JobAdapter {
 
 	View view;
 
-	JobAdapter(Job job, Graph graph, View view) {
+	JobAdapter(Job job, Graph graph, View view, WorkflowCell wfc) {
 		this.view = view;
-		setUpCells(graph, job);
+		setUpCells(graph, job, wfc);
 		this.jobListener = new JobListener();
 		this.jobCellListener = new JobCellListener();
 
@@ -201,15 +243,15 @@ public class JobAdapter {
 		return outports.get(po);
 	}
 
-	private void setUpCells(Graph g, Job job) {
-		g.beginUpdate();
+	private void setUpCells(Graph graph, Job job, WorkflowCell wfc) {
+		graph.beginUpdate();
 		try {
 			LayoutManager layoutManager = new NaiveLayoutManager();
 			this.job = job;
 			inports = new WeakHashMap<Port, InPortCell>();
 			outports = new WeakHashMap<Port, OutPortCell>();
 			locations = new WeakHashMap<Location, LocationAdapter>();
-			jobCell = new JobCell(g, job.selectRenderer(JGraphRendering
+			jobCell = new JobCell(graph, job.selectRenderer(JGraphRendering
 					.getRendererAssortment()), job.getName(), job.getX(),
 					job.getY(), job.getWidth(), job.getHeight());
 
@@ -217,7 +259,7 @@ public class JobAdapter {
 			List<Port> in = job.getInputPorts();
 
 			for (Port ip : in) {
-				InPortCell ipc = new InPortCell(g, layoutManager, jobCell,
+				InPortCell ipc = new InPortCell(graph, layoutManager, jobCell,
 						"InPortCell");
 				inports.put(ip, ipc);
 				jobCell.addCell(ipc, null);
@@ -226,25 +268,23 @@ public class JobAdapter {
 			// insert a cell for every output port
 			List<Port> out = job.getOutputPorts();
 			for (Port op : out) {
-				OutPortCell opc = new OutPortCell(g, layoutManager, jobCell,
-						"OutPortCell");
+				OutPortCell opc = new OutPortCell(graph, layoutManager,
+						jobCell, "OutPortCell");
 				outports.put(op, opc);
 				jobCell.addCell(opc, null);
-				LocationAdapter locA = new LocationAdapter(g, view,
+				LocationAdapter locA = new LocationAdapter(graph, view,
 						layoutManager, jobCell, op, job.bindings.get(op));
 				locations.put(job.bindings.get(op), locA);
 				jobCell.addCell(locA.locationCell, null);
 			}
 
 			// setup Layout
-			layoutManager.setUpLayout(g, jobCell);
+			layoutManager.setUpLayout(graph, jobCell);
 
-			// render Job
-			job.selectRenderer(JGraphRendering.getRendererAssortment())
-					.addToGraph(g, jobCell);
+			wfc.addCell(jobCell, null);
 
 		} finally {
-			g.endUpdate();
+			graph.endUpdate();
 		}
 	}
 }

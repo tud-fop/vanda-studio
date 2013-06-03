@@ -61,24 +61,21 @@ public class JGraphRendering {
 			v.setVertex(true);
 		}
 		
-		@Override 
-		public void addToGraph(Graph g, Cell container) {
-			mxCell v = container.getVisualization();
-			g.beginUpdate();
-			try {
-				g.getGraph().addCell(v, v.getParent());
-
-				if (g.getGraph().isAutoSizeCell(v))
-					g.getGraph().updateCellSize(v, true);
-
-				for (int i = 0; i < v.getChildCount(); ++i)
-					((Renderer) ((Cell) v.getChildAt(i).getValue()).getZ())
-							.addToGraph(g, (Cell) v.getChildAt(i).getValue());
-			} finally {
-				g.endUpdate();
-			}
-
-		}
+//		@Override 
+//		public void addToGraph(Graph g, Cell container) {
+//			mxCell v = container.getVisualization();
+//			g.beginUpdate();
+//			try {
+//				g.getGraph().addCell(v, v.getParent());
+//
+//				if (g.getGraph().isAutoSizeCell(v))
+//					g.getGraph().updateCellSize(v, true);
+//
+//			} finally {
+//				g.endUpdate();
+//			}
+//
+//		}
 	}
 
 	protected static class GrammarRenderer extends DefaultRenderer {

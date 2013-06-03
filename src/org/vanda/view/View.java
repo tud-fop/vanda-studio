@@ -285,4 +285,14 @@ public class View {
 		this.workflowView = workflowView;
 	}
 
+	public void removeSelectedCell() {
+		List<AbstractView> selection = getCurrentSelection();
+		System.out.print("Selection: ");
+		for (AbstractView v : selection) {
+			System.out.print(v); 
+			v.remove(this);		
+		}
+		System.out.println();
+	}
+
 }

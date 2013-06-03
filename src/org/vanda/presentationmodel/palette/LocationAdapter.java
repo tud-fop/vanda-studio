@@ -1,5 +1,7 @@
 package org.vanda.presentationmodel.palette;
 
+import java.awt.event.MouseEvent;
+
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellListener;
 import org.vanda.render.jgraph.Graph;
@@ -44,6 +46,11 @@ public class LocationAdapter {
 
 		@Override
 		public void setSelection(Cell c, boolean selected) {
+			// do nothing
+		}
+
+		@Override
+		public void rightClick(MouseEvent e) {
 			// do nothing
 		}
 
