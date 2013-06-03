@@ -31,6 +31,8 @@ public class ScoresPreviewFactory implements PreviewFactory {
 		Scanner sScores = null, sMeta = null, sSentences = null;
 		try {
 			// read stuff from file
+			if (!scores.exists())
+				return app.getPreviewFactory(null).createPreview(absolutePath);
 			sScores = new Scanner(scores);
 			sMeta = new Scanner(meta);
 			File sentences = new File(app.findFile(sMeta.nextLine()));

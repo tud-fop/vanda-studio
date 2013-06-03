@@ -13,18 +13,18 @@ install_me () {
 	cp GIZA++-v2/{GIZA++,plain2snt.out,snt2cooc.out,snt2plain.out,trainGIZA++.sh} mkcls-v2/mkcls "$1/giza/."
 	cd ..
 # install mgiza
-	wget http://ignum.dl.sourceforge.net/project/mgizapp/mgizapp-0.7.3.tgz
-	tar xfv mgizapp-0.7.3.tgz
-	cd mgizapp
-	rm CMakeCache.txt
-	sed -i "s/FIND_PACKAGE( Boost 1.41 COMPONENTS thread)/FIND_PACKAGE( Boost 1.41 COMPONENTS thread system)/g" CMakeLists.txt
+	svn co https://mgizapp.svn.sourceforge.net/svnroot/mgizapp mgizapp
+	cd mgizapp/trunk/mgizapp
+	rm -f CMakeCache.txt
+	sed -i "s/set(Boost_USE_STATIC_LIBS        ON)/set(Boost_USE_STATIC_LIBS       OFF)/g" CMakeLists.txt
+	sed -i "s/FIND_PACKAGE( Boost 1.41 COMPONENTS thread)/FIND_PACKAGE(Boost COMPONENTS thread system)/g" CMakeLists.txt
 	cmake .
 	make mgiza
 	cp bin/mgiza "$1/giza/."
 	wget http://www.cs.cmu.edu/~qing/release/merge_alignment.py
 	cp "merge_alignment.py" "$1/giza/."
 	chmod +x "$1/giza/merge_alignment.py"
-	cd ..
+	cd ../../..
 # install mosesdecoder
 	git clone git://github.com/moses-smt/mosesdecoder.git
 	cd mosesdecoder
