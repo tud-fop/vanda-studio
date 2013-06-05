@@ -132,4 +132,8 @@ public abstract class Cell {
 		return (Cell) visualization.getChildAt(i).getValue();
  	}
 	
+	public boolean isFoldable() {
+		return false;
+	}
+	
 }

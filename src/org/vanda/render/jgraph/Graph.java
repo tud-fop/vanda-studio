@@ -11,7 +11,6 @@ import org.vanda.render.jgraph.Cells.CellListener;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxGraphModel.mxChildChange;
 import com.mxgraph.model.mxGraphModel.mxGeometryChange;
 import com.mxgraph.model.mxGraphModel.mxValueChange;
@@ -255,9 +254,8 @@ public final class Graph {
 		// Allows folding of NestedHyperworkflows
 		@Override
 		public boolean isCellFoldable(Object cell, boolean collapse) {
-			return false;
-			// mxCell c = (mxCell) cell;
-			// return c.getValue() instanceof CompositeJobAdapter;
+			mxCell c = (mxCell) cell;
+			return ((Cell) c.getValue()).isFoldable();
 		}
 
 		@Override

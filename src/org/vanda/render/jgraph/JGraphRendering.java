@@ -60,22 +60,6 @@ public class JGraphRendering {
 					container.getWidth(), container.getHeight()));
 			v.setVertex(true);
 		}
-		
-//		@Override 
-//		public void addToGraph(Graph g, Cell container) {
-//			mxCell v = container.getVisualization();
-//			g.beginUpdate();
-//			try {
-//				g.getGraph().addCell(v, v.getParent());
-//
-//				if (g.getGraph().isAutoSizeCell(v))
-//					g.getGraph().updateCellSize(v, true);
-//
-//			} finally {
-//				g.endUpdate();
-//			}
-//
-//		}
 	}
 
 	protected static class GrammarRenderer extends DefaultRenderer {
@@ -116,21 +100,6 @@ public class JGraphRendering {
 			port.setStyle("inport");
 			port.setVertex(true);
 		}
-
-//		@Override
-//		public void addToGraph(Graph g, Cell container) {
-//			mxCell port = container.getVisualization();
-//			mxICell parent = port.getParent();
-//			port.setParent(null);
-//			parent.remove(port);
-//			g.beginUpdate();
-//			try {
-//				g.getGraph().addCell(port, parent);
-//			} finally {
-//				g.endUpdate();
-//			}
-//		
-//		}
 	}
 
 	public static class JGraphRendererAssortment implements
@@ -187,6 +156,7 @@ public class JGraphRendering {
 			style.put(mxConstants.STYLE_AUTOSIZE, "1");
 			style.put(mxConstants.STYLE_RESIZABLE, "0");
 		}
+
 		@Override
 		public String getStyleName() {
 			return "text";
@@ -213,15 +183,6 @@ public class JGraphRendering {
 			mxCell loc = container.visualization;
 			loc.setStyle("location");
 			loc.setVertex(true);
-//			mxICell parent = loc.getParent();
-//			parent.remove(loc);
-//			loc.setParent(null);
-//			g.beginUpdate();
-//			try {
-//				g.getGraph().addCell(loc, parent);
-//			} finally {
-//				g.endUpdate();
-//			}
 		}
 	}
 
@@ -248,15 +209,15 @@ public class JGraphRendering {
 			mxCell port = container.visualization;
 			port.setStyle("outport");
 			port.setVertex(true);
-//			mxICell parent = port.getParent();
-//			port.setParent(null);
-//			parent.remove(port);
-//			g.beginUpdate();
-//			try {
-//				g.getGraph().addCell(port, parent);
-//			} finally {
-//				g.endUpdate();
-//			}
+			// mxICell parent = port.getParent();
+			// port.setParent(null);
+			// parent.remove(port);
+			// g.beginUpdate();
+			// try {
+			// g.getGraph().addCell(port, parent);
+			// } finally {
+			// g.endUpdate();
+			// }
 		}
 	}
 
