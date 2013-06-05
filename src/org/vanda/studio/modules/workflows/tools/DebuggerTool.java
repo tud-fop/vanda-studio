@@ -3,7 +3,6 @@ package org.vanda.studio.modules.workflows.tools;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Observer;
@@ -40,7 +39,7 @@ public class DebuggerTool implements ToolFactory {
 			// FIXME this.wfe.addToolWindow(therealdebugger);
 		}
 
-		public void update(WorkflowDecoration model) {
+//		public void update(WorkflowDecoration model) {
 //			StringBuilder sb = new StringBuilder();
 //			model.getFrozen().appendText(sb);
 //			if (!model.getFrozen().isSane()) {
@@ -49,7 +48,7 @@ public class DebuggerTool implements ToolFactory {
 //						+ "is not connected.\n\n");
 //			}
 //			debugger.setText(sb.toString());
-		}
+//		}
 
 	}
 
