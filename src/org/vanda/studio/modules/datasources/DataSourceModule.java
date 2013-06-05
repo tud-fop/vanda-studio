@@ -2,7 +2,6 @@ package org.vanda.studio.modules.datasources;
 
 import java.awt.Dimension;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -15,6 +14,7 @@ import javax.swing.JFrame;
 
 import org.vanda.datasources.DataSourceEditor;
 import org.vanda.datasources.DirectoryDataSourceFactory;
+import org.vanda.datasources.DoubleDataSource;
 import org.vanda.datasources.IntegerDataSource;
 import org.vanda.datasources.RootDataSource;
 import org.vanda.datasources.serialization.DataSourceType;
@@ -49,6 +49,7 @@ public class DataSourceModule implements Module {
 		}
 
 		rds.mount("Integer", new IntegerDataSource());
+		rds.mount("Double", new DoubleDataSource());
 		/*
 		 * rds.mount("europarl", new DirectoryDataSource( new
 		 * CompositeType("SentenceCorpus"), "europarl_eng-ger", ".*"));
@@ -65,7 +66,7 @@ public class DataSourceModule implements Module {
 		 */
 		
 		Storer st = new Storer(dsts);
-		a.getWindowSystem().addAction(null, new DataSourceEditorAction(a, rds, st), null);
+		// a.getWindowSystem().addAction(null, new DataSourceEditorAction(a, rds, st), null);
 		return null;
 	}
 	
