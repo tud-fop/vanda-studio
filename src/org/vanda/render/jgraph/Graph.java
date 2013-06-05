@@ -125,6 +125,9 @@ public final class Graph {
 					Object[] cells = graph.getSelectionCells();
 
 					if (cells != null) {
+						// FIXME: selecting the default parent, if nothing is selected
+						if (cells.length == 0)
+							cells = new Object [] {graph.getDefaultParent()};
 						updateSelection(gmodel, cells);
 					} else
 						clearSelection((Cell) ((mxCell) graph

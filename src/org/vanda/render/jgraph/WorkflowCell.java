@@ -1,5 +1,7 @@
 package org.vanda.render.jgraph;
 
+import org.vanda.render.jgraph.Cells.SetSelectionEvent;
+
 import com.mxgraph.model.mxICell;
 
 public class WorkflowCell extends Cell {
@@ -24,7 +26,7 @@ public class WorkflowCell extends Cell {
 
 	@Override
 	public void setSelection(boolean selected) {
-		// do nothing
+		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
 	}
 
 	public DataInterface getDataInterface() {

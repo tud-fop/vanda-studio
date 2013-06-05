@@ -10,7 +10,6 @@ import org.vanda.render.jgraph.ConnectionCell;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.render.jgraph.JobCell;
 import org.vanda.render.jgraph.InPortCell;
-import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.Types;
 import org.vanda.util.Observer;
@@ -81,9 +80,9 @@ public class PresentationModel implements DataInterface {
 	List<JobAdapter> jobs;
 	// LayoutManagerFactoryInterface layoutManager = new JGraphRendering();
 	View view;
-	protected final WorkflowCell workflowCell;
 	private int update = 0;
 	protected final WorkflowEditor wfe;
+	private final WorkflowAdapter wfa;
 
 	/*
 	 * map that holds Layouts for all Job-Types, where String is
@@ -97,8 +96,8 @@ public class PresentationModel implements DataInterface {
 	public PresentationModel(View view, WorkflowEditor wfe) {
 		this.view = view;
 		this.wfe = wfe;
-		this.workflowCell = new WorkflowCell(this);
-		graph = new Graph(workflowCell);
+		this.wfa = new WorkflowAdapter(this, view);
+		graph = new Graph(wfa.getWorkflowCell());
 		jobs = new ArrayList<JobAdapter>();
 		connections = new WeakHashMap<ConnectionKey, ConnectionAdapter>();
 		workflowListener = new WorkflowListener();
@@ -175,7 +174,7 @@ public class PresentationModel implements DataInterface {
 			if (ja.getJob() == job)
 				return ja;
 		}
-		JobAdapter ja = new JobAdapter(job, graph, view, workflowCell);
+		JobAdapter ja = new JobAdapter(job, graph, view, wfa.getWorkflowCell());
 		jobs.add(ja);
 		graph.refresh();
 		return ja;
@@ -222,7 +221,7 @@ public class PresentationModel implements DataInterface {
 
 	private void setupPresentationModel() {
 		for (Job j : view.getWorkflow().getChildren()) {
-			jobs.add(new JobAdapter(j, graph, view, workflowCell));
+			jobs.add(new JobAdapter(j, graph, view, wfa.getWorkflowCell()));
 		}
 		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
 			if (connections.get(ck) == null)

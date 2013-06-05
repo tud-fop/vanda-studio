@@ -25,6 +25,7 @@ public class View {
 	public static interface GlobalViewEvent<V> {
 		void doNotify(GlobalViewListener<V> vl);
 	}
+
 	public static interface GlobalViewListener<V> {
 		void markChanged(V v);
 
@@ -102,6 +103,7 @@ public class View {
 		}
 
 	}
+
 	WeakHashMap<ConnectionKey, ConnectionView> connections;
 	WeakHashMap<Job, JobView> jobs;
 	private MultiplexObserver<GlobalViewEvent<View>> observable;
@@ -118,7 +120,6 @@ public class View {
 	public View(MutableWorkflow workflow) {
 		this.workflow = workflow;
 		this.observable = new MultiplexObserver<GlobalViewEvent<View>>();
-		setWorkflowView(new WorkflowView());
 		jobs = new WeakHashMap<Job, JobView>();
 		connections = new WeakHashMap<ConnectionKey, ConnectionView>();
 		variables = new WeakHashMap<Location, LocationView>();
@@ -144,6 +145,9 @@ public class View {
 			}
 
 		};
+
+		setWorkflowView(new WorkflowView());
+
 		for (Job j : workflow.getChildren()) {
 			addJobView(j);
 			for (Port p : j.getOutputPorts()) {
@@ -250,6 +254,8 @@ public class View {
 		addSelected(jobs, currentSelection);
 		addSelected(connections, currentSelection);
 		addSelected(variables, currentSelection);
+		if (workflowView.isSelected())
+			currentSelection.add(workflowView);
 		return currentSelection;
 	}
 
@@ -283,16 +289,25 @@ public class View {
 
 	private void setWorkflowView(WorkflowView workflowView) {
 		this.workflowView = workflowView;
+		workflowView.getObservable().addObserver(
+				new Observer<ViewEvent<AbstractView>>() {
+
+					@Override
+					public void notify(ViewEvent<AbstractView> event) {
+						event.doNotify(viewEventListener);
+					}
+
+				});
 	}
 
 	public void removeSelectedCell() {
 		List<AbstractView> selection = getCurrentSelection();
-//		System.out.print("Selection: ");
+		// System.out.print("Selection: ");
 		for (AbstractView v : selection) {
-//			System.out.print(v); 
-			v.remove(this);		
+			// System.out.print(v);
+			v.remove(this);
 		}
-//		System.out.println();
+		// System.out.println();
 	}
 
 }
