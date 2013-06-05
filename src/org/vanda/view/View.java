@@ -287,12 +287,12 @@ public class View {
 
 	public void removeSelectedCell() {
 		List<AbstractView> selection = getCurrentSelection();
-		System.out.print("Selection: ");
+//		System.out.print("Selection: ");
 		for (AbstractView v : selection) {
-			System.out.print(v); 
+//			System.out.print(v); 
 			v.remove(this);		
 		}
-		System.out.println();
+//		System.out.println();
 	}
 
 }

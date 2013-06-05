@@ -24,6 +24,7 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 	
 	// private final org.vanda.studio.model.Model model;
 	private final MutableWorkflow hwf;
+	private final View view;
 	private final Database db;
 	protected Job[] sorted = null;
 	private Map<Object, Type> types = Collections.emptyMap();
@@ -36,6 +37,7 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 	public Model(View view, Database db) {
 		hwf = view.getWorkflow();
 		this.db = db;
+		this.view = view;
 		hwf.getObservable().addObserver(this);
 		dfaChangedObservable = new MultiplexObserver<DataflowAnalysis>();
 		
@@ -70,6 +72,8 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 				Set<ConnectionKey> eqs = error.snd;
 				// for (ConnectionKey eq : eqs)
 				// 	markedElements.add(new ConnectionSelection(hwf, eq));
+				for (ConnectionKey eq : eqs) 
+					view.getConnectionView(eq).setMarked(true);					
 			}
 
 		}
