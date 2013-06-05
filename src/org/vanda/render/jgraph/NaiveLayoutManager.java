@@ -81,7 +81,7 @@ public class NaiveLayoutManager implements LayoutManager {
 			
 			// increment counter
 			layout.put(OUTPORT, new Pair<Integer, Integer>(
-					layout.get(OUTPORT).fst + 1, layout.get(INPORT).snd));
+					layout.get(OUTPORT).fst + 1, layout.get(OUTPORT).snd));
 
 		}
 
