@@ -66,7 +66,7 @@ public class DataSourceModule implements Module {
 		 */
 		
 		Storer st = new Storer(dsts);
-		// a.getWindowSystem().addAction(null, new DataSourceEditorAction(a, rds, st), null);
+		a.getWindowSystem().addAction(null, new DataSourceEditorAction(a, rds, st), null);
 		return null;
 	}
 	
