@@ -238,6 +238,7 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 		try {
 			AlignmentsPreview aps = new AlignmentsPreview(value);
 			aps.initialize();
+			aps.load();
 			return aps;
 		} catch (FileNotFoundException e) {
 			app.sendMessage(new ExceptionMessage(e));

@@ -106,6 +106,7 @@ public class ExternalRepository<T extends RepositoryItem>
 
 		@Override
 		public void notify(T newitem) {
+			System.err.println(newitem.getId());
 			T item = items.remove(newitem.getId());
 			if (item != null) {
 				if (item.getVersion().equals(newitem.getVersion()))

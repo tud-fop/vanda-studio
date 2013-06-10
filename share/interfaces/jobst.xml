@@ -1,0 +1,41 @@
+<root>
+	<toolinterface
+		id="Jobst1"
+		name="Jobst Decoder"
+		version="2013-05-27"
+		contact="Matthias.Buechse@tu-dresden.de"
+		category="Translation Models">
+
+		<description>Decoder based on IBM Model 1, implemented by Michael Jobst.</description>
+
+		<tool
+			type="Shell"
+			id="JobstTrain"
+			name="JobstTrain"
+			version="2013-05-27"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="Translation Models::Training">
+			
+			<description><![CDATA[Trains the Jobst Decoder.]]></description>
+	
+			<in name="english corpus" type="SentenceCorpus" />
+			<in name="french corpus" type="SentenceCorpus" />
+			<out name="model" type="JobstModel" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="JobstTranslate"
+			name="JobstTranslate"
+			version="2013-05-27"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="Translation Models::Translation">
+			
+			<description><![CDATA[Applies the Jobst Decoder.]]></description>
+	
+			<in name="model" type="JobstModel" />
+			<in name="french corpus" type="SentenceCorpus" />
+			<out name="english corpus" type="SentenceCorpus" />
+		</tool>
+	</toolinterface>
+</root>
