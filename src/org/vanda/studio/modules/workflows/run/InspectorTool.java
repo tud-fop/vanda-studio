@@ -47,9 +47,10 @@ public class InspectorTool implements SemanticsToolFactory {
 			inspector = new JEditorPane("text/html", "");
 			inspector.setEditable(false);
 			Font font = UIManager.getFont("Label.font");
-	        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
-	                "font-size: " + font.getSize() + "pt; }";
-	        ((HTMLDocument) inspector.getDocument()).getStyleSheet().addRule(bodyRule);
+			String bodyRule = "body { font-family: " + font.getFamily() + "; "
+					+ "font-size: " + font.getSize() + "pt; }";
+			((HTMLDocument) inspector.getDocument()).getStyleSheet().addRule(
+					bodyRule);
 			therealinspector = new JScrollPane(inspector);
 			contentPane = new JPanel(new BorderLayout());
 			contentPane.add(therealinspector, BorderLayout.CENTER);
@@ -65,12 +66,14 @@ public class InspectorTool implements SemanticsToolFactory {
 			};
 			wfe.addAction(new CheckWorkflowAction(),
 					KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
-			this.wfe.getWorkflowDecoration().getSelectionChangeObservable().addObserver(obs);
-			this.wfe.getWorkflowDecoration().getRoot().getObservable().addObserver(obs);
+			this.wfe.getWorkflowDecoration().getSelectionChangeObservable()
+					.addObserver(obs);
+			this.wfe.getWorkflowDecoration().getRoot().getObservable()
+					.addObserver(obs);
 			this.wfe.focusToolWindow(contentPane);
 			update();
 		}
-		
+
 		public void setEditor(AbstractEditorFactory editorFactory) {
 			if (editor != null) {
 				contentPane.remove(editor);
@@ -83,20 +86,21 @@ public class InspectorTool implements SemanticsToolFactory {
 			}
 			contentPane.validate();
 		}
-		
+
 		public void setInspection(String inspection) {
 			inspector.setText(inspection);
 		}
-		
-		public void setPreview(AbstractPreviewFactory previewFactory) {
-			if (preview != null) {
-				contentPane.remove(preview);
-				preview = null;
-			}
-			contentPane.remove(therealinspector);
+
+		public void setPreview(final AbstractPreviewFactory previewFactory) {
+			contentPane.removeAll();
 			if (previewFactory != null) {
 				preview = previewFactory.createPreview(wfe.getApplication());
-				contentPane.add(therealinspector, BorderLayout.NORTH);
+				JPanel panNorth = new JPanel(new BorderLayout());
+				panNorth.add(therealinspector, BorderLayout.CENTER);
+				panNorth.add(
+						previewFactory.createButtons(wfe.getApplication()),
+						BorderLayout.EAST);
+				contentPane.add(panNorth, BorderLayout.NORTH);
 				contentPane.add(preview, BorderLayout.CENTER);
 			} else
 				contentPane.add(therealinspector, BorderLayout.CENTER);
@@ -104,10 +108,12 @@ public class InspectorTool implements SemanticsToolFactory {
 		}
 
 		public void update() {
-			WorkflowSelection newws = wfe.getWorkflowDecoration().getSelection();
+			WorkflowSelection newws = wfe.getWorkflowDecoration()
+					.getSelection();
 			WorkflowSelection truews = newws;
 			if (truews == null)
-				truews = new WorkflowSelection(wfe.getWorkflowDecoration().getRoot());
+				truews = new WorkflowSelection(wfe.getWorkflowDecoration()
+						.getRoot());
 			setInspection(InspectorialVisitor.inspect(mm, truews));
 			if (newws != ws) {
 				// editor and preview keep track of changes on their own

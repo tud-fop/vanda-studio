@@ -1,6 +1,12 @@
 package org.vanda.studio.modules.workflows.inspector;
 
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 import org.vanda.fragment.model.Model;
 import org.vanda.studio.app.Application;
@@ -55,6 +61,19 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 			@Override
 			public JComponent createPreview(Application app) {
 				return app.getPreviewFactory(type).createPreview(app.findFile(value));
+			}
+
+			@Override
+			public JComponent createButtons(final Application app) {
+				JPanel pan = new JPanel(new GridLayout(3,1));
+				JButton bOpen = new JButton(new AbstractAction("edit") {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						app.getPreviewFactory(type).openEditor(app.findFile(value));
+					}
+				});
+				pan.add(bOpen);
+				return pan;
 			}
 		};
 	}

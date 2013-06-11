@@ -6,4 +6,5 @@ import org.vanda.studio.app.Application;
 
 public interface AbstractPreviewFactory {
 	JComponent createPreview(Application app);
+	JComponent createButtons(Application app);
 }
