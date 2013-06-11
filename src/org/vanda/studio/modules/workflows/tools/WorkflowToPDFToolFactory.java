@@ -46,7 +46,11 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 			int result = chooser.showSaveDialog(null);
 
 			if (result == JFileChooser.APPROVE_OPTION) {
-				File chosenFile = chooser.getSelectedFile();
+				File chosenFile;
+				if (chooser.getSelectedFile().getName().toLowerCase().endsWith(".pdf"))
+					chosenFile = chooser.getSelectedFile();
+				else
+					chosenFile = new File(chooser.getSelectedFile().getPath() + ".pdf");
 				try {
 					DrecksAdapter da = new DrecksAdapter(wfe.getWorkflowDecoration());
 					mxGraph graph = da.getGraph();
