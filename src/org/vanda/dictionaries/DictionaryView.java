@@ -424,7 +424,8 @@ public class DictionaryView extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
-				if (tableViewActive) { 
+				if (tableViewActive) {
+					adjustUI();
 					remove(tableView);
 					add(bestView, BorderLayout.CENTER);
 					setVisible(true);
