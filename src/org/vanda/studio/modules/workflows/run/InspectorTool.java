@@ -37,7 +37,6 @@ public class InspectorTool implements SemanticsToolFactory {
 		private final JPanel panNorth;
 		private final JEditorPane inspector;
 		private final JScrollPane therealinspector;
-		private JComponent buttons;
 		private JComponent editor;
 		private JComponent preview;
 		private WorkflowSelection ws;
@@ -102,7 +101,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			}
 			if (previewFactory != null) {
 				preview = previewFactory.createPreview(wfe.getApplication());
-				buttons = previewFactory.createButtons(wfe.getApplication());
+				JComponent buttons = previewFactory.createButtons(wfe.getApplication());
 				panNorth.removeAll();
 				panNorth.add(therealinspector, BorderLayout.CENTER);
 				panNorth.add(buttons, BorderLayout.EAST);
