@@ -34,8 +34,10 @@ public class InspectorTool implements SemanticsToolFactory {
 		private final WorkflowEditor wfe;
 		private final Model mm;
 		private final JPanel contentPane;
+		private final JPanel panNorth;
 		private final JEditorPane inspector;
 		private final JScrollPane therealinspector;
+		private JComponent buttons;
 		private JComponent editor;
 		private JComponent preview;
 		private WorkflowSelection ws;
@@ -56,6 +58,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			contentPane.add(therealinspector, BorderLayout.CENTER);
 			contentPane.setPreferredSize(new Dimension(800, 300));
 			contentPane.setName("Inspector");
+			panNorth = new JPanel(new BorderLayout());
 			editor = null;
 			this.wfe.addToolWindow(contentPane, WindowSystem.SOUTH);
 			Observer<Object> obs = new Observer<Object>() {
@@ -92,14 +95,17 @@ public class InspectorTool implements SemanticsToolFactory {
 		}
 
 		public void setPreview(final AbstractPreviewFactory previewFactory) {
-			contentPane.removeAll();
+			contentPane.remove(panNorth);
+			if (preview != null){
+				contentPane.remove(preview);
+				preview = null;
+			}
 			if (previewFactory != null) {
 				preview = previewFactory.createPreview(wfe.getApplication());
-				JPanel panNorth = new JPanel(new BorderLayout());
+				buttons = previewFactory.createButtons(wfe.getApplication());
+				panNorth.removeAll();
 				panNorth.add(therealinspector, BorderLayout.CENTER);
-				panNorth.add(
-						previewFactory.createButtons(wfe.getApplication()),
-						BorderLayout.EAST);
+				panNorth.add(buttons, BorderLayout.EAST);
 				contentPane.add(panNorth, BorderLayout.NORTH);
 				contentPane.add(preview, BorderLayout.CENTER);
 			} else
