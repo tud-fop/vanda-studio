@@ -120,10 +120,14 @@ public class DataSourceModule implements Module {
 		public void invoke() {
 			Path p1 = (new File(PROPERTIES_FILE)).toPath();
 			Date d = new Date();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
-			Path p2 = (new File(PROPERTIES_FILE + "." + sdf.format(d))).toPath();
+			Path p2 = (new File(PROPERTIES_FILE + ".backup")).toPath();
 			try {
 				Files.move(p1, p2, StandardCopyOption.REPLACE_EXISTING);
+			} catch (Exception e) {
+				app.sendMessage(new ExceptionMessage(e));
+			}
+			
+			try {
 				st.store(rds, PROPERTIES_FILE);
 			} catch (Exception e) {
 				app.sendMessage(new ExceptionMessage(e));
