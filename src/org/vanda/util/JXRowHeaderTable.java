@@ -1,5 +1,7 @@
 package org.vanda.util;
 
+import javax.swing.UIManager;
+
 import org.jdesktop.swingx.JXTable;
 
 @SuppressWarnings("serial")
@@ -12,7 +14,7 @@ public class JXRowHeaderTable extends JXTable {
 		jl.packAll();
 		jl.setBackground(jl.getTableHeader().getBackground());
 		jl.setForeground(jl.getTableHeader().getForeground());
-		jl.setBorder(jl.getTableHeader().getBorder());
+        jl.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 		jl.setSortable(false);
 		return jl;
 	}
