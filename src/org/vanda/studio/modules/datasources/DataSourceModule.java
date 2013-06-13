@@ -119,7 +119,6 @@ public class DataSourceModule implements Module {
 		@Override
 		public void invoke() {
 			Path p1 = (new File(PROPERTIES_FILE)).toPath();
-			Date d = new Date();
 			Path p2 = (new File(PROPERTIES_FILE + ".backup")).toPath();
 			try {
 				Files.move(p1, p2, StandardCopyOption.REPLACE_EXISTING);
