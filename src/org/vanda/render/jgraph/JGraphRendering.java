@@ -209,15 +209,6 @@ public class JGraphRendering {
 			mxCell port = container.visualization;
 			port.setStyle("outport");
 			port.setVertex(true);
-			// mxICell parent = port.getParent();
-			// port.setParent(null);
-			// parent.remove(port);
-			// g.beginUpdate();
-			// try {
-			// g.getGraph().addCell(port, parent);
-			// } finally {
-			// g.endUpdate();
-			// }
 		}
 	}
 

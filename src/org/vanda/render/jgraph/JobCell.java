@@ -12,8 +12,7 @@ import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.view.mxGraph;
 
 public class JobCell extends Cell {
-	protected final String label;
-
+	protected String label;
 	// final LayoutManager layoutManager;
 
 	public JobCell(final Graph graph, Renderer r, String label, double x,
@@ -31,7 +30,6 @@ public class JobCell extends Cell {
 	@Override
 	public String getLabel() {
 		return label;
-
 	}
 
 	@Override
@@ -85,6 +83,14 @@ public class JobCell extends Cell {
 		getObservable().notify(new PropertyChangedEvent<Cell>(this));
 	}
 
+	public void setLabel(String label) {
+		if (label != null) 
+			this.label = label;
+		else 
+			this.label = "";
+		getObservable().notify(new PropertyChangedEvent<Cell>(this));
+	}
+	
 	@Override
 	public void setSelection(boolean selected) {
 		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
@@ -116,5 +122,4 @@ public class JobCell extends Cell {
 	public boolean isValidDropTarget() {
 		return false;
 	}
-
 }

@@ -29,6 +29,7 @@ import org.vanda.util.Action;
 import org.vanda.util.HasActions;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
+import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.view.JobView;
 import org.vanda.view.View;
 import org.vanda.workflows.elements.Port;
@@ -135,6 +136,9 @@ public class JobAdapter {
 				jobCell.setDimensions(new double[] { job.getX(), job.getY(),
 						job.getWidth(), job.getHeight() });
 			}
+			if (jobCell.getLabel() != job.getName()) {
+				jobCell.setLabel(job.getName());
+			}
 		}
 	}
 
@@ -177,7 +181,7 @@ public class JobAdapter {
 
 	View view;
 
-	JobAdapter(Job job, Graph graph, View view, WorkflowCell wfc) {
+	public JobAdapter(Job job, Graph graph, View view, WorkflowCell wfc) {
 		this.view = view;
 		setUpCells(graph, job, wfc);
 		this.jobListener = new JobListener();
@@ -206,7 +210,14 @@ public class JobAdapter {
 
 		// register at jobView
 		this.jobViewListener = new JobViewListener();
+		view.getJobView(job).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
 
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				event.doNotify(jobViewListener);
+			}
+			
+		});
 	}
 
 	public void destroy(Graph graph) {
