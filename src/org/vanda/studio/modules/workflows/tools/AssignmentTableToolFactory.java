@@ -2,6 +2,7 @@ package org.vanda.studio.modules.workflows.tools;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
@@ -124,10 +125,10 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		private final WorkflowEditor wfe;
 		private final Map<Integer, Literal> literals;
-		private boolean isTransposed = false;
+		private boolean isTransposed = true;
 		private final JXRowHeaderTable tAssignments;
+		private final JPanel pRight, pLeft;
 		private final JScrollPane scr;
-		private final JPanel pRight;
 
 		public AssignmentTable(final WorkflowEditor wfe) {
 			super(new BorderLayout());
@@ -136,12 +137,12 @@ public class AssignmentTableToolFactory implements ToolFactory {
 					.addObserver(new DatabaseObserver(this));
 			literals = new HashMap<Integer, Literal>();
 			this.pRight = new JPanel(new BorderLayout());
+			this.pLeft = new JPanel(new BorderLayout());
 			for (Job j : wfe.getWorkflowDecoration().getRoot().getChildren())
 				j.visit(new ElementVisitor() {
 					@Override
 					public void visitTool(Tool t) {
 						// Do nothing
-
 					}
 
 					@Override
@@ -165,7 +166,29 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			buttonCorner.setToolTipText("transpose");
 			buttonCorner.setFont(buttonCorner.getFont().deriveFont(14.0f));
 			scr.setCorner(JScrollPane.UPPER_LEFT_CORNER, buttonCorner);
-			add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scr, pRight));
+			pLeft.add(scr, BorderLayout.CENTER);
+			JPanel pSouth = new JPanel(new GridLayout(1, 2));
+			pSouth.add(new JButton(new AbstractAction("add run"){
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					wfe.getDatabase().addRow();
+				}
+				
+			}));
+			pSouth.add(new JButton(new AbstractAction("delete run"){
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (isTransposed)
+						wfe.getDatabase().delRow(tAssignments.getSelectedRow());
+					else
+						wfe.getDatabase().delRow(tAssignments.getSelectedColumn());
+				}
+				
+			}));
+			pLeft.add(pSouth, BorderLayout.SOUTH);
+			add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pLeft, pRight));
 		}
 
 		private void update() {

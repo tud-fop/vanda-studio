@@ -3,6 +3,7 @@ package org.vanda.workflows.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
@@ -18,27 +19,27 @@ public final class Database {
 	private final MultiplexObserver<DatabaseEvent<Database>> observable;
 	private int update;
 	private LinkedList<DatabaseEvent<Database>> events;
-	
+
 	public Database() {
 		assignments = new ArrayList<HashMap<Integer, String>>();
 		cursor = 0;
 		observable = new MultiplexObserver<DatabaseEvent<Database>>();
 		events = new LinkedList<DatabaseEvent<Database>>();
 	}
-	
+
 	public void beginUpdate() {
 		update++;
 	}
-	
+
 	public void endUpdate() {
 		update--;
 		if (update == 0) {
 			LinkedList<DatabaseEvent<Database>> ev = events;
 			events = new LinkedList<DatabaseEvent<Database>>();
-			Util.notifyAll(observable, ev);			
+			Util.notifyAll(observable, ev);
 		}
 	}
-	
+
 	public String get(Integer key) {
 		String result = null;
 		if (cursor < assignments.size())
@@ -47,23 +48,51 @@ public final class Database {
 			result = "";
 		return result;
 	}
-	
+
 	public HashMap<Integer, String> getRow(int location) {
 		return assignments.get(location);
 	}
-	
+
+	public void addRow() {
+		beginUpdate();
+		try {
+			HashMap<Integer, String> row = new HashMap<Integer, String>();
+			for (Entry<Integer, String> e : assignments.get(cursor).entrySet()) {
+				row.put(e.getKey(), e.getValue());
+				events.add(new DataChange<Database>(this, e.getKey()));
+			}
+			assignments.add(row);
+		} finally {
+			endUpdate();
+		}
+	}
+
+	public void delRow(int row) {
+		if (row > -1 && row < assignments.size()) {
+			beginUpdate();
+			try {
+				HashMap<Integer, String> theRow = assignments.get(row);
+				assignments.remove(row);
+				for (Entry<Integer, String> e : theRow.entrySet())
+					events.add(new DataChange<Database>(this, e.getKey()));		
+			} finally {
+				endUpdate();
+			}
+		}
+	}
+
 	public Observable<DatabaseEvent<Database>> getObservable() {
 		return observable;
 	}
-	
+
 	public int getSize() {
 		return assignments.size();
 	}
-	
+
 	public boolean hasNext() {
 		return cursor < assignments.size();
 	}
-	
+
 	public boolean hasPrev() {
 		return cursor > 0;
 	}
@@ -91,7 +120,7 @@ public final class Database {
 			}
 		}
 	}
-	
+
 	public void prev() {
 		if (cursor > 0) {
 			beginUpdate();
@@ -103,7 +132,7 @@ public final class Database {
 			}
 		}
 	}
-	
+
 	public void put(Integer key, String value) {
 		HashMap<Integer, String> m;
 		beginUpdate();
@@ -128,5 +157,5 @@ public final class Database {
 			endUpdate();
 		}
 	}
-	
+
 }
