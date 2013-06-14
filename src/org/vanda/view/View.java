@@ -251,9 +251,9 @@ public class View {
 
 	public List<AbstractView> getCurrentSelection() {
 		List<AbstractView> currentSelection = new ArrayList<AbstractView>();
-		addSelected(jobs, currentSelection);
 		addSelected(connections, currentSelection);
 		addSelected(variables, currentSelection);
+		addSelected(jobs, currentSelection);
 		if (workflowView.isSelected())
 			currentSelection.add(workflowView);
 		return currentSelection;
@@ -269,9 +269,9 @@ public class View {
 
 	public List<AbstractView> getMarked() {
 		List<AbstractView> markedViews = new ArrayList<AbstractView>();
-		addMarked(jobs, markedViews);
 		addMarked(connections, markedViews);
-		addMarked(variables, markedViews);
+		addMarked(variables, markedViews);		
+		addMarked(jobs, markedViews);
 		return markedViews;
 	}
 

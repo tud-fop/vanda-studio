@@ -352,7 +352,7 @@ public final class Graph {
 	private void updateSelection(mxIGraphModel gmodel, Object[] cells) {
 		selectionUpdate++;
 		clearSelection((Cell) ((mxCell) graph.getDefaultParent()).getValue());
-
+		
 		// set selection in View
 		for (Object o : cells) {
 			Cell cell = (Cell) gmodel.getValue(o);
@@ -362,7 +362,13 @@ public final class Graph {
 	}
 
 	public void removeCell(Cell cell) {
-		getGraph().removeCells(new Object[] { cell.getVisualization() });
+		beginUpdate();
+		try {
+			Object [] cells = new Object[] { cell.getVisualization(), graph.getChildCells(cell.getVisualization()) };
+			graph.removeCells(cells);
+		} finally {
+			endUpdate();
+		}
 
 	}
 

@@ -26,8 +26,12 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 	public static AbstractPreviewFactory createPreviewFactory(Model mm,
 			View view) {
 		PreviewesqueVisitor visitor = new PreviewesqueVisitor(mm);
-		for (AbstractView av : view.getCurrentSelection())
-			av.visit((SelectionVisitor) visitor, view);
+		// Show Workflow-Preview in case of multi-selection
+		if (view.getCurrentSelection().size() > 1)
+			view.getWorkflowView().visit(visitor, view);
+		else
+			for (AbstractView av : view.getCurrentSelection())
+				av.visit(visitor, view);
 		return visitor.getPreviewFactory();
 	}
 

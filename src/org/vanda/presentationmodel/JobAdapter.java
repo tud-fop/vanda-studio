@@ -224,6 +224,8 @@ public class JobAdapter {
 		if (jobCell != null) {
 			graph.removeCell(jobCell);
 		}
+		for (LocationAdapter la : locations.values()) 
+			la.destroy();
 	}
 
 	public List<Cell> getCells() {

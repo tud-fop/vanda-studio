@@ -186,12 +186,14 @@ public final class InspectorialVisitor implements SelectionVisitor {
 	
 	public static String inspect(Model mm, View view) {
 		InspectorialVisitor visitor = new InspectorialVisitor(mm);
-		if (view.getCurrentSelection().size() > 0) {
+		// size == 1, to avoid arbitrary inspection in case of multi selection
+		if (view.getCurrentSelection().size() == 1) {
 			for (AbstractView av : view.getCurrentSelection())
 				av.visit(visitor, view);
 			return visitor.getInspection();
 		} else {
-			return "";
+			view.getWorkflowView().visit(visitor, view);
+			return visitor.getInspection();
 		}
 	}
 

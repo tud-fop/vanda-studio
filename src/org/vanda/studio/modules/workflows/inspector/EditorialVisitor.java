@@ -86,7 +86,11 @@ public final class EditorialVisitor implements SelectionVisitor {
 	
 	public static AbstractEditorFactory createAbstractFactory(ElementEditorFactories eefs, View view) {
 		EditorialVisitor visitor = new EditorialVisitor(eefs, view);
-		for (AbstractView av : view.getCurrentSelection()) 
+		// Show Workflow-Preview in case of multi-selection
+		if (view.getCurrentSelection().size() > 1)
+			view.getWorkflowView().visit(visitor, view);
+		else 
+			for (AbstractView av : view.getCurrentSelection()) 
 			av.visit(visitor, view);
 		return visitor.getEditorFactory();
 	}

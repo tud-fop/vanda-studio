@@ -99,9 +99,8 @@ public class LocationAdapter {
 
 	View view;
 
-	public LocationAdapter(Graph g, View view,
-			LayoutManager layoutManager, JobCell jobCell, Port port,
-			Location location) {
+	public LocationAdapter(Graph g, View view, LayoutManager layoutManager,
+			JobCell jobCell, Port port, Location location) {
 		locationCell = new LocationCell(g, layoutManager, jobCell);
 
 		this.locationCellListener = new LocationCellListener();
@@ -133,5 +132,15 @@ public class LocationAdapter {
 
 	public void updateLocation(Job job) {
 		variable = job.bindings.get(port);
+	}
+
+	public void destroy() {
+		view.getLocationView(variable).setSelected(false);
+		// FIXME due to an unknown reason the LocationAdapter is not garbage
+		// collected but we want the reference-counts to the following objects
+		// to be 0
+		locationCell = null;
+		port = null;
+		variable = null;
 	}
 }
