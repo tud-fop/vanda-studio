@@ -14,7 +14,6 @@ public class JXRowHeaderTable extends JXTable {
 		jl.packAll();
 		jl.setBackground(jl.getTableHeader().getBackground());
 		jl.setForeground(jl.getTableHeader().getForeground());
-        jl.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 		jl.setSortable(false);
 		return jl;
 	}
@@ -24,5 +23,5 @@ public class JXRowHeaderTable extends JXTable {
 		for (int i = 0; i < rh.length; i++)
 			this.rh[i][0] = rh[i];
 	}
-
+	
 }
