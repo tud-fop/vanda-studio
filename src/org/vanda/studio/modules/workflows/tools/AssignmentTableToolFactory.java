@@ -1,7 +1,6 @@
 package org.vanda.studio.modules.workflows.tools;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -9,17 +8,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
-import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
 
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
@@ -27,6 +26,7 @@ import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.JXRowHeaderTable;
 import org.vanda.util.Observer;
+import org.vanda.workflows.data.Database;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
@@ -68,73 +68,35 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		@Override
 		public void notify(Object event) {
-			lt.update();
-		}
-
-	}
-
-	private class AssignmentCellEditor extends AbstractCellEditor implements
-			TableCellEditor {
-
-		private final WorkflowEditor wfe;
-		private final Map<Integer, Literal> literals;
-		private final Integer[] keys;
-		private final boolean isTransposed;
-		private final JPanel panel;
-		private Integer key, run;
-
-		public AssignmentCellEditor(WorkflowEditor wfe,
-				Map<Integer, Literal> ls, Integer[] keys, boolean transposed,
-				JPanel pan) {
-			this.wfe = wfe;
-			this.literals = ls;
-			this.keys = keys;
-			this.isTransposed = transposed;
-			this.panel = pan;
-		}
-
-		@Override
-		public Object getCellEditorValue() {
-			return wfe.getDatabase().getRow(run).get(key);
-		}
-
-		@Override
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
-			if (isTransposed) {
-				key = keys[column];
-				run = row;
-			} else {
-				key = keys[row];
-				run = column;
-			}
-			panel.removeAll();
-			if (literals.get(key) != null)
-				panel.add(eefs.literalFactories.createEditor(wfe.getDatabase(),
-						wfe.getWorkflowDecoration().getRoot(), literals.get(key)),
-						BorderLayout.CENTER);
-			else
-				panel.add(new JLabel("There exists no such literal."));
-			panel.revalidate();
-			return new JLabel(value.toString());
+			lt.update(false);
 		}
 
 	}
 
 	private class AssignmentTable extends JPanel {
 
-		private final WorkflowEditor wfe;
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private final Database db;
 		private final Map<Integer, Literal> literals;
 		private boolean isTransposed = true;
 		private final JXRowHeaderTable tAssignments;
 		private final JPanel pRight, pLeft;
 		private final JScrollPane scr;
+		private Integer[] keys;
 
 		public AssignmentTable(final WorkflowEditor wfe) {
 			super(new BorderLayout());
-			this.wfe = wfe;
-			wfe.getDatabase().getObservable()
-					.addObserver(new DatabaseObserver(this));
+			db = wfe.getDatabase();
+			db.getObservable().addObserver(new DatabaseObserver(this));
+			keys = db
+					.getRow(0)
+					.keySet()
+					.toArray(
+							new Integer[wfe.getDatabase().getRow(0).keySet()
+									.size()]);
 			literals = new HashMap<Integer, Literal>();
 			this.pRight = new JPanel(new BorderLayout());
 			this.pLeft = new JPanel(new BorderLayout());
@@ -150,57 +112,106 @@ public class AssignmentTableToolFactory implements ToolFactory {
 						literals.put(l.getKey(), l);
 					}
 				});
+
 			tAssignments = new JXRowHeaderTable();
-			tAssignments.packAll();
-			tAssignments.setSortable(false);
 			scr = new JScrollPane(tAssignments);
-			update();
+			update(false);
+			tAssignments.setSortable(false);
+			tAssignments.setEditable(false);
+			tAssignments.setCellSelectionEnabled(true);
+			tAssignments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			ListSelectionListener lsl = new ListSelectionListener() {
+
+				@Override
+				public void valueChanged(ListSelectionEvent arg0) {
+					pRight.removeAll();
+					if (tAssignments.getSelectedColumn() == -1
+							|| tAssignments.getSelectedRow() == -1) {
+						pRight.add(new JLabel("Select a cell."));
+						return;
+					}
+					Integer key, run;
+					if (isTransposed) {
+						key = keys[tAssignments.getSelectedColumn()];
+						run = tAssignments.getSelectedRow();
+					} else {
+						key = keys[tAssignments.getSelectedRow()];
+						run = tAssignments.getSelectedColumn();
+					}
+
+					if (literals.get(key) != null)
+						pRight.add(eefs.literalFactories.createEditor(db, wfe
+								.getWorkflowDecoration().getRoot(), literals
+								.get(key)), BorderLayout.CENTER);
+					else
+						pRight.add(new JLabel("There exists no such literal."));
+					revalidate();
+
+				}
+			};
+			tAssignments.getSelectionModel().addListSelectionListener(lsl);
+			tAssignments.getColumnModel().getSelectionModel()
+					.addListSelectionListener(lsl);
+
 			JButton buttonCorner = new JButton(new AbstractAction("\u2922") {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					isTransposed = !isTransposed;
-					update();
+					update(true);
 					scr.setRowHeaderView(tAssignments.getRowHeader());
 				}
 			});
 			buttonCorner.setToolTipText("transpose");
 			buttonCorner.setFont(buttonCorner.getFont().deriveFont(14.0f));
+
+			scr.setRowHeaderView(tAssignments.getRowHeader());
 			scr.setCorner(JScrollPane.UPPER_LEFT_CORNER, buttonCorner);
 			pLeft.add(scr, BorderLayout.CENTER);
+
 			JPanel pSouth = new JPanel(new GridLayout(1, 2));
-			pSouth.add(new JButton(new AbstractAction("add run"){
+			pSouth.add(new JButton(new AbstractAction("add run") {
+
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					wfe.getDatabase().addRow();
 				}
-				
+
 			}));
-			pSouth.add(new JButton(new AbstractAction("delete run"){
+			pSouth.add(new JButton(new AbstractAction("delete run") {
+
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (isTransposed)
-						wfe.getDatabase().delRow(tAssignments.getSelectedRow());
+						db.delRow(tAssignments.getSelectedRow());
 					else
-						wfe.getDatabase().delRow(tAssignments.getSelectedColumn());
+						db.delRow(tAssignments.getSelectedColumn());
+					tAssignments.clearSelection();
 				}
-				
+
 			}));
 			pLeft.add(pSouth, BorderLayout.SOUTH);
+
 			add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pLeft, pRight));
 		}
 
-		private void update() {
-			Integer[] keys = wfe
-					.getDatabase()
-					.getRow(0)
-					.keySet()
-					.toArray(
-							new Integer[wfe.getDatabase().getRow(0).keySet()
-									.size()]);
-			String[] columnNames = new String[wfe.getDatabase().getSize()];
-			for (int i = 0; i < wfe.getDatabase().getSize(); i++)
+		private void update(boolean hasBeenTransposed) {
+			String[] columnNames = new String[db.getSize()];
+			for (int i = 0; i < db.getSize(); i++)
 				columnNames[i] = "Run " + i;
 
 			String[] rowNames = new String[keys.length];
@@ -212,22 +223,36 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 			String[][] data = new String[keys.length][columnNames.length];
 			for (int i = 0; i < keys.length; i++)
-				for (int j = 0; j < wfe.getDatabase().getSize(); j++)
-					data[i][j] = wfe.getDatabase().getRow(j).get(keys[i]);
+				for (int j = 0; j < db.getSize(); j++)
+					data[i][j] = db.getRow(j).get(keys[i]);
 
-			tAssignments.setDefaultEditor(Object.class, new AssignmentCellEditor(wfe,
-					literals, keys, isTransposed, pRight));
+			int selectedRow = tAssignments.getSelectedRow();
+			int selectedColumn = tAssignments.getSelectedColumn();
 
 			if (isTransposed) {
-				tAssignments.setModel(new DefaultTableModel(transpose(data), rowNames));
+				((DefaultTableModel) tAssignments.getModel()).setDataVector(
+						transpose(data), rowNames);
 				tAssignments.setRowHeaderData(columnNames);
 			} else {
-				tAssignments.setModel(new DefaultTableModel(data, columnNames));
+				((DefaultTableModel) tAssignments.getModel()).setDataVector(
+						data, columnNames);
 				tAssignments.setRowHeaderData(rowNames);
 			}
 
+			if (hasBeenTransposed) {
+				tAssignments.getSelectionModel().setSelectionInterval(
+						selectedColumn, selectedColumn);
+				tAssignments.getColumnModel().getSelectionModel()
+						.setSelectionInterval(selectedRow, selectedRow);
+				scr.setRowHeaderView(tAssignments.getRowHeader());
+			} else {
+				tAssignments.getSelectionModel().setSelectionInterval(
+						selectedRow, selectedRow);
+				tAssignments.getColumnModel().getSelectionModel()
+						.setSelectionInterval(selectedColumn, selectedColumn);
+			}
+
 			tAssignments.packAll();
-			scr.setRowHeaderView(tAssignments.getRowHeader());
 		}
 
 		private String[][] transpose(String[][] mx) {
