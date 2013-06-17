@@ -61,13 +61,12 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 			dsList = new ArrayList<String>(sources.keySet());
 			dsList.add("");
 			Collections.sort(dsList);
+			
+			prefix = "";
 
-			selector = new JPanel();
-			selector.setLayout(new BorderLayout());
+			selector = new JPanel(new GridBagLayout());
+
 			jDSList = new JComboBox(dsList.toArray());
-			selector.add(jDSList, BorderLayout.NORTH);
-			component = new JPanel();
-			selector.add(component, BorderLayout.CENTER);
 			jDSList.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -77,8 +76,17 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 					}
 				}
 			});
-			prefix = "";
-			// jDSList.setSelectedIndex(0);
+			
+			component = new JPanel(new BorderLayout());
+			
+			Insets i = new Insets(2, 2, 2, 2);
+			int anchor = GridBagConstraints.ABOVE_BASELINE_LEADING;
+
+			selector.add(jDSList, new GridBagConstraints(0, 0, 3, 1, 1, 0,
+					anchor, GridBagConstraints.BOTH, i, 1, 1));
+			
+			selector.add(component, new GridBagConstraints(0, 2, 3, 1, 1, 1,
+					anchor, GridBagConstraints.BOTH, i, 1, 1));
 		}
 
 		@Override
@@ -110,15 +118,14 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 			if (!prefix.equals(prefix1)) {
 				prefix = prefix1;
 				jDSList.setSelectedItem(prefix);
-				selector.remove(component);
+				component.removeAll();
 				if (elementSelector != null)
 					elementSelector.setElement(null);
 				DataSource ds = sources.get(prefix);
 				if (ds != null) {
 					elementSelector = ds.createSelector();
 					elementSelector.setElement(element);
-					component = elementSelector.getComponent();
-					selector.add(component, BorderLayout.CENTER);
+					component.add(elementSelector.getComponent(), BorderLayout.CENTER);
 				} else
 					elementSelector = null;
 				selector.validate();
@@ -196,6 +203,11 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 				}
 			});
 			JButton bNew = new JButton(new AbstractAction("new") {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 7064196111301292429L;
+
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					int num = 1;
@@ -216,6 +228,11 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 				}
 			});
 			JButton bRemove = new JButton(new AbstractAction("remove") {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 2452009339950565899L;
+
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					umount((String) lDataSources.getSelectedValue());
@@ -223,12 +240,22 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 				}
 			});
 			JButton bSave = new JButton(new AbstractAction("save") {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = -6511909543313052584L;
+
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					writeChange();
 				}
 			});
 			JButton bCancel = new JButton(new AbstractAction("cancel") {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 6801109424796554027L;
+
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					notifyMe();
@@ -238,39 +265,23 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 			Insets i = new Insets(2, 2, 2, 2);
 			int anchor = GridBagConstraints.ABOVE_BASELINE_LEADING;
-			GridBagConstraints gbc;
 
-			gbc = new GridBagConstraints(0, 0, 3, 2, 6, 4, anchor,
-					GridBagConstraints.BOTH, i, 1, 1);
-			editor.add(lDataSources, gbc);
-
-			gbc = new GridBagConstraints(0, 2, 1, 1, 3, 0, anchor,
-					GridBagConstraints.BOTH, i, 1, 1);
-			editor.add(bNew, gbc);
-
-			gbc = new GridBagConstraints(2, 2, 1, 1, 3, 0, anchor,
-					GridBagConstraints.BOTH, i, 1, 1);
-			editor.add(bRemove, gbc);
-
-			gbc = new GridBagConstraints(3, 0, 1, 1, 3, 0, anchor,
-					GridBagConstraints.BOTH, i, 1, 1);
-			editor.add(lId, gbc);
-
-			gbc = new GridBagConstraints(4, 0, 1, 1, 3, 0, anchor,
-					GridBagConstraints.BOTH, i, 1, 1);
-			editor.add(aId, gbc);
-
-			gbc = new GridBagConstraints(3, 1, 2, 1, 6, 3, anchor,
-					GridBagConstraints.BOTH, i, 1, 1);
-			editor.add(innerEditorPanel, gbc);
-
-			gbc = new GridBagConstraints(3, 2, 1, 1, 3, 0, anchor,
-					GridBagConstraints.BOTH, i, 1, 1);
-			editor.add(bSave, gbc);
-
-			gbc = new GridBagConstraints(4, 2, 1, 1, 3, 0, anchor,
-					GridBagConstraints.BOTH, i, 1, 1);
-			editor.add(bCancel, gbc);
+			editor.add(lDataSources, new GridBagConstraints(0, 0, 3, 2, 6, 4,
+					anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(bNew, new GridBagConstraints(0, 2, 1, 1, 3, 0, anchor,
+					GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(bRemove, new GridBagConstraints(2, 2, 1, 1, 3, 0,
+					anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(lId, new GridBagConstraints(3, 0, 1, 1, 3, 0, anchor,
+					GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(aId, new GridBagConstraints(4, 0, 1, 1, 3, 0, anchor,
+					GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(innerEditorPanel, new GridBagConstraints(3, 1, 2, 1, 6,
+					3, anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(bSave, new GridBagConstraints(3, 2, 1, 1, 3, 0, anchor,
+					GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(bCancel, new GridBagConstraints(4, 2, 1, 1, 3, 0,
+					anchor, GridBagConstraints.BOTH, i, 1, 1));
 		}
 
 		@Override
