@@ -48,6 +48,10 @@ public final class Database {
 			result = "";
 		return result;
 	}
+	
+	public int getCursor() {
+		return cursor;
+	}
 
 	public HashMap<Integer, String> getRow(int location) {
 		return assignments.get(location);
