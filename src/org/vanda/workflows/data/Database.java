@@ -48,9 +48,21 @@ public final class Database {
 			result = "";
 		return result;
 	}
-	
+
 	public int getCursor() {
 		return cursor;
+	}
+
+	public void setCursor(int c) {
+		if (cursor != c) {
+			try {
+				beginUpdate();
+				cursor = c;
+				events.add(new CursorChange<Database>(this));
+			} finally {
+				endUpdate();
+			}
+		}
 	}
 
 	public HashMap<Integer, String> getRow(int location) {
@@ -78,7 +90,7 @@ public final class Database {
 				HashMap<Integer, String> theRow = assignments.get(row);
 				assignments.remove(row);
 				for (Entry<Integer, String> e : theRow.entrySet())
-					events.add(new DataChange<Database>(this, e.getKey()));		
+					events.add(new DataChange<Database>(this, e.getKey()));
 			} finally {
 				endUpdate();
 			}
