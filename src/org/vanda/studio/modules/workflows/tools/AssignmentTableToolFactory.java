@@ -28,6 +28,7 @@ import org.vanda.util.JXRowHeaderTable;
 import org.vanda.util.Observer;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.elements.ElementVisitor;
+import org.vanda.workflows.elements.Elements.ElementEvent;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
@@ -110,6 +111,12 @@ public class AssignmentTableToolFactory implements ToolFactory {
 					@Override
 					public void visitLiteral(Literal l) {
 						literals.put(l.getKey(), l);
+						l.getObservable().addObserver(new Observer<ElementEvent<Literal>>(){
+							@Override
+							public void notify(ElementEvent<Literal> event) {
+								update(false);
+							}
+						});
 					}
 				});
 
