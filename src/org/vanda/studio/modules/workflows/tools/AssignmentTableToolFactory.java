@@ -138,7 +138,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 						key = keys[tAssignments.getSelectedRow()];
 						run = tAssignments.getSelectedColumn();
 					}
-
+					db.setCursor(run);
 					if (literals.get(key) != null)
 						pRight.add(eefs.literalFactories.createEditor(db, wfe
 								.getWorkflowDecoration().getRoot(), literals
@@ -244,13 +244,14 @@ public class AssignmentTableToolFactory implements ToolFactory {
 						selectedColumn, selectedColumn);
 				tAssignments.getColumnModel().getSelectionModel()
 						.setSelectionInterval(selectedRow, selectedRow);
-				scr.setRowHeaderView(tAssignments.getRowHeader());
 			} else {
 				tAssignments.getSelectionModel().setSelectionInterval(
 						selectedRow, selectedRow);
 				tAssignments.getColumnModel().getSelectionModel()
 						.setSelectionInterval(selectedColumn, selectedColumn);
 			}
+			
+			scr.setRowHeaderView(tAssignments.getRowHeader());
 
 			tAssignments.packAll();
 		}
