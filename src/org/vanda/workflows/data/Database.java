@@ -83,14 +83,18 @@ public final class Database {
 		}
 	}
 
-	public void delRow(int row) {
-		if (row > -1 && row < assignments.size()) {
+	public void delRow() {
+		if (getSize() == 1)
+			return;
+		if (cursor < assignments.size()) {
 			beginUpdate();
 			try {
-				HashMap<Integer, String> theRow = assignments.get(row);
-				assignments.remove(row);
+				HashMap<Integer, String> theRow = assignments.get(cursor);
+				assignments.remove(cursor);
 				for (Entry<Integer, String> e : theRow.entrySet())
 					events.add(new DataChange<Database>(this, e.getKey()));
+				cursor = 0;
+				events.add(new CursorChange<Database>(this));
 			} finally {
 				endUpdate();
 			}

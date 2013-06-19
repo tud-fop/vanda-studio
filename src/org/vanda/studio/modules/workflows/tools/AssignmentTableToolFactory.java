@@ -111,12 +111,14 @@ public class AssignmentTableToolFactory implements ToolFactory {
 					@Override
 					public void visitLiteral(Literal l) {
 						literals.put(l.getKey(), l);
-						l.getObservable().addObserver(new Observer<ElementEvent<Literal>>(){
-							@Override
-							public void notify(ElementEvent<Literal> event) {
-								update(false);
-							}
-						});
+						l.getObservable().addObserver(
+								new Observer<ElementEvent<Literal>>() {
+									@Override
+									public void notify(
+											ElementEvent<Literal> event) {
+										update(false);
+									}
+								});
 					}
 				});
 
@@ -203,11 +205,8 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (isTransposed)
-						db.delRow(tAssignments.getSelectedRow());
-					else
-						db.delRow(tAssignments.getSelectedColumn());
 					tAssignments.clearSelection();
+					db.delRow();
 				}
 
 			}));
@@ -235,7 +234,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 			int selectedRow = tAssignments.getSelectedRow();
 			int selectedColumn = tAssignments.getSelectedColumn();
-
+			
 			if (isTransposed) {
 				((DefaultTableModel) tAssignments.getModel()).setDataVector(
 						transpose(data), rowNames);
@@ -257,7 +256,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 				tAssignments.getColumnModel().getSelectionModel()
 						.setSelectionInterval(selectedColumn, selectedColumn);
 			}
-			
+
 			scr.setRowHeaderView(tAssignments.getRowHeader());
 
 			tAssignments.packAll();
