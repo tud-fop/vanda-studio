@@ -85,9 +85,9 @@ public class RunTool implements SemanticsToolFactory {
 			this.mm = mm;
 			app = wfe.getApplication();
 			this.prof = prof;
-			wfe.addAction(new GenerateAction(),
+			wfe.addAction(new GenerateAction(), "run-build",
 					KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
-			wfe.addAction(new RunAction(), "run",
+			wfe.addAction(new RunAction(), "system-run",
 					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
 
 			runs = new ArrayList<Run>();

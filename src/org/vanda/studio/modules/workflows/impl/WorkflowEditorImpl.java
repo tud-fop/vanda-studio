@@ -60,7 +60,8 @@ import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
 
-public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<MutableWorkflow> {
+public class WorkflowEditorImpl implements WorkflowEditor,
+		WorkflowListener<MutableWorkflow> {
 
 	protected final Application app;
 	protected final Database database;
@@ -69,9 +70,11 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 	protected final mxGraphOutline outline;
 	protected final DrecksAdapter renderer;
 	protected JComponent palette;
+
 	// protected final JSplitPane mainpane;
 
-	public WorkflowEditorImpl(Application app, List<ToolFactory> toolFactories, Pair<MutableWorkflow, Database> phd) {
+	public WorkflowEditorImpl(Application app, List<ToolFactory> toolFactories,
+			Pair<MutableWorkflow, Database> phd) {
 		this.app = app;
 		model = new WorkflowDecoration(phd.fst);
 		database = phd.snd;
@@ -81,19 +84,25 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 		new mxDropTargetListener(this, renderer, component);
 		component.setDragEnabled(false);
 		component.getGraphControl().addMouseListener(new EditMouseAdapter());
-		component.getGraphControl().addMouseWheelListener(new MouseZoomAdapter(app, component));
+		component.getGraphControl().addMouseWheelListener(
+				new MouseZoomAdapter(app, component));
 		component.addKeyListener(new DelKeyListener());
 		component.setPanning(true);
 		component.getPageFormat().setOrientation(PageFormat.LANDSCAPE);
 		component.setPageVisible(true);
-		component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		component
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		component
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		component.zoomActual();
 		SwingUtilities.invokeLater(new Runnable() {
 
 			@Override
 			public void run() {
-				component.getVerticalScrollBar().setValue((int) (component.getVerticalScrollBar().getMaximum() * 0.35));
+				component.getVerticalScrollBar()
+						.setValue(
+								(int) (component.getVerticalScrollBar()
+										.getMaximum() * 0.35));
 
 			}
 
@@ -104,13 +113,14 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 		// (component.getGraph().getDefaultParent());
 		outline = new mxGraphOutline(component);
 		outline.setPreferredSize(new Dimension(250, 250));
-//		mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component, outline);
-//		mainpane.setOneTouchExpandable(true);
-//		mainpane.setResizeWeight(0.9);
-//		mainpane.setDividerSize(6);
-//		mainpane.setBorder(null);
-//		mainpane.setName(model.getRoot().getName());
-//		mainpane.setDividerLocation(0.7);
+		// mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
+		// outline);
+		// mainpane.setOneTouchExpandable(true);
+		// mainpane.setResizeWeight(0.9);
+		// mainpane.setDividerSize(6);
+		// mainpane.setBorder(null);
+		// mainpane.setName(model.getRoot().getName());
+		// mainpane.setDividerLocation(0.7);
 		component.setName(model.getRoot().getName());
 
 		app.getUIModeObservable().addObserver(new Observer<Application>() {
@@ -126,26 +136,27 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 		for (ToolFactory tf : toolFactories)
 			tf.instantiate(this);
-		
+
 		app.getWindowSystem().focusContentWindow(component);
 		component.requestFocusInWindow();
-		
+
 		app.getWindowSystem().addAction(component, new ResetZoomAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK));
 		app.getWindowSystem().addAction(component, new CloseWorkflowAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
-		
+
 		outline.setName("Map");
 		addToolWindow(outline, WindowSystem.SOUTHEAST);
 
-		model.getRoot().getObservable().addObserver(new Observer<WorkflowEvent<MutableWorkflow>>() {
+		model.getRoot().getObservable()
+				.addObserver(new Observer<WorkflowEvent<MutableWorkflow>>() {
 
-			@Override
-			public void notify(WorkflowEvent<MutableWorkflow> event) {
-				event.doNotify(WorkflowEditorImpl.this);
-			}
+					@Override
+					public void notify(WorkflowEvent<MutableWorkflow> event) {
+						event.doNotify(WorkflowEditorImpl.this);
+					}
 
-		});
+				});
 		// send some initial event ("updated" will be sent)
 		model.getRoot().beginUpdate();
 		model.getRoot().endUpdate();
@@ -153,8 +164,9 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 	static {
 		try {
-			mxGraphTransferable.dataFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType
-					+ "; class=com.mxgraph.swing.util.mxGraphTransferable");
+			mxGraphTransferable.dataFlavor = new DataFlavor(
+					DataFlavor.javaJVMLocalObjectMimeType
+							+ "; class=com.mxgraph.swing.util.mxGraphTransferable");
 		} catch (ClassNotFoundException cnfe) {
 			// do nothing
 			System.out.println("Problem!");
@@ -216,7 +228,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 			} else if (e.getButton() == 3) {
 				// show context menu when right clicking a node or an edge
 				Object cell = component.getCellAt(e.getX(), e.getY());
-				final Object value = component.getGraph().getModel().getValue(cell);
+				final Object value = component.getGraph().getModel()
+						.getValue(cell);
 
 				PopupMenu menu = null;
 
@@ -233,7 +246,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 						}
 					};
 
-					item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+					item.setAccelerator(KeyStroke.getKeyStroke(
+							KeyEvent.VK_DELETE, 0));
 					menu.add(item);
 				}
 
@@ -247,7 +261,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 							removeSelectedCell();
 						}
 					};
-					item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+					item.setAccelerator(KeyStroke.getKeyStroke(
+							KeyEvent.VK_DELETE, 0));
 					menu.add(item);
 				}
 
@@ -297,8 +312,9 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 			double factor = e.getWheelRotation() > 0 ? 1 / 1.2 : 1.2;
 			double scale = (double) ((int) (view.getScale() * 100 * factor)) / 100;
 			view.setScale(scale);
-			Rectangle rprime = new Rectangle((int) (r.x + e.getX() * (factor - 1.0)), (int) (r.y + e.getY()
-					* (factor - 1.0)), r.width, r.height);
+			Rectangle rprime = new Rectangle((int) (r.x + e.getX()
+					* (factor - 1.0)), (int) (r.y + e.getY() * (factor - 1.0)),
+					r.width, r.height);
 			component.getGraphControl().scrollRectToVisible(rprime);
 		}
 	}
@@ -363,7 +379,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 	public void addAction(Action a, String imageName, KeyStroke keyStroke) {
 		app.getWindowSystem().addAction(component, a, imageName, keyStroke);
 	}
-	
+
 	@Override
 	public void addAction(Action a, KeyStroke keyStroke) {
 		app.getWindowSystem().addAction(component, a, keyStroke);
@@ -433,14 +449,18 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 				if (foldingEnabled && (model.isVertex(cell) || isEdge)) {
 					mxCellState state = graph.getView().getState(cell);
 
-					if (state != null && graph.getModel().getValue(cell) instanceof WorkflowAdapter) {
-						state = graph.getView().getState(graph.getModel().getParent(cell));
+					if (state != null
+							&& graph.getModel().getValue(cell) instanceof WorkflowAdapter) {
+						state = graph.getView().getState(
+								graph.getModel().getParent(cell));
 
 						ImageIcon icon = getFoldingIcon(state);
 
 						if (icon != null) {
-							if (getFoldingIconBounds(state, icon).contains(x, y)) {
-								currentCollapsibleCell = (mxICell) graph.getModel().getParent(cell);
+							if (getFoldingIconBounds(state, icon)
+									.contains(x, y)) {
+								currentCollapsibleCell = (mxICell) graph
+										.getModel().getParent(cell);
 							} else
 								currentCollapsibleCell = null;
 						}
@@ -461,7 +481,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 		 * @return Returns true if the given event is a panning event.
 		 */
 		public boolean isPanningEvent(MouseEvent event) {
-			return (event != null) && !event.isShiftDown() && event.isControlDown();
+			return (event != null) && !event.isShiftDown()
+					&& event.isControlDown();
 		}
 
 	}
@@ -487,8 +508,8 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 				// check if the fold button of its parent job was hit and adjust
 				// cursor image
-				if ((component.currentCollapsibleCell != null && component.currentCollapsibleCell.equals(m
-						.getParent(cell)))) {
+				if ((component.currentCollapsibleCell != null && component.currentCollapsibleCell
+						.equals(m.getParent(cell)))) {
 					cursor = FOLD_CURSOR;
 				}
 			}
@@ -503,17 +524,20 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 			Object cell = graphComponent.getCellAt(e.getX(), e.getY(), false);
 
 			// if an inner workflow cell was clicked
-			if (cell != null && graphComponent.getGraph().getModel().getValue(cell) instanceof WorkflowAdapter) {
+			if (cell != null
+					&& graphComponent.getGraph().getModel().getValue(cell) instanceof WorkflowAdapter) {
 
 				// if mouse is currently over the fold button of the parent job,
 				// collapse or expand parent
 				if (component.currentCollapsibleCell != null
-						&& ((mxICell) cell).getParent().equals(component.currentCollapsibleCell)) {
+						&& ((mxICell) cell).getParent().equals(
+								component.currentCollapsibleCell)) {
 
 					// if current collapsible cell is already in collapsed
 					// state,
 					// it is an element of the collapsedCells list
-					boolean collapsed = component.collapsedCells.contains(component.currentCollapsibleCell);
+					boolean collapsed = component.collapsedCells
+							.contains(component.currentCollapsibleCell);
 
 					// FIXME? for some reason, getGraph().foldCells(...)
 					// does not update the isCollapsed state of the changed cell
@@ -527,9 +551,11 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 
 					// remove expanded cell from collapsedCells list
 					if (collapsed) {
-						component.collapsedCells.remove(component.currentCollapsibleCell);
+						component.collapsedCells
+								.remove(component.currentCollapsibleCell);
 					} else {
-						component.collapsedCells.add(component.currentCollapsibleCell);
+						component.collapsedCells
+								.add(component.currentCollapsibleCell);
 					}
 				}
 

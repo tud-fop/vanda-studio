@@ -66,7 +66,7 @@ public class InspectorTool implements SemanticsToolFactory {
 					update();
 				}
 			};
-			wfe.addAction(new CheckWorkflowAction(),
+			wfe.addAction(new CheckWorkflowAction(), "document-preview",
 					KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
 			this.wfe.getWorkflowDecoration().getSelectionChangeObservable()
 					.addObserver(obs);
@@ -95,13 +95,14 @@ public class InspectorTool implements SemanticsToolFactory {
 
 		public void setPreview(final AbstractPreviewFactory previewFactory) {
 			contentPane.remove(panNorth);
-			if (preview != null){
+			if (preview != null) {
 				contentPane.remove(preview);
 				preview = null;
 			}
 			if (previewFactory != null) {
 				preview = previewFactory.createPreview(wfe.getApplication());
-				JComponent buttons = previewFactory.createButtons(wfe.getApplication());
+				JComponent buttons = previewFactory.createButtons(wfe
+						.getApplication());
 				panNorth.removeAll();
 				panNorth.add(therealinspector, BorderLayout.CENTER);
 				panNorth.add(buttons, BorderLayout.EAST);

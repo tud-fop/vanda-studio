@@ -282,7 +282,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe) {
 		Action a = new OpenAssignmentTableAction(wfe);
-		wfe.addAction(a, "table",
+		wfe.addAction(a, "application-vnd.sun.xml.calc",
 				KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_MASK));
 		return a;
 	}
