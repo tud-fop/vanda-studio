@@ -110,8 +110,10 @@ public class WorkflowModule implements Module {
 			app.getWindowSystem()
 					.addAction(null, new OpenManagerAction(), null);
 			app.getWindowSystem().addAction(null, new OpenWorkflowAction(),
+					"document-open",
 					KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
 			app.getWindowSystem().addAction(null, new NewWorkflowAction(),
+					"document-new",
 					KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
 		}
 
@@ -125,7 +127,8 @@ public class WorkflowModule implements Module {
 			public void invoke() {
 				MutableWorkflow mwf = new MutableWorkflow("Workflow");
 				Database d = new Database();
-				new WorkflowEditorImpl(app, toolFactories, new Pair<MutableWorkflow, Database>(mwf, d));
+				new WorkflowEditorImpl(app, toolFactories,
+						new Pair<MutableWorkflow, Database>(mwf, d));
 				// something will hold a reference to it since it will be in the
 				// GUI
 			}
