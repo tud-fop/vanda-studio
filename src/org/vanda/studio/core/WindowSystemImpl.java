@@ -205,14 +205,13 @@ public class WindowSystemImpl implements WindowSystem {
 					}
 				}
 				if (iconToolBars.get(c) != null) {
-					mainWindow.getContentPane().remove(iconToolBar);
-					iconToolBar = iconToolBars.get(c);
-					mainWindow.getContentPane().add(iconToolBar,
-							BorderLayout.NORTH);
+					iconToolBar.removeAll();
+					iconToolBar.add(iconToolBars.get(null));
+					if (c != null)
+						iconToolBar.add(iconToolBars.get(c));
 				}
 				menuBar.revalidate();
 				menuBar.repaint();
-				mainWindow.revalidate();
 				mainPane.removeAll();
 				mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
 				List<JComponent> tcs = windowTools.get(null);
@@ -276,6 +275,9 @@ public class WindowSystemImpl implements WindowSystem {
 					ComponentOrientation.LEFT_TO_RIGHT);
 		}
 		iconToolBars.get(c).add(b);
+		if (c == null)
+			for (ChangeListener cl : contentPane.getChangeListeners())
+				cl.stateChanged(new ChangeEvent(contentPane));
 		addAction(c, a, keyStroke);
 	}
 
