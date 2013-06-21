@@ -45,13 +45,13 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		@Override
 		public String getName() {
-			return "Open Literal Table...";
+			return "Open assignment table...";
 		}
 
 		@Override
 		public void invoke() {
 			AssignmentTable lt = new AssignmentTable(wfe);
-			JFrame f = new JFrame("Literal Table");
+			JFrame f = new JFrame("Assignment table");
 			f.setContentPane(lt);
 			f.pack();
 			f.setVisible(true);
