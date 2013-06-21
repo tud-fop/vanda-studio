@@ -24,7 +24,7 @@ import com.mxgraph.util.mxUtils;
 import com.mxgraph.view.mxGraph;
 
 public final class WorkflowToPDFToolFactory implements ToolFactory {
-	
+
 	protected class ExportWorkflowToPDFAction implements Action {
 
 		private final WorkflowEditor wfe;
@@ -47,17 +47,20 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 
 			if (result == JFileChooser.APPROVE_OPTION) {
 				File chosenFile;
-				if (chooser.getSelectedFile().getName().toLowerCase().endsWith(".pdf"))
+				if (chooser.getSelectedFile().getName().toLowerCase()
+						.endsWith(".pdf"))
 					chosenFile = chooser.getSelectedFile();
 				else
-					chosenFile = new File(chooser.getSelectedFile().getPath() + ".pdf");
+					chosenFile = new File(chooser.getSelectedFile().getPath()
+							+ ".pdf");
 				try {
-					DrecksAdapter da = new DrecksAdapter(wfe.getWorkflowDecoration());
+					DrecksAdapter da = new DrecksAdapter(
+							wfe.getWorkflowDecoration());
 					mxGraph graph = da.getGraph();
 					Document svg = mxCellRenderer.createSvgDocument(graph,
 							null, 1, null, null);
-					String code = mxUtils.getPrettyXml(svg
-							.getDocumentElement());
+					String code = mxUtils
+							.getPrettyXml(svg.getDocumentElement());
 					TranscoderInput input = new TranscoderInput(
 							new StringReader(code));
 					PDFTranscoder t = new PDFTranscoder();
@@ -72,9 +75,9 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 			}
 		}
 	}
-	
+
 	private Application app;
-	
+
 	public WorkflowToPDFToolFactory(Application app) {
 		super();
 		this.app = app;
@@ -83,8 +86,8 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe) {
 		Action a = new ExportWorkflowToPDFAction(wfe);
-		wfe.addAction(a, KeyStroke.getKeyStroke(KeyEvent.VK_P,
-				KeyEvent.CTRL_MASK));
+		wfe.addAction(a, "application-pdf",
+				KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_MASK));
 		return a;
 	}
 }
