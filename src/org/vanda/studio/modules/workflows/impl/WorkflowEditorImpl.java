@@ -33,10 +33,10 @@ import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.jgraph.JobAdapter;
 import org.vanda.studio.modules.workflows.jgraph.WorkflowAdapter;
 import org.vanda.studio.modules.workflows.jgraph.mxDropTargetListener;
+import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowDecoration;
 import org.vanda.studio.modules.workflows.model.WorkflowDecoration.SingleObjectSelection;
 import org.vanda.studio.modules.workflows.model.WorkflowDecoration.WorkflowSelection;
-import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.HasActions;
@@ -123,11 +123,13 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 			}
 		});
 		app.getWindowSystem().addContentWindow(null, component, null);
-		app.getWindowSystem().focusContentWindow(component);
-		component.requestFocusInWindow();
 
 		for (ToolFactory tf : toolFactories)
 			tf.instantiate(this);
+		
+		app.getWindowSystem().focusContentWindow(component);
+		component.requestFocusInWindow();
+		
 		app.getWindowSystem().addAction(component, new ResetZoomAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK));
 		app.getWindowSystem().addAction(component, new CloseWorkflowAction(),
@@ -357,6 +359,11 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 		app.getWindowSystem().removeToolWindow(component, c);
 	}
 
+	@Override
+	public void addAction(Action a, String imageName, KeyStroke keyStroke) {
+		app.getWindowSystem().addAction(component, a, imageName, keyStroke);
+	}
+	
 	@Override
 	public void addAction(Action a, KeyStroke keyStroke) {
 		app.getWindowSystem().addAction(component, a, keyStroke);

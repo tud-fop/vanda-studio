@@ -5,18 +5,28 @@ package org.vanda.studio.core;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -24,6 +34,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
@@ -37,6 +48,7 @@ import org.vanda.studio.app.LayoutSelector;
 import org.vanda.studio.app.UIMode;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.util.Action;
+import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
 
 /**
@@ -46,29 +58,32 @@ import org.vanda.util.Observer;
 public class WindowSystemImpl implements WindowSystem {
 
 	protected final Application app;
-	protected JFrame mainWindow;
+	protected final JFrame mainWindow;
 	protected JLayeredPane mainPane;
 	protected JTabbedPane contentPane;
 	// protected JTabbedPane toolPane;
 	protected JMenuBar menuBar;
+	protected JPanel iconToolBar;
 	protected JMenu fileMenu;
 	protected HashMap<UIMode, JRadioButtonMenuItem> modeMenuItems;
 	protected HashMap<JComponent, JMenu> windowMenus;
+	protected HashMap<JComponent, JPanel> iconToolBars;
 	protected HashMap<JComponent, List<JComponent>> windowTools;
 	protected ButtonGroup modeGroup;
 	protected HashMap<JComponent, JInternalFrame> frames;
-	
+
 	@SuppressWarnings("serial")
-	private static class LayoutTabbedPane extends JTabbedPane implements LayoutSelector {
+	private static class LayoutTabbedPane extends JTabbedPane implements
+			LayoutSelector {
 
 		@Override
 		public <L> L selectLayout(LayoutAssortment<L> la) {
 			return la.getCenter();
 		}
-		
+
 	}
-	
-    /**
+
+	/**
 	 * @param a
 	 *            Vanda Composer Application root object
 	 */
@@ -85,6 +100,7 @@ public class WindowSystemImpl implements WindowSystem {
 		mainWindow.setSize(800, 600);
 		mainWindow.setLocation(100, 100);
 		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		mainWindow.getContentPane().setLayout(new BorderLayout());
 		mainWindow.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
@@ -94,6 +110,8 @@ public class WindowSystemImpl implements WindowSystem {
 
 		// Create a simple JMenuBar
 		menuBar = new JMenuBar();
+		iconToolBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		iconToolBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 		fileMenu = new JMenu("Studio");
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
 		exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
@@ -138,6 +156,7 @@ public class WindowSystemImpl implements WindowSystem {
 
 		windowMenus = new HashMap<JComponent, JMenu>();
 		windowTools = new HashMap<JComponent, List<JComponent>>();
+		iconToolBars = new HashMap<JComponent, JPanel>();
 		frames = new HashMap<JComponent, JInternalFrame>();
 
 		mainWindow.setJMenuBar(menuBar);
@@ -145,24 +164,20 @@ public class WindowSystemImpl implements WindowSystem {
 		// Creates the library pane that contains the tabs with the palettes
 		contentPane = new LayoutTabbedPane();
 		// toolPane = new JTabbedPane();
-		
+
 		// toolPanel = new JPanel(new BorderLayout());
 		// toolPanel.add(new JPanel(), BorderLayout.CENTER);
 		// toolPanel.add(toolPane, BorderLayout.SOUTH);
 
 		/*
-		JPanel pp = new JPanel();
-		pp.setOpaque(false);
-		
-		JSplitPane inner2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				pp, toolPane);
-		inner2.setOpaque(false);
-		inner2.setOneTouchExpandable(true);
-		inner2.setDividerLocation(0.7);
-		inner2.setResizeWeight(0.7);
-		inner2.setDividerSize(6);
-		inner2.setBorder(null);
-		*/
+		 * JPanel pp = new JPanel(); pp.setOpaque(false);
+		 * 
+		 * JSplitPane inner2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, pp,
+		 * toolPane); inner2.setOpaque(false);
+		 * inner2.setOneTouchExpandable(true); inner2.setDividerLocation(0.7);
+		 * inner2.setResizeWeight(0.7); inner2.setDividerSize(6);
+		 * inner2.setBorder(null);
+		 */
 
 		mainPane = new JLayeredPane();
 		mainPane.setLayout(new LayerLayout());
@@ -171,7 +186,7 @@ public class WindowSystemImpl implements WindowSystem {
 		mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
 		// inner.add(inner2, new Integer(1));
 		// mainPane.setBorder(BorderFactory.createTitledBorder(
-        //        "Move the Mouse to Move Duke"));
+		// "Move the Mouse to Move Duke"));
 
 		contentPane.addChangeListener(new ChangeListener() {
 
@@ -189,8 +204,15 @@ public class WindowSystemImpl implements WindowSystem {
 						menuBar.add(menu, 1);
 					}
 				}
+				if (iconToolBars.get(c) != null) {
+					mainWindow.getContentPane().remove(iconToolBar);
+					iconToolBar = iconToolBars.get(c);
+					mainWindow.getContentPane().add(iconToolBar,
+							BorderLayout.NORTH);
+				}
 				menuBar.revalidate();
 				menuBar.repaint();
+				mainWindow.revalidate();
 				mainPane.removeAll();
 				mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
 				List<JComponent> tcs = windowTools.get(null);
@@ -208,8 +230,8 @@ public class WindowSystemImpl implements WindowSystem {
 		});
 
 		// Puts everything together
-		mainWindow.getContentPane().setLayout(new BorderLayout());
 		mainWindow.getContentPane().add(mainPane, BorderLayout.CENTER);
+		mainWindow.getContentPane().add(iconToolBar, BorderLayout.NORTH);
 		// mainWindow.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
 		SwingUtilities.invokeLater(new Runnable() {
@@ -222,6 +244,39 @@ public class WindowSystemImpl implements WindowSystem {
 				mainWindow.setVisible(true);
 			}
 		});
+	}
+
+	@Override
+	public void addAction(JComponent c, final Action a, String imageName,
+			KeyStroke keyStroke) {
+		URL url = ClassLoader.getSystemClassLoader().getResource(
+				imageName + ".png");
+		JButton b = new JButton();
+		b.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				a.invoke();
+			}
+		});
+		try {
+			Image i = ImageIO.read(url);
+			b.setIcon(new ImageIcon(i.getScaledInstance(32, 32,
+					Image.SCALE_SMOOTH)));
+			b.setPreferredSize(new Dimension(34, 34));
+			b.setMargin(new Insets(0, 0, 0, 0));
+			b.setToolTipText(a.getName());
+		} catch (IOException e1) {
+			app.sendMessage(new ExceptionMessage(e1));
+			b.setText(a.getName());
+		}
+		if (!iconToolBars.containsKey(c)) {
+			iconToolBars.put(c, new JPanel(new FlowLayout(FlowLayout.LEFT)));
+			iconToolBars.get(c).setComponentOrientation(
+					ComponentOrientation.LEFT_TO_RIGHT);
+		}
+		iconToolBars.get(c).add(b);
+		addAction(c, a, keyStroke);
 	}
 
 	@Override
@@ -287,7 +342,8 @@ public class WindowSystemImpl implements WindowSystem {
 	/**
 	 */
 	@Override
-	public void addToolWindow(JComponent window, Icon i, JComponent c, LayoutSelector layout) {
+	public void addToolWindow(JComponent window, Icon i, JComponent c,
+			LayoutSelector layout) {
 		List<JComponent> tcs = windowTools.get(window);
 		if (tcs == null) {
 			tcs = new ArrayList<JComponent>();
@@ -297,7 +353,7 @@ public class WindowSystemImpl implements WindowSystem {
 			tcs.add(c);
 			ToolFrame f = new ToolFrame(c, layout);
 			frames.put(c, f);
-			if (contentPane.getSelectedComponent() == window){
+			if (contentPane.getSelectedComponent() == window) {
 				frames.put(c, f);
 				mainPane.add(f, JLayeredPane.PALETTE_LAYER);
 			}
@@ -340,6 +396,8 @@ public class WindowSystemImpl implements WindowSystem {
 	@Override
 	public void focusContentWindow(JComponent c) {
 		contentPane.setSelectedComponent(c);
+		for (ChangeListener cl : contentPane.getChangeListeners())
+			cl.stateChanged(new ChangeEvent(contentPane));
 	}
 
 	/**

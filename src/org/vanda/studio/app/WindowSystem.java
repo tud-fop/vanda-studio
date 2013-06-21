@@ -3,6 +3,8 @@
  */
 package org.vanda.studio.app;
 
+import java.awt.Image;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
@@ -130,5 +132,9 @@ public interface WindowSystem {
 	/**
 	 */
 	void removeToolWindow(JComponent window, JComponent c);
+
+	/**
+	 */
+	void addAction(JComponent c, Action a, String imageName, KeyStroke keyStroke);
 
 }
