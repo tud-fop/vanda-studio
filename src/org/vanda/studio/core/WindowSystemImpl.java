@@ -57,6 +57,8 @@ import org.vanda.util.Observer;
  */
 public class WindowSystemImpl implements WindowSystem {
 
+	private static int ICON_SIZE = 24;
+	
 	protected final Application app;
 	protected final JFrame mainWindow;
 	protected JLayeredPane mainPane;
@@ -260,9 +262,9 @@ public class WindowSystemImpl implements WindowSystem {
 		});
 		try {
 			Image i = ImageIO.read(url);
-			b.setIcon(new ImageIcon(i.getScaledInstance(32, 32,
+			b.setIcon(new ImageIcon(i.getScaledInstance(ICON_SIZE, ICON_SIZE,
 					Image.SCALE_SMOOTH)));
-			b.setPreferredSize(new Dimension(34, 34));
+			b.setPreferredSize(new Dimension(ICON_SIZE + 2, ICON_SIZE + 2));
 			b.setMargin(new Insets(0, 0, 0, 0));
 			b.setToolTipText(a.getName());
 		} catch (IOException e1) {
