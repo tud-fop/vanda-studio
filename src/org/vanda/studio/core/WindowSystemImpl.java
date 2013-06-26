@@ -39,6 +39,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -112,7 +113,10 @@ public class WindowSystemImpl implements WindowSystem {
 
 		// Create a simple JMenuBar
 		menuBar = new JMenuBar();
-		iconToolBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
+		fl.setHgap(1);
+		fl.setVgap(1);
+		iconToolBar = new JPanel(fl);
 		iconToolBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 		fileMenu = new JMenu("Studio");
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
@@ -272,7 +276,9 @@ public class WindowSystemImpl implements WindowSystem {
 			b.setText(a.getName());
 		}
 		if (!iconToolBars.containsKey(c)) {
-			iconToolBars.put(c, new JPanel(new FlowLayout(FlowLayout.LEFT)));
+			FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
+			fl.setVgap(1);
+			iconToolBars.put(c, new JPanel(fl));
 			iconToolBars.get(c).setComponentOrientation(
 					ComponentOrientation.LEFT_TO_RIGHT);
 		}
