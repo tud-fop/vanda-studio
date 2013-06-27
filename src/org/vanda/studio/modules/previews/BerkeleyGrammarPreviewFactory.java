@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
 
 public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
@@ -33,11 +34,11 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 		private static final int SIZE = 20;
 		private int columns;
 
-		public BerkeleyGrammarPreview(String value) {
-			this(value, 5);
+		public BerkeleyGrammarPreview(String value, String postfix) {
+			this(value, postfix, 5);
 		}
 		
-		public BerkeleyGrammarPreview(String value, int cols) {
+		public BerkeleyGrammarPreview(String value, String postfix, int cols) {
 			super();
 			columns = cols;
 			setLayout(new GridBagLayout());
@@ -48,7 +49,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 			gbc.gridx = 0;
 			gbc.gridy = 0;
 			try {
-				fs = new Scanner(new FileInputStream(value + ".prev"));
+				fs = new Scanner(new FileInputStream(app.findFile(value + postfix)));
 				bMore = new JButton(new AbstractAction("more") {
 
 					private static final long serialVersionUID = 1L;
@@ -61,10 +62,11 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 				});
 				more();
 			} catch (FileNotFoundException e) {
-				add(new JLabel("Preview does not exist."));
+				add(new JLabel(value + postfix + " does not exist."));
 			}
 		}
 
+		@Override
 		public Component add(Component c) {
 			super.add(c, gbc);
 			if (gbc.gridx == columns - 1) {
@@ -90,12 +92,12 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 					if (s.equals("->"))
 						txt += " &#10230; ";
 					else if (l[l.length - 1] == s) {
-						if (s.split("E").length > 1)
+						if (s.contains("E"))
 							txt += "  [" + s.split("E")[0].substring(0, 5)
 									+ " &middot; 10 <sup>" + s.split("E")[1]
 									+ "</sup>]";
 						else
-							txt += "  [" + s.substring(0, 8) + "]";
+							txt += "  [" + (s.length() > 7 ? s.substring(0,8) : s) + "]";
 
 					} else {
 						txt += s.replace("^", "<sup>").replace("_",
@@ -115,14 +117,24 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 			revalidate();
 		}
 
+		@Override
 		public void finalize() {
 			fs.close();
 		}
 	}
 
+	private String postfix;
+	private Application app;
+	
+	public BerkeleyGrammarPreviewFactory(Application app, String postfix) {
+		super();
+		this.app = app;
+		this.postfix = postfix;
+	}
+
 	@Override
 	public JComponent createPreview(String value) {
-		return new JScrollPane(new BerkeleyGrammarPreview(value));
+		return new JScrollPane(new BerkeleyGrammarPreview(value, postfix));
 	}
 
 	@Override
@@ -145,7 +157,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 
 	@Override
 	public JComponent createSmallPreview(String value) {
-		return new JScrollPane(new BerkeleyGrammarPreview(value, 1));
+		return new JScrollPane(new BerkeleyGrammarPreview(value, postfix, 1));
 	}
 
 }
