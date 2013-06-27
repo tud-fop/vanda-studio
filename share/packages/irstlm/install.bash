@@ -1,6 +1,6 @@
 id="irstlm"
 varname="IRSTLM"
-version="2013-03-05"
+version="2013-06-27"
 binpath="$id"
 
 install_me () {
