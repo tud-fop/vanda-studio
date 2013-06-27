@@ -36,6 +36,6 @@ ARPA2Binary () {
 # Scores sentences according to the language model.
 IRSTLMScore () {
 	"$IRSTLM/bin/add-start-end.sh" < "$3" > "$1/corpus.txt"
-	"$IRSTLM/bin/score-lm" -lm "$2" < "$1/corpus.txt" > "$4"
+	"$IRSTLM/bin/score-lm" -lm="$2" < "$1/corpus.txt" > "$4"
 	echo "$3" > "${4}.meta"
 }
