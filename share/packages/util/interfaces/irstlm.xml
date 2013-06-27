@@ -4,7 +4,7 @@
 		id="irstlm1"
 		name="IRSTLM"
 		version="2013-01-17"
-		contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+		contact="Tobias.Denkinger@tu-dresden.de"
 		category="Language Models">
 
 		<description>Tools related to IRSTLM n-gram extraction.</description>
@@ -14,7 +14,7 @@
 			id="IRSTLM"
 			name="IRSTLM"
 			version="2013-01-17"
-			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			contact="Tobias.Denkinger@tu-dresden.de"
 			category="Language Models::Extraction"
 			status="">
 			
@@ -30,7 +30,7 @@
 			id="ARPA2Binary"
 			name="ARPA2Binary"
 			version="2013-01-17"
-			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			contact="Tobias.Denkinger@tu-dresden.de"
 			category="Language Models::Conversion"
 			status="">
 			
@@ -38,6 +38,22 @@
 	
 			<in name="textual n-grams" type="ARPA" />
 			<out name="binary n-grams" type="BinARPA" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="IRSTLMScore"
+			name="IRSTLMScore"
+			version="2013-06-27"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Language Models::Application"
+			status="">
+
+			<description><![CDATA[Scores sentences using a language model.]]>.</description>
+
+			<in name="n-grams" type="ARPA" />
+			<in name="corpus" type="SentenceCorpus" />
+			<out name="logarithmic scores" type="Scores" />
 		</tool>
 
 	</toolinterface>
