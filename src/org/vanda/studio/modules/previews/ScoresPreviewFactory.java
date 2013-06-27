@@ -39,10 +39,14 @@ public class ScoresPreviewFactory implements PreviewFactory {
 			sMeta.close();
 			sSentences = new Scanner(sentences);
 			List<String> left = new ArrayList<String>();
-			List<String> right = new ArrayList<String>();
+			List<Double> right = new ArrayList<Double>();
 			while (sScores.hasNextLine() && sSentences.hasNextLine()) {
 				left.add(sSentences.nextLine());
-				right.add(sScores.nextLine());
+				double d = Double.parseDouble(sScores.nextLine());
+				if (d < 0)
+					right.add(Math.exp(d));
+				else
+					right.add(d);
 			}
 			sScores.close();
 			sSentences.close();
@@ -51,7 +55,7 @@ public class ScoresPreviewFactory implements PreviewFactory {
 			String[][] data = new String[left.size()][2];
 			for (int i = 0; i < left.size(); i++) {
 				data[i][0] = left.get(i);
-				data[i][1] = right.get(i);
+				data[i][1] = Double.toString(right.get(i));
 			}
 			// build GUI
 			JTable jTable = new JTable(data, new String[] {"element", "score"});
