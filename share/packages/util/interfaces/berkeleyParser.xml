@@ -46,7 +46,8 @@
 			name="Berkeley Tokenizer"
 			version="2013-01-16"
 			contact="Matthias.Buechse@tu-dresden.de"
-			category="Corpus Tools">
+			category="Corpus Tools"
+			status="">
 			
 			<description>Converts some special characters into tokens, such as ( into -LLB-.</description>
 			
@@ -60,7 +61,8 @@
 			name="SM6ToText"
 			version="2013-06-27"
 			contact="Tobias.Denkinger@tu-dresden.de"
-			category="Language Models::Conversion">
+			category="Language Models::Conversion"
+			status="disabled">
 			
 			<description><![CDATA[Converts binary SM6 to text.]]></description>
 
