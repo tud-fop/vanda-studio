@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.vanda.execution.model.ExecutableJob;
+import org.vanda.execution.model.ExecutableWorkflow;
 import org.vanda.fragment.impl.StaticFragment;
-import org.vanda.fragment.model.DataflowAnalysis;
+//import org.vanda.fragment.model.DataflowAnalysis;
 import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.FragmentCompiler;
 import org.vanda.fragment.model.FragmentIO;
@@ -16,14 +18,15 @@ import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.Tool;
-import org.vanda.workflows.hyper.Job;
 
 // XXX removed: handle ports (see older versions)
 // XXX removed: variables (names are computed statically) (see older versions)
 public class ShellCompiler implements FragmentCompiler {
 
 	@Override
-	public Fragment compile(String name, final DataflowAnalysis dfa,
+	public Fragment compile(String name, 
+			ExecutableWorkflow ewf, 
+//			final DataflowAnalysis dfa,
 			ArrayList<Fragment> fragments, final FragmentIO fio) {
 		final StringBuilder sb = new StringBuilder();
 		final HashSet<String> dependencies = new HashSet<String>();
@@ -32,7 +35,8 @@ public class ShellCompiler implements FragmentCompiler {
 		sb.append(Fragments.normalize(name));
 		sb.append(" {\n");
 		int i = 0;
-		for (final Job ji : dfa.getSorted()) {
+//		for (final Job ji : dfa.getSorted()) {
+		for (final ExecutableJob ji : ewf.getSortedJobs()) {
 			final Fragment frag = fragments.get(i);
 			ji.visit(new ElementVisitor() {
 
@@ -52,15 +56,18 @@ public class ShellCompiler implements FragmentCompiler {
 					sb.append(' ');
 					sb.append(Fragments.normalize(frag.getId()));
 					sb.append(' ');
-					sb.append(dfa.getRootDir(t));
+//					sb.append(dfa.getRootDir(t));
+					sb.append(ji.getToolPrefix());
 					for (Port ip : frag.getInputPorts()) {
 						sb.append(" \"");
-						sb.append(fio.findFile(dfa.getValue(ji.bindings.get(ip))));
+//						sb.append(fio.findFile(dfa.getValue(ji.bindings.get(ip))));
+						sb.append(fio.findFile(ji.getValuedBinding(ip).getValue()));
 						sb.append('\"');
 					}
 					for (Port op : frag.getOutputPorts()) {
 						sb.append(" \"");
-						sb.append(fio.findFile(dfa.getValue(ji.bindings.get(op))));
+//						sb.append(fio.findFile(dfa.getValue(ji.bindings.get(op))));
+						sb.append(fio.findFile(ji.getValuedBinding(op).getValue()));
 						sb.append('\"');
 					}
 					sb.append('\n');

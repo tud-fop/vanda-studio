@@ -456,11 +456,13 @@ public class RunTool implements SemanticsToolFactory {
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
-			if (mm.getDataflowAnalysis().isConnected() &&
+			if (mm.getExecutableWorkflow().isConnected() &&
+//					mm.getDataflowAnalysis().isConnected() &&
 					Types.canUnify(mm.getFragmentType(),
 							prof.getRootType())) {
 				try {
-					return prof.generate(mm.getDataflowAnalysis());
+//					return prof.generate(mm.getDataflowAnalysis());
+					return prof.generate(mm.getExecutableWorkflow());
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}

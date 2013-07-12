@@ -289,7 +289,8 @@ public class JGraphRendering {
 
 		style = stylesheet.getDefaultEdgeStyle();
 		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.orthConnector); // SideToSide);
-		style.put(mxConstants.STYLE_ROUNDED, "true");
+		style.put(mxConstants.STYLE_EDGE, mxEdgeStyle.EntityRelation);
+//		style.put(mxConstants.STYLE_ROUNDED, "true");
 		style.put(mxConstants.STYLE_MOVABLE, "false");
 
 		return stylesheet;

@@ -38,7 +38,7 @@ public class PresentationModel implements DataInterface {
 	public PresentationModel() {
 		this.workflowCell = new WorkflowCell(this);
 		graph = new Graph(workflowCell);
-		graph.setPaletteStyle();
+		graph.setGraphImmutable();
 		jobs = new ArrayList<JobAdapter>();
 	}
 
@@ -82,7 +82,7 @@ public class PresentationModel implements DataInterface {
 
 	public Component getComponent() {
 		if (comp == null) {
-			comp = graph.getPaletteComponent(); 
+			comp = graph.getGraphComponent(); 
 		}
 		return comp;
 	}

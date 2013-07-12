@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.vanda.execution.model.ExecutableWorkflow;
 import org.vanda.types.Type;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
@@ -29,8 +30,10 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 	protected Job[] sorted = null;
 	private Map<Object, Type> types = Collections.emptyMap();
 	private Type fragmentType = null;
-	private DataflowAnalysis dfa;
-	private MultiplexObserver<DataflowAnalysis> dfaChangedObservable;
+//	private DataflowAnalysis dfa;
+//	private MultiplexObserver<DataflowAnalysis> dfaChangedObservable;
+	private ExecutableWorkflow ewf;
+	private MultiplexObserver<ExecutableWorkflow> ewfChangedObservable;
 	
 
 	// FIXME package dependency: WorkflowDecoration is in a Vanda Studio module
@@ -39,7 +42,8 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 		this.db = db;
 		this.view = view;
 		hwf.getObservable().addObserver(this);
-		dfaChangedObservable = new MultiplexObserver<DataflowAnalysis>();
+//		dfaChangedObservable = new MultiplexObserver<DataflowAnalysis>();
+		ewfChangedObservable = new MultiplexObserver<ExecutableWorkflow>();
 		
 	}
 	
@@ -62,9 +66,12 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 			} catch (Exception e) {
 				// FIXME send message that there are cycles
 			}
-			dfa = new DataflowAnalysis(hwf, db, sorted, fragmentType);
-			dfa.init();
-			dfaChangedObservable.notify(dfa);
+//			dfa = new DataflowAnalysis(hwf, db, sorted, fragmentType);
+//			dfa.init();
+//			dfaChangedObservable.notify(dfa);
+			ewf = new ExecutableWorkflow(hwf, db, sorted, fragmentType);
+			ewf.init();
+			ewfChangedObservable.notify(ewf);
 		} catch (TypeCheckingException e) {
 			List<Pair<String, Set<ConnectionKey>>> errors = e.getErrors();
 			for (Pair<String, Set<ConnectionKey>> error : errors) {
@@ -93,12 +100,20 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 		return types.get(variable);
 	}
 
-	public DataflowAnalysis getDataflowAnalysis() {
-		return dfa;
+//	public DataflowAnalysis getDataflowAnalysis() {
+//		return dfa;
+//	}
+	
+	public ExecutableWorkflow getExecutableWorkflow() {
+		return ewf;
 	}
 	
-	public Observable<DataflowAnalysis> getDfaChangedObservable() {
-		return dfaChangedObservable;
+//	public Observable<DataflowAnalysis> getDfaChangedObservable() {
+//		return dfaChangedObservable;
+//	}
+	
+	public Observable<ExecutableWorkflow> getEwfChangedObservable() {
+		return ewfChangedObservable;
 	}
 
 	@Override

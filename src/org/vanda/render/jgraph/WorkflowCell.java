@@ -6,27 +6,10 @@ import com.mxgraph.model.mxICell;
 
 public class WorkflowCell extends Cell {
 	DataInterface di;
+
 	public WorkflowCell(DataInterface di) {
 		super(null, null, null);
 		this.di = di;
-	}
-
-	@Override
-	public void onInsert(Graph graph, mxICell parent, mxICell cell) {
-	}
-
-	@Override
-	public void onRemove() {
-	}
-
-	@Override
-	public void onResize(Graph graph) {
-		// do nothing
-	}
-
-	@Override
-	public void setSelection(boolean selected) {
-		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
 	}
 
 	public DataInterface getDataInterface() {
@@ -56,6 +39,24 @@ public class WorkflowCell extends Cell {
 	@Override
 	public boolean isValidDropTarget() {
 		return true;
+	}
+
+	@Override
+	public void onInsert(Graph graph, mxICell parent, mxICell cell) {
+	}
+
+	@Override
+	public void onRemove() {
+	}
+
+	@Override
+	public void onResize(Graph graph) {
+		// do nothing
+	}
+
+	@Override
+	public void setSelection(boolean selected) {
+		getObservable().notify(new SetSelectionEvent<Cell>(this, selected));
 	}
 
 }

@@ -56,7 +56,8 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 	public void visitVariable(Location variable, MutableWorkflow wf) {
 		// XXX no support for nested workflows because wf is ignored
 		final Type type = mm.getType(variable);
-		final String value = mm.getDataflowAnalysis().getValue(variable);
+//		final String value = mm.getDataflowAnalysis().getValue(variable);
+		final String value = mm.getExecutableWorkflow().getValue(variable);
 		apf = new AbstractPreviewFactory() {
 			@Override
 			public JComponent createPreview(Application app) {

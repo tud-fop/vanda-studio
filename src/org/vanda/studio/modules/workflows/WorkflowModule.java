@@ -98,6 +98,7 @@ public class WorkflowModule implements Module {
 			LinkedList<SemanticsToolFactory> srep = new LinkedList<SemanticsToolFactory>();
 			srep.add(new RunTool(new GeneratorImpl(app, profile)));
 			srep.add(new InspectorTool(eefs));
+			srep.add(new org.vanda.studio.modules.workflows.run2.RunTool(new GeneratorImpl(app,profile)));
 
 			toolFactories = new LinkedList<ToolFactory>();
 			toolFactories.add(new PaletteTool());

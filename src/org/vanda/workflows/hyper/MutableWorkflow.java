@@ -15,7 +15,7 @@ import org.vanda.workflows.hyper.Jobs.JobEvent;
 import org.vanda.workflows.hyper.Jobs.JobListener;
 import org.vanda.workflows.hyper.Workflows.*;
 
-public final class MutableWorkflow implements JobListener<Job> {
+public class MutableWorkflow implements JobListener<Job> {
 
 	private final MultiplexObserver<WorkflowEvent<MutableWorkflow>> observable;
 	private LinkedList<WorkflowEvent<MutableWorkflow>> events;

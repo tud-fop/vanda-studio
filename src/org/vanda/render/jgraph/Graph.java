@@ -373,9 +373,9 @@ public final class Graph {
 	}
 
 	/**
-	 * Make the visualization immutable (used for palette)
+	 * Make the visualization immutable (used for palette, execution)
 	 */
-	public void setPaletteStyle() {
+	public void setGraphImmutable() {
 		getGraph().setCellsLocked(true);
 		getGraph().setDropEnabled(false);
 	}
@@ -383,7 +383,7 @@ public final class Graph {
 	/**
 	 * @return
 	 */
-	public Component getPaletteComponent() {
+	public Component getGraphComponent() {
 		mxGraphComponent c = new mxGraphComponent(getGraph());
 		c.setConnectable(false);
 		c.setDragEnabled(false);

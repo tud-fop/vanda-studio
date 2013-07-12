@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.vanda.fragment.model.DataflowAnalysis;
+import org.vanda.execution.model.ExecutableWorkflow;
+//import org.vanda.fragment.model.DataflowAnalysis;
 import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.FragmentBase;
 import org.vanda.fragment.model.FragmentCompiler;
@@ -69,15 +70,21 @@ public class GeneratorImpl implements Generator, FragmentIO {
 			return result;
 		}
 
-		public String generateFragment(DataflowAnalysis dfa) throws IOException {
-			MutableWorkflow w = dfa.getWorkflow();
-			Fragment result = map.get(w);
+//		public String generateFragment(DataflowAnalysis dfa) throws IOException {
+		public String generateFragment(ExecutableWorkflow ewf) throws IOException {
+//			MutableWorkflow w = dfa.getWorkflow();
+//			Fragment result = map.get(w);
+			Fragment result = map.get(ewf);
 			if (result == null) {
-				String name = makeUnique(w.getName(), w);
-				assert (dfa.getFragmentType() != null);
-				FragmentCompiler fc = prof.getCompiler(dfa.getFragmentType());
+//				String name = makeUnique(w.getName(), w);
+				String name = makeUnique(ewf.getName(), ewf);
+//				assert (dfa.getFragmentType() != null);
+				assert (ewf.getFragmentType() != null);
+//				FragmentCompiler fc = prof.getCompiler(dfa.getFragmentType());
+				FragmentCompiler fc = prof.getCompiler(ewf.getFragmentType());
 				assert (fc != null);
-				Job[] jobs = dfa.getSorted();
+//				Job[] jobs = dfa.getSorted();
+				Job[] jobs = ewf.getSortedJobs();
 				final ArrayList<Fragment> frags = new ArrayList<Fragment>(
 						jobs.length);
 				for (final Job ji : jobs) {
@@ -93,16 +100,20 @@ public class GeneratorImpl implements Generator, FragmentIO {
 						}
 					});
 				}
-				result = fc.compile(name, dfa, frags, GeneratorImpl.this);
+//				result = fc.compile(name, dfa, frags, GeneratorImpl.this);
+				result = fc.compile(name, ewf, frags, GeneratorImpl.this);
 				assert (result != null);
-				map.put(w, result);
+//				map.put(w, result);
+				map.put(ewf, result);
 				this.fragments.put(result.getId(), result);
 			}
 			return result.getId();
 		}
 
-		public Fragment generate(DataflowAnalysis dfa) throws IOException {
-			String root = generateFragment(dfa);
+//		public Fragment generate(DataflowAnalysis dfa) throws IOException {
+		public Fragment generate(ExecutableWorkflow ewf) throws IOException {
+			String root = generateFragment(ewf);
+//			String root = generateFragment(dfa);
 			return prof.getRootLinker(getRootType()).link(root, null, null,
 					null, null, fb, GeneratorImpl.this);
 		}
@@ -123,8 +134,10 @@ public class GeneratorImpl implements Generator, FragmentIO {
 	}
 
 	@Override
-	public Fragment generate(DataflowAnalysis dfa) throws IOException {
-		return new TheGenerator().generate(dfa);
+//	public Fragment generate(DataflowAnalysis dfa) throws IOException {
+	public Fragment generate(ExecutableWorkflow ewf) throws IOException {
+		return new TheGenerator().generate(ewf);
+//		return new TheGenerator().generate(dfa);
 	}
 
 	public GeneratorImpl(Application app, Profile prof) {

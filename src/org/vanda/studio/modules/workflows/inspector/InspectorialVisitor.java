@@ -61,7 +61,9 @@ public final class InspectorialVisitor implements SelectionVisitor {
 		Type type = mm.getType(variable);
 		if (type != null) {
 			sb.append("<tr><th align=left>Value</th><td>");
-			sb.append(mm.getDataflowAnalysis().getValue(variable));
+//			sb.append(mm.getDataflowAnalysis().getValue(variable));
+			// TODO make this work with multiple assignments
+			sb.append(mm.getExecutableWorkflow().getValue(variable));
 			sb.append("</td><td>&nbsp;</td><th align=left>Type</th><td>");
 			sb.append(type.toString());
 			sb.append("</td></tr>");
@@ -176,7 +178,8 @@ public final class InspectorialVisitor implements SelectionVisitor {
 		Type type = mm.getType(variable);
 		if (type != null) {
 			sb.append("<tr><th align=left>Value</th><td>");
-			sb.append(mm.getDataflowAnalysis().getValue(variable));
+//			sb.append(mm.getDataflowAnalysis().getValue(variable));
+			sb.append(mm.getExecutableWorkflow().getValue(variable));
 			sb.append("</td><td>&nbsp;</td><th align=left>Type</th><td>");
 			sb.append(type.toString());
 			sb.append("</td></tr>");

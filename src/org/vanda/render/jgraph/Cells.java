@@ -123,6 +123,20 @@ public final class Cells {
 			cl.rightClick(e);
 		}
 	}
+	
+	public static class RunVisualizationChangedEvent<C> implements CellEvent<C> {
+		private final C c;
+
+		public RunVisualizationChangedEvent (C c){
+			this.c = c;
+		}
+		
+		@Override
+		public void doNotify(CellListener<C> cl) {
+			cl.propertyChanged(c);
+		}
+		
+	}
 
 
 }
