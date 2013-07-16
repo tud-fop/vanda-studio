@@ -20,7 +20,7 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 	private final ElementAdapter element;
 	public Map<Port, Location> bindings;
 	protected final double[] dimensions = new double[4];
-	private final MultiplexObserver<JobEvent<Job>> observable;
+	protected final MultiplexObserver<JobEvent<Job>> observable;
 
 	public Job(ElementAdapter element) {
 		this.element = element;
@@ -28,6 +28,12 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 			observable = new MultiplexObserver<JobEvent<Job>>();
 		else
 			observable = null;
+		rebind();
+	}
+	
+	public Job(ElementAdapter element, boolean createObservable) {
+		this.element = element;
+		this.observable = new MultiplexObserver<JobEvent<Job>>();
 		rebind();
 	}
 
@@ -131,6 +137,7 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 
 	@Override
 	public void propertyChanged(ElementAdapter e) {
+		// if (element.getObservable() != null)
 		observable.notify(new PropertyChangedEvent<Job>(this));
 	}
 

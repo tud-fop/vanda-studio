@@ -22,11 +22,6 @@ import org.vanda.workflows.serialization.Storer;
 public class RunTool implements SemanticsToolFactory {
 	private class Tool {
 		public final class RunAction implements Action {
-
-			public RunAction() {
-
-			}
-
 			@Override
 			public String getName() {
 				return "Run2";
@@ -49,12 +44,12 @@ public class RunTool implements SemanticsToolFactory {
 
 					// create WorkflowExecutionPreview from file
 					JComponent executionPreview = new WorkflowExecutionPreview(
-							app).createPreview(filePath);
+							app, prof).createPreview(filePath);
 
 					if (executionPreview != null) {
 						executionPreview.setName(frag.getId() + "Execution");
 
-						// create tab with WorkflowExecutionPreview  
+						// create tab with WorkflowExecutionPreview
 						app.getWindowSystem().addContentWindow(null,
 								executionPreview, null);
 						app.getWindowSystem().focusContentWindow(
@@ -66,6 +61,7 @@ public class RunTool implements SemanticsToolFactory {
 				}
 			}
 		}
+
 		Application app;
 		Model mm;
 		Generator prof;

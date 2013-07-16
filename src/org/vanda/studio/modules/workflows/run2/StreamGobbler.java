@@ -14,19 +14,21 @@ public class StreamGobbler extends Thread {
 
 		@Override
 		public void parseLine(String line, MultiplexObserver<RunEvent> mo) {
-			if (line.startsWith("Cancelled:")) {
-				line.replaceFirst("Cancelled:", "");
-				mo.notify(new Runables.RunFinished(line));
+			if (line.startsWith("Cancelled: ")) {
+				String newstring = line.replaceFirst("Cancelled: ", "");
+				mo.notify(new Runables.RunFinished(newstring));
 			}
 		}
 	}
+
 	private static class DoneParser implements LineParser {
 
 		@Override
 		public void parseLine(String line, MultiplexObserver<RunEvent> mo) {
-			if (line.startsWith("Done:")) {
-				line.replaceFirst("Done:", "");
-				mo.notify(new Runables.RunFinished(line));
+			if (line.startsWith("Done: ")) {
+				String newstring = line.replaceFirst("Done: ", "");
+				mo.notify(new Runables.RunFinished(newstring));
+				// FIXME System.out.println("Done: " + newstring);
 			}
 		}
 	}
@@ -50,10 +52,11 @@ public class StreamGobbler extends Thread {
 	private static class RunningParser implements LineParser {
 
 		@Override
-		public  void parseLine(String line, MultiplexObserver<RunEvent> mo) {
-			if (line.startsWith("Running:")) {
-				line.replaceFirst("Running:", "");
-				mo.notify(new Runables.RunStarted(line));
+		public void parseLine(String line, MultiplexObserver<RunEvent> mo) {
+			if (line.startsWith("Running: ")) {
+				String newstring = line.replace("Running: ", "");
+				mo.notify(new Runables.RunStarted(newstring));
+				// FIXME System.out.println("Running: " + newstring);
 			}
 		}
 	}

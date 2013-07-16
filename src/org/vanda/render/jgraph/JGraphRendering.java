@@ -278,6 +278,19 @@ public class JGraphRendering {
 		style.put(mxConstants.STYLE_STROKEWIDTH, "3");
 		stylesheet.putCellStyle("highlightededge", style);
 
+		style = new HashMap<String, Object>();
+		style.put(mxConstants.STYLE_FILLCOLOR, "#FF0000");
+		stylesheet.putCellStyle("cancelled", style);
+		
+
+		style = new HashMap<String, Object>();
+		style.put(mxConstants.STYLE_FILLCOLOR, "#FFD010");
+		stylesheet.putCellStyle("running", style);
+		
+
+		style = new HashMap<String, Object>();
+		style.put(mxConstants.STYLE_FILLCOLOR, "#00D01B");
+		stylesheet.putCellStyle("done", style);
 		/*
 		 * style = new HashMap<String,
 		 * Object>(stylesheet.getDefaultVertexStyle());

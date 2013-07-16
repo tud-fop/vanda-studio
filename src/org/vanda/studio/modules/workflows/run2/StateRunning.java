@@ -19,16 +19,17 @@ public class StateRunning extends RunState {
 
 	private StreamGobbler esg;
 	private StreamGobbler isg;
-	private MultiplexObserver<RunEvent> observable;
+	private MultiplexObserver<RunEvent> observable = new MultiplexObserver<RunEvent>();
 	private Process process;
 
-	public StateRunning(ExecutableWorkflow ew, Fragment fragment, Application app) {
+	public StateRunning(ExecutableWorkflow ew, Fragment fragment,
+			Application app) {
 		ew.registerRunEventListener(observable);
 		try {
-			process = Runtime.getRuntime().exec(
-					RCChecker.getOutPath() + "/"
+			process = Runtime
+					.getRuntime()
+					.exec(RCChecker.getOutPath() + "/"
 							+ Fragments.normalize(fragment.getId()), null, null);
-
 		} catch (Exception e) {
 			app.sendMessage(new ExceptionMessage(e));
 		}
@@ -40,6 +41,7 @@ public class StateRunning extends RunState {
 		isg.start();
 		esg.start();
 	}
+
 	@Override
 	void cancel(RunTransitions rt) {
 		process.destroy();
@@ -47,6 +49,7 @@ public class StateRunning extends RunState {
 		observable.notify(new RunCancelledAll());
 		rt.doCancel();
 	}
+
 	@Override
 	void finish(RunTransitions rt) {
 		int i = 0;
@@ -60,6 +63,7 @@ public class StateRunning extends RunState {
 		else
 			rt.doCancel();
 	}
+
 	String getString(Date date) {
 		return "[Running] " + date.toString();
 	}

@@ -41,7 +41,6 @@ import org.vanda.util.Observer;
 import org.vanda.util.Pair;
 import org.vanda.util.Util;
 
-import org.vanda.view.AbstractView;
 import org.vanda.view.View;
 
 import org.vanda.workflows.data.Database;

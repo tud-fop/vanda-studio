@@ -1,15 +1,22 @@
 package org.vanda.studio.modules.previews;
 
+import java.awt.event.KeyEvent;
 import java.awt.print.PageFormat;
+import java.io.IOException;
 
 import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 
 import org.vanda.execution.model.ExecutableWorkflow;
+import org.vanda.fragment.model.Fragment;
+import org.vanda.fragment.model.Generator;
 import org.vanda.presentationmodel.execution.PresentationModel;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
+import org.vanda.studio.modules.workflows.run2.Run;
 import org.vanda.types.Type;
+import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Pair;
 import org.vanda.view.View;
@@ -27,8 +34,51 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 	 * 
 	 */
 	public class WorkflowExecution {
+		private final class CancelAction implements Action {
+			private final Run run;
+
+			private CancelAction(Run run) {
+				this.run = run;
+			}
+
+			@Override
+			public String getName() {
+				return "Cancel";
+			}
+
+			@Override
+			public void invoke() {
+				run.cancel();
+				app.getWindowSystem().disableAction(this);
+			}
+		}
+		private final class RunAction implements Action {
+
+			@Override
+			public String getName() {
+				return "Run";
+			}
+
+			@Override
+			public void invoke() {
+				Fragment frag = generate();
+				if (frag != null) {
+					System.out.println("invoked RunAction");
+					Run run = new Run(app, getExecutableWorkflow(), frag);
+					run.execute();
+					app.getWindowSystem().addAction(
+							component,
+							new CancelAction(run),
+							KeyStroke.getKeyStroke(KeyEvent.VK_C,
+									KeyEvent.CTRL_MASK));
+					app.getWindowSystem().disableAction(this);
+				}
+			}
+		}
 		JComponent component;
+
 		ExecutableWorkflow ewf;
+
 		PresentationModel pm;
 
 		public WorkflowExecution(Pair<MutableWorkflow, Database> phd)
@@ -66,18 +116,35 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 
 			component.setName(phd.fst.getName() + "Execution");
 			this.component = component;
+			app.getWindowSystem().addAction(component, new RunAction(),
+					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+		}
+
+		private Fragment generate() {
+			try {
+				return prof.generate(getExecutableWorkflow());
+			} catch (IOException e) {
+				app.sendMessage(new ExceptionMessage(e));
+			}
+			return null;
 		}
 
 		public JComponent getComponent() {
 			return component;
 		}
 
+		public ExecutableWorkflow getExecutableWorkflow() {
+			return ewf;
+		}
+
 	}
 
 	private final Application app;
+	private final Generator prof;
 
-	public WorkflowExecutionPreview(Application app) {
+	public WorkflowExecutionPreview(Application app, Generator prof) {
 		this.app = app;
+		this.prof = prof;
 	}
 
 	@Override

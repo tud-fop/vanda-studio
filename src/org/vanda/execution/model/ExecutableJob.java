@@ -1,5 +1,7 @@
 package org.vanda.execution.model;
 
+import java.util.Observable;
+
 import org.vanda.execution.model.Runables.DefaultRunEventListener;
 import org.vanda.execution.model.Runables.RunEvent;
 import org.vanda.execution.model.Runables.RunEventListener;
@@ -19,7 +21,7 @@ public class ExecutableJob extends Job implements Runable {
 	}
 
 	public ExecutableJob(Job ji, String toolPrefix) {
-		super(ji.getElement());
+		super(ji.getElement(), true);
 		this.setDimensions(new double[] { ji.getX(), ji.getY(), ji.getWidth(),
 				ji.getHeight() });
 		this.state = new StateReady();

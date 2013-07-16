@@ -54,6 +54,7 @@ public class Run extends SwingWorker<String, String> implements RunTransitions {
 
 	@Override
 	protected String doInBackground() {
+		System.out.println("Do in Background");
 		state.run(this);
 		return null;
 	}
