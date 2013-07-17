@@ -25,6 +25,10 @@ install_pkg () {
 	install_me "$BINDIR/$binpath"
 	cd "$1"
 	cp func.bash "$FUNCDIR/$id.bash"
+	if [ -f "interface.xml" ]
+	then
+		cp "interface.xml" "$IFACEDIR/$id.xml"
+	fi
 	if [ ! -f "$PKGDB/$id" ]
 	then
 		echo "$varname=$BINDIR/$binpath" >> "$RCPATH"
