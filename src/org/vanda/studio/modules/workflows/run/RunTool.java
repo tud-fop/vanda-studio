@@ -35,7 +35,9 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import org.vanda.fragment.model.Generator;
-import org.vanda.fragment.model.Model;
+//import org.vanda.fragment.model.Model;
+import org.vanda.fragment.model.SemanticAnalysis;
+import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
@@ -49,7 +51,8 @@ public class RunTool implements SemanticsToolFactory {
 
 	private static final class Tool {
 		private final WorkflowEditor wfe;
-		private final Model mm;
+		// private final Model mm;
+		private final SemanticAnalysis semA;
 		private final Application app;
 		private final Generator prof;
 		private final List<Run> runs;
@@ -72,9 +75,11 @@ public class RunTool implements SemanticsToolFactory {
 
 		}
 
-		public Tool(WorkflowEditor wfe, Model mm, Generator prof) {
+		// public Tool(WorkflowEditor wfe, Model mm, Generator prof) {
+		public Tool(WorkflowEditor wfe, SemanticAnalysis semA, Generator prof) {
 			this.wfe = wfe;
-			this.mm = mm;
+			// this.mm = mm;
+			this.semA = semA;
 			app = wfe.getApplication();
 			this.prof = prof;
 			wfe.addAction(new GenerateAction(), KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
@@ -335,7 +340,9 @@ public class RunTool implements SemanticsToolFactory {
 			public void doFinish() {
 				state = new StateDone();
 				try {
-					mm.checkWorkflow();
+					// mm.checkWorkflow();
+					//FIXME but obsolete
+
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -437,17 +444,20 @@ public class RunTool implements SemanticsToolFactory {
 		}
 
 		private String generate() {
+			SyntaxAnalysis synA = wfe.getSyntaxAnalysis();
+			SemanticAnalysis semA = wfe.getSemanticAnalysis();
 			try {
-				mm.checkWorkflow();
+				// mm.checkWorkflow();
+				wfe.getSyntaxAnalysis().checkWorkflow();
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
-			if (mm.getExecutableWorkflow().isConnected() &&
+			// if (mm.getExecutableWorkflow().isConnected() &&
 			// mm.getDataflowAnalysis().isConnected() &&
-					Types.canUnify(mm.getFragmentType(), prof.getRootType())) {
+			if (semA.getDFA().isConnected() && Types.canUnify(synA.getFragmentType(), prof.getRootType())) {
 				try {
 					// return prof.generate(mm.getDataflowAnalysis());
-					return prof.generate(mm.getExecutableWorkflow());
+					return prof.generate(synA, semA); // .getExecutableWorkflow());
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}
@@ -464,8 +474,9 @@ public class RunTool implements SemanticsToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model model, View view) {
-		return new Tool(wfe, model, prof);
+	// public Object instantiate(WorkflowEditor wfe, Model model, View view) {
+	public Object instantiate(WorkflowEditor wfe, SyntaxAnalysis synA, SemanticAnalysis semA, View view) {
+		return new Tool(wfe, semA, prof);
 	}
 
 }

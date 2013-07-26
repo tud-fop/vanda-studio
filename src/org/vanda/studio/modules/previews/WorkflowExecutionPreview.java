@@ -119,6 +119,7 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 		private String generate() {
 			try {
 				return prof.generate(getExecutableWorkflow());
+//				return prof.generate(synA, semA);
 			} catch (IOException e) {
 				app.sendMessage(new ExceptionMessage(e));
 			}

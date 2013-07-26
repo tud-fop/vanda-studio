@@ -123,8 +123,7 @@ public class AssignmentWorkflowInstance implements Runable {
 
 	private WeakHashMap<Location, ConnectionKey> varSources;
 
-	public AssignmentWorkflowInstance(final Map<Integer, String> dbRow,
-			Job[] jobs, String id) {
+	public AssignmentWorkflowInstance(final Map<Integer, String> dbRow, Job[] jobs, String id) {
 		this.jobs = new ArrayList<ExecutableJob>();
 		this.jobListener = new JobListener();
 		this.id = id;
@@ -197,24 +196,21 @@ public class AssignmentWorkflowInstance implements Runable {
 					public void visitLiteral(Literal lit) {
 						// String id; // TODO generate IDs!!
 						// id = lit.getKey ??
-						ExecutableJob ej = new ExecutableJob(ji, dbRow.get(lit
-								.getKey()));
+						ExecutableJob ej = new ExecutableJob(ji, dbRow.get(lit.getKey()));
 						ej.insert();
 						Port op = ji.getOutputPorts().get(0);
-						ValuedLocation valVar = new ValuedLocation(dbRow
-								.get(lit.getKey()));
+						ValuedLocation valVar = new ValuedLocation(dbRow.get(lit.getKey()));
 						ej.bindings.put(op, valVar);
 						varSources.put(valVar, new ConnectionKey(ej, op));
 						translation.put(ji.bindings.get(op), valVar);
 						jobs.add(ej);
-						ej.getObservable().addObserver(
-								new Observer<JobEvent<Job>>() {
+						ej.getObservable().addObserver(new Observer<JobEvent<Job>>() {
 
-									@Override
-									public void notify(JobEvent<Job> event) {
-										event.doNotify(jobListener);
-									}
-								});
+							@Override
+							public void notify(JobEvent<Job> event) {
+								event.doNotify(jobListener);
+							}
+						});
 
 					}
 
@@ -230,43 +226,36 @@ public class AssignmentWorkflowInstance implements Runable {
 						sb.append('(');
 						List<Port> ports = t.getInputPorts();
 						if (ports.size() > 0) {
-							ej.bindings.put(ports.get(0), translation
-									.get(ji.bindings.get(ports.get(0))));
+							ej.bindings.put(ports.get(0), translation.get(ji.bindings.get(ports.get(0))));
 							appendValue(sb, ej, ports.get(0));
 						}
 						for (int i = 1; i < ports.size(); i++) {
 							sb.append(',');
-							ej.bindings.put(ports.get(i), translation
-									.get(ji.bindings.get(ports.get(i))));
+							ej.bindings.put(ports.get(i), translation.get(ji.bindings.get(ports.get(i))));
 							appendValue(sb, ej, ports.get(i));
 						}
 						sb.append(')');
-						String toolPrefix = DataflowAnalysis.normalize(t.getId())
-								+ "." + md5sum(sb.toString());
+						String toolPrefix = DataflowAnalysis.normalize(t.getId()) + "." + md5sum(sb.toString());
 						ej.setToolPrefix(toolPrefix);
 
 						// OutPorts
 						for (Port op : t.getOutputPorts()) {
-							String value = toolPrefix + "."
-									+ op.getIdentifier();
+							String value = toolPrefix + "." + op.getIdentifier();
 							ej.bindings.put(op, new ValuedLocation(value));
-							varSources.put(ej.bindings.get(op),
-									new ConnectionKey(ej, op));
-							translation.put(ji.bindings.get(op),
-									(ValuedLocation) ej.bindings.get(op));
+							varSources.put(ej.bindings.get(op), new ConnectionKey(ej, op));
+							translation.put(ji.bindings.get(op), (ValuedLocation) ej.bindings.get(op));
 						}
 
 						jobs.add(ej);
 
 						if (ej.getObservable() != null)
-							ej.getObservable().addObserver(
-									new Observer<JobEvent<Job>>() {
+							ej.getObservable().addObserver(new Observer<JobEvent<Job>>() {
 
-										@Override
-										public void notify(JobEvent<Job> event) {
-											event.doNotify(jobListener);
-										}
-									});
+								@Override
+								public void notify(JobEvent<Job> event) {
+									event.doNotify(jobListener);
+								}
+							});
 
 					}
 
@@ -287,8 +276,7 @@ public class AssignmentWorkflowInstance implements Runable {
 
 					// FIXME -> id = not necessary ?! (will not compile)
 					ej.bindings.put(op, new ValuedLocation(sb.toString()));
-					translation.put(ji.bindings.get(op),
-							(ValuedLocation) ej.bindings.get(op));
+					translation.put(ji.bindings.get(op), (ValuedLocation) ej.bindings.get(op));
 
 					jobs.add(ej);
 				}

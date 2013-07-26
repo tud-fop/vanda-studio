@@ -13,7 +13,9 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.text.html.HTMLDocument;
 
-import org.vanda.fragment.model.Model;
+//import org.vanda.fragment.model.Model;
+import org.vanda.fragment.model.SemanticAnalysis;
+import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.inspector.AbstractEditorFactory;
 import org.vanda.studio.modules.workflows.inspector.AbstractPreviewFactory;
@@ -27,6 +29,7 @@ import org.vanda.util.Observer;
 import org.vanda.view.View;
 import org.vanda.view.View.GlobalViewEvent;
 import org.vanda.view.View.GlobalViewListener;
+import org.vanda.workflows.hyper.TypeCheckingException;
 import org.vanda.util.Action;
 
 public class InspectorTool implements SemanticsToolFactory {
@@ -35,7 +38,9 @@ public class InspectorTool implements SemanticsToolFactory {
 
 	public final class Inspector {
 		private final WorkflowEditor wfe;
-		private final Model mm;
+		// private final Model mm;
+		private final SyntaxAnalysis synA;
+		private final SemanticAnalysis semA;
 		private final JPanel contentPane;
 		private final JEditorPane inspector;
 		private final JScrollPane therealinspector;
@@ -43,19 +48,21 @@ public class InspectorTool implements SemanticsToolFactory {
 		private JComponent preview;
 		private final View view;
 
-		public Inspector(WorkflowEditor wfe, Model mm, View view) {
+		// public Inspector(WorkflowEditor wfe, Model mm, View view) {
+		public Inspector(WorkflowEditor wfe, SyntaxAnalysis synA, SemanticAnalysis semA, View view) {
 			this.wfe = wfe;
-			this.mm = mm;
+			// this.mm = mm;
+			this.synA = synA;
+			this.semA = semA;
 			this.view = view;
 
 			// ws = null;
 			inspector = new JEditorPane("text/html", "");
 			inspector.setEditable(false);
 			Font font = UIManager.getFont("Label.font");
-			String bodyRule = "body { font-family: " + font.getFamily() + "; "
-					+ "font-size: " + font.getSize() + "pt; }";
-			((HTMLDocument) inspector.getDocument()).getStyleSheet().addRule(
-					bodyRule);
+			String bodyRule = "body { font-family: " + font.getFamily() + "; " + "font-size: " + font.getSize()
+					+ "pt; }";
+			((HTMLDocument) inspector.getDocument()).getStyleSheet().addRule(bodyRule);
 			therealinspector = new JScrollPane(inspector);
 			contentPane = new JPanel(new BorderLayout());
 			contentPane.add(therealinspector, BorderLayout.CENTER);
@@ -77,27 +84,24 @@ public class InspectorTool implements SemanticsToolFactory {
 				}
 
 			};
-			wfe.addAction(new CheckWorkflowAction(),
-					KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
+			wfe.addAction(new CheckWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
 
-			wfe.getView().getObservable()
-					.addObserver(new Observer<GlobalViewEvent<View>>() {
+			wfe.getView().getObservable().addObserver(new Observer<GlobalViewEvent<View>>() {
 
-						@Override
-						public void notify(GlobalViewEvent<View> event) {
-							event.doNotify(listener);
-						}
-					});
+				@Override
+				public void notify(GlobalViewEvent<View> event) {
+					event.doNotify(listener);
+				}
+			});
 
-			wfe.getView().getWorkflow().getObservable()
-					.addObserver(new Observer<Object>() {
+			wfe.getView().getWorkflow().getObservable().addObserver(new Observer<Object>() {
 
-						@Override
-						public void notify(Object event) {
-							update();
-						}
+				@Override
+				public void notify(Object event) {
+					update();
+				}
 
-					});
+			});
 
 			this.wfe.focusToolWindow(contentPane);
 			update();
@@ -145,11 +149,13 @@ public class InspectorTool implements SemanticsToolFactory {
 			// if (truews == null)
 			// truews = new
 			// WorkflowSelection(wfe.getWorkflowDecoration().getRoot());
-			setInspection(InspectorialVisitor.inspect(mm, view));
+			// setInspection(InspectorialVisitor.inspect(mm, view));
+			setInspection(InspectorialVisitor.inspect(synA, semA, view));
 			// if (newws != ws) {
 			// editor and preview keep track of changes on their own
 			setEditor(EditorialVisitor.createAbstractFactory(eefs, view));
-			setPreview(PreviewesqueVisitor.createPreviewFactory(mm, view));
+			// setPreview(PreviewesqueVisitor.createPreviewFactory(mm, view));
+			setPreview(PreviewesqueVisitor.createPreviewFactory(semA, synA, view));
 			// }
 			// ws = newws;
 		}
@@ -163,7 +169,14 @@ public class InspectorTool implements SemanticsToolFactory {
 
 			@Override
 			public void invoke() {
-				mm.checkWorkflow();
+				try {
+					wfe.getSyntaxAnalysis().checkWorkflow();
+				} catch (TypeCheckingException e) {
+					
+				}
+				catch ( Exception e) {
+					// do nothing e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -173,7 +186,8 @@ public class InspectorTool implements SemanticsToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model model, View view) {
-		return new Inspector(wfe, model, view);
+	// public Object instantiate(WorkflowEditor wfe, Model model, View view) {
+	public Object instantiate(WorkflowEditor wfe, SyntaxAnalysis synA, SemanticAnalysis semA, View view) {
+		return new Inspector(wfe, synA, semA, view);
 	}
 }

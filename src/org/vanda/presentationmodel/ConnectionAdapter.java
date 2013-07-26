@@ -255,6 +255,8 @@ public class ConnectionAdapter {
 		// Register at ConnectionView
 		connectionViewListener = new ConnectionViewListener();
 		AbstractView connectionView = view.getConnectionView(connectionKey);
+		
+		// FIXME just a workaround
 		if (connectionView == null) {
 			view.addConnectionView(connectionKey);
 			connectionView = view.getConnectionView(connectionKey);

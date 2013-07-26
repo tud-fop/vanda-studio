@@ -7,7 +7,9 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
 import org.vanda.fragment.model.Generator;
-import org.vanda.fragment.model.Model;
+//import org.vanda.fragment.model.Model;
+import org.vanda.fragment.model.SemanticAnalysis;
+import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.previews.WorkflowExecutionPreview;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
@@ -62,13 +64,17 @@ public class RunTool implements SemanticsToolFactory {
 		}
 
 		Application app;
-		Model mm;
+//		Model mm;
 
-		WorkflowEditor wfe;
+		private WorkflowEditor wfe;
+		private SemanticAnalysis semA;
+		private SyntaxAnalysis synA;
 
-		public Tool(WorkflowEditor wfe, Model mm) {
+		public Tool(WorkflowEditor wfe, SyntaxAnalysis synA, SemanticAnalysis semA) {
 			this.wfe = wfe;
-			this.mm = mm;
+//			this.mm = mm;
+			this.synA = synA;
+			this.semA = semA;
 			app = wfe.getApplication();
 			wfe.addAction(new RunAction(),
 					KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_MASK));
@@ -76,14 +82,18 @@ public class RunTool implements SemanticsToolFactory {
 
 		private String generate() {
 			try {
-				mm.checkWorkflow();
+//				mm.checkWorkflow();
+				synA.checkWorkflow();
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
-			if (mm.getExecutableWorkflow().isConnected()
-					&& Types.canUnify(mm.getFragmentType(), prof.getRootType())) {
+//			if (mm.getExecutableWorkflow().isConnected()
+			if (semA.getDFA().isConnected()
+//					&& Types.canUnify(mm.getFragmentType(), prof.getRootType())) {
+					&& Types.canUnify(synA.getFragmentType(), prof.getRootType())) {
 				try {
-					return prof.generate(mm.getExecutableWorkflow());
+//					return prof.generate(mm.getExecutableWorkflow());
+					return prof.generate(synA, semA);
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}
@@ -99,8 +109,9 @@ public class RunTool implements SemanticsToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model model, View view) {
-		return new Tool(wfe, model);
+//	public Object instantiate(WorkflowEditor wfe, Model model, View view) {
+	public Object instantiate(WorkflowEditor wfe, SyntaxAnalysis synA, SemanticAnalysis semA, View view) {
+		return new Tool(wfe, synA, semA);
 	}
 
 }

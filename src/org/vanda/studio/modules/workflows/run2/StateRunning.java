@@ -103,11 +103,7 @@ public class StateRunning extends RunState {
 
 		@Override
 		public void notify(RunEvent event) {
-			notifyEvent(event);
-		}
-
-		synchronized void notifyEvent(RunEvent e) {
-			publish(e);
+			publish(event);
 		}
 
 		@Override
