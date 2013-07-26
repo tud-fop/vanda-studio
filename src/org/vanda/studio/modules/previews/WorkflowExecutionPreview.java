@@ -9,7 +9,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 
 import org.vanda.execution.model.ExecutableWorkflow;
-import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.Generator;
 import org.vanda.presentationmodel.execution.PresentationModel;
 import org.vanda.studio.app.Application;
@@ -52,6 +51,7 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 				app.getWindowSystem().disableAction(this);
 			}
 		}
+
 		private final class RunAction implements Action {
 
 			@Override
@@ -61,28 +61,27 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 
 			@Override
 			public void invoke() {
-				Fragment frag = generate();
-				if (frag != null) {
+				// TODO retrieve "id" from some .run file, no need to build
+				// fragment again
+				String id = generate();
+				if (id != null) {
 					System.out.println("invoked RunAction");
-					Run run = new Run(app, getExecutableWorkflow(), frag);
-					run.execute();
-					app.getWindowSystem().addAction(
-							component,
-							new CancelAction(run),
-							KeyStroke.getKeyStroke(KeyEvent.VK_C,
-									KeyEvent.CTRL_MASK));
+					Run run = new Run(app, getExecutableWorkflow().getObserver(), id);
+					run.run();
+					app.getWindowSystem().addAction(component, new CancelAction(run),
+							KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
 					app.getWindowSystem().disableAction(this);
 				}
 			}
 		}
+
 		JComponent component;
 
 		ExecutableWorkflow ewf;
 
 		PresentationModel pm;
 
-		public WorkflowExecution(Pair<MutableWorkflow, Database> phd)
-				throws TypeCheckingException {
+		public WorkflowExecution(Pair<MutableWorkflow, Database> phd) throws TypeCheckingException {
 
 			TypeChecker tc = new TypeChecker();
 			phd.fst.typeCheck(tc);
@@ -102,25 +101,22 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 			pm = new PresentationModel(view, ewf);
 
 			// setup component design
-			mxGraphComponent component = (mxGraphComponent) pm
-					.getVisualization().getGraphComponent();
-			component.setDragEnabled(false);
+			mxGraphComponent gc = (mxGraphComponent) pm.getVisualization().getGraphComponent();
+			gc.setDragEnabled(false);
 
-			component.setPanning(true);
-			component.getPageFormat().setOrientation(PageFormat.LANDSCAPE);
-			component.setPageVisible(true);
-			component
-					.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-			component
-					.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+			gc.setPanning(true);
+			gc.getPageFormat().setOrientation(PageFormat.LANDSCAPE);
+			gc.setPageVisible(true);
+			gc.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			gc.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 
-			component.setName(phd.fst.getName() + "Execution");
-			this.component = component;
-			app.getWindowSystem().addAction(component, new RunAction(),
+			gc.setName(phd.fst.getName() + "Execution");
+			component = gc;
+			app.getWindowSystem().addAction(gc, new RunAction(),
 					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
 		}
 
-		private Fragment generate() {
+		private String generate() {
 			try {
 				return prof.generate(getExecutableWorkflow());
 			} catch (IOException e) {
@@ -151,8 +147,7 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 	public JComponent createPreview(String filePath) {
 		Pair<MutableWorkflow, Database> phd;
 		try {
-			phd = new Loader(app.getToolMetaRepository().getRepository())
-					.load(filePath);
+			phd = new Loader(app.getToolMetaRepository().getRepository()).load(filePath);
 			WorkflowExecution wfe = new WorkflowExecution(phd);
 			return wfe.getComponent();
 		} catch (Exception e) {

@@ -21,7 +21,6 @@ import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.MutableWorkflow;
 
 public class GeneratorImpl implements Generator, FragmentIO {
 
@@ -111,11 +110,11 @@ public class GeneratorImpl implements Generator, FragmentIO {
 		}
 
 //		public Fragment generate(DataflowAnalysis dfa) throws IOException {
-		public Fragment generate(ExecutableWorkflow ewf) throws IOException {
+		public String generate(ExecutableWorkflow ewf) throws IOException {
 			String root = generateFragment(ewf);
 //			String root = generateFragment(dfa);
 			return prof.getRootLinker(getRootType()).link(root, null, null,
-					null, null, fb, GeneratorImpl.this);
+					null, null, fb, GeneratorImpl.this).getId();
 		}
 
 		public String makeUnique(String prefix, Object key) {
@@ -135,7 +134,7 @@ public class GeneratorImpl implements Generator, FragmentIO {
 
 	@Override
 //	public Fragment generate(DataflowAnalysis dfa) throws IOException {
-	public Fragment generate(ExecutableWorkflow ewf) throws IOException {
+	public String generate(ExecutableWorkflow ewf) throws IOException {
 		return new TheGenerator().generate(ewf);
 //		return new TheGenerator().generate(dfa);
 	}

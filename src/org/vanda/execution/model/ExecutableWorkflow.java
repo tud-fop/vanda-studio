@@ -129,6 +129,14 @@ public final class ExecutableWorkflow extends MutableWorkflow implements
 	public String getID() {
 		return id;
 	}
+	
+	// FIXME TODO do not recreate the observer, but look up the jobs by ID according to the event's id
+	// in the process, get rid of registerRunEventListener!
+	public Observer<RunEvent> getObserver() {
+		MultiplexObserver<RunEvent> mo = new MultiplexObserver<RunEvent>();
+		registerRunEventListener(mo);
+		return mo;
+	}
 
 	public ExecutableJob[] getSortedJobs() {
 		List<ExecutableJob> sorted = new ArrayList<ExecutableJob>();
@@ -171,7 +179,7 @@ public final class ExecutableWorkflow extends MutableWorkflow implements
 
 		for (int i = 0; i < db.getSize(); ++i) {
 			// TODO skip unselected Assignments
-			String id = "AssingmentWorkflow" + ((Integer) i).toString();
+			String id = "AssignmentWorkflow" + ((Integer) i).toString();
 			workflows.put((Integer) i,
 					new AssignmentWorkflowInstance(db.getRow(i), jobs, id));
 			cc = cc && workflows.get(i).isConnected();

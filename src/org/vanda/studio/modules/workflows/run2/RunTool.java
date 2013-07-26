@@ -6,7 +6,6 @@ import java.io.IOException;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
-import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.Generator;
 import org.vanda.fragment.model.Model;
 import org.vanda.studio.app.Application;
@@ -29,8 +28,8 @@ public class RunTool implements SemanticsToolFactory {
 
 			@Override
 			public void invoke() {
-				Fragment frag = generate();
-				if (frag != null) {
+				String id = generate();
+				if (id != null) {
 					// serialize Workflow + Database
 					// TODO use generic path!!
 					String filePath = "/tmp/executionTest";
@@ -47,7 +46,7 @@ public class RunTool implements SemanticsToolFactory {
 							app, prof).createPreview(filePath);
 
 					if (executionPreview != null) {
-						executionPreview.setName(frag.getId() + "Execution");
+						executionPreview.setName(id + " Run");
 
 						// create tab with WorkflowExecutionPreview
 						app.getWindowSystem().addContentWindow(null,
@@ -64,20 +63,18 @@ public class RunTool implements SemanticsToolFactory {
 
 		Application app;
 		Model mm;
-		Generator prof;
 
 		WorkflowEditor wfe;
 
-		public Tool(WorkflowEditor wfe, Model mm, Generator prof) {
+		public Tool(WorkflowEditor wfe, Model mm) {
 			this.wfe = wfe;
 			this.mm = mm;
 			app = wfe.getApplication();
-			this.prof = prof;
 			wfe.addAction(new RunAction(),
 					KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_MASK));
 		}
 
-		private Fragment generate() {
+		private String generate() {
 			try {
 				mm.checkWorkflow();
 			} catch (Exception e1) {
@@ -103,7 +100,7 @@ public class RunTool implements SemanticsToolFactory {
 
 	@Override
 	public Object instantiate(WorkflowEditor wfe, Model model, View view) {
-		return new Tool(wfe, model, prof);
+		return new Tool(wfe, model);
 	}
 
 }

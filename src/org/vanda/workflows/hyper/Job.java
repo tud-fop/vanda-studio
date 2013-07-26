@@ -10,8 +10,10 @@ import org.vanda.util.Observable;
 import org.vanda.util.Observer;
 import org.vanda.workflows.elements.ElementReturnVisitor;
 import org.vanda.workflows.elements.ElementVisitor;
+import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
+import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.ElementAdapters.ElementAdapterEvent;
 import org.vanda.workflows.hyper.ElementAdapters.ElementAdapterListener;
 import org.vanda.workflows.hyper.Jobs.*;
@@ -121,6 +123,21 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 
 	public void visit(ElementVisitor v) {
 		element.visit(v);
+	}
+
+	public void visit(final JobVisitor v) {
+		element.visit(new ElementVisitor() {
+
+			@Override
+			public void visitLiteral(Literal l) {
+				v.visitLiteral(Job.this, l);
+			}
+
+			@Override
+			public void visitTool(Tool t) {
+				v.visitTool(Job.this, t);
+			}
+		});
 	}
 
 	public <R> R visitReturn(ElementReturnVisitor<R> v) {

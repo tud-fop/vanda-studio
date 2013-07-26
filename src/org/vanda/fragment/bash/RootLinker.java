@@ -117,10 +117,10 @@ public class RootLinker implements FragmentLinker {
 		 * sb.append(Fragment.normalize(dep)); } sb.append("\n\n");
 		 */
 		sb.append("cd " + BASEPATH + "\n");
-		sb.append(Fragments.normalize(name));
+		sb.append(name);
 		sb.append('\n');
 
-		File f = io.createFile(Fragments.normalize(name));
+		File f = io.createFile(name);
 		FileWriter fw = new FileWriter(f, false);
 		fw.write(sb.toString());
 		fw.close();

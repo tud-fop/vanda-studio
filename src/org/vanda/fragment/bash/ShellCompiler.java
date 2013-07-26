@@ -14,6 +14,7 @@ import org.vanda.fragment.model.FragmentIO;
 import org.vanda.fragment.model.Fragments;
 import org.vanda.types.Type;
 import org.vanda.types.Types;
+import org.vanda.workflows.data.DataflowAnalysis;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
@@ -28,11 +29,12 @@ public class ShellCompiler implements FragmentCompiler {
 			ExecutableWorkflow ewf, 
 //			final DataflowAnalysis dfa,
 			ArrayList<Fragment> fragments, final FragmentIO fio) {
+		String nname = DataflowAnalysis.normalize(name);
 		final StringBuilder sb = new StringBuilder();
 		final HashSet<String> dependencies = new HashSet<String>();
 		Set<String> im = new HashSet<String>();
 		sb.append("function ");
-		sb.append(Fragments.normalize(name));
+		sb.append(nname);
 		sb.append(" {\n");
 		int i = 0;
 //		for (final Job ji : dfa.getSorted()) {
@@ -54,7 +56,7 @@ public class ShellCompiler implements FragmentCompiler {
 					sb.append("  run ");
 					sb.append(frag.getInputPorts().size());
 					sb.append(' ');
-					sb.append(Fragments.normalize(frag.getId()));
+					sb.append(frag.getId());
 					sb.append(' ');
 //					sb.append(dfa.getRootDir(t));
 					sb.append(ji.getToolPrefix());
@@ -78,7 +80,7 @@ public class ShellCompiler implements FragmentCompiler {
 			i++;
 		}
 		sb.append("}\n\n");
-		return new StaticFragment(name, Fragments.EMPTY_LIST,
+		return new StaticFragment(nname, Fragments.EMPTY_LIST,
 				Fragments.EMPTY_LIST, sb.toString(), dependencies, im);
 	}
 

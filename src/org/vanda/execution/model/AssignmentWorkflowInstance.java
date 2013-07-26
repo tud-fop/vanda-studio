@@ -17,9 +17,9 @@ import org.vanda.execution.model.Runables.RunEvent;
 import org.vanda.execution.model.Runables.RunEventListener;
 import org.vanda.execution.model.Runables.RunState;
 import org.vanda.execution.model.Runables.RunStateVisitor;
-import org.vanda.fragment.model.Fragments;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observer;
+import org.vanda.workflows.data.DataflowAnalysis;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
@@ -241,7 +241,7 @@ public class AssignmentWorkflowInstance implements Runable {
 							appendValue(sb, ej, ports.get(i));
 						}
 						sb.append(')');
-						String toolPrefix = Fragments.normalize(t.getId())
+						String toolPrefix = DataflowAnalysis.normalize(t.getId())
 								+ "." + md5sum(sb.toString());
 						ej.setToolPrefix(toolPrefix);
 

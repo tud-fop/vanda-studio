@@ -10,6 +10,6 @@ public interface Generator {
 	Type getRootType();
 
 //	Fragment generate(DataflowAnalysis dfa) throws IOException;
-	Fragment generate(ExecutableWorkflow ewf) throws IOException;
+	String generate(ExecutableWorkflow ewf) throws IOException;
 
 }

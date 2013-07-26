@@ -2,29 +2,29 @@ package org.vanda.studio.modules.workflows.run2;
 
 import java.util.Date;
 
-import javax.swing.SwingWorker;
-
-import org.vanda.execution.model.ExecutableWorkflow;
-import org.vanda.fragment.model.Fragment;
+import org.vanda.execution.model.Runables.RunEvent;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.workflows.run2.Runs.RunState;
 import org.vanda.studio.modules.workflows.run2.Runs.RunTransitions;
 import org.vanda.studio.modules.workflows.run2.Runs.StateCancelled;
 import org.vanda.studio.modules.workflows.run2.Runs.StateInit;
 import org.vanda.studio.modules.workflows.run2.Runs.StateDone;
+import org.vanda.util.Observer;
 
-public class Run extends SwingWorker<String, String> implements RunTransitions {
+public class Run implements RunTransitions {
 	private Date date;
-	private Fragment frag;
-	private ExecutableWorkflow ew;
-	private RunState state = new StateInit();
+	private String id;
+	private Observer<RunEvent> obs;
+	private RunState state;
 	private Application app;
 
-	public Run(Application app, ExecutableWorkflow ew, Fragment fragment) {
+	public Run(Application app, Observer<RunEvent> obs, String id) {
 		date = new Date();
-		frag = fragment;
-		this.ew = ew;
+		this.id = id;
+		this.obs = obs;
 		this.app = app;
+		state = new StateInit(this);
+		state.process();
 	}
 
 	public String toString() {
@@ -34,29 +34,27 @@ public class Run extends SwingWorker<String, String> implements RunTransitions {
 	@Override
 	public void doCancel() {
 		state = new StateCancelled();
+		state.process();
 	}
 
 	public void cancel() {
-		super.cancel(true);
-		state.cancel(this);
+		state.cancel();
 	}
 
 	@Override
 	public void doFinish() {
 		state = new StateDone();
+		state.process();
 	}
 
 	@Override
 	public void doRun() {
-		state = new StateRunning(ew, frag, app);
-		state.finish(this);
+		state = new StateRunning(obs, id, app, this);
+		state.process();
 	}
-
-	@Override
-	protected String doInBackground() {
-		System.out.println("Do in Background");
-		state.run(this);
-		return null;
+	
+	public void run() {
+		state.run();
 	}
 
 }

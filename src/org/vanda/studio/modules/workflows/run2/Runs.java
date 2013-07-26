@@ -13,42 +13,53 @@ public class Runs {
 
 	public static class RunState {
 
-		void cancel(RunTransitions rt) {
+		public void cancel() {
+
+		}
+		
+		public void finish() {
+			
+		}
+		
+		public void process() {
+			// perform background process for the state
+		}
+
+		public void run() {
 
 		}
 
-		void finish(RunTransitions rt) {
-
-		}
-
-		void run(RunTransitions rt) {
-
-		}
-
-		String getString(Date date) {
+		public String getString(Date date) {
 			return date.toString();
 		}
 	}
 
 	public static class StateInit extends RunState {
+		
+		private final RunTransitions rt;
+		
+		public StateInit(RunTransitions rt) {
+			this.rt = rt;
+		}
 
-		void run(RunTransitions rt) {
+		@Override
+		public void run() {
 			rt.doRun();
 		}
 
-		String getString(Date date) {
+		public String getString(Date date) {
 			return "[Initial] " + date.toString();
 		}
 	}
 
 	public static class StateCancelled extends RunState {
-		String getString(Date date) {
+		public String getString(Date date) {
 			return "[Cancelled] " + date.toString();
 		}
 	}
 
 	public static class StateDone extends RunState {
-		String getString(Date date) {
+		public String getString(Date date) {
 			return "[Done] " + date.toString();
 		}
 	}

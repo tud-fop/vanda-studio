@@ -1,5 +1,7 @@
 package org.vanda.workflows.hyper;
 
+import java.util.Collection;
+
 
 public class Jobs {
 	
@@ -29,6 +31,16 @@ public class Jobs {
 			jl.propertyChanged(j);
 		}
 
+	}
+	
+	public static void visitAll(Job[] js, JobVisitor v) {
+		for (Job j : js)
+			j.visit(v);
+	}
+	
+	public static void visitAll(Collection<Job> js, JobVisitor v) {
+		for (Job j : js)
+			j.visit(v);
 	}
 
 }

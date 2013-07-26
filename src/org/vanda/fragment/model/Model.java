@@ -53,7 +53,6 @@ public class Model implements Observer<WorkflowEvent<MutableWorkflow>>, Workflow
 		tc.check();
 		types = tc.getTypes();
 		fragmentType = tc.getFragmentType();
-		
 	}
 
 	public void checkWorkflow() {

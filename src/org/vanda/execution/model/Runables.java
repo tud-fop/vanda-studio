@@ -47,10 +47,17 @@ public class Runables {
 		public void doNotify(RunEventListener rl) {
 			rl.runCancelled(id);
 		}
+
+		@Override
+		public String getId() {
+			return id;
+		}
 	}
 
 	public static interface RunEvent {
 		public void doNotify(RunEventListener rl);
+		
+		public String getId();
 	}
 
 	public static interface RunEventListener {
@@ -74,6 +81,11 @@ public class Runables {
 		public void doNotify(RunEventListener rl) {
 			rl.runFinished(id);
 		}
+
+		@Override
+		public String getId() {
+			return id;
+		}
 	}
 	
 	public static class RunCancelledAll implements RunEvent {
@@ -81,6 +93,11 @@ public class Runables {
 		@Override
 		public void doNotify(RunEventListener rl) {
 			rl.cancelledAll();
+		}
+
+		@Override
+		public String getId() {
+			return null;
 		}
 		
 	}
@@ -95,6 +112,11 @@ public class Runables {
 		@Override
 		public void doNotify(RunEventListener rl) {
 			rl.runStarted(id);
+		}
+
+		@Override
+		public String getId() {
+			return id;
 		}
 	}
 	

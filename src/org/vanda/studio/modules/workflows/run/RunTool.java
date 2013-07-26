@@ -34,8 +34,6 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import org.vanda.fragment.model.Fragment;
-import org.vanda.fragment.model.Fragments;
 import org.vanda.fragment.model.Generator;
 import org.vanda.fragment.model.Model;
 import org.vanda.studio.app.Application;
@@ -79,10 +77,8 @@ public class RunTool implements SemanticsToolFactory {
 			this.mm = mm;
 			app = wfe.getApplication();
 			this.prof = prof;
-			wfe.addAction(new GenerateAction(),
-					KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
-			wfe.addAction(new RunAction(),
-					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+			wfe.addAction(new GenerateAction(), KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
+			wfe.addAction(new RunAction(), KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
 			runs = new ArrayList<Run>();
 
 			tRuntool = new JTextPane();
@@ -107,8 +103,7 @@ public class RunTool implements SemanticsToolFactory {
 				public void itemStateChanged(ItemEvent e) {
 					Run r = (Run) lRuns.getSelectedItem();
 					if (r != null) {
-						Document doc = ((Run) lRuns.getSelectedItem())
-								.getDocument();
+						Document doc = ((Run) lRuns.getSelectedItem()).getDocument();
 						tRuntool.setDocument(doc);
 						tRuntool.setCaretPosition(doc.getLength());
 					}
@@ -150,8 +145,7 @@ public class RunTool implements SemanticsToolFactory {
 			private final SimpleAttributeSet style;
 			private final StyledDocument doc;
 
-			public StreamGobbler(InputStream is, SimpleAttributeSet style,
-					StyledDocument doc, Application app) {
+			public StreamGobbler(InputStream is, SimpleAttributeSet style, StyledDocument doc, Application app) {
 				this.is = is;
 				this.style = style;
 				this.doc = doc;
@@ -165,13 +159,10 @@ public class RunTool implements SemanticsToolFactory {
 					while ((line = br.readLine()) != null) {
 						synchronized (doc) {
 							try {
-								if (line.startsWith("Running:")
-										| line.startsWith("Done:"))
-									doc.insertString(doc.getLength(), line
-											+ "\n", infoStyle);
+								if (line.startsWith("Running:") | line.startsWith("Done:"))
+									doc.insertString(doc.getLength(), line + "\n", infoStyle);
 								else
-									doc.insertString(doc.getLength(), line
-											+ "\n", style);
+									doc.insertString(doc.getLength(), line + "\n", style);
 							} catch (BadLocationException e) {
 								// ignore
 							}
@@ -226,11 +217,9 @@ public class RunTool implements SemanticsToolFactory {
 			private StreamGobbler isg;
 			private StreamGobbler esg;
 
-			public StateRunning(Application app, Fragment f, StyledDocument doc) {
+			public StateRunning(Application app, String id, StyledDocument doc) {
 				try {
-					process = Runtime.getRuntime().exec(
-							RCChecker.getOutPath() + "/"
-									+ Fragments.normalize(f.getId()), null, null);
+					process = Runtime.getRuntime().exec(RCChecker.getOutPath() + "/" + id, null, null);
 
 				} catch (Exception e) {
 					app.sendMessage(new ExceptionMessage(e));
@@ -282,22 +271,20 @@ public class RunTool implements SemanticsToolFactory {
 			}
 		}
 
-		private final class Run extends SwingWorker<String, String> implements
-				RunTransitions {
+		private final class Run extends SwingWorker<String, String> implements RunTransitions {
 			private StyledDocument doc;
 			private Date date;
-			private Fragment frag;
+			private String id;
 			private RunState state = new StateInit();
 
-			public Run(Fragment fragment) {
+			public Run(String id) {
 				doc = new DefaultStyledDocument();
 				doc.addDocumentListener(new DocumentListener() {
 
 					@Override
 					public void insertUpdate(DocumentEvent e) {
 						if (lRuns.getSelectedItem() == Run.this) {
-							tRuntool.setCaretPosition(tRuntool.getText()
-									.length());
+							tRuntool.setCaretPosition(tRuntool.getText().length());
 							// pMain.revalidate();
 						}
 					}
@@ -316,10 +303,9 @@ public class RunTool implements SemanticsToolFactory {
 
 				});
 				date = new Date();
-				frag = fragment;
+				this.id = id;
 				try {
-					doc.insertString(doc.getLength(), date.toString() + "\n",
-							messageStyle);
+					doc.insertString(doc.getLength(), date.toString() + "\n", messageStyle);
 				} catch (BadLocationException e1) {
 					// ignore
 				}
@@ -360,7 +346,7 @@ public class RunTool implements SemanticsToolFactory {
 
 			@Override
 			public void doRun() {
-				state = new StateRunning(app, frag, doc);
+				state = new StateRunning(app, id, doc);
 				lRuns.repaint();
 				pMain.revalidate();
 				state.finish(this);
@@ -435,9 +421,9 @@ public class RunTool implements SemanticsToolFactory {
 
 			@Override
 			public void invoke() {
-				Fragment frag = generate();
-				if (frag != null) {
-					Run r = new Run(frag);
+				String id = generate();
+				if (id != null) {
+					Run r = new Run(id);
 					runs.add(r);
 					r.execute();
 					lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
@@ -450,18 +436,17 @@ public class RunTool implements SemanticsToolFactory {
 
 		}
 
-		private Fragment generate() {
+		private String generate() {
 			try {
 				mm.checkWorkflow();
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
 			if (mm.getExecutableWorkflow().isConnected() &&
-//					mm.getDataflowAnalysis().isConnected() &&
-					Types.canUnify(mm.getFragmentType(),
-							prof.getRootType())) {
+			// mm.getDataflowAnalysis().isConnected() &&
+					Types.canUnify(mm.getFragmentType(), prof.getRootType())) {
 				try {
-//					return prof.generate(mm.getDataflowAnalysis());
+					// return prof.generate(mm.getDataflowAnalysis());
 					return prof.generate(mm.getExecutableWorkflow());
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
@@ -482,5 +467,5 @@ public class RunTool implements SemanticsToolFactory {
 	public Object instantiate(WorkflowEditor wfe, Model model, View view) {
 		return new Tool(wfe, model, prof);
 	}
-	
+
 }
