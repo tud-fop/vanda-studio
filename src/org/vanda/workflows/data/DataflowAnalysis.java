@@ -109,6 +109,7 @@ public final class DataflowAnalysis implements JobVisitor {
 	@Override
 	public void visitLiteral(Job j, Literal l) {
 		values.put(j.bindings.get(j.getOutputPorts().get(0)), assignment_.get(l.getKey()));
+		System.out.println(l + " " + assignment_.get(l.getKey()));
 	}
 
 	@Override

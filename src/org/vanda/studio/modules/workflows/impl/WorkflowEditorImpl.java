@@ -99,6 +99,7 @@ public class WorkflowEditorImpl implements WorkflowEditor, WorkflowListener<Muta
 		
 		synA = new SyntaxAnalysis(phd.fst);
 		synUp = new SyntaxUpdater(app, synA, view);
+		phd.fst.getObservable().addObserver(synUp);
 		
 		database = phd.snd;
 		semA = new SemanticAnalysis(synA, database);

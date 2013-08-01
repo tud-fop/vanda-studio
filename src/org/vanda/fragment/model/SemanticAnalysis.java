@@ -18,7 +18,7 @@ public class SemanticAnalysis {
 	public void updateDFA(SyntaxAnalysis synA) {
 		dfa = new DataflowAnalysis();
 		if (db.getSize() > 0) {
-			dfa.init(db.getRow(0), synA.getSorted());
+			dfa.init(db.getRow(db.getCursor()), synA.getSorted());
 			dfaChangedObservable.notify(dfa);
 		}
 	}

@@ -186,6 +186,7 @@ public final class InspectorialVisitor implements SelectionVisitor {
 		// sb.append(variable.toString());
 //		Type type = mm.getType(variable);
 		Type type = synA.getType(variable);
+		System.out.println(type);
 		if (type != null) {
 			sb.append("<tr><th align=left>Value</th><td>");
 //			sb.append(mm.getDataflowAnalysis().getValue(variable));

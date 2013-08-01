@@ -33,13 +33,14 @@ public class SyntaxAnalysis {
 		tc.check();
 		types = tc.getTypes();
 		fragmentType = tc.getFragmentType();
-		syntaxChangedObservable.notify(this);
+
 	}
 
 	public void checkWorkflow() throws TypeCheckingException, Exception {
 		sorted = null;
 		typeCheck();
 		sorted = hwf.getSorted();
+		syntaxChangedObservable.notify(this);
 	}
 
 	public Job[] getSorted() {
