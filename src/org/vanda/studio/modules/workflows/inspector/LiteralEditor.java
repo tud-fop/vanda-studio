@@ -46,10 +46,8 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 			Element e = event.getElement();
 			String s = e.toString();
 			if (!s.equals(d.get(l.getKey()))) {
-				d.put(l.getKey(), s);
-				System.out.println(l.getKey() + " " + s);
 				l.setType(rds.getType(e));
-				System.out.println(l.getType());
+				d.put(l.getKey(), s);
 			}
 		}
 	}

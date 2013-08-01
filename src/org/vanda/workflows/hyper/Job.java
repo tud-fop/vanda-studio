@@ -20,11 +20,13 @@ import org.vanda.workflows.hyper.Jobs.*;
 
 public class Job implements ElementAdapterListener<ElementAdapter> {
 	private final ElementAdapter element;
+	private final String id;
 	public Map<Port, Location> bindings;
 	protected final double[] dimensions = new double[4];
 	protected final MultiplexObserver<JobEvent<Job>> observable;
 
-	public Job(ElementAdapter element) {
+	public Job(ElementAdapter element, String id) {
+		this.id = id;
 		this.element = element;
 		if (element.getObservable() != null)
 			observable = new MultiplexObserver<JobEvent<Job>>();
@@ -33,7 +35,12 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 		rebind();
 	}
 	
+	public Job(ElementAdapter element) {
+		this(element, null);
+	}
+	
 	public Job(ElementAdapter element, boolean createObservable) {
+		this.id = null;
 		this.element = element;
 		this.observable = new MultiplexObserver<JobEvent<Job>>();
 		rebind();
@@ -51,6 +58,10 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 		return dimensions[3];
 	}
 
+	public String getId() {
+		return id;
+	}
+	
 	public List<Port> getInputPorts() {
 		return element.getInputPorts();
 	}

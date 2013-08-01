@@ -1,5 +1,7 @@
 package org.vanda.fragment.model;
 
+import java.util.HashMap;
+
 import org.vanda.util.MultiplexObserver;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.data.DataflowAnalysis;
@@ -17,10 +19,11 @@ public class SemanticAnalysis {
 
 	public void updateDFA(SyntaxAnalysis synA) {
 		dfa = new DataflowAnalysis();
-		if (db.getSize() > 0) {
-			dfa.init(db.getRow(db.getCursor()), synA.getSorted());
-			dfaChangedObservable.notify(dfa);
-		}
+		HashMap<String, String> assignment = null;
+		if (db.getSize() > 0)
+			assignment = db.getRow(db.getCursor());
+		dfa.init(assignment, synA.getSorted());
+		dfaChangedObservable.notify(dfa);
 	}
 
 	public DataflowAnalysis getDFA() {

@@ -278,8 +278,9 @@ public class AssignmentWorkflowInstance implements Runable {
 					ej.bindings.put(op, new ValuedLocation(sb.toString()));
 					translation.put(ji.bindings.get(op), (ValuedLocation) ej.bindings.get(op));
 
-					jobs.add(ej);
 				}
+				jobs.add(ej);
+
 				cc = false;
 			}
 		}

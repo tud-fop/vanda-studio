@@ -22,16 +22,18 @@ public final class DataflowAnalysis implements JobVisitor {
 	public static final String UNDEFINED = "UNDEFINED";
 	public static final String ROW_ID = "rowID";
 
-	private Map<Integer, String> assignment_;
+	private Map<String, String> assignment_;
 	private boolean connected;
-	private Map<Job, String> jobIds;   // distinguish jobs that perform the same operation, need not persist
-	private Map<Job, String> jobSpecs; // identify jobs that perform the same operation, persist
+	private Map<Job, String> jobIds; // distinguish jobs that perform the same
+										// operation, need not persist
+	private Map<Job, String> jobSpecs; // identify jobs that perform the same
+										// operation, persist
 	private Map<Location, String> values;
 
 	public DataflowAnalysis() {
 	}
 
-	public void init(Map<Integer, String> assignment, Job[] sorted) {
+	public void init(Map<String, String> assignment, Job[] sorted) {
 		assignment_ = assignment;
 		connected = true;
 		jobIds = new HashMap<Job, String>();
@@ -58,7 +60,7 @@ public final class DataflowAnalysis implements JobVisitor {
 		sb.append('=');
 		sb.append(values.get(j.bindings.get(p)).replace('/', '#'));
 	}
-	
+
 	private String computeJobId(Job j, Tool t) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('(');
@@ -108,8 +110,10 @@ public final class DataflowAnalysis implements JobVisitor {
 
 	@Override
 	public void visitLiteral(Job j, Literal l) {
-		values.put(j.bindings.get(j.getOutputPorts().get(0)), assignment_.get(l.getKey()));
-		System.out.println(l + " " + assignment_.get(l.getKey()));
+		String value = "";
+		if (assignment_ != null)
+			value = assignment_.get(l.getKey());
+		values.put(j.bindings.get(j.getOutputPorts().get(0)), value);
 	}
 
 	@Override

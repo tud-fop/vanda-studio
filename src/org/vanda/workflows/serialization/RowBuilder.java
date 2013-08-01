@@ -6,10 +6,10 @@ import org.vanda.xml.Factory;
 
 public class RowBuilder {
 	
-	HashMap<Integer, String> assignment;
+	HashMap<String, String> assignment;
 
 	public RowBuilder() {
-		assignment = new HashMap<Integer, String>();
+		assignment = new HashMap<String, String>();
 	}
 
 	public static Factory<RowBuilder> createFactory() {
