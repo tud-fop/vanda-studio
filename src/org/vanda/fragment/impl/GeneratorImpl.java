@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.vanda.execution.model.ExecutableWorkflow;
-//import org.vanda.fragment.model.DataflowAnalysis;
 import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.FragmentBase;
 import org.vanda.fragment.model.FragmentCompiler;
@@ -19,7 +17,6 @@ import org.vanda.fragment.model.SemanticAnalysis;
 import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.Application;
 import org.vanda.types.Type;
-import org.vanda.workflows.data.DataflowAnalysis;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
@@ -31,9 +28,9 @@ public class GeneratorImpl implements Generator, FragmentIO {
 	private final Application app;
 	private Profile prof;
 
-//	static interface Functor<E extends Throwable> {
-//		void run() throws E;
-//	}
+	// static interface Functor<E extends Throwable> {
+	// void run() throws E;
+	// }
 
 	// The Generator class encapsulates stuff that should not be kept around
 	// all the time, and resource acquisition is initialization, blah blah
@@ -63,8 +60,7 @@ public class GeneratorImpl implements Generator, FragmentIO {
 		public Fragment generateAtomic(Tool t) {
 			Fragment result = map.get(t.getId());
 			if (result == null) {
-				result = prof.getFragmentToolMetaRepository().getRepository()
-						.getItem(t.getId());
+				result = prof.getFragmentToolMetaRepository().getRepository().getItem(t.getId());
 				assert (result != null);
 				// TODO this ^^ should be guaranteed via tool interfaces
 				map.put(t, result);
@@ -73,23 +69,21 @@ public class GeneratorImpl implements Generator, FragmentIO {
 			return result;
 		}
 
-		public String generateFragment(DataflowAnalysis dfa) throws IOException {
-//		public String generateFragment(ExecutableWorkflow ewf) throws IOException {
-			MutableWorkflow w = dfa.getWorkflow();
+		public String generateFragment(MutableWorkflow w, SyntaxAnalysis synA, SemanticAnalysis semA)
+				throws IOException {
 			Fragment result = map.get(w);
-//			Fragment result = map.get(ewf);
 			if (result == null) {
 				String name = makeUnique(w.getName(), w);
-//				String name = makeUnique(ewf.getName(), ewf);
-				assert (dfa.getFragmentType() != null);
-//				assert (ewf.getFragmentType() != null);
-				FragmentCompiler fc = prof.getCompiler(dfa.getFragmentType());
-//				FragmentCompiler fc = prof.getCompiler(ewf.getFragmentType());
+				// String name = makeUnique(ewf.getName(), ewf);
+				assert (synA.getFragmentType() != null);
+				// assert (ewf.getFragmentType() != null);
+				FragmentCompiler fc = prof.getCompiler(synA.getFragmentType());
+				// FragmentCompiler fc =
+				// prof.getCompiler(ewf.getFragmentType());
 				assert (fc != null);
-				Job[] jobs = dfa.getSorted();
-//				Job[] jobs = ewf.getSortedJobs();
-				final ArrayList<Fragment> frags = new ArrayList<Fragment>(
-						jobs.length);
+				Job[] jobs = synA.getSorted();
+				// Job[] jobs = ewf.getSortedJobs();
+				final ArrayList<Fragment> frags = new ArrayList<Fragment>(jobs.length);
 				for (final Job ji : jobs) {
 					ji.visit(new ElementVisitor() {
 						@Override
@@ -103,24 +97,23 @@ public class GeneratorImpl implements Generator, FragmentIO {
 						}
 					});
 				}
-				result = fc.compile(name, dfa, frags, GeneratorImpl.this);
-//				result = fc.compile(name, ewf, frags, GeneratorImpl.this);
+				result = fc.compile(name, synA, semA, frags, GeneratorImpl.this);
+				// result = fc.compile(name, ewf, frags, GeneratorImpl.this);
 				assert (result != null);
 				map.put(w, result);
-//				map.put(ewf, result);
+				// map.put(ewf, result);
 				this.fragments.put(result.getId(), result);
 			}
 			return result.getId();
 		}
 
-//		public Fragment generate(DataflowAnalysis dfa) throws IOException {
-//		public String generate(ExecutableWorkflow ewf) throws IOException {
-		public String generaet(SyntaxAnalysis synA, SemanticAnalysis semA) {
-//			String root = generateFragment(ewf);
-			String root = generateFragment(semA.getDFA());
-//			String root = generateFragment(dfa);
-			return prof.getRootLinker(getRootType()).link(root, null, null,
-					null, null, fb, GeneratorImpl.this).getId();
+		// public Fragment generate(DataflowAnalysis dfa) throws IOException {
+		// public String generate(ExecutableWorkflow ewf) throws IOException {
+		public String generate(MutableWorkflow ewf, SyntaxAnalysis synA, SemanticAnalysis semA) throws IOException {
+			// String root = generateFragment(ewf);
+			String root = generateFragment(ewf, synA, semA);
+			// String root = generateFragment(dfa);
+			return prof.getRootLinker(getRootType()).link(root, null, null, null, null, fb, GeneratorImpl.this).getId();
 		}
 
 		public String makeUnique(String prefix, Object key) {
@@ -139,11 +132,11 @@ public class GeneratorImpl implements Generator, FragmentIO {
 	}
 
 	@Override
-//	public Fragment generate(DataflowAnalysis dfa) throws IOException {
-//	public String generate(ExecutableWorkflow ewf) throws IOException {
-	public String generate(SyntaxAnalysis synA, SemanticAnalysis semA) {
-		return new TheGenerator().generate(synA, semA);
-//		return new TheGenerator().generate(dfa);
+	// public Fragment generate(DataflowAnalysis dfa) throws IOException {
+	// public String generate(ExecutableWorkflow ewf) throws IOException {
+	public String generate(MutableWorkflow ewf, SyntaxAnalysis synA, SemanticAnalysis semA) throws IOException {
+		return new TheGenerator().generate(ewf, synA, semA);
+		// return new TheGenerator().generate(dfa);
 	}
 
 	public GeneratorImpl(Application app, Profile prof) {

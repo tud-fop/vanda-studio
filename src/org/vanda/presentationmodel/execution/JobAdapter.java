@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 
-import org.vanda.execution.model.ExecutableJob;
+import org.vanda.execution.model.Runables.RunState;
 import org.vanda.execution.model.Runables.RunStateVisitor;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellEvent;
@@ -30,8 +30,7 @@ import org.vanda.view.JobView;
 import org.vanda.view.View;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.Jobs;
-import org.vanda.workflows.hyper.Jobs.JobEvent;
+
 import org.vanda.workflows.hyper.Location;
 
 public class JobAdapter {
@@ -95,37 +94,6 @@ public class JobAdapter {
 
 	}
 
-	private class JobListener implements Jobs.JobListener<Job> {
-
-		@Override
-		public void propertyChanged(Job j) {
-			((ExecutableJob) j).getState().visit(new RunStateVisitor() {
-
-				@Override
-				public void cancelled() {
-					jobCell.setCancelled();
-				}
-
-				@Override
-				public void done() {
-					jobCell.setDone();					
-				}
-
-				@Override
-				public void ready() {
-					jobCell.setReady();
-				}
-
-				@Override
-				public void running() {
-					jobCell.setRunning();					
-				}
-				
-			});
-		}
-		
-	}
-
 	private class JobViewListener implements
 			AbstractView.ViewListener<AbstractView> {
 
@@ -150,13 +118,39 @@ public class JobAdapter {
 			jobCell.getObservable().notify(
 					new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
 		}
+
+		@Override
+		public void runStateTransition(AbstractView v, RunState from, RunState to) {
+			to.visit(new RunStateVisitor() {
+
+				@Override
+				public void cancelled() {
+					jobCell.setCancelled();
+				}
+
+				@Override
+				public void done() {
+					jobCell.setDone();					
+				}
+
+				@Override
+				public void ready() {
+					jobCell.setReady();
+				}
+
+				@Override
+				public void running() {
+					jobCell.setRunning();					
+				}
+				
+			});
+		}
 	}
 
 	Map<Port, InPortCell> inports;
 	Job job;
 	JobCell jobCell;
 	JobCellListener jobCellListener;
-	JobListener jobListener;
 	JobViewListener jobViewListener;
 
 	Map<Location, LocationAdapter> locations;
@@ -168,19 +162,7 @@ public class JobAdapter {
 	public JobAdapter(Job job, Graph graph, View view, WorkflowCell wfc) {
 		this.view = view;
 		setUpCells(graph, job, wfc);
-		this.jobListener = new JobListener();
 		this.jobCellListener = new JobCellListener();
-
-		// Register at Job
-		if (job.getObservable() != null)
-			job.getObservable().addObserver(new Observer<Jobs.JobEvent<Job>>() {
-
-				@Override
-				public void notify(JobEvent<Job> event) {
-					event.doNotify(jobListener);
-				}
-
-			});
 
 		// register at jobCell
 		jobCell.getObservable().addObserver(new Observer<CellEvent<Cell>>() {

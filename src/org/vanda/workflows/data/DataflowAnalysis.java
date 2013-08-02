@@ -29,13 +29,24 @@ public final class DataflowAnalysis implements JobVisitor {
 	private Map<Job, String> jobSpecs; // identify jobs that perform the same
 										// operation, persist
 	private Map<Location, String> values;
+	
+	private int line;
+
+	// FIXME provisional (dirty)
+	private final boolean executable;
 
 	public DataflowAnalysis() {
+		executable = false;
 	}
 
-	public void init(Map<String, String> assignment, Job[] sorted) {
+	public DataflowAnalysis(boolean executable) {
+		this.executable = executable;
+	}
+
+	public void init(Map<String, String> assignment, int line, Job[] sorted) {
 		assignment_ = assignment;
 		connected = true;
+		this.line = line;
 		jobIds = new HashMap<Job, String>();
 		jobSpecs = new HashMap<Job, String>();
 		values = new HashMap<Location, String>();
@@ -62,6 +73,8 @@ public final class DataflowAnalysis implements JobVisitor {
 	}
 
 	private String computeJobId(Job j, Tool t) {
+		if (executable)
+			return j.getId();
 		StringBuilder sb = new StringBuilder();
 		sb.append('(');
 		sb.append(Integer.toHexString(j.hashCode()));
@@ -70,6 +83,8 @@ public final class DataflowAnalysis implements JobVisitor {
 		if (rid == null)
 			rid = Integer.toHexString(assignment_.hashCode());
 		sb.append(rid);
+		sb.append(',');
+		sb.append(Integer.toHexString(line));
 		sb.append(')');
 		return md5sum(sb.toString());
 	}
@@ -111,8 +126,12 @@ public final class DataflowAnalysis implements JobVisitor {
 	@Override
 	public void visitLiteral(Job j, Literal l) {
 		String value = "";
+		if (executable) {
+			value = l.getKey();
+		} else {
 		if (assignment_ != null)
 			value = assignment_.get(l.getKey());
+		}
 		values.put(j.bindings.get(j.getOutputPorts().get(0)), value);
 	}
 

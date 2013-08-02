@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.vanda.execution.model.ExecutableWorkflow;
 import org.vanda.types.Type;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;

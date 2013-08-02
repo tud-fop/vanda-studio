@@ -457,7 +457,7 @@ public class RunTool implements SemanticsToolFactory {
 			if (semA.getDFA().isConnected() && Types.canUnify(synA.getFragmentType(), prof.getRootType())) {
 				try {
 					// return prof.generate(mm.getDataflowAnalysis());
-					return prof.generate(synA, semA); // .getExecutableWorkflow());
+					return prof.generate(wfe.getView().getWorkflow(), synA, semA); // .getExecutableWorkflow());
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}

@@ -17,14 +17,22 @@ public class SyntaxAnalysis {
 	private MultiplexObserver<SyntaxAnalysis> syntaxChangedObservable;
 	protected Job[] sorted = null;
 
-	public SyntaxAnalysis(MutableWorkflow hwf) {
+	// FIXME ugly, provisional
+	private boolean executable;
+
+	public SyntaxAnalysis(MutableWorkflow hwf, boolean executable) {
 		this.hwf = hwf;
+		this.executable = executable;
 		syntaxChangedObservable = new MultiplexObserver<SyntaxAnalysis>();
 		try {
 			checkWorkflow();
 		} catch (Exception e) {
 			// do nothing
 		}
+	}
+	
+	public SyntaxAnalysis(MutableWorkflow hwf) {
+		this(hwf, false);
 	}
 
 	public void typeCheck() throws TypeCheckingException {
@@ -39,7 +47,10 @@ public class SyntaxAnalysis {
 	public void checkWorkflow() throws TypeCheckingException, Exception {
 		sorted = null;
 		typeCheck();
-		sorted = hwf.getSorted();
+		if (executable)
+			sorted = hwf.getChildren().toArray(new Job[hwf.getChildren().size()]);
+		else
+			sorted = hwf.getSorted();
 		syntaxChangedObservable.notify(this);
 	}
 

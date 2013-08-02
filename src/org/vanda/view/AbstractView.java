@@ -1,5 +1,6 @@
 package org.vanda.view;
 
+import org.vanda.execution.model.Runables.RunState;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
@@ -39,6 +40,24 @@ public abstract class AbstractView {
 		}
 
 	}
+	
+	public static class RunStateTransitionEvent<V> implements ViewEvent<V> {
+		private final V v;
+		private final RunState from, to;
+		
+		public RunStateTransitionEvent(V v, RunState from, RunState to) {
+			this.v = v;
+			this.from = from;
+			this.to = to;
+		}
+
+		@Override
+		public void doNotify(ViewListener<V> vl) {
+			vl.runStateTransition(v, from, to);
+		}
+		
+	}
+	
 	public static class SelectionChangedEvent<V> implements ViewEvent<V> {
 		private final V v;
 
@@ -73,6 +92,8 @@ public abstract class AbstractView {
 		void markChanged(V v);
 
 		void selectionChanged(V v);
+		
+		void runStateTransition(V v, RunState from, RunState to);
 	}
 
 	boolean highlighted;

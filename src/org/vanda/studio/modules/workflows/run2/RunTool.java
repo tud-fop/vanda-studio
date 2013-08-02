@@ -6,6 +6,7 @@ import java.io.IOException;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
+import org.vanda.execution.model.ExecutableWorkflowFactory;
 import org.vanda.fragment.model.Generator;
 //import org.vanda.fragment.model.Model;
 import org.vanda.fragment.model.SemanticAnalysis;
@@ -18,6 +19,7 @@ import org.vanda.types.Types;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.view.View;
+import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.serialization.Storer;
 
 public class RunTool implements SemanticsToolFactory {
@@ -33,10 +35,11 @@ public class RunTool implements SemanticsToolFactory {
 				String id = generate();
 				if (id != null) {
 					// serialize Workflow + Database
+					MutableWorkflow ewf = ExecutableWorkflowFactory.generateExecutableWorkflow(wfe.getView().getWorkflow(), wfe.getDatabase(), synA, semA);
 					// TODO use generic path!!
 					String filePath = "/tmp/executionTest";
 					try {
-						new Storer().store(wfe.getView().getWorkflow(),
+						new Storer().store(ewf,
 								wfe.getDatabase(), filePath);
 					} catch (Exception e) {
 						wfe.getApplication().sendMessage(
@@ -93,7 +96,7 @@ public class RunTool implements SemanticsToolFactory {
 					&& Types.canUnify(synA.getFragmentType(), prof.getRootType())) {
 				try {
 //					return prof.generate(mm.getExecutableWorkflow());
-					return prof.generate(synA, semA);
+					return prof.generate(wfe.getView().getWorkflow(), synA, semA);
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}

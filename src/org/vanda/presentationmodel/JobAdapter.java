@@ -12,6 +12,7 @@ import java.util.WeakHashMap;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import org.vanda.execution.model.Runables.RunState;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.CellListener;
@@ -165,6 +166,11 @@ public class JobAdapter {
 		public void selectionChanged(AbstractView v) {
 			jobCell.getObservable().notify(
 					new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
+		}
+
+		@Override
+		public void runStateTransition(AbstractView v, RunState from, RunState to) {
+			// TODO set RunState
 		}
 	}
 

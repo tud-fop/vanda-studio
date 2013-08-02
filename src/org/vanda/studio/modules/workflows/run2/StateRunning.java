@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
-import org.vanda.execution.model.ExecutableWorkflow;
 import org.vanda.execution.model.Runables;
 import org.vanda.execution.model.Runables.RunCancelledAll;
 import org.vanda.execution.model.Runables.RunEvent;

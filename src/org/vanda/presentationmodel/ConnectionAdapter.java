@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import org.vanda.execution.model.Runables.RunState;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.CellListener;
@@ -131,6 +132,11 @@ public class ConnectionAdapter {
 			visualization.getObservable().notify(
 					new SelectionChangedEvent<Cell>(visualization, v
 							.isSelected()));
+		}
+
+		@Override
+		public void runStateTransition(AbstractView v, RunState from, RunState to) {
+			// do nothing
 		}
 	}
 

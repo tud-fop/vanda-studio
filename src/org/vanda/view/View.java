@@ -1,9 +1,14 @@
 package org.vanda.view;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.vanda.execution.model.Runables.RunEvent;
+import org.vanda.execution.model.Runables.RunEventListener;
+import org.vanda.execution.model.Runables.RunState;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView.ViewEvent;
@@ -108,6 +113,7 @@ public class View {
 	WeakHashMap<Job, JobView> jobs;
 	private MultiplexObserver<GlobalViewEvent<View>> observable;
 	WeakHashMap<Location, LocationView> variables;
+	Map<String, JobView> runEventMultiplexTable;
 
 	ViewListener<AbstractView> viewEventListener;
 
@@ -116,6 +122,54 @@ public class View {
 	private WorkflowListener workflowListener;
 
 	private WorkflowView workflowView;
+	
+	public Observer<RunEvent> getRunEventObserver() {
+		if (runEventMultiplexTable == null) {
+			runEventMultiplexTable = new HashMap<String, JobView>();
+			for (Job j : jobs.keySet()) {
+				runEventMultiplexTable.put(j.getId(), jobs.get(j));
+			}
+		}
+		return new Observer<RunEvent> () {
+
+			@Override
+			public void notify(RunEvent event) {
+				event.doNotify(new RunEventListener() {
+					
+					@Override
+					public void runStarted(String id) {
+						System.out.println("started: " + id);
+						JobView jv = runEventMultiplexTable.get(id);
+						jv.getState().run(jv);						
+					}
+					
+					@Override
+					public void runFinished(String id) {
+						System.out.println("finished: " + id);
+						JobView jv = runEventMultiplexTable.get(id);
+						jv.getState().finish(jv);
+					}
+					
+					@Override
+					public void runCancelled(String id) {
+						System.out.println("cancelled: " + id);
+						JobView jv = runEventMultiplexTable.get(id);
+						jv.getState().cancel(jv);					
+					}
+					
+					@Override
+					public void cancelledAll() {
+						System.out.println("cancelled all");
+						for (JobView jv : runEventMultiplexTable.values()) {
+							jv.getState().cancel(jv);
+						}
+					}
+				});
+			}
+			
+		};
+				
+	}
 
 	public View(MutableWorkflow workflow) {
 		this.workflow = workflow;
@@ -143,6 +197,12 @@ public class View {
 				// change
 				observable.notify(new SelectionChangedEvent<View>(View.this));
 			}
+
+			@Override
+			public void runStateTransition(AbstractView v, RunState from, RunState to) {
+				// TODO implement this
+			}
+		
 
 		};
 

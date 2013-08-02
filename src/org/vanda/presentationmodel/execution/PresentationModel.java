@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.vanda.execution.model.ExecutableWorkflow;
 import org.vanda.render.jgraph.Graph;
 import org.vanda.util.Observer;
 import org.vanda.view.View;
@@ -82,7 +81,7 @@ public class PresentationModel {
 
 	private final WorkflowListener workflowListener;
 
-	public PresentationModel(View view, ExecutableWorkflow ewf) {
+	public PresentationModel(View view) {
 		this.view = view;
 		this.wfa = new WorkflowAdapter(view);
 		graph = new Graph(wfa.getWorkflowCell());

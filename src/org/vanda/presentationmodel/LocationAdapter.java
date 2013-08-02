@@ -2,6 +2,7 @@ package org.vanda.presentationmodel;
 
 import java.awt.event.MouseEvent;
 
+import org.vanda.execution.model.Runables.RunState;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellListener;
 import org.vanda.render.jgraph.Graph;
@@ -86,6 +87,11 @@ public class LocationAdapter {
 			locationCell.getObservable().notify(
 					new SelectionChangedEvent<Cell>(locationCell, v
 							.isSelected()));
+		}
+
+		@Override
+		public void runStateTransition(AbstractView v, RunState from, RunState to) {
+			// do nothing
 		}
 	}
 

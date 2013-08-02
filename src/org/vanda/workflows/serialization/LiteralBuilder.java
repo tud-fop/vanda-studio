@@ -10,7 +10,7 @@ import org.vanda.xml.SingleFieldProcessor;
 
 public class LiteralBuilder {
 
-	public Integer key;
+	public String key;
 
 	public Type type;
 
@@ -52,7 +52,7 @@ public class LiteralBuilder {
 	public static final class KeyProcessor implements SingleFieldProcessor<LiteralBuilder> {
 		@Override
 		public void process(String name, String value, LiteralBuilder b) {
-			b.key = Integer.parseInt(value, 16);
+			b.key = value; //Integer.parseInt(value, 16);
 		}
 
 		@Override

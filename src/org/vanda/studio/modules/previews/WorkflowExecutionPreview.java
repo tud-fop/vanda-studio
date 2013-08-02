@@ -8,21 +8,19 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 
-import org.vanda.execution.model.ExecutableWorkflow;
 import org.vanda.fragment.model.Generator;
+import org.vanda.fragment.model.SemanticAnalysis;
+import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.presentationmodel.execution.PresentationModel;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.modules.workflows.run2.Run;
-import org.vanda.types.Type;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Pair;
 import org.vanda.view.View;
 import org.vanda.workflows.data.Database;
-import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
-import org.vanda.workflows.hyper.TypeChecker;
 import org.vanda.workflows.hyper.TypeCheckingException;
 import org.vanda.workflows.serialization.Loader;
 
@@ -66,7 +64,7 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 				String id = generate();
 				if (id != null) {
 					System.out.println("invoked RunAction");
-					Run run = new Run(app, getExecutableWorkflow().getObserver(), id);
+					Run run = new Run(app, pm.getView().getRunEventObserver(), id);
 					run.run();
 					app.getWindowSystem().addAction(component, new CancelAction(run),
 							KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
@@ -77,28 +75,23 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 
 		JComponent component;
 
-		ExecutableWorkflow ewf;
+//		ExecutableWorkflow ewf;
+		MutableWorkflow ewf;
+		SyntaxAnalysis synA;
+		SemanticAnalysis semA;
 
 		PresentationModel pm;
 
 		public WorkflowExecution(Pair<MutableWorkflow, Database> phd) throws TypeCheckingException {
 
-			TypeChecker tc = new TypeChecker();
-			phd.fst.typeCheck(tc);
-			tc.check();
-			Type fragmentType = tc.getFragmentType();
-			Job[] sorted = null;
-
-			try {
-				sorted = phd.fst.getSorted();
-			} catch (Exception e) {
-				// FIXME send message that there are cycles
-			}
-			ewf = new ExecutableWorkflow(phd.fst, phd.snd, sorted, fragmentType);
-			ewf.init();
-			ewf.shift();
+			ewf = phd.fst;
+			
+			// TODO create special SemA instance, that takes path-Information from Literals
+			synA = new SyntaxAnalysis(ewf, true);
+			semA = new SemanticAnalysis(synA, null, true);
+			
 			View view = new View(ewf);
-			pm = new PresentationModel(view, ewf);
+			pm = new PresentationModel(view);
 
 			// setup component design
 			mxGraphComponent gc = (mxGraphComponent) pm.getVisualization().getGraphComponent();
@@ -118,8 +111,8 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 
 		private String generate() {
 			try {
-				return prof.generate(getExecutableWorkflow());
-//				return prof.generate(synA, semA);
+//				return prof.generate(getExecutableWorkflow());
+				return prof.generate(ewf, synA, semA);
 			} catch (IOException e) {
 				app.sendMessage(new ExceptionMessage(e));
 			}
@@ -130,7 +123,7 @@ public class WorkflowExecutionPreview implements PreviewFactory {
 			return component;
 		}
 
-		public ExecutableWorkflow getExecutableWorkflow() {
+		public MutableWorkflow getExecutableWorkflow() {
 			return ewf;
 		}
 
