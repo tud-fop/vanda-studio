@@ -2,6 +2,7 @@ package org.vanda.execution.model;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.vanda.fragment.model.SemanticAnalysis;
@@ -48,13 +49,21 @@ public class ExecutableWorkflowFactory {
 
 	/**
 	 * Creates a copy of a given job and adds it to the executable workflow
-	 * @param ewf	executable workflow
-	 * @param semA	semantic analysis for setting jobIDs and creating literals that yield values
-	 * @param dx	x-shift
-	 * @param dy	y-shift
+	 * 
+	 * @param ewf
+	 *            executable workflow
+	 * @param semA
+	 *            semantic analysis for setting jobIDs and creating literals
+	 *            that yield values
+	 * @param dx
+	 *            x-shift
+	 * @param dy
+	 *            y-shift
 	 * @param translation
-	 * @param j		original Job
-	 * @param element	Element -> new Literal Adapter or ToolAdapter
+	 * @param j
+	 *            original Job
+	 * @param element
+	 *            Element -> new Literal Adapter or ToolAdapter
 	 */
 	private static void createJobInstance(MutableWorkflow ewf, DataflowAnalysis dfa, double dx, double dy,
 			Map<Location, Location> translation, Job j, ElementAdapter element) {
@@ -73,20 +82,20 @@ public class ExecutableWorkflowFactory {
 		}
 	}
 
-	public static MutableWorkflow generateExecutableWorkflow(MutableWorkflow mwf, Database db, SyntaxAnalysis synA,
-			SemanticAnalysis semA) {
+	public static MutableWorkflow generateExecutableWorkflow(MutableWorkflow mwf, Database db,
+			List<Integer> assignmentSelection, SyntaxAnalysis synA, SemanticAnalysis semA) {
 		final MutableWorkflow ewf = new MutableWorkflow(mwf.getName());
 		final double[] dims = workflowDimension(mwf);
-		
-		for (int i = 0; i < db.getSize(); ++i) {
+		int counter = 0;
+		for (int i : assignmentSelection) {
 			// TODO skip unselected Assignments
 
 			final Map<Location, Location> translation = new HashMap<Location, Location>();
 			final HashMap<String, String> dbRow = db.getRow(i);
 			final DataflowAnalysis dfa = semA.getDFA(synA, i);
-			// horizontal alignment of instantiated workflows
-			final double dx = dims[0] * i;
-			final double dy = 0;
+			// vertical alignment of instantiated workflows
+			final double dx = 0;
+			final double dy = dims[1] * counter;
 
 			for (final Job j : synA.getSorted()) {
 				if (j.isConnected()) {
@@ -111,12 +120,12 @@ public class ExecutableWorkflowFactory {
 
 					});
 				} else {
-					// FIXME will this case occur ? 
+					// FIXME will this case occur ?
 					createJobInstance(ewf, dfa, dx, dy, translation, j, j.getElement());
 				}
 
 			}
-
+			counter++;
 		}
 
 		return ewf;

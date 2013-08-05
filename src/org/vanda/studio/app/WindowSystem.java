@@ -115,8 +115,15 @@ public interface WindowSystem {
 	
 	/**
 	 */
+	void disableAction(JComponent window, Action a);
+	
+	/**
+	 */
 	void enableAction(Action a);
 	
+	/**
+	 */
+	void enableAction(JComponent window, Action a);
 	/**
 	 */
 	void focusContentWindow(JComponent c);

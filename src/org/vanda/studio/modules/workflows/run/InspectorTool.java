@@ -3,13 +3,11 @@ package org.vanda.studio.modules.workflows.run;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.KeyEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.text.html.HTMLDocument;
 
@@ -29,8 +27,6 @@ import org.vanda.util.Observer;
 import org.vanda.view.View;
 import org.vanda.view.View.GlobalViewEvent;
 import org.vanda.view.View.GlobalViewListener;
-import org.vanda.workflows.hyper.TypeCheckingException;
-import org.vanda.util.Action;
 
 public class InspectorTool implements SemanticsToolFactory {
 
@@ -84,7 +80,6 @@ public class InspectorTool implements SemanticsToolFactory {
 				}
 
 			};
-			wfe.addAction(new CheckWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
 
 			wfe.getView().getObservable().addObserver(new Observer<GlobalViewEvent<View>>() {
 
@@ -160,25 +155,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			// ws = newws;
 		}
 
-		protected class CheckWorkflowAction implements Action {
-
-			@Override
-			public String getName() {
-				return "Check Workflow";
-			}
-
-			@Override
-			public void invoke() {
-				try {
-					wfe.getSyntaxAnalysis().checkWorkflow();
-				} catch (TypeCheckingException e) {
-					
-				}
-				catch ( Exception e) {
-					// do nothing e.printStackTrace();
-				}
-			}
-		}
+		
 	}
 
 	public InspectorTool(ElementEditorFactories eefs) {

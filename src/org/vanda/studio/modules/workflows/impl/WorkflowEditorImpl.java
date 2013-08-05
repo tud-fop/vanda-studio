@@ -6,14 +6,12 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.print.PageFormat;
 import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import org.vanda.fragment.model.SemanticAnalysis;
@@ -23,27 +21,48 @@ import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.mxDropTargetListener;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.WindowSystem;
-
 import org.vanda.studio.modules.workflows.model.ToolFactory;
+import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.HasActions;
 import org.vanda.util.Observer;
 import org.vanda.util.Pair;
 import org.vanda.util.Util;
-
 import org.vanda.workflows.data.Database;
-
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.TypeCheckingException;
 import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 
 import com.mxgraph.swing.mxGraphOutline;
 import com.mxgraph.swing.util.mxGraphTransferable;
 
 public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
+	public static class CheckWorkflowAction implements Action {
+		private WorkflowEditor wfe;
 
+		public CheckWorkflowAction(WorkflowEditor wfe) {
+			this.wfe = wfe;
+		}
+
+		@Override
+		public String getName() {
+			return "Check Workflow";
+		}
+
+		@Override
+		public void invoke() {
+			try {
+				wfe.getSyntaxAnalysis().checkWorkflow();
+			} catch (TypeCheckingException e) {
+
+			} catch (Exception e) {
+				// do nothing e.printStackTrace();
+			}
+		}
+	}	
+	
 	protected final PresentationModel presentationModel;
 
-	protected final mxGraphOutline outline;
 	protected JComponent palette;
 
 	protected final SyntaxUpdater synUp;
@@ -96,25 +115,19 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		// mainpane.setDividerLocation(0.7);
 		component.setName(view.getWorkflow().getName());
 
-		app.getUIModeObservable().addObserver(new Observer<Application>() {
-			@Override
-			public void notify(Application a) {
-				if (a.getUIMode().isLargeContent())
-					component.zoomTo(1.5, false);
-				else
-					component.zoomActual();
-			}
-		});
 		app.getWindowSystem().addContentWindow(null, component, null);
 		app.getWindowSystem().focusContentWindow(component);
 		component.requestFocusInWindow();
 
 		for (ToolFactory tf : toolFactories)
 			tf.instantiate(this);
-		app.getWindowSystem().addAction(component, new ResetZoomAction(),
+		
+		addAction(new CheckWorkflowAction(this), KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
+		addAction(new ResetZoomAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK));
-		app.getWindowSystem().addAction(component, new CloseWorkflowAction(),
+		addAction(new CloseWorkflowAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
+				
 
 		outline.setName("Map");
 		addToolWindow(outline, WindowSystem.SOUTHEAST);

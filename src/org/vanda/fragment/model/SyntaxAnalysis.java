@@ -17,7 +17,7 @@ public class SyntaxAnalysis {
 	private MultiplexObserver<SyntaxAnalysis> syntaxChangedObservable;
 	protected Job[] sorted = null;
 
-	// FIXME ugly, provisional
+	// FIXME ugly, provisional, for jobSorting
 	private boolean executable;
 
 	public SyntaxAnalysis(MutableWorkflow hwf, boolean executable) {

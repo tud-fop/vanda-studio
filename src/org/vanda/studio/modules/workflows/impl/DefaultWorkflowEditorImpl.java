@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.workflows.impl;
 
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -19,10 +20,10 @@ import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.LayoutSelector;
-import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl.DelKeyListener;
-import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl.EditMouseAdapter;
+import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
+import org.vanda.util.Observer;
 import org.vanda.util.Pair;
 import org.vanda.view.View;
 import org.vanda.workflows.data.Database;
@@ -34,6 +35,7 @@ import org.vanda.workflows.hyper.Workflows.WorkflowListener;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.swing.mxGraphOutline;
 import com.mxgraph.swing.handler.mxGraphHandler;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
@@ -43,6 +45,7 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	protected final Application app;
 	protected mxGraphComponent component;
 	protected final Database database;
+	protected mxGraphOutline outline;
 	protected SemanticAnalysis semA;
 	protected SyntaxAnalysis synA;
 	protected final View view;
@@ -187,7 +190,7 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 			mxGraphView view = component.getGraph().getView();
 			// translate view to keep mouse point as fixpoint
 			double factor = e.getWheelRotation() > 0 ? 1 / 1.2 : 1.2;
-			double scale = (double) ((int) (view.getScale() * 100 * factor)) / 100;
+			double scale = view.getScale() * factor;
 			view.setScale(scale);
 			Rectangle rprime = new Rectangle((int) (r.x + e.getX() * (factor - 1.0)), (int) (r.y + e.getY()
 					* (factor - 1.0)), r.width, r.height);
@@ -332,7 +335,25 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		component.setPanning(true);
 		component.getPageFormat().setOrientation(PageFormat.LANDSCAPE);
 		component.setPageVisible(true);
+		// component.setPageVisible(false);
+		// component.setBackground(new Color(123, 123, 123));
 		component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		app.getUIModeObservable().addObserver(new Observer<Application>() {
+			@Override
+			public void notify(Application a) {
+				if (a.getUIMode().isLargeContent())
+					component.zoomTo(1.5, false);
+				else
+					component.zoomActual();
+			}
+		});
+	}
+	
+	protected void setupOutline() {
+		outline = new mxGraphOutline(component);
+		outline.setPreferredSize(new Dimension(250, 250));
+		outline.setName("Map");
+		addToolWindow(outline, WindowSystem.SOUTHEAST);
 	}
 }

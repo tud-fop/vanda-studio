@@ -19,7 +19,6 @@ public class JobBuilder {
 
 	public Pair<Job, Map<Port, String>> build() {
 		Job j = new Job(element, id);
-		System.out.println(id);
 		j.setDimensions(dimensions);
 		Map<Port, String> bs = new HashMap<Port, String>();
 		doIt(element.getInputPorts(), bs);

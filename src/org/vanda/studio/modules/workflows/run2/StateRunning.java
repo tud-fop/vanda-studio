@@ -12,6 +12,7 @@ import javax.swing.SwingWorker;
 import org.vanda.execution.model.Runables;
 import org.vanda.execution.model.Runables.RunCancelledAll;
 import org.vanda.execution.model.Runables.RunEvent;
+import org.vanda.execution.model.Runables.RunFinished;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.workflows.run2.Runs.RunState;
 import org.vanda.studio.modules.workflows.run2.Runs.RunTransitions;
@@ -97,6 +98,7 @@ public class StateRunning extends RunState {
 				obs.notify(new RunCancelledAll());
 				rt.doCancel();
 			} else
+				obs.notify(new RunFinished(id));
 				rt.doFinish();
 		}
 

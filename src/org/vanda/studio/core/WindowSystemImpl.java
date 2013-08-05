@@ -57,7 +57,7 @@ public class WindowSystemImpl implements WindowSystem {
 	protected HashMap<JComponent, List<JComponent>> windowTools;
 	protected ButtonGroup modeGroup;
 	protected HashMap<JComponent, JInternalFrame> frames;
-	
+
 	@SuppressWarnings("serial")
 	private static class LayoutTabbedPane extends JTabbedPane implements LayoutSelector {
 
@@ -65,10 +65,10 @@ public class WindowSystemImpl implements WindowSystem {
 		public <L> L selectLayout(LayoutAssortment<L> la) {
 			return la.getCenter();
 		}
-		
+
 	}
-	
-    /**
+
+	/**
 	 * @param a
 	 *            Vanda Composer Application root object
 	 */
@@ -96,8 +96,7 @@ public class WindowSystemImpl implements WindowSystem {
 		menuBar = new JMenuBar();
 		fileMenu = new JMenu("Studio");
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
-		exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
-				KeyEvent.CTRL_MASK));
+		exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_MASK));
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -114,8 +113,7 @@ public class WindowSystemImpl implements WindowSystem {
 		modeMenuItems = new HashMap<UIMode, JRadioButtonMenuItem>();
 		Collection<UIMode> modes = app.getUIModes();
 		for (final UIMode m : modes) {
-			JRadioButtonMenuItem item = new JRadioButtonMenuItem(m.getName(),
-					app.getUIMode() == m);
+			JRadioButtonMenuItem item = new JRadioButtonMenuItem(m.getName(), app.getUIMode() == m);
 			item.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -145,24 +143,20 @@ public class WindowSystemImpl implements WindowSystem {
 		// Creates the library pane that contains the tabs with the palettes
 		contentPane = new LayoutTabbedPane();
 		// toolPane = new JTabbedPane();
-		
+
 		// toolPanel = new JPanel(new BorderLayout());
 		// toolPanel.add(new JPanel(), BorderLayout.CENTER);
 		// toolPanel.add(toolPane, BorderLayout.SOUTH);
 
 		/*
-		JPanel pp = new JPanel();
-		pp.setOpaque(false);
-		
-		JSplitPane inner2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				pp, toolPane);
-		inner2.setOpaque(false);
-		inner2.setOneTouchExpandable(true);
-		inner2.setDividerLocation(0.7);
-		inner2.setResizeWeight(0.7);
-		inner2.setDividerSize(6);
-		inner2.setBorder(null);
-		*/
+		 * JPanel pp = new JPanel(); pp.setOpaque(false);
+		 * 
+		 * JSplitPane inner2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, pp,
+		 * toolPane); inner2.setOpaque(false);
+		 * inner2.setOneTouchExpandable(true); inner2.setDividerLocation(0.7);
+		 * inner2.setResizeWeight(0.7); inner2.setDividerSize(6);
+		 * inner2.setBorder(null);
+		 */
 
 		mainPane = new JLayeredPane();
 		mainPane.setLayout(new LayerLayout());
@@ -171,7 +165,7 @@ public class WindowSystemImpl implements WindowSystem {
 		mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
 		// inner.add(inner2, new Integer(1));
 		// mainPane.setBorder(BorderFactory.createTitledBorder(
-        //        "Move the Mouse to Move Duke"));
+		// "Move the Mouse to Move Duke"));
 
 		contentPane.addChangeListener(new ChangeListener() {
 
@@ -258,10 +252,8 @@ public class WindowSystemImpl implements WindowSystem {
 		if (c.getName().length() <= maxLength) {
 			name = c.getName();
 		} else {
-			name = c.getName().substring(0, (maxLength - 3) / 2)
-					+ "..."
-					+ c.getName().substring(
-							c.getName().length() - (maxLength - 3) / 2 - 1);
+			name = c.getName().substring(0, (maxLength - 3) / 2) + "..."
+					+ c.getName().substring(c.getName().length() - (maxLength - 3) / 2 - 1);
 		}
 		int ix = contentPane.indexOfComponent(c);
 
@@ -271,8 +263,7 @@ public class WindowSystemImpl implements WindowSystem {
 		} else {
 			contentPane.add(name, c);
 			int idx = contentPane.getTabCount() - 1;
-			contentPane.setTabComponentAt(idx, new ButtonTabComponent(
-					contentPane, a));
+			contentPane.setTabComponentAt(idx, new ButtonTabComponent(contentPane, a));
 			contentPane.setToolTipTextAt(idx, c.getName());
 		}
 	}
@@ -297,7 +288,7 @@ public class WindowSystemImpl implements WindowSystem {
 			tcs.add(c);
 			ToolFrame f = new ToolFrame(c, layout);
 			frames.put(c, f);
-			if (contentPane.getSelectedComponent() == window){
+			if (contentPane.getSelectedComponent() == window) {
 				frames.put(c, f);
 				mainPane.add(f, JLayeredPane.PALETTE_LAYER);
 			}
@@ -306,22 +297,36 @@ public class WindowSystemImpl implements WindowSystem {
 
 	@Override
 	public void disableAction(Action a) {
+		disableAction(null, a);
+	}
+
+	@Override
+	public void disableAction(JComponent window, Action a) {
+		JMenu menu = windowMenus.get(window);
+		if (menu == null)
+			menu = fileMenu;
 		// find item that is labeled with action's name
-		for (int i = 0; i < fileMenu.getItemCount(); i++) {
-			if (fileMenu.getItem(i) != null
-					&& fileMenu.getItem(i).getText().equals(a.getName())) {
-				fileMenu.getItem(i).setEnabled(false);
+		for (int i = 0; i < menu.getItemCount(); i++) {
+			if (menu.getItem(i) != null && menu.getItem(i).getText().equals(a.getName())) {
+				menu.getItem(i).setEnabled(false);
 			}
 		}
 	}
 
 	@Override
 	public void enableAction(Action a) {
+		enableAction(null, a);
+	}
+
+	@Override
+	public void enableAction(JComponent window, Action a) {
+		JMenu menu = windowMenus.get(window);
+		if (menu == null)
+			menu = fileMenu;
 		// find item that is labeled with action's name
-		for (int i = 0; i < fileMenu.getItemCount(); i++) {
-			if (fileMenu.getItem(i) != null
-					&& fileMenu.getItem(i).getText().equals(a.getName())) {
-				fileMenu.getItem(i).setEnabled(true);
+		for (int i = 0; i < menu.getItemCount(); i++) {
+			if (menu.getItem(i) != null && menu.getItem(i).getText().equals(a.getName())) {
+				menu.getItem(i).setEnabled(true);
 			}
 		}
 	}

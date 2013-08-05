@@ -9,24 +9,26 @@ import org.vanda.studio.modules.workflows.run2.Runs.RunTransitions;
 import org.vanda.studio.modules.workflows.run2.Runs.StateCancelled;
 import org.vanda.studio.modules.workflows.run2.Runs.StateInit;
 import org.vanda.studio.modules.workflows.run2.Runs.StateDone;
+import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observer;
 
 public class Run implements RunTransitions {
-	private Date date;
-	private String id;
-	private Observer<RunEvent> obs;
+	private final Date date;
+	private final String id;
+	private final MultiplexObserver<RunEvent> observable;
 	private RunState state;
 	private Application app;
 
 	public Run(Application app, Observer<RunEvent> obs, String id) {
 		date = new Date();
 		this.id = id;
-		this.obs = obs;
+		observable = new MultiplexObserver<RunEvent>();
+		observable.addObserver(obs);
 		this.app = app;
 		state = new StateInit(this);
 		state.process();
 	}
-
+	
 	public String toString() {
 		return state.getString(date);
 	}
@@ -46,15 +48,22 @@ public class Run implements RunTransitions {
 		state = new StateDone();
 		state.process();
 	}
+	
+	public String getId() {
+		return id;
+	}
+	
+	public MultiplexObserver<RunEvent> getObserver() {
+		return observable;
+	}
 
 	@Override
 	public void doRun() {
-		state = new StateRunning(obs, id, app, this);
+		state = new StateRunning(observable, id, app, this);
 		state.process();
 	}
 	
 	public void run() {
 		state.run();
 	}
-
 }

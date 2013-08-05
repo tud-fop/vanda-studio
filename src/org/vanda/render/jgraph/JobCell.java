@@ -10,7 +10,6 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.util.mxStyleUtils;
-import com.mxgraph.view.mxGraph;
 
 public class JobCell extends Cell {
 	protected String label;
@@ -71,10 +70,6 @@ public class JobCell extends Cell {
 		// resizeParentOfCell(cell)
 
 		getObservable().notify(new PropertyChangedEvent<Cell>(this));
-	}
-
-	private void preventTooSmallNested(mxGraph graph, mxICell cell) {
-		// do nothing
 	}
 
 	@Override

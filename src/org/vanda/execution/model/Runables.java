@@ -1,41 +1,6 @@
 package org.vanda.execution.model;
 
 public class Runables {
-//	public static class DefaultRunEventListener implements RunEventListener {
-//		final Runable rt;
-//		public DefaultRunEventListener(final Runable rt) {
-//			this.rt = rt;
-//		}
-//		
-//		@Override
-//		public void runCancelled(String id) {
-//			if (id.equals(rt.getID())) {
-//				rt.getState().cancel(rt);
-//			}
-//		}
-//
-//		@Override
-//		public void runFinished(String id) {
-//			if (id.equals(rt.getID())) {
-//				rt.getState().finish(rt);
-//			}
-//
-//		}
-//
-//		@Override
-//		public void runStarted(String id) {
-//			if (id.equals(rt.getID())) {
-//				rt.getState().run(rt);
-//			}
-//		}
-//
-//		@Override
-//		public void cancelledAll() {
-//			rt.doCancel();
-//		}
-//
-//	}
-
 	public static class RunCancelled implements RunEvent {
 		public String id;
 

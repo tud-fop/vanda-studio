@@ -63,8 +63,7 @@ public class View {
 		}
 	}
 
-	public class WorkflowListener implements
-			Workflows.WorkflowListener<MutableWorkflow> {
+	public class WorkflowListener implements Workflows.WorkflowListener<MutableWorkflow> {
 
 		@Override
 		public void childAdded(MutableWorkflow mwf, Job j) {
@@ -122,53 +121,57 @@ public class View {
 	private WorkflowListener workflowListener;
 
 	private WorkflowView workflowView;
-	
+
 	public Observer<RunEvent> getRunEventObserver() {
 		if (runEventMultiplexTable == null) {
 			runEventMultiplexTable = new HashMap<String, JobView>();
 			for (Job j : jobs.keySet()) {
-				runEventMultiplexTable.put(j.getId(), jobs.get(j));
+				if (j.getId() != null)
+					runEventMultiplexTable.put(j.getId(), jobs.get(j));
 			}
 		}
-		return new Observer<RunEvent> () {
+		return new Observer<RunEvent>() {
 
 			@Override
 			public void notify(RunEvent event) {
 				event.doNotify(new RunEventListener() {
-					
+
 					@Override
 					public void runStarted(String id) {
-						System.out.println("started: " + id);
+						// FIXME System.out.println("started: " + id);
 						JobView jv = runEventMultiplexTable.get(id);
-						jv.getState().run(jv);						
+						if (jv != null)
+							jv.getState().run(jv);
 					}
-					
+
 					@Override
 					public void runFinished(String id) {
-						System.out.println("finished: " + id);
+						// FIXME System.out.println("finished: " + id);
 						JobView jv = runEventMultiplexTable.get(id);
-						jv.getState().finish(jv);
+						if (jv != null)
+							jv.getState().finish(jv);
 					}
-					
+
 					@Override
 					public void runCancelled(String id) {
-						System.out.println("cancelled: " + id);
+						// FIXME System.out.println("cancelled: " + id);
 						JobView jv = runEventMultiplexTable.get(id);
-						jv.getState().cancel(jv);					
+						if (jv != null)
+							jv.getState().cancel(jv);
 					}
-					
+
 					@Override
 					public void cancelledAll() {
-						System.out.println("cancelled all");
+						// FIXME System.out.println("cancelled all");
 						for (JobView jv : runEventMultiplexTable.values()) {
 							jv.getState().cancel(jv);
 						}
 					}
 				});
 			}
-			
+
 		};
-				
+
 	}
 
 	public View(MutableWorkflow workflow) {
@@ -202,7 +205,6 @@ public class View {
 			public void runStateTransition(AbstractView v, RunState from, RunState to) {
 				// TODO implement this
 			}
-		
 
 		};
 
@@ -216,29 +218,27 @@ public class View {
 		}
 		for (ConnectionKey ck : workflow.getConnections())
 			addConnectionView(ck);
-		workflow.getObservable().addObserver(
-				new Observer<WorkflowEvent<MutableWorkflow>>() {
+		workflow.getObservable().addObserver(new Observer<WorkflowEvent<MutableWorkflow>>() {
 
-					@Override
-					public void notify(WorkflowEvent<MutableWorkflow> event) {
-						event.doNotify(workflowListener);
-					}
+			@Override
+			public void notify(WorkflowEvent<MutableWorkflow> event) {
+				event.doNotify(workflowListener);
+			}
 
-				});
+		});
 	}
 
 	public void addConnectionView(ConnectionKey cc) {
 		if (!connections.containsKey(cc)) {
 			connections.put(cc, new ConnectionView());
-			connections.get(cc).getObservable()
-					.addObserver(new Observer<ViewEvent<AbstractView>>() {
+			connections.get(cc).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
 
-						@Override
-						public void notify(ViewEvent<AbstractView> event) {
-							event.doNotify(viewEventListener);
-						}
+				@Override
+				public void notify(ViewEvent<AbstractView> event) {
+					event.doNotify(viewEventListener);
+				}
 
-					});
+			});
 		}
 	}
 
@@ -257,26 +257,23 @@ public class View {
 
 	private void addLocationView(Location l) {
 		variables.put(l, new LocationView());
-		variables.get(l).getObservable()
-				.addObserver(new Observer<ViewEvent<AbstractView>>() {
+		variables.get(l).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
 
-					@Override
-					public void notify(ViewEvent<AbstractView> event) {
-						event.doNotify(viewEventListener);
-					}
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				event.doNotify(viewEventListener);
+			}
 
-				});
+		});
 	}
 
-	public <T, T2 extends AbstractView> void addMarked(WeakHashMap<T, T2> whm,
-			List<AbstractView> marked) {
+	public <T, T2 extends AbstractView> void addMarked(WeakHashMap<T, T2> whm, List<AbstractView> marked) {
 		for (T2 v : whm.values())
 			if (v.isMarked())
 				marked.add(v);
 	}
 
-	public <T, T2 extends AbstractView> void addSelected(
-			WeakHashMap<T, T2> whm, List<AbstractView> selection) {
+	public <T, T2 extends AbstractView> void addSelected(WeakHashMap<T, T2> whm, List<AbstractView> selection) {
 		for (T2 v : whm.values())
 			if (v.isSelected())
 				selection.add(v);
@@ -293,8 +290,7 @@ public class View {
 			v.setMarked(false);
 	}
 
-	public <T, T2 extends AbstractView> void clearSelected(
-			WeakHashMap<T, T2> whm) {
+	public <T, T2 extends AbstractView> void clearSelected(WeakHashMap<T, T2> whm) {
 		for (T2 v : whm.values())
 			v.setSelected(false);
 	}
@@ -330,7 +326,7 @@ public class View {
 	public List<AbstractView> getMarked() {
 		List<AbstractView> markedViews = new ArrayList<AbstractView>();
 		addMarked(connections, markedViews);
-		addMarked(variables, markedViews);		
+		addMarked(variables, markedViews);
 		addMarked(jobs, markedViews);
 		return markedViews;
 	}
@@ -349,25 +345,21 @@ public class View {
 
 	private void setWorkflowView(WorkflowView workflowView) {
 		this.workflowView = workflowView;
-		workflowView.getObservable().addObserver(
-				new Observer<ViewEvent<AbstractView>>() {
+		workflowView.getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
 
-					@Override
-					public void notify(ViewEvent<AbstractView> event) {
-						event.doNotify(viewEventListener);
-					}
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				event.doNotify(viewEventListener);
+			}
 
-				});
+		});
 	}
 
 	public void removeSelectedCell() {
 		List<AbstractView> selection = getCurrentSelection();
-		// System.out.print("Selection: ");
 		for (AbstractView v : selection) {
-			// System.out.print(v);
 			v.remove(this);
 		}
-		// System.out.println();
 	}
 
 }
