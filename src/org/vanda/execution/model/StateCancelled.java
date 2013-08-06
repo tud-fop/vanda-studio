@@ -36,6 +36,11 @@ public class StateCancelled implements RunState {
 	}
 
 	@Override
+	public void progress(Runable rt, int progress) {
+		// do nothing
+	}
+	
+	@Override
 	public void run(Runable rt) {
 		// do nothing
 	}
@@ -43,8 +48,5 @@ public class StateCancelled implements RunState {
 	@Override
 	public void visit(RunStateVisitor runStateVisitor) {
 		runStateVisitor.cancelled();
-	}
-	
-	
-	
+	}	
 }

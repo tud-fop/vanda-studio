@@ -21,10 +21,18 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
-import org.vanda.studio.modules.workflows.run2.Runs.ExecutionLogic;
 import org.vanda.workflows.data.Database;
 
+/**
+ * Dialogue to select Run-Directory, Assignments, Run-System  
+ * @author kgebhardt
+ *
+ */
 public class RunConfigEditor {
+	public interface ExecutionLogic {
+		public void evokeExecution(List<Integer> assignmentSelection, String filePath);
+	}
+	
 	private JPanel pan;
 	private JTextField tFolder;
 	private JLabel lFolder;

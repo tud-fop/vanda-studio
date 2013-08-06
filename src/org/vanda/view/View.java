@@ -135,6 +135,12 @@ public class View {
 			@Override
 			public void notify(RunEvent event) {
 				event.doNotify(new RunEventListener() {
+					@Override 
+					public void progressUpdate(String id, int progress) {
+						JobView jv = runEventMultiplexTable.get(id);
+						if (jv != null) 
+							jv.getState().progress(jv, progress);
+					}
 
 					@Override
 					public void runStarted(String id) {
@@ -186,7 +192,6 @@ public class View {
 			@Override
 			public void highlightingChanged(AbstractView v) {
 				// TODO Auto-generated method stub
-
 			}
 
 			@Override
@@ -194,6 +199,10 @@ public class View {
 				observable.notify(new MarkChangedEvent<View>(View.this));
 			}
 
+			@Override
+			public void runProgressUpdate(AbstractView v) {
+			}
+			
 			@Override
 			public void selectionChanged(AbstractView v) {
 				// TODO this will cause multiple notifications for one selection

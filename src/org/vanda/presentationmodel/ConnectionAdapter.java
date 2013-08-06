@@ -126,6 +126,11 @@ public class ConnectionAdapter {
 			else
 				visualization.highlight(false);
 		}
+		
+		@Override
+		public void runProgressUpdate(AbstractView _) {
+			// do nothing
+		}
 
 		@Override
 		public void selectionChanged(AbstractView v) {

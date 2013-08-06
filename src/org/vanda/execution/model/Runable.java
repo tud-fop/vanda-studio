@@ -23,4 +23,6 @@ public interface Runable {
 //	public String getID();
 
 	public RunState getState();
+
+	public void updateProgress(int progress);
 }

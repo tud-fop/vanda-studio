@@ -66,9 +66,7 @@ public class Runs {
 	}
 
 	
-	public interface ExecutionLogic {
-		public void evokeExecution(List<Integer> assignmentSelection, String filePath);
-	}
+	
 
 
 }

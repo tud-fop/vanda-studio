@@ -20,6 +20,10 @@ import org.vanda.workflows.hyper.LiteralAdapter;
 import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
+/**
+ * @author kgebhardt
+ *
+ */
 public class ExecutableWorkflowFactory {
 
 	private static double[] workflowDimension(MutableWorkflow mwf) {
@@ -93,6 +97,7 @@ public class ExecutableWorkflowFactory {
 			final Map<Location, Location> translation = new HashMap<Location, Location>();
 			final HashMap<String, String> dbRow = db.getRow(i);
 			final DataflowAnalysis dfa = semA.getDFA(synA, i);
+			
 			// vertical alignment of instantiated workflows
 			final double dx = 0;
 			final double dy = dims[1] * counter;

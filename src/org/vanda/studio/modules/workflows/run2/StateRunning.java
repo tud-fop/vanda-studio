@@ -142,7 +142,7 @@ public class StateRunning extends RunState {
 	}
 
 	private static class OrParser implements LineParser {
-		private final LineParser[] parsers = { new RunningParser(), new DoneParser(), new CancelledParser() };
+		private final LineParser[] parsers = { new ProgressParser(), new RunningParser(), new DoneParser(), new CancelledParser() };
 
 		@Override
 		public void parseLine(String line, Observer<RunEvent> mo) {
@@ -150,6 +150,28 @@ public class StateRunning extends RunState {
 				p.parseLine(line, mo);
 			}
 		}
+	}
+	
+	private static class ProgressParser implements LineParser {
+
+		@Override
+		public void parseLine(String line, Observer<RunEvent> mo) {
+			if (line.startsWith("Progress: ")) {
+				String [] field = line.replaceFirst("Progress: ", "").trim().split("@");
+				try {
+					String id = field[0];
+					int progress = Integer.parseInt(field[1]);
+					mo.notify(new Runables.RunProgress(id, progress));
+				} catch (NumberFormatException e){
+					// ignore
+				}
+					
+			}
+			
+				
+			
+		}
+		
 	}
 
 	private static class RunningParser implements LineParser {

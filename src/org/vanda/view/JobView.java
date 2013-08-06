@@ -11,6 +11,7 @@ import org.vanda.workflows.hyper.Job;
 public class JobView extends AbstractView implements Runable {
 
 	private RunState runState = new StateReady();
+	private int progress = 0;
 
 	@Override
 	public void remove(View view) {
@@ -51,11 +52,19 @@ public class JobView extends AbstractView implements Runable {
 		runState = new StateRunning();
 		getObservable().notify(new RunStateTransitionEvent<AbstractView>(this, oldState, runState));
 	}
+	
+	public int getRunProgress() {
+		return progress;
+	}
 
 	@Override
 	public RunState getState() {
 		return runState;
 	}
 
-
+	@Override
+	public void updateProgress(int progress) {
+		this.progress = progress;
+		getObservable().notify(new RunProgressUpdateEvent<AbstractView>(this));
+	}
 }

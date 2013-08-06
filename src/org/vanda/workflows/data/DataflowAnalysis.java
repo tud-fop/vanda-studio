@@ -131,6 +131,9 @@ public final class DataflowAnalysis implements JobVisitor {
 		} else {
 		if (assignment_ != null)
 			value = assignment_.get(l.getKey());
+			if (value == null) {
+				value = l.getKey();
+			}
 		}
 		values.put(j.bindings.get(j.getOutputPorts().get(0)), value);
 	}

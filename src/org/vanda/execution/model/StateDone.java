@@ -34,7 +34,12 @@ public class StateDone implements RunState {
 	public boolean isRunning() {
 		return false;
 	}
-
+	
+	@Override
+	public void progress(Runable rt, int progress) {
+		// do nothing
+	}
+	
 	@Override
 	public void run(Runable rt) {
 		// do nothing

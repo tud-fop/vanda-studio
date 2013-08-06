@@ -18,7 +18,7 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.previews.WorkflowExecutionPreview;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
-import org.vanda.studio.modules.workflows.run2.Runs.ExecutionLogic;
+import org.vanda.studio.modules.workflows.run2.RunConfigEditor.ExecutionLogic;
 import org.vanda.types.Types;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;

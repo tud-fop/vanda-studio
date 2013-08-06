@@ -34,6 +34,11 @@ public class StateRunning implements RunState {
 	public boolean isRunning() {
 		return true;
 	}
+	
+	@Override
+	public void progress(Runable rt, int progress) {
+		rt.updateProgress(progress);
+	}
 
 	@Override
 	public void run(Runable rt) {

@@ -85,7 +85,6 @@ public class JobAdapter {
 		@Override
 		public void selectionChanged(Cell c, boolean selected) {
 			// do nothing
-
 		}
 
 		@Override
@@ -160,6 +159,11 @@ public class JobAdapter {
 			} else {
 				jobCell.highlight(false);
 			}
+		}
+		
+		@Override
+		public void runProgressUpdate(AbstractView _) {
+			// do nothing
 		}
 
 		@Override

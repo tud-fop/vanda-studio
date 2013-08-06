@@ -82,6 +82,10 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 						public void cancelledAll() {
 							disable();
 						}
+
+						@Override
+						public void progressUpdate(String _, int progress) {
+						}
 					});
 				}
 

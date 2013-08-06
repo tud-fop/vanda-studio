@@ -2,11 +2,9 @@ package org.vanda.presentationmodel.execution;
 
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-
 
 import org.vanda.execution.model.Runables.RunState;
 import org.vanda.execution.model.Runables.RunStateVisitor;
@@ -22,7 +20,6 @@ import org.vanda.render.jgraph.NaiveLayoutManager;
 import org.vanda.render.jgraph.InPortCell;
 import org.vanda.render.jgraph.OutPortCell;
 import org.vanda.render.jgraph.WorkflowCell;
-
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
 import org.vanda.view.AbstractView.ViewEvent;
@@ -30,7 +27,6 @@ import org.vanda.view.JobView;
 import org.vanda.view.View;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
-
 import org.vanda.workflows.hyper.Location;
 
 public class JobAdapter {
@@ -111,6 +107,11 @@ public class JobAdapter {
 			} else {
 				jobCell.highlight(false);
 			}
+		}
+		
+		@Override
+		public void runProgressUpdate(AbstractView v) {
+			jobCell.setProgress(((JobView) v).getRunProgress());
 		}
 
 		@Override

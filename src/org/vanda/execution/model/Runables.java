@@ -26,6 +26,8 @@ public class Runables {
 	}
 
 	public static interface RunEventListener {
+		public void progressUpdate(String id, int progress);
+		
 		public void runCancelled(String id);
 
 		public void runFinished(String id);
@@ -66,9 +68,30 @@ public class Runables {
 		}
 		
 	}
+	
+	public static class RunProgress implements RunEvent {
+		private final String id;
+		private final int progress;
+		
+		public RunProgress(String id, int progress) {
+			this.id = id;
+			this.progress = progress;
+		}
+		
+		@Override
+		public void doNotify(RunEventListener rl) {
+			rl.progressUpdate(id, progress);			
+		}
+
+		@Override
+		public String getId() {
+			return id;
+		}
+		
+	}
 
 	public static class RunStarted implements RunEvent {
-		public String id;
+		private final String id;
 
 		public RunStarted(String id) {
 			this.id = id;
@@ -97,6 +120,8 @@ public class Runables {
 		public boolean isReady();
 
 		public boolean isRunning();
+		
+		public void progress(Runable rt, int progress);
 
 		public void run(Runable rt);
 

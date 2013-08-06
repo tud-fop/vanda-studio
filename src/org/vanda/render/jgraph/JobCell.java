@@ -17,8 +17,7 @@ public class JobCell extends Cell {
 
 	// final LayoutManager layoutManager;
 
-	public JobCell(final Graph graph, Renderer r, String label, double x,
-			double y, double w, double h) {
+	public JobCell(final Graph graph, Renderer r, String label, double x, double y, double w, double h) {
 
 		// r = null to prevent rendering in supertype
 		super(null, null, graph);
@@ -38,13 +37,9 @@ public class JobCell extends Cell {
 	@Override
 	public void highlight(boolean highlight) {
 		if (highlight) {
-			getVisualization().setStyle(
-					mxStyleUtils.addStylename(getVisualization().getStyle(),
-							"highlighted"));
+			getVisualization().setStyle(mxStyleUtils.addStylename(getVisualization().getStyle(), "highlighted"));
 		} else {
-			getVisualization().setStyle(
-					mxStyleUtils.removeStylename(getVisualization().getStyle(),
-							"highlighted"));
+			getVisualization().setStyle(mxStyleUtils.removeStylename(getVisualization().getStyle(), "highlighted"));
 		}
 		getObservable().notify(new MarkChangedEvent<Cell>(this));
 
@@ -89,6 +84,10 @@ public class JobCell extends Cell {
 		else
 			this.label = "";
 		getObservable().notify(new PropertyChangedEvent<Cell>(this));
+	}
+
+	public void setProgress(int runProgress) {
+		// TODO implement this
 	}
 
 	@Override
@@ -140,44 +139,32 @@ public class JobCell extends Cell {
 	private abstract class RunVis {
 		void cancelled() {
 			removeCurrentStyle();
-			getVisualization().setStyle(
-					mxStyleUtils.addStylename(getVisualization().getStyle(),
-							"cancelled"));
+			getVisualization().setStyle(mxStyleUtils.addStylename(getVisualization().getStyle(), "cancelled"));
 			runVis = new Cancelled();
-			getObservable().notify(
-					new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
+			getObservable().notify(new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
 		};
 
 		void running() {
 			removeCurrentStyle();
-			getVisualization().setStyle(
-					mxStyleUtils.addStylename(getVisualization().getStyle(),
-							"running"));
+			getVisualization().setStyle(mxStyleUtils.addStylename(getVisualization().getStyle(), "running"));
 			runVis = new Running();
-			getObservable().notify(
-					new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
+			getObservable().notify(new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
 
 		};
 
 		void done() {
 			removeCurrentStyle();
-			getVisualization().setStyle(
-					mxStyleUtils.addStylename(getVisualization().getStyle(),
-							"done"));
+			getVisualization().setStyle(mxStyleUtils.addStylename(getVisualization().getStyle(), "done"));
 			runVis = new Done();
-			getObservable().notify(
-					new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
+			getObservable().notify(new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
 
 		};
 
 		void ready() {
 			removeCurrentStyle();
-			getVisualization().setStyle(
-					mxStyleUtils.addStylename(getVisualization().getStyle(),
-							"ready"));
+			getVisualization().setStyle(mxStyleUtils.addStylename(getVisualization().getStyle(), "ready"));
 			runVis = new Ready();
-			getObservable().notify(
-					new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
+			getObservable().notify(new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
 		};
 
 		public abstract void removeCurrentStyle();
@@ -187,9 +174,7 @@ public class JobCell extends Cell {
 
 		@Override
 		public void removeCurrentStyle() {
-			getVisualization().setStyle(
-					mxStyleUtils.removeStylename(getVisualization().getStyle(),
-							"ready"));
+			getVisualization().setStyle(mxStyleUtils.removeStylename(getVisualization().getStyle(), "ready"));
 		}
 	}
 
@@ -197,9 +182,7 @@ public class JobCell extends Cell {
 
 		@Override
 		public void removeCurrentStyle() {
-			getVisualization().setStyle(
-					mxStyleUtils.removeStylename(getVisualization().getStyle(),
-							"running"));
+			getVisualization().setStyle(mxStyleUtils.removeStylename(getVisualization().getStyle(), "running"));
 		}
 	}
 
@@ -207,9 +190,7 @@ public class JobCell extends Cell {
 
 		@Override
 		public void removeCurrentStyle() {
-			getVisualization().setStyle(
-					mxStyleUtils.removeStylename(getVisualization().getStyle(),
-							"done"));
+			getVisualization().setStyle(mxStyleUtils.removeStylename(getVisualization().getStyle(), "done"));
 		}
 	}
 
@@ -217,9 +198,7 @@ public class JobCell extends Cell {
 
 		@Override
 		public void removeCurrentStyle() {
-			getVisualization().setStyle(
-					mxStyleUtils.removeStylename(getVisualization().getStyle(),
-							"cancelled"));
+			getVisualization().setStyle(mxStyleUtils.removeStylename(getVisualization().getStyle(), "cancelled"));
 		}
 	}
 

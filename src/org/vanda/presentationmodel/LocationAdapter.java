@@ -81,6 +81,11 @@ public class LocationAdapter {
 			locationCell.getObservable().notify(
 					new MarkChangedEvent<Cell>(locationCell));
 		}
+		
+		@Override
+		public void runProgressUpdate(AbstractView _) {
+			// do nothing
+		}
 
 		@Override
 		public void selectionChanged(AbstractView v) {
