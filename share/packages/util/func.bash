@@ -10,7 +10,8 @@ SinkTool () {
 }
 
 # runs a tool
-# run <n> <tool> <root> <i1> ... <in> <o1> ... <om>
+# run2 <id> <n> <tool> <root> <i1> ... <in> <o1> ... <om>
+# <id>    job id
 # <n>     number of input arguments
 # <m>     number of output arguments
 # <tool>  tool to run
@@ -19,22 +20,22 @@ SinkTool () {
 # <o?>    output argument
 run () {
 	args=("$@")
-	echo "Running: ${args[2]}"
-	mkdir -p "${args[2]}"
+	echo "Running: ${args[0]}"
+	mkdir -p "${args[3]}"
 	
-	logFile="${args[2]}/log"
+	logFile="${args[3]}/log"
 	touch "$logFile"
 	
-	echo "Checking: ${args[2]}" >> "$logFile"
-	inNew="${args[3]}"
-	for (( i=4; i < $(( ${args[0]} + 3 )); i++ )); do
+	echo "Checking: ${args[0]}" >> "$logFile"
+	inNew="${args[4]}"
+	for (( i=5; i < $(( ${args[1]} + 3 )); i++ )); do
 		if [[ "${args[i]}" -nt "$inNew" ]]; then
 			inNew="${args[$i]}"
 		fi
 	done
 
-	outOld="${args[$((${args[0]} + 3))]}"
-	for (( i=$(( ${args[0]} + 3 )); i < $#; i++ )); do
+	outOld="${args[$((${args[1]} + 3))]}"
+	for (( i=$(( ${args[1]} + 3 )); i < $#; i++ )); do
 		if [[ "${args[$i]}" -ot "$inNew" ]]; then
 			outOld="${args[$i]}"
 		fi
@@ -43,18 +44,18 @@ run () {
 	echo "$(date)" >> "$logFile"
 	if [[ -f "$outOld" ]]; then
 		if [[ "$inNew" -nt "$outOld" ]]; then
-			echo "Running: ${args[2]}" >> "$logFile"
-			"${@:2}" &>> "$logFile"
+			echo "Running: ${args[0]}" >> "$logFile"
+			"${@:3}" &>> "$logFile"
 			echo "Returned: $?" >> "$logFile"
 		else
-			echo "Skipping: ${args[2]}" >> "$logFile"
+			echo "Skipping: ${args[0]}" >> "$logFile"
 			echo "  Reason: Up-to-date file(s) found." >> "$logFile"
 		fi
 	else
-		echo "Running: ${args[2]}" >> "$logFile"
-		"${@:2}" &>> "$logFile"
+		echo "Running: ${args[0]}" >> "$logFile"
+		"${@:3}" &>> "$logFile"
 		echo "Returned: $?" >> "$logFile"
 	fi
 
-	echo "Done: ${args[2]}"
+	echo "Done: ${args[0]}"
 }

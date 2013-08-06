@@ -55,7 +55,7 @@ public class ShellCompiler implements FragmentCompiler {
 					// ^^ this comes from the fragment
 					// ^^ and it is propagated via the dependency
 					assert (frag != null);
-					sb.append("  run2 ");
+					sb.append("  run ");
 					if (ji.getId() != null) 
 						sb.append(ji.getId());
 					else 
