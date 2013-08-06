@@ -2,6 +2,7 @@ package org.vanda.workflows.hyper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -52,6 +53,13 @@ public class MutableWorkflow implements JobListener<Job> {
 		t.init(this);
 		t.proceed();
 		return t.getSorted();
+	}
+	
+	public Job[] getSorted(Comparator<Job> priorities) throws Exception {
+		TopSorter t = new TopSorter();
+		t.init(this, priorities);
+		t.proceed();
+		return t.getSorted();		
 	}
 
 	public void addChild(final Job job) {

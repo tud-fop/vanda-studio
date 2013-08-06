@@ -132,7 +132,6 @@ public final class TopSorter {
 
 	public void proceed() {
 		PriorityQueue<Job> workingset = new PriorityQueue<Job>(10, priorities);
-		
 		inputBlock.addUnblocked(workingset);
 		while (!workingset.isEmpty()) {
 			Job ji = workingset.poll();

@@ -1,7 +1,6 @@
 package org.vanda.studio.modules.workflows.run2;
 
 import java.util.Date;
-import java.util.List;
 
 public class Runs {
 	public static interface RunTransitions {

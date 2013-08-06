@@ -3,7 +3,9 @@ package org.vanda.studio.modules.workflows.run2;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -18,18 +20,21 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.previews.WorkflowExecutionPreview;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
-import org.vanda.studio.modules.workflows.run2.RunConfigEditor.ExecutionLogic;
+import org.vanda.studio.modules.workflows.run2.RunConfigEditor.Runner;
 import org.vanda.types.Types;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
+import org.vanda.util.Pair;
 import org.vanda.view.View;
+import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.serialization.Storer;
 
 public class RunTool implements SemanticsToolFactory {
-	private class Tool  {
-		public final class RunAction implements Action , ExecutionLogic {
+	private class Tool {
+		public final class RunAction implements Action, Runner {
 			private JFrame f;
+
 			@Override
 			public String getName() {
 				return "Run2";
@@ -38,24 +43,28 @@ public class RunTool implements SemanticsToolFactory {
 			@Override
 			public void invoke() {
 				f = new JFrame("Execute Workflow");
-				RunConfigEditor rce = new RunConfigEditor(wfe.getDatabase(), "/tmp/", RunAction.this);
+				// TODO use generic default path
+				RunConfigEditor rce = new RunConfigEditor(wfe.getView().getWorkflow().getChildren(), wfe.getDatabase(),
+						"/tmp/", RunAction.this);
 				f.setContentPane(rce.getComponent());
 				f.setVisible(true);
 				f.setSize(f.getPreferredSize());
 			}
 
-			public void evokeExecution(List<Integer> assingmentSelection, String filePath) {
+			public void evokeExecution(List<Integer> assingmentSelection, String filePath,
+					Map<Pair<Job, Integer>, Integer> prioMap) {
 				f.dispose();
 				String id = generate();
 				if (id != null) {
 					// serialize Workflow + Database
+					Map<String, Integer> prioMapInst = new HashMap<String, Integer>();
 					MutableWorkflow ewf = ExecutableWorkflowFactory.generateExecutableWorkflow(wfe.getView()
-							.getWorkflow(), wfe.getDatabase(), assingmentSelection, synA, semA);
-					// TODO use generic path!!
-					// String filePath = "/tmp/executionTest";
+							.getWorkflow(), wfe.getDatabase(), assingmentSelection, synA, semA, prioMap, prioMapInst);
 					filePath += "/" + ewf.getName() + new Date().toString();
+					RunConfig rc = new RunConfig(filePath, prioMapInst);
 					try {
-						new Storer().store(ewf, wfe.getDatabase(), filePath);
+						new Storer().store(ewf, wfe.getDatabase(), filePath + ".xwf");
+						new org.vanda.workflows.serialization.run.Storer().store(rc, filePath + ".run");
 					} catch (Exception e) {
 						wfe.getApplication().sendMessage(new ExceptionMessage(e));
 					}

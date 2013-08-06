@@ -1,6 +1,7 @@
 package org.vanda.fragment.model;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 
 import org.vanda.types.Type;
@@ -16,13 +17,11 @@ public class SyntaxAnalysis {
 	private Type fragmentType = null;
 	private MultiplexObserver<SyntaxAnalysis> syntaxChangedObservable;
 	protected Job[] sorted = null;
+	private final Comparator<Job> priorities;
 
-	// FIXME ugly, provisional, for jobSorting
-	private boolean executable;
-
-	public SyntaxAnalysis(MutableWorkflow hwf, boolean executable) {
+	public SyntaxAnalysis(MutableWorkflow hwf, Comparator<Job> priorities) {
 		this.hwf = hwf;
-		this.executable = executable;
+		this.priorities = priorities;
 		syntaxChangedObservable = new MultiplexObserver<SyntaxAnalysis>();
 		try {
 			checkWorkflow();
@@ -32,7 +31,7 @@ public class SyntaxAnalysis {
 	}
 	
 	public SyntaxAnalysis(MutableWorkflow hwf) {
-		this(hwf, false);
+		this(hwf, null);
 	}
 
 	public void typeCheck() throws TypeCheckingException {
@@ -47,8 +46,8 @@ public class SyntaxAnalysis {
 	public void checkWorkflow() throws TypeCheckingException, Exception {
 		sorted = null;
 		typeCheck();
-		if (executable)
-			sorted = hwf.getChildren().toArray(new Job[hwf.getChildren().size()]);
+		if (priorities != null)
+			sorted = hwf.getSorted(priorities);
 		else
 			sorted = hwf.getSorted();
 		syntaxChangedObservable.notify(this);

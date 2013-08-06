@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.vanda.fragment.model.SemanticAnalysis;
 import org.vanda.fragment.model.SyntaxAnalysis;
+import org.vanda.util.Pair;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.data.DataflowAnalysis;
 import org.vanda.workflows.elements.ElementVisitor;
@@ -22,7 +23,7 @@ import org.vanda.workflows.hyper.MutableWorkflow;
 
 /**
  * @author kgebhardt
- *
+ * 
  */
 public class ExecutableWorkflowFactory {
 
@@ -84,20 +85,22 @@ public class ExecutableWorkflowFactory {
 		for (Port ip : j.getInputPorts()) {
 			ewf.addConnection(new ConnectionKey(ej, ip), translation.get(j.bindings.get(ip)));
 		}
+
 	}
 
 	public static MutableWorkflow generateExecutableWorkflow(MutableWorkflow mwf, Database db,
-			List<Integer> assignmentSelection, SyntaxAnalysis synA, SemanticAnalysis semA) {
+			List<Integer> assignmentSelection, SyntaxAnalysis synA, SemanticAnalysis semA,
+			final Map<Pair<Job, Integer>, Integer> prioMap, final Map<String, Integer> prioMapInst) {
 		final MutableWorkflow ewf = new MutableWorkflow(mwf.getName());
 		final double[] dims = workflowDimension(mwf);
 		int counter = 0;
-		for (int i : assignmentSelection) {
+		for (final int i : assignmentSelection) {
 			// TODO skip unselected Assignments
 
 			final Map<Location, Location> translation = new HashMap<Location, Location>();
 			final HashMap<String, String> dbRow = db.getRow(i);
 			final DataflowAnalysis dfa = semA.getDFA(synA, i);
-			
+
 			// vertical alignment of instantiated workflows
 			final double dx = 0;
 			final double dy = dims[1] * counter;
@@ -121,6 +124,7 @@ public class ExecutableWorkflowFactory {
 						@Override
 						public void visitTool(Tool t) {
 							createJobInstance(ewf, dfa, dx, dy, translation, j, j.getElement());
+							prioMapInst.put(dfa.getJobId(j), prioMap.get(new Pair<Job, Integer>(j, (Integer) i)));
 						}
 
 					});

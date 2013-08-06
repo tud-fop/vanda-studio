@@ -4,7 +4,10 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.GroupLayout;
@@ -21,37 +24,41 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
+import org.vanda.util.Pair;
 import org.vanda.workflows.data.Database;
+import org.vanda.workflows.hyper.Job;
 
 /**
- * Dialogue to select Run-Directory, Assignments, Run-System  
+ * Dialogue to select Run-Directory, Assignments, Run-System
+ * 
  * @author kgebhardt
- *
+ * 
  */
 public class RunConfigEditor {
-	public interface ExecutionLogic {
-		public void evokeExecution(List<Integer> assignmentSelection, String filePath);
+	public interface Runner {
+		public void evokeExecution(List<Integer> assignmentSelection, String filePath,
+				Map<Pair<Job, Integer>, Integer> prioMap);
 	}
-	
+
 	private JPanel pan;
 	private JTextField tFolder;
 	private JLabel lFolder;
 	public File dir;
-	List<Integer> assignmentSelection;
+	private List<Integer> assignmentSelection;
+	private Map<Integer, JSpinner> priorityMap;
 
 	public JComponent getComponent() {
 		return pan;
 	}
 
-	public RunConfigEditor(Database db, String path, final ExecutionLogic el) {
+	public RunConfigEditor(final Collection<Job> jobs, Database db, String path, final Runner r) {
 		// Panel and basic Layout
 		pan = new JPanel();
 		GroupLayout layout = new GroupLayout(pan);
 		pan.setLayout(layout);
 		layout.setAutoCreateContainerGaps(true);
 		layout.setAutoCreateGaps(true);
-		
-		
+
 		// Execution Environment Folder Selection
 		// TODO offer nice default path and remember last path
 		dir = new File(path);
@@ -71,38 +78,30 @@ public class RunConfigEditor {
 				}
 			}
 		});
-		
-		SequentialGroup exexutionEnvironmentHorizontal = layout.createSequentialGroup()
-				.addComponent(lFolder)
-				.addComponent(tFolder)
-				.addComponent(bFolder); 
-		ParallelGroup executionEnvironmentVertical = layout.createParallelGroup()
-				.addComponent(lFolder)
-				.addComponent(tFolder)
-				.addComponent(bFolder);
-				
+
+		SequentialGroup exexutionEnvironmentHorizontal = layout.createSequentialGroup().addComponent(lFolder)
+				.addComponent(tFolder).addComponent(bFolder);
+		ParallelGroup executionEnvironmentVertical = layout.createParallelGroup().addComponent(lFolder)
+				.addComponent(tFolder).addComponent(bFolder);
+
 		// AssignmentSelectionTable
 		assignmentSelection = new ArrayList<Integer>();
+		priorityMap = new HashMap<Integer, JSpinner>();
 
-		
 		ParallelGroup leftColumn = layout.createParallelGroup();
 		ParallelGroup rightColumn = layout.createParallelGroup();
 		SequentialGroup tableRows = layout.createSequentialGroup();
-		
-		// Table Head	
+
+		// Table Head
 		JLabel headerLeft = new JLabel("Assignment");
 		JLabel headerRight = new JLabel("Priority");
 		leftColumn.addComponent(headerLeft);
 		rightColumn.addComponent(headerRight);
-		tableRows.addGroup(
-				layout.createParallelGroup()
-					.addComponent(headerLeft)
-					.addComponent(headerRight)
-				);
-		
+		tableRows.addGroup(layout.createParallelGroup().addComponent(headerLeft).addComponent(headerRight));
+
 		// Table Content
-		// TODO  remember previous selections and priorities
-		for ( int i = 0; i < db.getSize(); ++i ) {
+		// TODO remember previous selections and priorities
+		for (int i = 0; i < db.getSize(); ++i) {
 			final Integer a_i = new Integer(i);
 			JCheckBox assignment = new JCheckBox(new AbstractAction("Assignment " + a_i) {
 				private static final long serialVersionUID = 1827258959703699422L;
@@ -111,24 +110,19 @@ public class RunConfigEditor {
 				public void actionPerformed(ActionEvent arg0) {
 					if (assignmentSelection.contains(a_i))
 						assignmentSelection.remove(a_i);
-					else 
+					else
 						assignmentSelection.add(a_i);
 				}
 			});
-			JSpinner  priority   = new JSpinner(new SpinnerNumberModel(i, 0, 1000, 1));
-			ParallelGroup row = layout.createParallelGroup()
-					.addComponent(assignment)
-					.addComponent(priority);
+			JSpinner priority = new JSpinner(new SpinnerNumberModel(i, 0, 1000, 1));
+			priorityMap.put((Integer) i, priority);
+			ParallelGroup row = layout.createParallelGroup().addComponent(assignment).addComponent(priority);
 			leftColumn.addComponent(assignment);
 			rightColumn.addComponent(priority);
 			tableRows.addGroup(row);
 		}
-		SequentialGroup tableColumns = layout.createSequentialGroup()
-				.addGroup(leftColumn)
-				.addGroup(rightColumn);
-		
-		
-		
+		SequentialGroup tableColumns = layout.createSequentialGroup().addGroup(leftColumn).addGroup(rightColumn);
+
 		// ExecutionSystem Selection
 		// TODO read out available Systems from somewhere
 		JLabel exLabel = new JLabel("Execution System");
@@ -139,33 +133,26 @@ public class RunConfigEditor {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				el.evokeExecution(assignmentSelection, dir.getAbsolutePath());
+				Map<Pair<Job, Integer>, Integer> priorities = new HashMap<Pair<Job, Integer>, Integer>();
+				for (Integer i : priorityMap.keySet()) {
+					for (Job j : jobs) {
+						priorities.put(new Pair<Job, Integer>(j, i), (Integer) priorityMap.get(i).getValue());
+					}
+				}
+				r.evokeExecution(assignmentSelection, dir.getAbsolutePath(), priorities);
 			}
 		});
-		
-		SequentialGroup executionSystemHorizontal = layout.createSequentialGroup()
-				.addComponent(exLabel)
-				.addComponent(exSystem)
-				.addComponent(exButton);
-		ParallelGroup executionSystemVertical = layout.createParallelGroup()
-				.addComponent(exLabel)
-				.addComponent(exSystem)
-				.addComponent(exButton);
-				
+
+		SequentialGroup executionSystemHorizontal = layout.createSequentialGroup().addComponent(exLabel)
+				.addComponent(exSystem).addComponent(exButton);
+		ParallelGroup executionSystemVertical = layout.createParallelGroup().addComponent(exLabel)
+				.addComponent(exSystem).addComponent(exButton);
 
 		// Setup entire layout
-		layout.setHorizontalGroup(
-				layout.createParallelGroup()
-					.addGroup(exexutionEnvironmentHorizontal)
-					.addGroup(tableColumns)
-					.addGroup(executionSystemHorizontal)
-					);
-		layout.setVerticalGroup(
-				layout.createSequentialGroup()
-					.addGroup(executionEnvironmentVertical)
-					.addGroup(tableRows)
-					.addGroup(executionSystemVertical)
-					);
+		layout.setHorizontalGroup(layout.createParallelGroup().addGroup(exexutionEnvironmentHorizontal)
+				.addGroup(tableColumns).addGroup(executionSystemHorizontal));
+		layout.setVerticalGroup(layout.createSequentialGroup().addGroup(executionEnvironmentVertical)
+				.addGroup(tableRows).addGroup(executionSystemVertical));
 
 	}
 }

@@ -19,6 +19,7 @@ import org.vanda.studio.modules.workflows.run.InspectorTool;
 import org.vanda.studio.modules.workflows.run.SemanticsTool;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
 import org.vanda.studio.modules.workflows.run2.Run;
+import org.vanda.studio.modules.workflows.run2.RunConfig;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
@@ -118,13 +119,15 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 	private final Generator prof;
 	private final PresentationModel pm;
 	private final CancelAction cancel;
+	private final RunConfig rc;
 
-	public WorkflowExecution(Application app, Pair<MutableWorkflow, Database> phd, Generator prof)
+	public WorkflowExecution(Application app, Pair<MutableWorkflow, Database> phd, Generator prof, RunConfig rc)
 			throws TypeCheckingException {
 		super(app, phd);
 		this.prof = prof;
+		this.rc = rc;
 
-		synA = new SyntaxAnalysis(phd.fst, true);
+		synA = new SyntaxAnalysis(phd.fst, rc.generateComperator());
 		semA = new SemanticAnalysisEx(synA);
 
 		pm = new PresentationModel(view);
