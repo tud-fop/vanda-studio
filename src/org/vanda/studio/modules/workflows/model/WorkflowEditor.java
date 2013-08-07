@@ -1,5 +1,8 @@
 package org.vanda.studio.modules.workflows.model;
 
+import java.awt.Image;
+
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
@@ -25,4 +28,5 @@ public interface WorkflowEditor {
 	View getView();
 	SyntaxAnalysis getSyntaxAnalysis();
 	SemanticAnalysis getSemanticAnalysis();
+	void addAction(Action a, String imageName, KeyStroke keyStroke);
 }

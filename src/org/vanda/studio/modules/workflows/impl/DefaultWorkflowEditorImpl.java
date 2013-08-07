@@ -356,4 +356,9 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		outline.setName("Map");
 		addToolWindow(outline, WindowSystem.SOUTHEAST);
 	}
+
+	@Override
+	public void addAction(Action a, String imageName, KeyStroke keyStroke) {
+		app.getWindowSystem().addAction(component, a, imageName, keyStroke);
+	}
 }

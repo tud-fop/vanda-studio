@@ -18,7 +18,7 @@ public final class SaveTool implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe) {
 		Action a = new SaveWorkflowAction(wfe);
-		wfe.addAction(a,
+		wfe.addAction(a, "document-save",
 				KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
 		return a;
 	}

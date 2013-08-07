@@ -3,6 +3,7 @@ package org.vanda.workflows.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
@@ -52,8 +53,52 @@ public final class Database {
 		return cursor;
 	}
 
+	public void setCursor(int c) {
+		if (cursor != c) {
+			try {
+				beginUpdate();
+				cursor = c;
+				events.add(new CursorChange<Database>(this));
+			} finally {
+				endUpdate();
+			}
+		}
+	}
+
 	public HashMap<String, String> getRow(int location) {
 		return assignments.get(location);
+	}
+
+	public void addRow() {
+		beginUpdate();
+		try {
+			HashMap<String, String> row = new HashMap<String, String>();
+			for (Entry<String, String> e : assignments.get(cursor).entrySet()) {
+				row.put(e.getKey(), e.getValue());
+				events.add(new DataChange<Database>(this, e.getKey()));
+			}
+			assignments.add(row);
+		} finally {
+			endUpdate();
+		}
+	}
+
+	public void delRow() {
+		if (getSize() == 1)
+			return;
+		if (cursor < assignments.size()) {
+			beginUpdate();
+			try {
+				HashMap<String, String> theRow = assignments.get(cursor);
+				assignments.remove(cursor);
+				for (Entry<String, String> e : theRow.entrySet())
+					events.add(new DataChange<Database>(this, e.getKey()));
+				cursor = 0;
+				events.add(new CursorChange<Database>(this));
+			} finally {
+				endUpdate();
+			}
+		}
 	}
 
 	public Observable<DatabaseEvent<Database>> getObservable() {

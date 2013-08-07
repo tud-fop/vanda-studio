@@ -21,7 +21,9 @@ import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.mxDropTargetListener;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.WindowSystem;
+
 import org.vanda.studio.modules.workflows.model.ToolFactory;
+
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.HasActions;
@@ -91,7 +93,6 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		configureComponent();
 		component.getGraphControl().addMouseListener(new EditMouseAdapter());
 		component.addKeyListener(new DelKeyListener());
-		
 		component.zoomActual();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -114,20 +115,17 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		// mainpane.setName(model.getRoot().getName());
 		// mainpane.setDividerLocation(0.7);
 		component.setName(view.getWorkflow().getName());
-
 		app.getWindowSystem().addContentWindow(null, component, null);
-		app.getWindowSystem().focusContentWindow(component);
-		component.requestFocusInWindow();
 
 		for (ToolFactory tf : toolFactories)
 			tf.instantiate(this);
-		
-		addAction(new CheckWorkflowAction(this), KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
+	
+		addAction(new CheckWorkflowAction(this), "document-preview", KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
 		addAction(new ResetZoomAction(),
+
 				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK));
 		addAction(new CloseWorkflowAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
-				
 
 		outline.setName("Map");
 		addToolWindow(outline, WindowSystem.SOUTHEAST);
@@ -140,8 +138,9 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 
 	static {
 		try {
-			mxGraphTransferable.dataFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType
-					+ "; class=com.mxgraph.swing.util.mxGraphTransferable");
+			mxGraphTransferable.dataFlavor = new DataFlavor(
+					DataFlavor.javaJVMLocalObjectMimeType
+							+ "; class=com.mxgraph.swing.util.mxGraphTransferable");
 		} catch (ClassNotFoundException cnfe) {
 			// do nothing
 			System.out.println("Problem!");
@@ -199,7 +198,8 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 			} else if (e.getButton() == 3) {
 				// show context menu when right clicking a node or an edge
 				Object cell = component.getCellAt(e.getX(), e.getY());
-				final Object value = component.getGraph().getModel().getValue(cell);
+				final Object value = component.getGraph().getModel()
+						.getValue(cell);
 
 				if (value != null)
 					((Cell) value).rightMouseClick(e);
@@ -222,6 +222,7 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 				// }
 				// menu.show(e.getComponent(), e.getX(), e.getY());
 				// }
+
 			}
 		}
 	}

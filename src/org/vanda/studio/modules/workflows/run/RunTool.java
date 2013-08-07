@@ -3,20 +3,27 @@ package org.vanda.studio.modules.workflows.run;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -82,8 +89,12 @@ public class RunTool implements SemanticsToolFactory {
 			this.semA = semA;
 			app = wfe.getApplication();
 			this.prof = prof;
-			wfe.addAction(new GenerateAction(), KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
-			wfe.addAction(new RunAction(), KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+
+			wfe.addAction(new GenerateAction(), "run-build",
+					KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
+			wfe.addAction(new RunAction(), "system-run",
+					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+
 			runs = new ArrayList<Run>();
 
 			tRuntool = new JTextPane();
@@ -225,7 +236,6 @@ public class RunTool implements SemanticsToolFactory {
 			public StateRunning(Application app, String id, StyledDocument doc) {
 				try {
 					process = Runtime.getRuntime().exec(RCChecker.getOutPath() + "/" + id, null, null);
-
 				} catch (Exception e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}
@@ -455,6 +465,7 @@ public class RunTool implements SemanticsToolFactory {
 			// if (mm.getExecutableWorkflow().isConnected() &&
 			// mm.getDataflowAnalysis().isConnected() &&
 			if (semA.getDFA().isConnected() && Types.canUnify(synA.getFragmentType(), prof.getRootType())) {
+
 				try {
 					// return prof.generate(mm.getDataflowAnalysis());
 					return prof.generate(wfe.getView().getWorkflow(), synA, semA); // .getExecutableWorkflow());

@@ -8,8 +8,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.hyper.MutableWorkflow;

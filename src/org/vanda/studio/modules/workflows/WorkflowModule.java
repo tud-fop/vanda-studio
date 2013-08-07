@@ -28,6 +28,7 @@ import org.vanda.studio.modules.workflows.run.ProfileManager;
 import org.vanda.studio.modules.workflows.run.RunTool;
 import org.vanda.studio.modules.workflows.run.SemanticsTool;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
+import org.vanda.studio.modules.workflows.tools.AssignmentTableToolFactory;
 import org.vanda.studio.modules.workflows.tools.PaletteTool;
 import org.vanda.studio.modules.workflows.tools.SaveTool;
 import org.vanda.studio.modules.workflows.tools.WorkflowToPDFToolFactory;
@@ -105,12 +106,15 @@ public class WorkflowModule implements Module {
 			toolFactories.add(new SaveTool());
 			toolFactories.add(new WorkflowToPDFToolFactory(app));
 			toolFactories.add(new SemanticsTool(srep));
+			toolFactories.add(new AssignmentTableToolFactory(eefs));
 
 			app.getWindowSystem()
 					.addAction(null, new OpenManagerAction(), null);
 			app.getWindowSystem().addAction(null, new OpenWorkflowAction(),
+					"document-open",
 					KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
 			app.getWindowSystem().addAction(null, new NewWorkflowAction(),
+					"document-new",
 					KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
 		}
 
@@ -124,7 +128,8 @@ public class WorkflowModule implements Module {
 			public void invoke() {
 				MutableWorkflow mwf = new MutableWorkflow("Workflow");
 				Database d = new Database();
-				new WorkflowEditorImpl(app, toolFactories, new Pair<MutableWorkflow, Database>(mwf, d));
+				new WorkflowEditorImpl(app, toolFactories,
+						new Pair<MutableWorkflow, Database>(mwf, d));
 				// something will hold a reference to it since it will be in the
 				// GUI
 			}

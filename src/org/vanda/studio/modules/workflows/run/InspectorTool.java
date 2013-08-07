@@ -38,6 +38,7 @@ public class InspectorTool implements SemanticsToolFactory {
 		private final SyntaxAnalysis synA;
 		private final SemanticAnalysis semA;
 		private final JPanel contentPane;
+		private final JPanel panNorth;
 		private final JEditorPane inspector;
 		private final JScrollPane therealinspector;
 		private JComponent editor;
@@ -59,11 +60,13 @@ public class InspectorTool implements SemanticsToolFactory {
 			String bodyRule = "body { font-family: " + font.getFamily() + "; " + "font-size: " + font.getSize()
 					+ "pt; }";
 			((HTMLDocument) inspector.getDocument()).getStyleSheet().addRule(bodyRule);
+
 			therealinspector = new JScrollPane(inspector);
 			contentPane = new JPanel(new BorderLayout());
 			contentPane.add(therealinspector, BorderLayout.CENTER);
 			contentPane.setPreferredSize(new Dimension(800, 300));
 			contentPane.setName("Inspector");
+			panNorth = new JPanel(new BorderLayout());
 			editor = null;
 			this.wfe.addToolWindow(contentPane, WindowSystem.SOUTH);
 
@@ -120,14 +123,19 @@ public class InspectorTool implements SemanticsToolFactory {
 		}
 
 		public void setPreview(AbstractPreviewFactory previewFactory) {
+			contentPane.remove(panNorth);
 			if (preview != null) {
 				contentPane.remove(preview);
 				preview = null;
 			}
-			contentPane.remove(therealinspector);
 			if (previewFactory != null) {
 				preview = previewFactory.createPreview(wfe.getApplication());
-				contentPane.add(therealinspector, BorderLayout.NORTH);
+				JComponent buttons = previewFactory.createButtons(wfe
+						.getApplication());
+				panNorth.removeAll();
+				panNorth.add(therealinspector, BorderLayout.CENTER);
+				panNorth.add(buttons, BorderLayout.EAST);
+				contentPane.add(panNorth, BorderLayout.NORTH);
 				contentPane.add(preview, BorderLayout.CENTER);
 			} else
 				contentPane.add(therealinspector, BorderLayout.CENTER);
@@ -135,7 +143,6 @@ public class InspectorTool implements SemanticsToolFactory {
 		}
 
 		public void update() {
-
 			// WorkflowSelection newws =
 			// wfe.getWorkflowDecoration().getSelection();
 			// List<AbstractView> ws = wfe.getView().getCurrentSelection();

@@ -3,6 +3,8 @@ package org.vanda.studio.modules.workflows.inspector;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.GroupLayout;
 import javax.swing.JComponent;
@@ -117,6 +119,19 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 	public JComponent createEditor(Database d, MutableWorkflow wf, final Literal l) {
 		JLabel label1 = new JLabel("Name");
 		final JTextField value = new JTextField(l.getName());
+		value.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				l.setName(value.getText());
+			}
+			
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 
 		// FIXME memory leaks probable due to all the observers
 		final Element e = Element.fromString(d.get(l.getKey()));
@@ -125,13 +140,6 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 		d.getObservable().addObserver(new DatabaseObserver(l, e));
 		ElementSelector selector = rds.createSelector();
 		selector.setElement(e);
-
-		value.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent _) {
-				l.setName(value.getText());
-			}
-		});
 
 		JPanel editor = new JPanel();
 		GroupLayout layout = new GroupLayout(editor);

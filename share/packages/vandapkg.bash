@@ -24,9 +24,16 @@ install_pkg () {
 	mkdir -p "$BINDIR/$binpath"
 	install_me "$BINDIR/$binpath"
 	cd "$1"
-	echo "$varname=$BINDIR/$binpath" >> "$RCPATH"
 	cp func.bash "$FUNCDIR/$id.bash"
-	echo "id=\"$id\"" >> "$PKGDB/$id"
+	if [ -f "interface.xml" ]
+	then
+		cp "interface.xml" "$IFACEDIR/$id.xml"
+	fi
+	if [ ! -f "$PKGDB/$id" ]
+	then
+		echo "$varname=$BINDIR/$binpath" >> "$RCPATH"
+	fi
+	echo "id=\"$id\"" > "$PKGDB/$id"
 	echo "varname=\"$varname\"" >> "$PKGDB/$id"
 	echo "version=\"$version\"" >> "$PKGDB/$id"
 	echo "binpath=\"$binpath\"" >> "$PKGDB/$id"

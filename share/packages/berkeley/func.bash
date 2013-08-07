@@ -25,7 +25,7 @@ BerkeleyParser () {
 
 # Berkeley Parser n-best
 # Version: 2012-05-16
-# Contact: Tobias.Denkinger@mailbox.tu-dresden.de
+# Contact: Tobias.Denkinger@tu-dresden.de
 # Category: parsing
 # IN corpus :: SentenceCorpus
 # IN n :: Integer
@@ -35,4 +35,16 @@ BerkeleyParser () {
 # Computes n best trees for the sentences in the corpus.
 bpnbest () {
 	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -nThreads "$(nproc)" -gr "$4" -kbest "$3" -outputFile "$5"
+}
+
+# SM6ToText
+# Version: 2013-06-27
+# Contact: Tobias.Denkinger@tu-dresden.de
+# Category: parsing
+# IN grammar :: BerkeleyGrammar.sm6
+# OUT textGrammar :: TextualSM6
+#
+# Converts a Berkeley SM6 grammar to text
+sm6ToText () {
+	java -cp "$BERKELEY_PARSER/berkeleyParser.jar" edu/berkeley/nlp/PCFGLA/WriteGrammarToTextFile "$2" "$3"
 }

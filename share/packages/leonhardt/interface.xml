@@ -1,0 +1,192 @@
+<root>
+	<toolinterface
+		id="leonhardt"
+		name="HMM State-Splitting Tools"
+		version="2013-07-17"
+		contact="christof.leonhardt@mailbox.tu-dresden.de"
+		category="Language Models">
+
+		<description>Training and evaluation methods for Hidden-Markov-Models.</description>
+
+
+		<tool
+			type="Shell"
+			id="HMM_State-Splitting"
+			name="HMM with State-Splitting"
+			version="2013-07-17"
+			contact="christof.leonhardt@mailbox.tu-dresden.de"
+			category="Language Models::Training"
+			status="unused">
+
+			<description>Trains a Hidden-Markov-Model using Baum-Welch-Algorithm and State-Splitting.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="soiling" type="Double" />
+			<in name="threshold" type="Double" />
+			<in name="training cycles" type="Integer" />
+			<in name="statesplit cycles" type="Integer" />
+			<in name="number of states" type="Integer" />
+			<out name="hmm" type="HiddenMarkovModel" />
+		</tool>
+
+
+		<tool
+			type="Shell"
+			id="HMM_State-Splitting_less"
+			name="HMM training (state-splitting)"
+			version="2013-07-17"
+			contact="christof.leonhardt@mailbox.tu-dresden.de"
+			category="Language Models::Training"
+			status="">
+
+			<description>Trains a Hidden-Markov-Model using Baum-Welch-Algorithm and State-Splitting.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<out name="hmm" type="HiddenMarkovModel" />
+		</tool>
+
+
+		<tool
+			type="Shell"
+			id="HMM_State-Splitting_seed"
+			name="HMM with State-Splitting custom seed"
+			version="2013-07-17"
+			contact="christof.leonhardt@mailbox.tu-dresden.de"
+			category="Language Models::Training"
+			status="unused">
+
+			<description>Trains a Hidden-Markov-Model using Baum-Welch-Algorithm and State-Splitting using a custom seed.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="soiling" type="Double" />
+			<in name="threshold" type="Double" />
+			<in name="training cycles" type="Integer" />
+			<in name="statesplit cycles" type="Integer" />
+			<in name="number of states" type="Integer" />
+			<in name="random seed" type="Integer" />
+			<out name="hmm" type="HiddenMarkovModel" />
+		</tool>
+
+
+		<tool
+			type="Shell"
+			id="HMM_State-Splitting_less_seed"
+			name="HMM with State-Splitting custom seed"
+			version="2013-07-17"
+			contact="christof.leonhardt@mailbox.tu-dresden.de"
+			category="Language Models::Training"
+			status="unused">
+			
+			<description>Trains a Hidden-Markov-Model using Baum-Welch-Algorithm and State-Splitting using a custom seed.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="random seed" type="Integer" />
+			<out name="hmm" type="HiddenMarkovModel" />
+		</tool>
+
+
+		<tool
+			type="Shell"
+			id="HMM_Normal"
+			name="HMM training"
+			version="2013-07-17"
+			contact="christof.leonhardt@mailbox.tu-dresden.de"
+			category="Language Models::Training"
+			status="unused">
+
+			<description>Trains a Hidden-Markov-Model using Baum-Welch-Algorithm.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="training cycles" type="Integer" />
+			<in name="number of states" type="Integer" />
+			<in name="soiling" type="Double" />
+			<out name="hmm" type="HiddenMarkovModel" />
+		</tool>
+
+
+		<tool
+			type="Shell"
+			id="HMM_Normal_seed"
+			name="HMM training with custom seed"
+			version="2013-07-17"
+			contact="christof.leonhardt@mailbox.tu-dresden.de"
+			category="Language Models::Training"
+			status="unused">
+
+			<description>Trains a Hidden-Markov-Model using Baum-Welch-Algorithm with a custom seed.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="training cycles" type="Integer" />
+			<in name="number of states" type="Integer" />
+			<in name="soiling" type="Double" />
+			<in name="random seed" type="Integer" />
+			<out name="hmm" type="HiddenMarkovModel" />
+		</tool>
+
+
+		<tool
+			type="Shell"
+			id="HMM_Normal_less"
+			name="HMM training"
+			version="2013-07-17"
+			contact="christof.leonhardt@mailbox.tu-dresden.de"
+			category="Language Models::Training"
+			status="">
+
+			<description>Trains a Hidden-Markov-Model using Baum-Welch-Algorithm.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<out name="hmm" type="HiddenMarkovModel" />
+		</tool>
+
+
+		<tool
+			type="Shell"
+			id="HMM_Normal_less_seed"
+			name="HMM training with custom seed"
+			version="2013-07-17"
+			contact="christof.leonhardt@mailbox.tu-dresden.de"
+			category="Language Models::Training"
+			status="unused">
+			
+			<description>Trains a Hidden-Markov-Model using Baum-Welch-Algorithm with a custom seed.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="random seed" type="Integer" />
+			<out name="hmm" type="HiddenMarkovModel" />
+		</tool>
+
+
+		<tool
+			type="Shell"
+			id="HMM_Parse"
+			name="HMM parsing"
+			version="2013-07-17"
+			contact="christof.leonhardt@mailbox.tu-dresden.de"
+			category="Language Models::Parsing"
+			status="">
+			
+			<description>Parses a corpus with a Hidden-Markov-Model.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="hmm" type="HiddenMarkovModel" />
+			<out name="scores" type="Scores" />
+		</tool>
+
+
+		<tool
+			type="Shell"
+			id="HMM_Perplexity"
+			name="Perplexity"
+			version="2013-06-02"
+			contact="christof.leonhardt@mailbox.tu-dresden.de"
+			category="Statistics"
+			status="">
+			
+			<description>Computes the perplexity for given Scores.</description>
+	
+			<in name="scores" type="Scores" />
+			<out name="perplexity" type="Double" />
+		</tool>
+	</toolinterface>
+</root>

@@ -27,18 +27,20 @@ import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 
 public class DataSourceModule implements Module {
-	
+
 	@Override
 	public String getName() {
 		return "Data Sources";
 	}
 
-	protected static String PROPERTIES_FILE = System.getProperty("user.home") + "/.vanda/datasources.xml";
+	protected static String PROPERTIES_FILE = System.getProperty("user.home")
+			+ "/.vanda/datasources.xml";
 
 	@Override
 	public Object createInstance(Application a) {
 		RootDataSource rds = a.getRootDataSource();
-		rds.addItem(new DirectoryDataSourceFactory(System.getProperty("user.home") + "/.vanda", ".*", null));
+		rds.addItem(new DirectoryDataSourceFactory(System
+				.getProperty("user.home") + "/.vanda", ".*", null));
 		List<DataSourceType<?>> dsts = new LinkedList<DataSourceType<?>>();
 		dsts.add(new DirectoryDataSourceType());
 		Loader l = new Loader(rds, dsts);
@@ -64,24 +66,25 @@ public class DataSourceModule implements Module {
 		 * rds.mount("LAPCFG Grammars", new DirectoryDataSource( new
 		 * CompositeType("LAPCFG-Grammar"), "lapcfg", ".*"));
 		 */
-		
+
 		Storer st = new Storer(dsts);
 		a.getWindowSystem().addAction(null, new DataSourceEditorAction(a, rds, st), null);
 		return null;
 	}
-	
+
 	private final class DataSourceEditorAction implements Action {
 
 		private RootDataSource ds;
 		private Storer st;
 		private Application a;
-		
-		public DataSourceEditorAction(Application a, RootDataSource ds, Storer st) {
+
+		public DataSourceEditorAction(Application a, RootDataSource ds,
+				Storer st) {
 			this.ds = ds;
 			this.st = st;
 			this.a = a;
 		}
-		
+
 		@Override
 		public String getName() {
 			return "Edit Data Sources";
@@ -99,19 +102,19 @@ public class DataSourceModule implements Module {
 		}
 
 	}
-	
+
 	private final class StoreAction implements Action {
 
 		private Storer st;
 		private Application app;
 		private RootDataSource rds;
-		
+
 		public StoreAction(Application app, Storer st, RootDataSource rds) {
 			this.st = st;
 			this.app = app;
 			this.rds = rds;
 		}
-		
+
 		@Override
 		public String getName() {
 			return "StoreAction";
@@ -120,17 +123,20 @@ public class DataSourceModule implements Module {
 		@Override
 		public void invoke() {
 			Path p1 = (new File(PROPERTIES_FILE)).toPath();
-			Date d = new Date();
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
-			Path p2 = (new File(PROPERTIES_FILE + "." + sdf.format(d))).toPath();
+			Path p2 = (new File(PROPERTIES_FILE + ".backup")).toPath();
 			try {
 				Files.move(p1, p2, StandardCopyOption.REPLACE_EXISTING);
+			} catch (Exception e) {
+				app.sendMessage(new ExceptionMessage(e));
+			}
+
+			try {
 				st.store(rds, PROPERTIES_FILE);
 			} catch (Exception e) {
 				app.sendMessage(new ExceptionMessage(e));
 			}
 		}
-		
+
 	}
 
 }
