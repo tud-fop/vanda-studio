@@ -216,14 +216,14 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 						num++;
 					String id = prefix + num;
 					DataSourceFactory type = (DataSourceFactory) JOptionPane
-							.showInputDialog(null, "Choose a Class",
+							.showInputDialog(editor.getParent(), "Choose a Class",
 									"Data Source Class",
 									JOptionPane.INFORMATION_MESSAGE, null,
 									getItems().toArray(),
 									getItems().toArray()[0]);
 					if (type != null) {
 						mount(id, type.getDataSource());
-						notifyMe();
+						notifyMe(id);
 					}
 				}
 			});
@@ -295,14 +295,20 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 		}
 
 		private void notifyMe() {
-			int idx = lDataSources.getSelectedIndex();
+			notifyMe(lDataSources.getSelectedValue());
+		}
+		private void notifyMe(Object id) {
 			Object[] a = sources.keySet().toArray();
 			Arrays.sort(a);
 			lDataSources.setListData(a);
-			if (idx < lDataSources.getModel().getSize())
-				lDataSources.setSelectedIndex(idx);
-			else
-				lDataSources.setSelectedIndex(-1);
+			int idx = -1;
+			for (int i = 0; i < a.length; ++i) {
+				if (a[i].equals(id)) {
+					idx = i;
+					break;
+				}
+			}
+			lDataSources.setSelectedIndex(idx);
 		}
 
 		@Override
@@ -312,7 +318,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 				sources.remove(lDataSources.getSelectedValue());
 				sources.put(aId.getText(), innerEditor.getDataSource());
 			}
-			notifyMe();
+			notifyMe(aId.getText());
 		}
 
 	}

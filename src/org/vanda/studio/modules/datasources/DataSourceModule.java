@@ -96,9 +96,9 @@ public class DataSourceModule implements Module {
 			DataSourceEditor ed = ds.createEditor(a);
 			ed.addWriteAction(new StoreAction(a, st, ds));
 			f.setContentPane(ed.getComponent());
-			f.setVisible(true);
 			f.setSize(new Dimension(500, 400));
 			f.setLocationRelativeTo(a.getWindowSystem().getMainWindow());
+			f.setVisible(true);
 		}
 
 	}
