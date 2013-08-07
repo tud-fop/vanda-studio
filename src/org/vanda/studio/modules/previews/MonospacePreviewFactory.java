@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.previews;
 
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -19,8 +20,10 @@ public class MonospacePreviewFactory implements PreviewFactory {
 	@Override
 	public JComponent createPreview(String value) {
 		JEditorPane editor = new JEditorPane();
-		editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, editor.getFont().getSize()));
 		JScrollPane result = new JScrollPane(editor);
+		editor.setContentType("text/plain; charset=utf-8");
+		editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, editor.getFont().getSize()));
+		System.out.println(editor.getFont());
 		Document doc = editor.getDocument();
 		try {
 			// use buffering, reading one line at a time
@@ -40,6 +43,7 @@ public class MonospacePreviewFactory implements PreviewFactory {
 				}
 			} finally {
 				input.close();
+				adoptFont(editor);
 			}
 		} catch (BadLocationException ex) {
 			// do nothing
@@ -48,6 +52,31 @@ public class MonospacePreviewFactory implements PreviewFactory {
 			editor.setText("unable to open file " + value);
 		}
 		return result;
+	}
+
+	/**
+	 * Check, if all loaded symbols are can be displayed by the default font.
+	 * If not, search among the system fonts for the font, that can display the
+	 * longest prefix of the editor text. Set this font to the editor.
+	 * @param editor
+	 */
+	private void adoptFont(JEditorPane editor) {
+		String text = editor.getText();
+		if (editor.getFont().canDisplayUpTo(text) != -1) {
+			Font current = editor.getFont();
+			for (Font f : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
+				if (f.canDisplayUpTo(text) == -1) {
+					editor.setFont(new Font(f.getFontName(), Font.PLAIN, editor.getFont().getSize()));
+					System.out.println(editor.getFont());
+					return;
+				} 
+				if (f.canDisplayUpTo(text) > current.canDisplayUpTo(text)) {
+					current = f;
+				}
+			}
+			editor.setFont(new Font(current.getFontName(), Font.PLAIN, editor.getFont().getSize()));
+			System.out.println(editor.getFont());
+		}
 	}
 
 	@Override
@@ -72,6 +101,5 @@ public class MonospacePreviewFactory implements PreviewFactory {
 	public JComponent createSmallPreview(String value) {
 		return createPreview(value);
 	}
-
 
 }
