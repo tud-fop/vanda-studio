@@ -28,6 +28,7 @@ import org.vanda.studio.modules.workflows.run.ProfileManager;
 import org.vanda.studio.modules.workflows.run.RunTool;
 import org.vanda.studio.modules.workflows.run.SemanticsTool;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
+import org.vanda.studio.modules.workflows.tools.AssignmentSwitchToolFactory;
 import org.vanda.studio.modules.workflows.tools.AssignmentTableToolFactory;
 import org.vanda.studio.modules.workflows.tools.PaletteTool;
 import org.vanda.studio.modules.workflows.tools.SaveTool;
@@ -107,6 +108,7 @@ public class WorkflowModule implements Module {
 			toolFactories.add(new WorkflowToPDFToolFactory(app));
 			toolFactories.add(new SemanticsTool(srep));
 			toolFactories.add(new AssignmentTableToolFactory(eefs));
+			toolFactories.add(new AssignmentSwitchToolFactory());
 
 			app.getWindowSystem()
 					.addAction(null, new OpenManagerAction(), null);

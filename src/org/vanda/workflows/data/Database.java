@@ -110,7 +110,7 @@ public final class Database {
 	}
 
 	public boolean hasNext() {
-		return cursor < assignments.size();
+		return cursor < assignments.size() - 1;
 	}
 
 	public boolean hasPrev() {

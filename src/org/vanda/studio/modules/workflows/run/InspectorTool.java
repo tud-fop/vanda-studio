@@ -100,7 +100,16 @@ public class InspectorTool implements SemanticsToolFactory {
 				}
 
 			});
+			
+			semA.getObservable().addObserver(new Observer<SemanticAnalysis>() {
 
+				@Override
+				public void notify(SemanticAnalysis event) {
+					update();
+				}
+				
+			});
+			
 			this.wfe.focusToolWindow(contentPane);
 			update();
 		}

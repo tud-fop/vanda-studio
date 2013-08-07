@@ -54,6 +54,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			JFrame f = new JFrame("Assignment table");
 			f.setContentPane(lt);
 			f.pack();
+			f.setLocationRelativeTo(wfe.getApplication().getWindowSystem().getMainWindow());
 			f.setVisible(true);
 		}
 

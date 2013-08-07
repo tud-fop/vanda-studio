@@ -50,7 +50,7 @@ public class SemanticsTool implements ToolFactory {
 
 			@Override
 			public void cursorChange(Database d) {
-				// do nothing				
+				update(synA);
 			}
 
 			@Override
