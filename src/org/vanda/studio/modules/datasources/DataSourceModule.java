@@ -95,6 +95,7 @@ public class DataSourceModule implements Module {
 			f.setContentPane(ed.getComponent());
 			f.setVisible(true);
 			f.setSize(new Dimension(500, 400));
+			f.setLocationRelativeTo(a.getWindowSystem().getMainWindow());
 		}
 
 	}

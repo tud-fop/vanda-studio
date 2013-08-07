@@ -43,12 +43,12 @@ public class RunTool implements SemanticsToolFactory {
 			@Override
 			public void invoke() {
 				f = new JFrame("Execute Workflow");
-				// TODO use generic default path
 				RunConfigEditor rce = new RunConfigEditor(wfe.getView().getWorkflow().getChildren(), wfe.getDatabase(),
-						"/tmp/", RunAction.this);
+						app.getProperty("outputPath"), RunAction.this);
 				f.setContentPane(rce.getComponent());
 				f.setVisible(true);
 				f.setSize(f.getPreferredSize());
+				f.setLocationRelativeTo(app.getWindowSystem().getMainWindow());
 			}
 
 			public void evokeExecution(List<Integer> assingmentSelection, String filePath,

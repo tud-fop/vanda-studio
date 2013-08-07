@@ -23,7 +23,6 @@ public class MonospacePreviewFactory implements PreviewFactory {
 		JScrollPane result = new JScrollPane(editor);
 		editor.setContentType("text/plain; charset=utf-8");
 		editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, editor.getFont().getSize()));
-		System.out.println(editor.getFont());
 		Document doc = editor.getDocument();
 		try {
 			// use buffering, reading one line at a time
@@ -67,7 +66,6 @@ public class MonospacePreviewFactory implements PreviewFactory {
 			for (Font f : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
 				if (f.canDisplayUpTo(text) == -1) {
 					editor.setFont(new Font(f.getFontName(), Font.PLAIN, editor.getFont().getSize()));
-					System.out.println(editor.getFont());
 					return;
 				} 
 				if (f.canDisplayUpTo(text) > current.canDisplayUpTo(text)) {
@@ -75,7 +73,6 @@ public class MonospacePreviewFactory implements PreviewFactory {
 				}
 			}
 			editor.setFont(new Font(current.getFontName(), Font.PLAIN, editor.getFont().getSize()));
-			System.out.println(editor.getFont());
 		}
 	}
 

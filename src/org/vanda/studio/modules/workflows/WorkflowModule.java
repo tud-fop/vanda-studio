@@ -147,8 +147,9 @@ public class WorkflowModule implements Module {
 				String lastDir = app.getProperty("lastDir");
 				if (lastDir != null)
 					chooser.setCurrentDirectory(new File(lastDir));
-				chooser.setVisible(true);
-				int result = chooser.showOpenDialog(null);
+				
+				// center dialog over main window
+				int result = chooser.showOpenDialog(app.getWindowSystem().getMainWindow());
 
 				// once file choice is approved, load the chosen file
 				if (result == JFileChooser.APPROVE_OPTION) {

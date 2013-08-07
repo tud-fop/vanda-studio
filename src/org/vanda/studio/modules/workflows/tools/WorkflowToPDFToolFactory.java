@@ -43,7 +43,7 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 			JFileChooser chooser = new JFileChooser("");
 			chooser.setDialogType(JFileChooser.SAVE_DIALOG);
 			chooser.setVisible(true);
-			int result = chooser.showSaveDialog(null);
+			int result = chooser.showSaveDialog(wfe.getApplication().getWindowSystem().getMainWindow());
 
 			if (result == JFileChooser.APPROVE_OPTION) {
 				File chosenFile = chooser.getSelectedFile();

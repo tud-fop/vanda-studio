@@ -271,6 +271,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 			gbc = new GridBagConstraints(4, 2, 1, 1, 3, 0, anchor,
 					GridBagConstraints.BOTH, i, 1, 1);
 			editor.add(bCancel, gbc);
+			
 		}
 
 		@Override

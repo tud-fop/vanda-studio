@@ -3,8 +3,11 @@
  */
 package org.vanda.studio.app;
 
+import java.awt.Container;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.KeyStroke;
 
 import org.vanda.util.Action;
@@ -108,7 +111,7 @@ public interface WindowSystem {
 	/**
 	 */
 	void addToolWindow(JComponent window, Icon i, JComponent c, LayoutSelector layout);
-
+	
 	/**
 	 */
 	void disableAction(Action a);
@@ -129,6 +132,10 @@ public interface WindowSystem {
 	void focusContentWindow(JComponent c);
 	
 	void focusToolWindow(JComponent c);
+	
+	/**
+	 */
+	JFrame getMainWindow();
 	
 	/**
 	 */

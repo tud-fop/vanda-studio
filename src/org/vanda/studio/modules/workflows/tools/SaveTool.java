@@ -75,7 +75,7 @@ public final class SaveTool implements ToolFactory {
 			if (lastDir != null)
 				chooser.setCurrentDirectory(new File(lastDir));
 			chooser.setVisible(true);
-			int result = chooser.showSaveDialog(null);
+			int result = chooser.showSaveDialog(wfe.getApplication().getWindowSystem().getMainWindow());
 
 			// once file choice is approved, save the chosen file
 			if (result == JFileChooser.APPROVE_OPTION) {
