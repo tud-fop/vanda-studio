@@ -52,9 +52,9 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe) {
 		Action prev = new PreviousAssignmentAction(wfe.getDatabase());
-		wfe.addAction(prev, KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_MASK));
+		wfe.addAction(prev, "arrow-left", KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.SHIFT_MASK));
 		Action next = new NextAssignmentAction(wfe.getDatabase());
-		wfe.addAction(next, KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_MASK));
+		wfe.addAction(next, "arrow-right", KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.SHIFT_MASK));
 		return null;
 	}
 
