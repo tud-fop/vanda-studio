@@ -27,7 +27,7 @@ public class PreviewsModule implements Module {
 				new AlignmentsPreviewFactory(app));
 		// app.registerPreviewFactory(new CompositeType("Execution"),
 		// new WorkflowExecutionPreview(app, profile);
-		app.registerPreviewFactory(null, new MonospacePreviewFactory());
+		app.registerPreviewFactory(null, new MonospacePreviewFactory(app));
 		return null;
 	}
 

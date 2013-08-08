@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -43,7 +44,8 @@ import org.vanda.util.Observable;
  * 
  * @author stueber
  */
-public class DictionaryView extends JPanel implements ViewTransition {
+public class DictionaryView extends JPanel implements ViewTransition,
+		org.vanda.studio.modules.previews.Previews.Preview {
 	/**
 	 * The class MyTableModel is the table model for the table containing the
 	 * output of the EM algorithm.
@@ -188,7 +190,6 @@ public class DictionaryView extends JPanel implements ViewTransition {
 		 * Constructs a MyCellRenderer object.
 		 */
 		public MyCellRenderer() {
-
 		}
 
 		/**
@@ -214,6 +215,7 @@ public class DictionaryView extends JPanel implements ViewTransition {
 					((JLabel) comp).setBorder(BorderFactory.createMatteBorder(2, 2, 3, 3, Color.BLUE));
 				else
 					((JLabel) comp).setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.BLACK));
+				setFont(new Font("Unifont", getFont().getSize(), getFont().getSize()));
 			}
 
 			if (row == 0) {
@@ -299,7 +301,6 @@ public class DictionaryView extends JPanel implements ViewTransition {
 	 */
 	private JLabel cellEntryLabel;
 
-
 	/**
 	 * The table which shows the data model.
 	 */
@@ -315,14 +316,13 @@ public class DictionaryView extends JPanel implements ViewTransition {
 	 */
 	private static final float beamerFontSize = 25.f;
 
-	
 	/**
-	 * 	Indicates whether BestView or TableView is shown
+	 * Indicates whether BestView or TableView is shown
 	 */
 	private DictionaryViewState viewState;
-	
+
 	/**
-	 *  To observe DictionaryViewState changes
+	 * To observe DictionaryViewState changes
 	 */
 	private MultiplexObserver<DictionaryViewState> observable;
 
@@ -354,6 +354,9 @@ public class DictionaryView extends JPanel implements ViewTransition {
 		table.setRowSelectionAllowed(false);
 		table.setColumnSelectionAllowed(false);
 		table.setCellSelectionEnabled(true);
+		table.getTableHeader().setFont(
+				new Font("Unifont", table.getTableHeader().getFont().getStyle(), table.getTableHeader().getFont()
+						.getSize()));
 
 		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -415,8 +418,8 @@ public class DictionaryView extends JPanel implements ViewTransition {
 		setLayout(new BorderLayout());
 		table.setFillsViewportHeight(true);
 		// table.setPreferredSize(new Dimension(2000,1000));
-		//add(tableView, BorderLayout.CENTER);
-				
+		// add(tableView, BorderLayout.CENTER);
+
 		// scrollPane.setPreferredSize(new Dimension(1000,1000));
 		add(radioBoxPane, BorderLayout.SOUTH);
 
@@ -427,7 +430,7 @@ public class DictionaryView extends JPanel implements ViewTransition {
 		bestView = new JScrollPane(bestText);
 
 		viewState.selectView(this);
-		
+
 		radioButton1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -441,8 +444,10 @@ public class DictionaryView extends JPanel implements ViewTransition {
 				viewState.toBestViewState(DictionaryView.this);
 			}
 		});
+		readjustFontSize();
 	}
 
+	@Override
 	public void setLargeContent(boolean value) {
 		if (value != isLargeContent) {
 			beginUpdate();
@@ -451,6 +456,7 @@ public class DictionaryView extends JPanel implements ViewTransition {
 		}
 	}
 
+	@Override
 	public void setLargeUI(boolean value) {
 		if (value != isLargeUI) {
 			beginUpdate();
@@ -459,10 +465,12 @@ public class DictionaryView extends JPanel implements ViewTransition {
 		}
 	}
 
+	@Override
 	public void beginUpdate() {
 		update++;
 	}
 
+	@Override
 	public void endUpdate() {
 		update--;
 		if (update == 0)
@@ -472,6 +480,7 @@ public class DictionaryView extends JPanel implements ViewTransition {
 	private void adjustUI() {
 		readjustFontSize();
 		computeCellSizes();
+		bestText.setContentType("text/html; charset=utf-8");
 		bestText.setText(constructBestString());
 		cellEntryLabel.setText("");
 	}
@@ -558,8 +567,9 @@ public class DictionaryView extends JPanel implements ViewTransition {
 	 *         object.
 	 */
 	private String constructBestString() {
+		String fontFamily = "Unifont";
 		StringBuilder str = new StringBuilder("<html><");
-
+		str.append("body style=\"font-family: " + fontFamily + "\"><");
 		int i = 0;
 
 		while (i < model.getNoOfEntries()) {
@@ -593,7 +603,7 @@ public class DictionaryView extends JPanel implements ViewTransition {
 			}
 			str.append("</blockquote><br>");
 		}
-
+		str.append("</body>");
 		str.append("</html>");
 		return str.toString();
 	}
@@ -704,9 +714,9 @@ public class DictionaryView extends JPanel implements ViewTransition {
 		validate();
 		adjustCellEntryLabel(false);
 	}
-	
+
 	public Observable<DictionaryViewState> getObservable() {
 		return observable;
 	}
-	
+
 }
