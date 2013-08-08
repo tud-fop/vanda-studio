@@ -67,34 +67,20 @@ public class Loader {
 				}, GeometryBuilder.createProcessor(), null);
 	}
 	
-	private SingleElementHandlerFactory<JobBuilder> idHandler() {
-		return new SimpleElementHandlerFactory<JobBuilder, IdBuilder>("id", null, IdBuilder.createFactory(), 
-				new ComplexFieldProcessor<JobBuilder, IdBuilder>() {
-
-					@Override
-					public void process(JobBuilder b1, IdBuilder b2) {
-						b1.id = b2.build();
-					}
-			
-				}, IdBuilder.createProcessor(), null);
-		
-	}
-
 	@SuppressWarnings("unchecked")
 	private SingleElementHandlerFactory<WorkflowBuilder> jobHandler(
 			SingleElementHandlerFactory<JobBuilder> literalHandler,
 			SingleElementHandlerFactory<JobBuilder> toolHandler, SingleElementHandlerFactory<JobBuilder> bindHandler,
-			SingleElementHandlerFactory<JobBuilder> geometryHandler, 
-			SingleElementHandlerFactory<JobBuilder> idFactory) {
+			SingleElementHandlerFactory<JobBuilder> geometryHandler) {
 		return new SimpleElementHandlerFactory<WorkflowBuilder, JobBuilder>("job",
 				new CompositeElementHandlerFactory<JobBuilder>(literalHandler, toolHandler, bindHandler,
-						geometryHandler, idHandler()), JobBuilder.createFactory(),
+						geometryHandler), JobBuilder.createFactory(),
 				new ComplexFieldProcessor<WorkflowBuilder, JobBuilder>() {
 					@Override
 					public void process(WorkflowBuilder b1, JobBuilder b2) {
 						b1.jbs.add(b2.build());
 					}
-				}, null, null);
+				}, JobBuilder.createProcessor(), null);
 	}
 
 	private SingleElementHandlerFactory<RowBuilder> assignmentHandler() {
@@ -165,7 +151,7 @@ public class Loader {
 	private ParserImpl<Pair<MutableWorkflow, Database>> createParser(Observer<Pair<MutableWorkflow, Database>> o) {
 		ParserImpl<Pair<MutableWorkflow, Database>> p = new ParserImpl<Pair<MutableWorkflow, Database>>(o);
 		p.setRootState(new SimpleRootHandler<Pair<MutableWorkflow, Database>>(p, workflowHandler(
-				jobHandler(literalHandler(), toolHandler(), bindHandler(), geometryHandler(), idHandler()),
+				jobHandler(literalHandler(), toolHandler(), bindHandler(), geometryHandler()),
 				databaseHandler(rowHandler(assignmentHandler())))));
 		return p;
 	}

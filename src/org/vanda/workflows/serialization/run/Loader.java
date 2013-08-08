@@ -14,9 +14,8 @@ import org.vanda.xml.SingleElementHandlerFactory;
 public class Loader {
 	@SuppressWarnings("unchecked")
 	private SingleElementHandlerFactory<Observer<RunConfig>> getRootHandler(
-			SingleElementHandlerFactory<RunConfigBuilder> pathHandler,
 			SingleElementHandlerFactory<RunConfigBuilder> prioritiesHandler) {
-		return new SimpleElementHandlerFactory<>("runconfig", new CompositeElementHandlerFactory<>(pathHandler,
+		return new SimpleElementHandlerFactory<>("runconfig", new CompositeElementHandlerFactory<>(
 				prioritiesHandler), RunConfigBuilder.createFactory(),
 				new ComplexFieldProcessor<Observer<RunConfig>, RunConfigBuilder>() {
 
@@ -25,12 +24,12 @@ public class Loader {
 						RunConfig rc = b2.build();
 						b1.notify(rc);
 					}
-				}, null, null);
+				}, RunConfigBuilder.createProcessor(), null);
 	}
 
 	private ParserImpl<RunConfig> createParser(Observer<RunConfig> o) {
 		ParserImpl<RunConfig> p = new ParserImpl<RunConfig>(o);
-		p.setRootState(new SimpleRootHandler<RunConfig>(p, getRootHandler(getPathHandler(), getPrioritiesHandler(getPriorityHandler()))));
+		p.setRootState(new SimpleRootHandler<RunConfig>(p, getRootHandler(getPrioritiesHandler(getPriorityHandler()))));
 		return p;
 	}
 
@@ -53,18 +52,6 @@ public class Loader {
 						b1.priorities.put(b2.id, b2.priority);
 					}
 				}, PriorityBuilder.createProcessor(), null);
-	}
-
-	private SingleElementHandlerFactory<RunConfigBuilder> getPathHandler() {
-		return new SimpleElementHandlerFactory<RunConfigBuilder, PathBuilder>("path", null,
-				PathBuilder.createFactory(), new ComplexFieldProcessor<RunConfigBuilder, PathBuilder>() {
-
-					@Override
-					public void process(RunConfigBuilder b1, PathBuilder b2) {
-						b1.path = b2.build();
-					}
-
-				}, PathBuilder.createProcessor(), null);
 	}
 
 	public RunConfig load(String path) throws Exception {

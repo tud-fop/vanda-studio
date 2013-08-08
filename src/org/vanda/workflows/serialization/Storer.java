@@ -24,7 +24,7 @@ public class Storer {
 		final PrettyPrintWriter ppw = new PrettyPrintWriter(writer);
 		ppw.startNode("workflow");
 		ppw.addAttribute("name", w.getName());
-		for (Job j : w.getChildren()) {
+		for (final Job j : w.getChildren()) {
 			ppw.startNode("job");
 			j.visit(new ElementVisitor() {
 				@Override
@@ -39,6 +39,8 @@ public class Storer {
 
 				@Override
 				public void visitTool(Tool t) {
+					if (j.getId() != null) 
+						ppw.addAttribute("id", j.getId());
 					ppw.startNode("tool");
 					ppw.addAttribute("id", t.getId());
 					ppw.endNode(); // tool
@@ -56,11 +58,6 @@ public class Storer {
 			ppw.addAttribute("width", Double.toString(j.getWidth()));
 			ppw.addAttribute("height", Double.toString(j.getHeight()));
 			ppw.endNode(); // geometry
-			if (j.getId() != null) {
-				ppw.startNode("id");
-				ppw.addAttribute("id", j.getId());
-				ppw.endNode();
-			}
 			ppw.endNode(); // job
 		}
 		ppw.startNode("database");

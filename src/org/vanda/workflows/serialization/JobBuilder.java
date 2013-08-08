@@ -8,7 +8,10 @@ import org.vanda.util.Pair;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ElementAdapter;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.xml.CompositeFieldProcessor;
 import org.vanda.xml.Factory;
+import org.vanda.xml.FieldProcessor;
+import org.vanda.xml.SingleFieldProcessor;
 
 public class JobBuilder {
 
@@ -42,6 +45,23 @@ public class JobBuilder {
 		@Override
 		public JobBuilder create() {
 			return new JobBuilder();
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static FieldProcessor<JobBuilder> createProcessor() {
+		return new CompositeFieldProcessor<JobBuilder>(new IdProcessor());
+	} 
+	
+	public static final class IdProcessor implements SingleFieldProcessor<JobBuilder> {
+		@Override
+		public String getFieldName() {
+			return "id";
+		}
+		
+		@Override
+		public void process(String name, String value, JobBuilder b) {
+			b.id = value;
 		}
 	}
 }
