@@ -32,6 +32,10 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import org.vanda.dictionaries.Dictionary.MyDouble;
+import org.vanda.dictionaries.DictionaryViews.DictionaryViewState;
+import org.vanda.dictionaries.DictionaryViews.ViewTransition;
+import org.vanda.util.MultiplexObserver;
+import org.vanda.util.Observable;
 
 /**
  * The class DictView is a Swing Component for viewing the output of the EM
@@ -39,8 +43,7 @@ import org.vanda.dictionaries.Dictionary.MyDouble;
  * 
  * @author stueber
  */
-public class DictionaryView extends JPanel {
-
+public class DictionaryView extends JPanel implements ViewTransition {
 	/**
 	 * The class MyTableModel is the table model for the table containing the
 	 * output of the EM algorithm.
@@ -157,8 +160,10 @@ public class DictionaryView extends JPanel {
 		 *      java.lang.Object, boolean, boolean, int, int)
 		 */
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			Component comp = originalRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+				boolean hasFocus, int row, int column) {
+			Component comp = originalRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+					column);
 			if (comp instanceof JLabel) {
 				float size = isLargeContent ? beamerFontSize : normalFontSize;
 				setFontSize((JComponent) comp, size);
@@ -197,7 +202,8 @@ public class DictionaryView extends JPanel {
 		 *      java.lang.Object, boolean, boolean, int, int)
 		 */
 		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+				boolean hasFocus, int row, int column) {
 			Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			if (comp instanceof JLabel) {
 				float size = isLargeContent ? beamerFontSize : normalFontSize;
@@ -236,19 +242,20 @@ public class DictionaryView extends JPanel {
 	 * Support for beamer/tablet mode
 	 */
 	private boolean isLargeContent;
-	
+
 	/**
 	 * Support for beamer/tablet mode
 	 */
 	private boolean isLargeUI;
-	
+
 	/**
 	 * Support for beamer/tablet mode: defer UI update
 	 */
 	private int update;
-	
+
 	/**
-	 * The internal data model containing all data that are read from the input file.
+	 * The internal data model containing all data that are read from the input
+	 * file.
 	 */
 	private Dictionary model;
 
@@ -257,11 +264,13 @@ public class DictionaryView extends JPanel {
 	 */
 	private JScrollPane tableView;
 	/**
-	 * The scroll pane containing the view of the best entries of the dictionary.
+	 * The scroll pane containing the view of the best entries of the
+	 * dictionary.
 	 */
 	private JScrollPane bestView;
 	/**
-	 * The editor pane containing the text for the best entries of the dictionary.
+	 * The editor pane containing the text for the best entries of the
+	 * dictionary.
 	 */
 	private JEditorPane bestText;
 	/**
@@ -271,7 +280,7 @@ public class DictionaryView extends JPanel {
 	/**
 	 * The check box for beamer mode.
 	 */
-	//private JCheckBox checkBox;
+	// private JCheckBox checkBox;
 	/**
 	 * The radio button for the table view.
 	 */
@@ -281,17 +290,15 @@ public class DictionaryView extends JPanel {
 	 */
 	private JRadioButton radioButton2;
 	/**
-	 * The label containing the word "Precision" that is directly left of the spinner box.
+	 * The label containing the word "Precision" that is directly left of the
+	 * spinner box.
 	 */
 	private JLabel precisionLabel;
 	/**
 	 * The label that is used to show the precise entry of a table cell.
 	 */
 	private JLabel cellEntryLabel;
-	/**
-	 * Is true if the table view is shown. Is false if the best entries view is shown.
-	 */
-	private boolean tableViewActive = true;
+
 
 	/**
 	 * The table which shows the data model.
@@ -302,29 +309,42 @@ public class DictionaryView extends JPanel {
 	 * The size of the font if the beamer mode is disabled.
 	 */
 	private static final float normalFontSize;
-	
+
 	/**
 	 * The size of the font if the beamer mode is enabled.
 	 */
 	private static final float beamerFontSize = 25.f;
+
 	
+	/**
+	 * 	Indicates whether BestView or TableView is shown
+	 */
+	private DictionaryViewState viewState;
 	
-	
+	/**
+	 *  To observe DictionaryViewState changes
+	 */
+	private MultiplexObserver<DictionaryViewState> observable;
+
 	static {
 		JLabel label = new JLabel("");
 		normalFontSize = label.getFont().getSize();
 	}
 
-
 	/**
 	 * Constructs a DictionaryView component.
-	 * @param a The application.
-	 * @param d The dictionary.
+	 * 
+	 * @param a
+	 *            The application.
+	 * @param d
+	 *            The dictionary.
 	 */
-	public DictionaryView(Dictionary d) {
+	public DictionaryView(Dictionary d, DictionaryViewState viewState_) {
 		boolean isEnglish = true;
-		
-		model = d; //new Dictionary(fileName, separator);
+		this.viewState = viewState_;
+		this.observable = new MultiplexObserver<DictionaryViewState>();
+
+		model = d; // new Dictionary(fileName, separator);
 
 		table = new JTable(new MyTableModel());
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -334,33 +354,32 @@ public class DictionaryView extends JPanel {
 		table.setRowSelectionAllowed(false);
 		table.setColumnSelectionAllowed(false);
 		table.setCellSelectionEnabled(true);
-		
+
 		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				adjustCellEntryLabel();
+				adjustCellEntryLabel(true);
 			}
 		});
-		
+
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				adjustCellEntryLabel();
+				adjustCellEntryLabel(true);
 			}
 		});
 
 		JPanel radioBoxPane = new JPanel();
 		radioButton1 = new JRadioButton(isEnglish ? "Full view" : "Vollansicht");
-		radioButton1.setSelected(true);
 		radioButton2 = new JRadioButton(isEnglish ? "Best entries" : "Beste Einträge");
-		
-		
+
 		cellEntryLabel = new JLabel("");
 		radioBoxPane.add(cellEntryLabel);
 		Dimension dim = new Dimension(40, 0);
 		radioBoxPane.add(new Box.Filler(dim, dim, dim));
-		
-		spinner = new JSpinner(new SpinnerNumberModel(MyDouble.initPrecision, MyDouble.minPrecision, MyDouble.maxPrecision, 1));
+
+		spinner = new JSpinner(new SpinnerNumberModel(MyDouble.initPrecision, MyDouble.minPrecision,
+				MyDouble.maxPrecision, 1));
 		spinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -383,9 +402,10 @@ public class DictionaryView extends JPanel {
 		radioBoxPane.add(radioButton2);
 		dim = new Dimension(40, 0);
 		radioBoxPane.add(new Box.Filler(dim, dim, dim));
-		//checkBox = new JCheckBox(isEnglish ? "Beamermode" : "Beamermodus", false);
-		//checkBox.addActionListener(new ActionListener() {
-		//radioBoxPane.add(checkBox);
+		// checkBox = new JCheckBox(isEnglish ? "Beamermode" : "Beamermodus",
+		// false);
+		// checkBox.addActionListener(new ActionListener() {
+		// radioBoxPane.add(checkBox);
 
 		ButtonGroup group = new ButtonGroup();
 		group.add(radioButton1);
@@ -395,7 +415,8 @@ public class DictionaryView extends JPanel {
 		setLayout(new BorderLayout());
 		table.setFillsViewportHeight(true);
 		// table.setPreferredSize(new Dimension(2000,1000));
-		add(tableView, BorderLayout.CENTER);
+		//add(tableView, BorderLayout.CENTER);
+				
 		// scrollPane.setPreferredSize(new Dimension(1000,1000));
 		add(radioBoxPane, BorderLayout.SOUTH);
 
@@ -405,38 +426,23 @@ public class DictionaryView extends JPanel {
 		bestText.setContentType("text/html");
 		bestView = new JScrollPane(bestText);
 
+		viewState.selectView(this);
+		
 		radioButton1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-				if (!tableViewActive) {
-					remove(bestView);
-					add(tableView, BorderLayout.CENTER);
-					setVisible(true);
-					validate();
-					tableViewActive = true;
-				}
-				adjustCellEntryLabel();
+				viewState.toTableViewState(DictionaryView.this);
 			}
 		});
 
 		radioButton2.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-				if (tableViewActive) {
-					adjustUI();
-					remove(tableView);
-					add(bestView, BorderLayout.CENTER);
-					setVisible(true);
-					validate();
-					tableViewActive = false;
-				}
-				adjustCellEntryLabel();
+				viewState.toBestViewState(DictionaryView.this);
 			}
 		});
 	}
-	
+
 	public void setLargeContent(boolean value) {
 		if (value != isLargeContent) {
 			beginUpdate();
@@ -444,7 +450,7 @@ public class DictionaryView extends JPanel {
 			endUpdate();
 		}
 	}
-	
+
 	public void setLargeUI(boolean value) {
 		if (value != isLargeUI) {
 			beginUpdate();
@@ -452,11 +458,11 @@ public class DictionaryView extends JPanel {
 			endUpdate();
 		}
 	}
-	
+
 	public void beginUpdate() {
 		update++;
 	}
-	
+
 	public void endUpdate() {
 		update--;
 		if (update == 0)
@@ -470,11 +476,15 @@ public class DictionaryView extends JPanel {
 		cellEntryLabel.setText("");
 	}
 
-
 	/**
-	 * An auxiliary function that appends a single hexadecimal digit to a string.
-	 * @param str Append the digit to this StringBuilder object.
-	 * @param number Must be number between 0 and 15 (inclusive). This number is converted to a hexadecimal digit.
+	 * An auxiliary function that appends a single hexadecimal digit to a
+	 * string.
+	 * 
+	 * @param str
+	 *            Append the digit to this StringBuilder object.
+	 * @param number
+	 *            Must be number between 0 and 15 (inclusive). This number is
+	 *            converted to a hexadecimal digit.
 	 */
 	private static void appendHexBit(StringBuilder str, char number) {
 		if (number < 10)
@@ -484,9 +494,14 @@ public class DictionaryView extends JPanel {
 	}
 
 	/**
-	 * An auxiliary function that appends a single two digit hexadecimal number to a string.
-	 * @param str Append the number to this StringBuilder object.
-	 * @param number Must be a number between 0 and 255 (inclusive). This number is converted to its hexadecimal representation.
+	 * An auxiliary function that appends a single two digit hexadecimal number
+	 * to a string.
+	 * 
+	 * @param str
+	 *            Append the number to this StringBuilder object.
+	 * @param number
+	 *            Must be a number between 0 and 255 (inclusive). This number is
+	 *            converted to its hexadecimal representation.
 	 */
 	private static void appendNumber(StringBuilder str, char number) {
 		appendHexBit(str, (char) (number / 16));
@@ -494,9 +509,14 @@ public class DictionaryView extends JPanel {
 	}
 
 	/**
-	 * An auxiliary function that appends a grey html color code to a string. 
-	 * @param str Append the color code to this StringBuilder object.
-	 * @param number Must be a number between 0 and 255 (inclusive). This number is converted to its hexadecimal representation and appended three times to the input string.
+	 * An auxiliary function that appends a grey html color code to a string.
+	 * 
+	 * @param str
+	 *            Append the color code to this StringBuilder object.
+	 * @param number
+	 *            Must be a number between 0 and 255 (inclusive). This number is
+	 *            converted to its hexadecimal representation and appended three
+	 *            times to the input string.
 	 */
 	private static void appendGreyColor(StringBuilder str, char number) {
 		appendNumber(str, number);
@@ -507,7 +527,7 @@ public class DictionaryView extends JPanel {
 	private static class TranslationItem implements Comparable<TranslationItem> {
 
 		private final String transWord;
-		
+
 		public String getTransWord() {
 			return transWord;
 		}
@@ -517,32 +537,34 @@ public class DictionaryView extends JPanel {
 		}
 
 		private final MyDouble probability;
-		
+
 		public TranslationItem(String transWord, MyDouble probability) {
 			this.transWord = transWord;
 			this.probability = probability;
 		}
-		
+
 		@Override
 		public int compareTo(TranslationItem o) {
 			double thisDouble = probability.getDouble(), thatDouble = o.probability.getDouble();
 			return thisDouble < thatDouble ? 1 : thisDouble == thatDouble ? 0 : -1;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Constructs the html string that is shown in the best entries view.
-	 * @return The html string that is to be used for example with a JEditorPane object.
+	 * 
+	 * @return The html string that is to be used for example with a JEditorPane
+	 *         object.
 	 */
 	private String constructBestString() {
 		StringBuilder str = new StringBuilder("<html><");
-		
+
 		int i = 0;
-		
+
 		while (i < model.getNoOfEntries()) {
 			String currentString = model.getWordNames()[i];
-				
+
 			str.append("<h3>");
 			if (isLargeContent)
 				str.append("<font size=+2>");
@@ -550,10 +572,9 @@ public class DictionaryView extends JPanel {
 			if (isLargeContent)
 				str.append("</font>");
 			str.append("</h3><<blockquote>");
-			
-			
+
 			ArrayList<TranslationItem> transList = new ArrayList<TranslationItem>();
-			
+
 			while (i < model.getNoOfEntries() && model.getWordNames()[i].equals(currentString)) {
 				MyDouble d = model.getIterations()[model.getNoOfIterations() - 1][i];
 				if (d.getDouble() > 0.1) {
@@ -561,7 +582,7 @@ public class DictionaryView extends JPanel {
 				}
 				i++;
 			}
-			
+
 			Collections.sort(transList);
 			for (TranslationItem it : transList) {
 				str.append("<font color=#");
@@ -579,8 +600,11 @@ public class DictionaryView extends JPanel {
 
 	/**
 	 * Sets the font size of a given component.
-	 * @param comp Adjust the font size of this component.
-	 * @param size The new size.
+	 * 
+	 * @param comp
+	 *            Adjust the font size of this component.
+	 * @param size
+	 *            The new size.
 	 * @return The component itself. This is provided for convenience.
 	 */
 	private static JComponent setFontSize(JComponent comp, float size) {
@@ -596,8 +620,7 @@ public class DictionaryView extends JPanel {
 		setVisible(false);
 		setFontSize(radioButton1, size);
 		setFontSize(radioButton2, size);
-		setFontSize(((JSpinner.DefaultEditor)spinner.getEditor())
-			.getTextField(), size);
+		setFontSize(((JSpinner.DefaultEditor) spinner.getEditor()).getTextField(), size);
 		// setFontSize(checkBox);
 		setFontSize(precisionLabel, size);
 		setFontSize(cellEntryLabel, size);
@@ -611,7 +634,9 @@ public class DictionaryView extends JPanel {
 		int cellWidth = 0;
 
 		if (table.getRowCount() > 0 && table.getColumnCount() > 0) {
-			Dimension dim = table.getCellRenderer(0, 0).getTableCellRendererComponent(table, table.getModel().getValueAt(0, 0), false, false, 0, 0).getPreferredSize();
+			Dimension dim = table.getCellRenderer(0, 0)
+					.getTableCellRendererComponent(table, table.getModel().getValueAt(0, 0), false, false, 0, 0)
+					.getPreferredSize();
 			int height = (int) dim.getHeight();
 			cellWidth = (int) dim.getWidth();
 			table.setRowHeight(height + 4);
@@ -620,15 +645,17 @@ public class DictionaryView extends JPanel {
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			TableColumn column = table.getColumnModel().getColumn(i);
 			column.setHeaderRenderer(new MyHeaderCellRenderer(table.getTableHeader().getDefaultRenderer()));
-			column.setPreferredWidth(20 + Math.max(cellWidth, (int) column.getHeaderRenderer().getTableCellRendererComponent(table, table.getModel().getColumnName(i), false, false, 0, i)
+			column.setPreferredWidth(20 + Math.max(cellWidth, (int) column.getHeaderRenderer()
+					.getTableCellRendererComponent(table, table.getModel().getColumnName(i), false, false, 0, i)
 					.getPreferredSize().getWidth()));
 		}
 	}
 
 	/**
-	 * Is used to set the text of cellEntryLabel to the precise value of the currently selected cell.
+	 * Is used to set the text of cellEntryLabel to the precise value of the
+	 * currently selected cell.
 	 */
-	private void adjustCellEntryLabel() {
+	private void adjustCellEntryLabel(boolean tableViewActive) {
 		if (!tableViewActive) {
 			cellEntryLabel.setText("");
 			return;
@@ -640,4 +667,46 @@ public class DictionaryView extends JPanel {
 		} else
 			cellEntryLabel.setText("");
 	}
+
+	@Override
+	public void tableViewState() {
+		setVisible(false);
+		remove(bestView);
+		viewState = new DictionaryViews.TableViewState();
+		viewState.selectView(this);
+		observable.notify(viewState);
+	}
+
+	@Override
+	public void bestViewState() {
+		setVisible(false);
+		remove(tableView);
+		viewState = new DictionaryViews.BestViewState();
+		viewState.selectView(this);
+		observable.notify(viewState);
+	}
+
+	@Override
+	public void selectTableView() {
+		radioButton1.setSelected(true);
+		add(tableView, BorderLayout.CENTER);
+		setVisible(true);
+		validate();
+		adjustCellEntryLabel(true);
+	}
+
+	@Override
+	public void selectBestView() {
+		radioButton2.setSelected(true);
+		adjustUI();
+		add(bestView, BorderLayout.CENTER);
+		setVisible(true);
+		validate();
+		adjustCellEntryLabel(false);
+	}
+	
+	public Observable<DictionaryViewState> getObservable() {
+		return observable;
+	}
+	
 }

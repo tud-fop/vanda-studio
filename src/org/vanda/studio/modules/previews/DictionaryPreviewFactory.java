@@ -12,6 +12,8 @@ import javax.swing.JEditorPane;
 
 import org.vanda.dictionaries.Dictionary;
 import org.vanda.dictionaries.DictionaryView;
+import org.vanda.dictionaries.DictionaryViews;
+import org.vanda.dictionaries.DictionaryViews.DictionaryViewState;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.app.UIMode;
@@ -24,9 +26,11 @@ final class DictionaryPreviewFactory implements
 	private final Application app;
 	private final HashMap<String, WeakReference<Dictionary>> openDictionaries;
 	private final LinkedList<WeakReference<DictionaryView>> ds;
-
+	private DictionaryViewState viewState;
+	
 	public DictionaryPreviewFactory(Application app) {
 		this.app = app;
+		viewState = new DictionaryViews.TableViewState();
 		openDictionaries = new HashMap<String, WeakReference<Dictionary>>();
 		ds = new LinkedList<WeakReference<DictionaryView>>();
 		app.getUIModeObservable().addObserver(new UIObserver());
@@ -37,7 +41,13 @@ final class DictionaryPreviewFactory implements
 		try {
 			Dictionary dict = new Dictionary(
 					new File(value).getAbsolutePath(), '\t');
-			DictionaryView dv = new DictionaryView(dict);
+			DictionaryView dv = new DictionaryView(dict, viewState);
+			dv.getObservable().addObserver(new Observer<DictionaryViewState> () {
+				@Override
+				public void notify(DictionaryViewState event) {
+					viewState = event;
+				}
+			});
 			ds.push(new WeakReference<DictionaryView>(dv));
 			return dv;
 		} catch (IOException e) {
@@ -63,7 +73,13 @@ final class DictionaryPreviewFactory implements
 				// since we are using a weak reference, the leak is not
 				// significant
 			}
-			DictionaryView dv = new DictionaryView(dict);
+			DictionaryView dv = new DictionaryView(dict, viewState);
+			dv.getObservable().addObserver(new Observer<DictionaryViewState> () {
+				@Override
+				public void notify(DictionaryViewState event) {
+					viewState = event;
+				}
+			});
 			ds.push(new WeakReference<DictionaryView>(dv));
 			dv.setName(value);
 			app.getWindowSystem().addContentWindow(null, dv, null);
