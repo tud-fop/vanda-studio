@@ -98,7 +98,7 @@ public class WorkflowModule implements Module {
 			eefs.literalFactories.add(new LiteralEditor(app));
 
 			LinkedList<SemanticsToolFactory> srep = new LinkedList<SemanticsToolFactory>();
-			srep.add(new RunTool(new GeneratorImpl(app, profile)));
+//			srep.add(new RunTool(new GeneratorImpl(app, profile)));
 			srep.add(new InspectorTool(eefs));
 			srep.add(new org.vanda.studio.modules.workflows.run2.RunTool(new GeneratorImpl(app,profile)));
 

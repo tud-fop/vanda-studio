@@ -104,8 +104,6 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		// Rectangle(133,1000,0,0));
 		// component.setPanning(true); // too complic: must press SHIFT+CONTROL
 		// (component.getGraph().getDefaultParent());
-		outline = new mxGraphOutline(component);
-		outline.setPreferredSize(new Dimension(250, 250));
 		// mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
 		// outline);
 		// mainpane.setOneTouchExpandable(true);
@@ -127,9 +125,9 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		addAction(new CloseWorkflowAction(),
 				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
 
-		outline.setName("Map");
-		addToolWindow(outline, WindowSystem.SOUTHEAST);
 
+		setupOutline();
+		
 		// send some initial event ("updated" will be sent)
 		view.getWorkflow().beginUpdate();
 		view.getWorkflow().endUpdate();
@@ -248,7 +246,7 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 			if (palette != null)
 				removeToolWindow(palette);
 			palette = c;
-			if (palette != null)
+			if (palette != null) 
 				addToolWindow(palette, WindowSystem.SOUTHWEST);
 			// mainpane.setRightComponent(c);
 		}

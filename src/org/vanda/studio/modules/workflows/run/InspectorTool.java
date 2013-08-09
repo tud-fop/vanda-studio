@@ -68,7 +68,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			contentPane.setName("Inspector");
 			panNorth = new JPanel(new BorderLayout());
 			editor = null;
-			this.wfe.addToolWindow(contentPane, WindowSystem.SOUTH);
+			this.wfe.addToolWindow(contentPane, WindowSystem.SOUTHEAST);
 
 			final GlobalViewListener<View> listener = new GlobalViewListener<View>() {
 

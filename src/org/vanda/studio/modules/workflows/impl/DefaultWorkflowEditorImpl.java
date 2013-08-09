@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.print.PageFormat;
+import java.awt.print.Paper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -212,6 +213,9 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 			// is always selected
 			setSwimlaneSelectionEnabled(false);
 			collapsedCells = new ArrayList<mxICell>();
+			setVerticalPageCount(2);
+			setHorizontalPageCount(4);
+			setGridVisible(true);
 		}
 
 		@Override
@@ -333,7 +337,8 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		component.setDragEnabled(false);
 		component.getGraphControl().addMouseWheelListener(new MouseZoomAdapter(app, component));
 		component.setPanning(true);
-		component.getPageFormat().setOrientation(PageFormat.LANDSCAPE);
+//		component.getPageFormat().setOrientation(PageFormat.LANDSCAPE);
+		component.getPageFormat().setOrientation(PageFormat.PORTRAIT);
 		component.setPageVisible(true);
 		// component.setPageVisible(false);
 		// component.setBackground(new Color(123, 123, 123));
@@ -354,11 +359,14 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		outline = new mxGraphOutline(component);
 		outline.setPreferredSize(new Dimension(250, 250));
 		outline.setName("Map");
-		addToolWindow(outline, WindowSystem.SOUTHEAST);
+//		outline.setFitPage(true);
+//		addToolWindow(outline, WindowSystem.SOUTHEAST);
+		addToolWindow(outline, WindowSystem.NORTHEAST);
 	}
 
 	@Override
 	public void addAction(Action a, String imageName, KeyStroke keyStroke) {
 		app.getWindowSystem().addAction(component, a, imageName, keyStroke);
 	}
+
 }

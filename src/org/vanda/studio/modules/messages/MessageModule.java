@@ -93,7 +93,7 @@ public class MessageModule implements Module {
 			});
 			scrollPane = new JScrollPane(messageList);
 			scrollPane.setName("Messages");
-			app.getWindowSystem().addToolWindow(null, null, scrollPane, WindowSystem.NORTHEAST);
+			// app.getWindowSystem().addToolWindow(null, null, scrollPane, WindowSystem.NORTHEAST);
 			app.getMessageObservable().addObserver(this);
 			app.sendMessage(new Message() {
 
