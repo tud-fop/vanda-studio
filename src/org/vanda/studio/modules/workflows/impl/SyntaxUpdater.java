@@ -17,8 +17,6 @@ import org.vanda.workflows.hyper.TypeCheckingException;
 import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 import org.vanda.workflows.hyper.Workflows.WorkflowListener;
 
-import com.sun.corba.se.pept.transport.Connection;
-
 public class SyntaxUpdater implements Observer<WorkflowEvent<MutableWorkflow>>, WorkflowListener<MutableWorkflow> {
 
 	@Override

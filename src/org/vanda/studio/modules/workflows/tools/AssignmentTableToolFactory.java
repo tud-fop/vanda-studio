@@ -88,17 +88,13 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		private final JPanel pRight, pLeft;
 		private final JScrollPane scr;
 		private String[] keys;
+		private int update = 0;
 
 		public AssignmentTable(final WorkflowEditor wfe) {
 			super(new BorderLayout());
 			db = wfe.getDatabase();
 			db.getObservable().addObserver(new DatabaseObserver(this));
-			keys = db
-					.getRow(0)
-					.keySet()
-					.toArray(
-							new String[wfe.getDatabase().getRow(0).keySet()
-									.size()]);
+			keys = db.getRow(0).keySet().toArray(new String[wfe.getDatabase().getRow(0).keySet().size()]);
 			literals = new HashMap<String, Literal>();
 			this.pRight = new JPanel(new BorderLayout());
 			this.pLeft = new JPanel(new BorderLayout());
@@ -112,14 +108,12 @@ public class AssignmentTableToolFactory implements ToolFactory {
 					@Override
 					public void visitLiteral(Literal l) {
 						literals.put(l.getKey(), l);
-						l.getObservable().addObserver(
-								new Observer<ElementEvent<Literal>>() {
-									@Override
-									public void notify(
-											ElementEvent<Literal> event) {
-										update(false);
-									}
-								});
+						l.getObservable().addObserver(new Observer<ElementEvent<Literal>>() {
+							@Override
+							public void notify(ElementEvent<Literal> event) {
+								update(false);
+							}
+						});
 					}
 				});
 
@@ -131,38 +125,50 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			tAssignments.setCellSelectionEnabled(true);
 			tAssignments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			ListSelectionListener lsl = new ListSelectionListener() {
+				private Integer run;
+				private String key;
+
+				private void beginUpdate() {
+					update++;
+				}
+
+				private void endUpdate() {
+					update--;
+					if (update == 0) {
+						if (0 <= run && run < db.getSize()) {
+							db.setCursor(run);
+						}
+						if (literals.get(key) != null)
+							pRight.add(
+									eefs.literalFactories.createEditor(db, wfe.getView().getWorkflow(),
+											literals.get(key)), BorderLayout.CENTER);
+						else
+							pRight.add(new JLabel("There exists no such literal."));
+						revalidate();
+					}
+				}
 
 				@Override
 				public void valueChanged(ListSelectionEvent arg0) {
+					beginUpdate();
 					pRight.removeAll();
-					if (tAssignments.getSelectedColumn() == -1
-							|| tAssignments.getSelectedRow() == -1) {
+					if (tAssignments.getSelectedColumn() == -1 || tAssignments.getSelectedRow() == -1) {
 						pRight.add(new JLabel("Select a cell."));
+						AssignmentTable.this.endUpdate();
 						return;
 					}
-					Integer run;
-					String key;
 					if (isTransposed) {
 						key = keys[tAssignments.getSelectedColumn()];
 						run = tAssignments.getSelectedRow();
 					} else {
 						key = keys[tAssignments.getSelectedRow()];
 						run = tAssignments.getSelectedColumn();
-					}
-					db.setCursor(run);
-					if (literals.get(key) != null)
-						pRight.add(eefs.literalFactories.createEditor(db, wfe
-								.getView().getWorkflow(), literals
-								.get(key)), BorderLayout.CENTER);
-					else
-						pRight.add(new JLabel("There exists no such literal."));
-					revalidate();
-
+					}	
+					endUpdate();
 				}
 			};
 			tAssignments.getSelectionModel().addListSelectionListener(lsl);
-			tAssignments.getColumnModel().getSelectionModel()
-					.addListSelectionListener(lsl);
+			tAssignments.getColumnModel().getSelectionModel().addListSelectionListener(lsl);
 
 			JButton buttonCorner = new JButton(new AbstractAction("\u2922") {
 				/**
@@ -194,7 +200,8 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					wfe.getDatabase().addRow();
+					db.addRow();
+					db.setCursor(db.getSize() - 1);
 				}
 
 			}));
@@ -218,6 +225,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		}
 
 		private void update(boolean hasBeenTransposed) {
+			beginUpdate();
 			String[] columnNames = new String[db.getSize()];
 			for (int i = 0; i < db.getSize(); i++)
 				columnNames[i] = "Run " + i;
@@ -236,32 +244,27 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 			int selectedRow = tAssignments.getSelectedRow();
 			int selectedColumn = tAssignments.getSelectedColumn();
-			
+
 			if (isTransposed) {
-				((DefaultTableModel) tAssignments.getModel()).setDataVector(
-						transpose(data), rowNames);
+				((DefaultTableModel) tAssignments.getModel()).setDataVector(transpose(data), rowNames);
 				tAssignments.setRowHeaderData(columnNames);
 			} else {
-				((DefaultTableModel) tAssignments.getModel()).setDataVector(
-						data, columnNames);
+				((DefaultTableModel) tAssignments.getModel()).setDataVector(data, columnNames);
 				tAssignments.setRowHeaderData(rowNames);
 			}
 
 			if (hasBeenTransposed) {
-				tAssignments.getSelectionModel().setSelectionInterval(
-						selectedColumn, selectedColumn);
-				tAssignments.getColumnModel().getSelectionModel()
-						.setSelectionInterval(selectedRow, selectedRow);
+				tAssignments.getSelectionModel().setSelectionInterval(selectedColumn, selectedColumn);
+				tAssignments.getColumnModel().getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
 			} else {
-				tAssignments.getSelectionModel().setSelectionInterval(
-						selectedRow, selectedRow);
-				tAssignments.getColumnModel().getSelectionModel()
-						.setSelectionInterval(selectedColumn, selectedColumn);
+				tAssignments.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
+				tAssignments.getColumnModel().getSelectionModel().setSelectionInterval(selectedColumn, selectedColumn);
 			}
 
 			scr.setRowHeaderView(tAssignments.getRowHeader());
 
 			tAssignments.packAll();
+			endUpdate();
 		}
 
 		private String[][] transpose(String[][] mx) {
@@ -272,6 +275,13 @@ public class AssignmentTableToolFactory implements ToolFactory {
 					result[j][i] = mx[i][j];
 
 			return result;
+		}
+		
+		private void beginUpdate(){ 
+			update++;
+		}
+		private void endUpdate() {
+			update--;			
 		}
 	}
 
@@ -284,8 +294,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 	@Override
 	public Object instantiate(WorkflowEditor wfe) {
 		Action a = new OpenAssignmentTableAction(wfe);
-		wfe.addAction(a, "application-vnd.sun.xml.calc",
-				KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_MASK),4);
+		wfe.addAction(a, "application-vnd.sun.xml.calc", KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_MASK), 4);
 		return a;
 	}
 

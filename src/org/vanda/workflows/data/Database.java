@@ -93,9 +93,9 @@ public final class Database {
 				assignments.remove(cursor);
 				for (Entry<String, String> e : theRow.entrySet())
 					events.add(new DataChange<Database>(this, e.getKey()));
+			} finally {
 				cursor = 0;
 				events.add(new CursorChange<Database>(this));
-			} finally {
 				endUpdate();
 			}
 		}
