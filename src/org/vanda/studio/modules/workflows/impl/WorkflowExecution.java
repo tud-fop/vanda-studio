@@ -107,7 +107,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 			// fragment again
 			String id = generate();
 			if (id != null) {
-			// FIXME	System.out.println("invoked RunAction");
+				// FIXME System.out.println("invoked RunAction");
 				Run run = new Run(app, pm.getView().getRunEventObserver(), id);
 				run.run();
 				cancel.enable(run);
@@ -119,13 +119,11 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 	private final Generator prof;
 	private final PresentationModel pm;
 	private final CancelAction cancel;
-	private final RunConfig rc;
 
 	public WorkflowExecution(Application app, Pair<MutableWorkflow, Database> phd, Generator prof, RunConfig rc)
 			throws TypeCheckingException {
 		super(app, phd);
 		this.prof = prof;
-		this.rc = rc;
 
 		synA = new SyntaxAnalysis(phd.fst, rc.generateComperator());
 		semA = new SemanticAnalysisEx(synA);
@@ -150,11 +148,21 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 		new SemanticsTool(srep).instantiate(this);
 
 		// add Menu-Actions
-		addAction(new RunAction(), KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
-		addAction(cancel, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
+		addAction(new RunAction(), KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK), 0);
+		addAction(cancel, KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK), 1);
 		cancel.disable();
-		addAction(new ResetZoomAction(), KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK));
-		addAction(new CloseWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
+		addAction(new ResetZoomAction(), KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK), 3);
+		addAction(new CloseWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK), 2);
+
+		// addComponent
+		app.getWindowSystem().addContentWindow(null, component, null);
+				
+		// focus window
+		app.getWindowSystem().focusContentWindow(component);
+		component.requestFocusInWindow();
+		// init outline painting
+		outline.updateScaleAndTranslate();
+
 	}
 
 	private String generate() {

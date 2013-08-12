@@ -1,6 +1,5 @@
 package org.vanda.studio.modules.workflows.impl;
 
-import java.awt.Dimension;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -35,7 +34,6 @@ import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.TypeCheckingException;
 import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 
-import com.mxgraph.swing.mxGraphOutline;
 import com.mxgraph.swing.util.mxGraphTransferable;
 
 public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {

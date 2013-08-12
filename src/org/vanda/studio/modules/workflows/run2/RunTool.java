@@ -71,17 +71,6 @@ public class RunTool implements SemanticsToolFactory {
 
 					// create WorkflowExecutionPreview from file
 					JComponent executionPreview = new WorkflowExecutionPreview(app, prof).createPreview(filePath);
-
-					if (executionPreview != null) {
-						executionPreview.setName(id + " Run");
-
-						// create tab with WorkflowExecutionPreview
-						app.getWindowSystem().addContentWindow(null, executionPreview, null);
-						app.getWindowSystem().focusContentWindow(executionPreview);
-
-						executionPreview.requestFocusInWindow();
-					}
-
 				}
 			}
 

@@ -59,7 +59,7 @@ import org.vanda.util.Observer;
 public class WindowSystemImpl implements WindowSystem {
 
 	private static int ICON_SIZE = 24;
-	
+
 	protected final Application app;
 	protected final JFrame mainWindow;
 	protected JLayeredPane mainPane;
@@ -74,16 +74,20 @@ public class WindowSystemImpl implements WindowSystem {
 	protected HashMap<JComponent, List<JComponent>> windowTools;
 	protected ButtonGroup modeGroup;
 	protected HashMap<JComponent, JInternalFrame> frames;
-	
+
 	/**
-	 * stores TreeMap from indices to MenuItems for each menu
-	 * the natural ordering of keys is exploited to order the menu items
+	 * stores TreeMap from indices to MenuItems for each menu the natural
+	 * ordering of keys is exploited to order the menu items
 	 */
-	protected HashMap<JMenu,TreeMap<Integer, JMenuItem>> items;
+	protected HashMap<JMenu, TreeMap<Integer, JMenuItem>> items;
+
+	/**
+	 * 
+	 */
+	protected HashMap<JPanel, TreeMap<Integer, JButton>> tools;
 
 	@SuppressWarnings("serial")
-	private static class LayoutTabbedPane extends JTabbedPane implements
-			LayoutSelector {
+	private static class LayoutTabbedPane extends JTabbedPane implements LayoutSelector {
 
 		@Override
 		public <L> L selectLayout(LayoutAssortment<L> la) {
@@ -136,7 +140,7 @@ public class WindowSystemImpl implements WindowSystem {
 			}
 		});
 
-		items.get(fileMenu).put(3,exitMenuItem);
+		items.get(fileMenu).put(3, exitMenuItem);
 		addSeparator();
 		menuBar.add(fileMenu);
 
@@ -169,6 +173,8 @@ public class WindowSystemImpl implements WindowSystem {
 		windowMenus = new HashMap<JComponent, JMenu>();
 		windowTools = new HashMap<JComponent, List<JComponent>>();
 		iconToolBars = new HashMap<JComponent, JPanel>();
+		tools = new HashMap<JPanel, TreeMap<Integer, JButton>>();
+		tools.put(null, new TreeMap<Integer, JButton>());
 		frames = new HashMap<JComponent, JInternalFrame>();
 
 		mainWindow.setJMenuBar(menuBar);
@@ -216,12 +222,14 @@ public class WindowSystemImpl implements WindowSystem {
 						menuBar.add(menu, 1);
 					}
 				}
-				if (iconToolBars.get(c) != null) {
-					iconToolBar.removeAll();
-					iconToolBar.add(iconToolBars.get(null));
-					if (c != null)
+				
+				iconToolBar.removeAll();
+				iconToolBar.add(iconToolBars.get(null));
+				if (iconToolBars.get(c) != null && c != null) 
 						iconToolBar.add(iconToolBars.get(c));
-				}
+				iconToolBar.revalidate();
+				iconToolBar.repaint();
+				
 				menuBar.revalidate();
 				menuBar.repaint();
 				mainPane.removeAll();
@@ -258,10 +266,8 @@ public class WindowSystemImpl implements WindowSystem {
 	}
 
 	@Override
-	public void addAction(JComponent c, final Action a, String imageName,
-			KeyStroke keyStroke, int pos) {
-		URL url = ClassLoader.getSystemClassLoader().getResource(
-				imageName + ".png");
+	public void addAction(JComponent c, final Action a, String imageName, KeyStroke keyStroke, int pos) {
+		URL url = ClassLoader.getSystemClassLoader().getResource(imageName + ".png");
 		JButton b = new JButton();
 		b.addActionListener(new ActionListener() {
 
@@ -272,8 +278,7 @@ public class WindowSystemImpl implements WindowSystem {
 		});
 		try {
 			Image i = ImageIO.read(url);
-			b.setIcon(new ImageIcon(i.getScaledInstance(ICON_SIZE, ICON_SIZE,
-					Image.SCALE_SMOOTH)));
+			b.setIcon(new ImageIcon(i.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_SMOOTH)));
 			b.setPreferredSize(new Dimension(ICON_SIZE + 2, ICON_SIZE + 2));
 			b.setMargin(new Insets(0, 0, 0, 0));
 			b.setToolTipText(a.getName());
@@ -285,10 +290,14 @@ public class WindowSystemImpl implements WindowSystem {
 			FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
 			fl.setVgap(1);
 			iconToolBars.put(c, new JPanel(fl));
-			iconToolBars.get(c).setComponentOrientation(
-					ComponentOrientation.LEFT_TO_RIGHT);
+			iconToolBars.get(c).setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+			tools.put(iconToolBars.get(c), new TreeMap<Integer, JButton>());
 		}
-		iconToolBars.get(c).add(b);
+		tools.get(iconToolBars.get(c)).put((Integer) pos, b);
+		iconToolBars.get(c).removeAll();
+		for (Integer i : tools.get(iconToolBars.get(c)).navigableKeySet()) {
+			iconToolBars.get(c).add(tools.get(iconToolBars.get(c)).get(i));
+		}
 		if (c == null)
 			for (ChangeListener cl : contentPane.getChangeListeners())
 				cl.stateChanged(new ChangeEvent(contentPane));
@@ -299,7 +308,7 @@ public class WindowSystemImpl implements WindowSystem {
 	public void addAction(JComponent c, final Action a, KeyStroke keyStroke) {
 		addAction(c, a, keyStroke, 0);
 	}
-	
+
 	@Override
 	public void addAction(JComponent c, final Action a, KeyStroke keyStroke, int pos) {
 		JMenuItem item = new JMenuItem(a.getName());
@@ -321,7 +330,7 @@ public class WindowSystemImpl implements WindowSystem {
 					menuBar.add(menu, 1);
 				items.put(menu, new TreeMap<Integer, JMenuItem>());
 			}
-			items.get(menu).put((Integer) pos, item); 
+			items.get(menu).put((Integer) pos, item);
 			menu.removeAll();
 			for (Integer i : items.get(menu).navigableKeySet()) {
 				menu.insert(items.get(menu).get(i), i);
@@ -370,8 +379,7 @@ public class WindowSystemImpl implements WindowSystem {
 	/**
 	 */
 	@Override
-	public void addToolWindow(JComponent window, Icon i, JComponent c,
-			LayoutSelector layout) {
+	public void addToolWindow(JComponent window, Icon i, JComponent c, LayoutSelector layout) {
 		List<JComponent> tcs = windowTools.get(window);
 		if (tcs == null) {
 			tcs = new ArrayList<JComponent>();
@@ -441,7 +449,7 @@ public class WindowSystemImpl implements WindowSystem {
 		for (ChangeListener cl : contentPane.getChangeListeners())
 			cl.stateChanged(new ChangeEvent(contentPane));
 	}
-	
+
 	@Override
 	public JFrame getMainWindow() {
 		return mainWindow;
