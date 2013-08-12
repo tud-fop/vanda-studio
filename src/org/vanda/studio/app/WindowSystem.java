@@ -93,6 +93,10 @@ public interface WindowSystem {
 	 * Call this *before* adding c as a contentWindow.
 	 */
 	void addAction(JComponent c, Action a, KeyStroke keyStroke);
+	
+	/**
+	 */
+	void addAction(JComponent c, Action a, KeyStroke keyStroke, int pos);
 
 	/**
 	 * Creates a new tab in the main pane.
@@ -145,6 +149,6 @@ public interface WindowSystem {
 
 	/**
 	 */
-	void addAction(JComponent c, Action a, String imageName, KeyStroke keyStroke);
+	void addAction(JComponent c, Action a, String imageName, KeyStroke keyStroke, int pos);
 
 }

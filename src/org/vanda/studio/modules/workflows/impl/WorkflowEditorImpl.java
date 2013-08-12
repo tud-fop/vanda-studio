@@ -61,8 +61,8 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 				// do nothing e.printStackTrace();
 			}
 		}
-	}	
-	
+	}
+
 	protected final PresentationModel presentationModel;
 
 	protected JComponent palette;
@@ -117,28 +117,29 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 
 		for (ToolFactory tf : toolFactories)
 			tf.instantiate(this);
-	
-		addAction(new CheckWorkflowAction(this), "document-preview", KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK));
-		addAction(new ResetZoomAction(),
 
-				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK));
-		addAction(new CloseWorkflowAction(),
-				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK));
-
+		addAction(new CheckWorkflowAction(this), "document-preview",
+				KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK), 2);
+		addAction(new ResetZoomAction(), KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK), 8);
+		addAction(new CloseWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK), 1);
 
 		setupOutline();
-		
+
 		// send some initial event ("updated" will be sent)
 		view.getWorkflow().beginUpdate();
 		view.getWorkflow().endUpdate();
-
+		
+		// focus window
+		app.getWindowSystem().focusContentWindow(component);
+		component.requestFocusInWindow();
+		// init outline painting
+		outline.updateScaleAndTranslate();
 	}
 
 	static {
 		try {
-			mxGraphTransferable.dataFlavor = new DataFlavor(
-					DataFlavor.javaJVMLocalObjectMimeType
-							+ "; class=com.mxgraph.swing.util.mxGraphTransferable");
+			mxGraphTransferable.dataFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType
+					+ "; class=com.mxgraph.swing.util.mxGraphTransferable");
 		} catch (ClassNotFoundException cnfe) {
 			// do nothing
 			System.out.println("Problem!");
@@ -196,8 +197,7 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 			} else if (e.getButton() == 3) {
 				// show context menu when right clicking a node or an edge
 				Object cell = component.getCellAt(e.getX(), e.getY());
-				final Object value = component.getGraph().getModel()
-						.getValue(cell);
+				final Object value = component.getGraph().getModel().getValue(cell);
 
 				if (value != null)
 					((Cell) value).rightMouseClick(e);
@@ -246,7 +246,7 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 			if (palette != null)
 				removeToolWindow(palette);
 			palette = c;
-			if (palette != null) 
+			if (palette != null)
 				addToolWindow(palette, WindowSystem.SOUTHWEST);
 			// mainpane.setRightComponent(c);
 		}

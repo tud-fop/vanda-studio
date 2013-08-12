@@ -5,8 +5,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,7 +66,7 @@ public class DataSourceModule implements Module {
 		 */
 
 		Storer st = new Storer(dsts);
-		a.getWindowSystem().addAction(null, new DataSourceEditorAction(a, rds, st), null);
+		a.getWindowSystem().addAction(null, new DataSourceEditorAction(a, rds, st), null, 2);
 		return null;
 	}
 

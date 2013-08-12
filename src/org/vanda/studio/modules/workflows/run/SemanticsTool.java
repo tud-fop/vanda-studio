@@ -65,10 +65,10 @@ public class SemanticsTool implements ToolFactory {
 		}
 
 		// Model model;
-		SemanticAnalysis semA;
-		SyntaxAnalysis synA;
-		View view;
-		SemanticUpdater semUp;
+		private SemanticAnalysis semA;
+		private SyntaxAnalysis synA;
+		private View view;
+		private SemanticUpdater semUp;
 
 		public Tool(WorkflowEditor wfe, Collection<SemanticsToolFactory> stfs) {
 

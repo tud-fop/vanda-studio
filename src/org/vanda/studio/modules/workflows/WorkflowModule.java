@@ -114,10 +114,10 @@ public class WorkflowModule implements Module {
 					.addAction(null, new OpenManagerAction(), null);
 			app.getWindowSystem().addAction(null, new OpenWorkflowAction(),
 					"document-open",
-					KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
+					KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK),1);
 			app.getWindowSystem().addAction(null, new NewWorkflowAction(),
 					"document-new",
-					KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
+					KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK),0);
 		}
 
 		protected class NewWorkflowAction implements Action {

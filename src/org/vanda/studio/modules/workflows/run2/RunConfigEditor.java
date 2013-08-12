@@ -22,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.LayoutStyle;
 import javax.swing.SpinnerNumberModel;
 
 import org.vanda.util.Pair;
@@ -60,11 +61,11 @@ public class RunConfigEditor {
 		layout.setAutoCreateGaps(true);
 
 		// Execution Environment Folder Selection
-		// TODO offer nice default path and remember last path
 		dir = new File(path);
 		lFolder = new JLabel("Execution Environment");
 		tFolder = new JTextField(dir.getAbsolutePath());
-		tFolder.setPreferredSize(new Dimension(300, 20));
+		tFolder.setMaximumSize(new Dimension(Short.MAX_VALUE, JTextField.HEIGHT));
+		tFolder.setPreferredSize(new Dimension(200, 20));
 		JButton bFolder = new JButton(new AbstractAction("...") {
 			private static final long serialVersionUID = -2965900290520148139L;
 
@@ -78,11 +79,12 @@ public class RunConfigEditor {
 				}
 			}
 		});
+		bFolder.setMaximumSize(new Dimension(bFolder.getPreferredSize().width, JTextField.HEIGHT));
 
 		SequentialGroup exexutionEnvironmentHorizontal = layout.createSequentialGroup().addComponent(lFolder)
 				.addComponent(tFolder).addComponent(bFolder);
-		ParallelGroup executionEnvironmentVertical = layout.createParallelGroup().addComponent(lFolder)
-				.addComponent(tFolder).addComponent(bFolder);
+		ParallelGroup executionEnvironmentVertical = layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				.addComponent(lFolder).addComponent(tFolder).addComponent(bFolder);
 
 		// AssignmentSelectionTable
 		assignmentSelection = new ArrayList<Integer>();
@@ -103,7 +105,7 @@ public class RunConfigEditor {
 		// TODO remember previous selections and priorities
 		for (int i = 0; i < db.getSize(); ++i) {
 			final Integer a_i = new Integer(i);
-			JCheckBox assignment = new JCheckBox(new AbstractAction("Assignment " + a_i) {
+			JCheckBox assignment = new JCheckBox(new AbstractAction("Run " + a_i) {
 				private static final long serialVersionUID = 1827258959703699422L;
 
 				@Override
@@ -115,18 +117,23 @@ public class RunConfigEditor {
 				}
 			});
 			JSpinner priority = new JSpinner(new SpinnerNumberModel(i, 0, 1000, 1));
+			priority.setMaximumSize(new Dimension(20, JSpinner.HEIGHT));
 			priorityMap.put((Integer) i, priority);
-			ParallelGroup row = layout.createParallelGroup().addComponent(assignment).addComponent(priority);
+			ParallelGroup row = layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(assignment)
+					.addComponent(priority);
 			leftColumn.addComponent(assignment);
 			rightColumn.addComponent(priority);
 			tableRows.addGroup(row);
 		}
-		SequentialGroup tableColumns = layout.createSequentialGroup().addGroup(leftColumn).addGroup(rightColumn);
+		SequentialGroup tableColumns = layout.createSequentialGroup().addGroup(leftColumn)
+				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, 50)
+				.addGroup(rightColumn);
 
 		// ExecutionSystem Selection
 		// TODO read out available Systems from somewhere
 		JLabel exLabel = new JLabel("Execution System");
 		JComboBox<String> exSystem = new JComboBox<String>();
+		exSystem.setMaximumSize(new Dimension(Short.MAX_VALUE, JComboBox.HEIGHT));
 		exSystem.addItem("Shell Compiler");
 		JButton exButton = new JButton(new AbstractAction("Run") {
 			private static final long serialVersionUID = 3626621817499179974L;
@@ -145,8 +152,8 @@ public class RunConfigEditor {
 
 		SequentialGroup executionSystemHorizontal = layout.createSequentialGroup().addComponent(exLabel)
 				.addComponent(exSystem).addComponent(exButton);
-		ParallelGroup executionSystemVertical = layout.createParallelGroup().addComponent(exLabel)
-				.addComponent(exSystem).addComponent(exButton);
+		ParallelGroup executionSystemVertical = layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				.addComponent(exLabel).addComponent(exSystem).addComponent(exButton);
 
 		// Setup entire layout
 		layout.setHorizontalGroup(layout.createParallelGroup().addGroup(exexutionEnvironmentHorizontal)

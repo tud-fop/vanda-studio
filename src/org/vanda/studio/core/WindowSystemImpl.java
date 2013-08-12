@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -73,6 +74,12 @@ public class WindowSystemImpl implements WindowSystem {
 	protected HashMap<JComponent, List<JComponent>> windowTools;
 	protected ButtonGroup modeGroup;
 	protected HashMap<JComponent, JInternalFrame> frames;
+	
+	/**
+	 * stores TreeMap from indices to MenuItems for each menu
+	 * the natural ordering of keys is exploited to order the menu items
+	 */
+	protected HashMap<JMenu,TreeMap<Integer, JMenuItem>> items;
 
 	@SuppressWarnings("serial")
 	private static class LayoutTabbedPane extends JTabbedPane implements
@@ -118,6 +125,8 @@ public class WindowSystemImpl implements WindowSystem {
 		iconToolBar = new JPanel(fl);
 		iconToolBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 		fileMenu = new JMenu("Studio");
+		items = new HashMap<JMenu, TreeMap<Integer, JMenuItem>>();
+		items.put(fileMenu, new TreeMap<Integer, JMenuItem>());
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
 		exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_MASK));
 		exitMenuItem.addActionListener(new ActionListener() {
@@ -127,7 +136,7 @@ public class WindowSystemImpl implements WindowSystem {
 			}
 		});
 
-		fileMenu.add(exitMenuItem);
+		items.get(fileMenu).put(3,exitMenuItem);
 		addSeparator();
 		menuBar.add(fileMenu);
 
@@ -250,7 +259,7 @@ public class WindowSystemImpl implements WindowSystem {
 
 	@Override
 	public void addAction(JComponent c, final Action a, String imageName,
-			KeyStroke keyStroke) {
+			KeyStroke keyStroke, int pos) {
 		URL url = ClassLoader.getSystemClassLoader().getResource(
 				imageName + ".png");
 		JButton b = new JButton();
@@ -283,11 +292,16 @@ public class WindowSystemImpl implements WindowSystem {
 		if (c == null)
 			for (ChangeListener cl : contentPane.getChangeListeners())
 				cl.stateChanged(new ChangeEvent(contentPane));
-		addAction(c, a, keyStroke);
+		addAction(c, a, keyStroke, pos);
 	}
 
 	@Override
 	public void addAction(JComponent c, final Action a, KeyStroke keyStroke) {
+		addAction(c, a, keyStroke, 0);
+	}
+	
+	@Override
+	public void addAction(JComponent c, final Action a, KeyStroke keyStroke, int pos) {
 		JMenuItem item = new JMenuItem(a.getName());
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -305,10 +319,20 @@ public class WindowSystemImpl implements WindowSystem {
 				windowMenus.put(c, menu);
 				if (contentPane.getSelectedComponent() == c)
 					menuBar.add(menu, 1);
+				items.put(menu, new TreeMap<Integer, JMenuItem>());
 			}
-			menu.add(item);
-		} else
-			fileMenu.insert(item, 0);
+			items.get(menu).put((Integer) pos, item); 
+			menu.removeAll();
+			for (Integer i : items.get(menu).navigableKeySet()) {
+				menu.insert(items.get(menu).get(i), i);
+			}
+		} else {
+			items.get(fileMenu).put((Integer) pos, item);
+			fileMenu.removeAll();
+			for (Integer i : items.get(fileMenu).navigableKeySet()) {
+				fileMenu.insert(items.get(fileMenu).get(i), i);
+			}
+		}
 	}
 
 	/**

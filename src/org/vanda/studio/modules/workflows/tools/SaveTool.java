@@ -19,7 +19,7 @@ public final class SaveTool implements ToolFactory {
 	public Object instantiate(WorkflowEditor wfe) {
 		Action a = new SaveWorkflowAction(wfe);
 		wfe.addAction(a, "document-save",
-				KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK),0);
 		return a;
 	}
 

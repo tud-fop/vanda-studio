@@ -1,8 +1,6 @@
 package org.vanda.view;
 
 import org.vanda.execution.model.Runables.RunState;
-import org.vanda.render.jgraph.Cells.CellEvent;
-import org.vanda.render.jgraph.Cells.CellListener;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;

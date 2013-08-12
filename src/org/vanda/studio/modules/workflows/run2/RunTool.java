@@ -46,9 +46,9 @@ public class RunTool implements SemanticsToolFactory {
 				RunConfigEditor rce = new RunConfigEditor(wfe.getView().getWorkflow().getChildren(), wfe.getDatabase(),
 						app.getProperty("outputPath"), RunAction.this);
 				f.setContentPane(rce.getComponent());
-				f.setVisible(true);
-				f.setSize(f.getPreferredSize());
+				f.pack();
 				f.setLocationRelativeTo(app.getWindowSystem().getMainWindow());
+				f.setVisible(true);
 			}
 
 			public void evokeExecution(List<Integer> assingmentSelection, String filePath,
@@ -97,7 +97,7 @@ public class RunTool implements SemanticsToolFactory {
 			this.synA = synA;
 			this.semA = semA;
 			app = wfe.getApplication();
-			wfe.addAction(new RunAction(), KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_MASK));
+			wfe.addAction(new RunAction(), KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_MASK), 3);
 		}
 
 		private String generate() {

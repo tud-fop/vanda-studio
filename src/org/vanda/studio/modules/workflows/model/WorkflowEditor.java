@@ -1,8 +1,5 @@
 package org.vanda.studio.modules.workflows.model;
 
-import java.awt.Image;
-
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
@@ -17,6 +14,7 @@ import org.vanda.workflows.data.Database;
 
 public interface WorkflowEditor {
 	void addAction(Action a, KeyStroke keyStroke);
+	void addAction(Action a, KeyStroke keyStroke, int pos);
 	void addToolWindow(JComponent c, LayoutSelector layout);
 	void focusToolWindow(JComponent c);
 	Application getApplication();
@@ -28,5 +26,5 @@ public interface WorkflowEditor {
 	View getView();
 	SyntaxAnalysis getSyntaxAnalysis();
 	SemanticAnalysis getSemanticAnalysis();
-	void addAction(Action a, String imageName, KeyStroke keyStroke);
+	void addAction(Action a, String imageName, KeyStroke keyStroke, int pos);
 }

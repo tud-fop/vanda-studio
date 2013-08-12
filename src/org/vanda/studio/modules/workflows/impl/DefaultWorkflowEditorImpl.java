@@ -6,8 +6,6 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.print.PageFormat;
-import java.awt.print.Paper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +36,7 @@ import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.mxGraphOutline;
 import com.mxgraph.swing.handler.mxGraphHandler;
+import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
@@ -56,10 +55,15 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		view = new View(phd.fst);
 		database = phd.snd;
 	}
-
+	
 	@Override
 	public void addAction(Action a, KeyStroke keyStroke) {
-		app.getWindowSystem().addAction(component, a, keyStroke);
+		addAction(a, keyStroke, 0);
+	}
+	
+	@Override
+	public void addAction(Action a, KeyStroke keyStroke, int pos) {
+		app.getWindowSystem().addAction(component, a, keyStroke, pos);
 	}
 
 	@Override
@@ -213,9 +217,6 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 			// is always selected
 			setSwimlaneSelectionEnabled(false);
 			collapsedCells = new ArrayList<mxICell>();
-			setVerticalPageCount(2);
-			setHorizontalPageCount(4);
-			setGridVisible(true);
 		}
 
 		@Override
@@ -258,6 +259,91 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		 */
 		public boolean isPanningEvent(MouseEvent event) {
 			return (event != null) && !event.isShiftDown() && event.isControlDown();
+		}
+		
+		/**
+		 * Creates the inner control that handles tooltips, preferred size and can
+		 * draw cells onto a canvas.
+		 */
+		@Override
+		protected mxGraphControl createGraphControl()
+		{
+			return new MyMxGraphControl();
+		}
+		
+		protected class MyMxGraphControl extends mxGraphControl {
+			final static int bound = 20;
+			
+			/**
+			 * Overrides parent method to add extend flag for making the control
+			 * larger during previews.
+			 */
+			@Override
+			public void scrollRectToVisible(Rectangle aRect, boolean extend)
+			{
+				System.out.println(aRect + " " + extend);
+				super.scrollRectToVisible(aRect);
+
+				if (extend)
+				{
+					extendComponent(aRect);
+				}
+			}
+			
+			/**
+			 * Implements extension of the component in all directions. For
+			 * extension below the origin (into negative space) the translate
+			 * will temporaly be used and reset with the next mouse released
+			 * event.
+			 */
+			@Override
+			protected void extendComponent(Rectangle rect) {
+				System.out.println(rect);
+				int right = rect.x + rect.width;
+				int bottom = rect.y + rect.height;
+
+				Dimension d = new Dimension(getPreferredSize());
+				Dimension sp = getScaledPreferredSizeForGraph();
+				mxRectangle min = graph.getMinimumGraphSize();
+				double scale = graph.getView().getScale();
+				boolean update = false;
+
+				if (rect.x < 0) {
+					translate.x = Math.max(translate.x, Math.max(0, -rect.x));
+					d.width = sp.width;
+
+					if (min != null) {
+						d.width = (int) Math.max(d.width, Math.round(min.getWidth() * scale) + bound);
+					}
+
+					d.width += translate.x;
+					update = true;
+				} else if (right > getWidth()) {
+					d.width = Math.max(right, getWidth() + bound);
+					update = true;
+				}
+
+				if (rect.y < 0) {
+					translate.y = Math.max(translate.y, Math.max(0, -rect.y) + bound);
+					d.height = sp.height;
+
+					if (min != null) {
+						d.height = (int) Math.max(d.height, Math.round(min.getHeight() * scale) + bound);
+					}
+
+					d.height += translate.y;
+					update = true;
+				} else if (bottom > getHeight()) {
+					d.height = Math.max(bottom, getHeight() + bound);
+					update = true;
+				}
+
+				if (update) {
+					setPreferredSize(d);
+					setMinimumSize(d);
+					revalidate();
+				}
+			}
 		}
 
 	}
@@ -337,11 +423,9 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		component.setDragEnabled(false);
 		component.getGraphControl().addMouseWheelListener(new MouseZoomAdapter(app, component));
 		component.setPanning(true);
-//		component.getPageFormat().setOrientation(PageFormat.LANDSCAPE);
-		component.getPageFormat().setOrientation(PageFormat.PORTRAIT);
-		component.setPageVisible(true);
-		// component.setPageVisible(false);
-		// component.setBackground(new Color(123, 123, 123));
+		component.setPageVisible(false);
+		component.setVerticalPageCount(0);
+		component.setHorizontalPageCount(0);
 		component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		app.getUIModeObservable().addObserver(new Observer<Application>() {
@@ -354,19 +438,19 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 			}
 		});
 	}
-	
+
 	protected void setupOutline() {
 		outline = new mxGraphOutline(component);
 		outline.setPreferredSize(new Dimension(250, 250));
 		outline.setName("Map");
-//		outline.setFitPage(true);
-//		addToolWindow(outline, WindowSystem.SOUTHEAST);
+		// outline.setFitPage(true);
+		// addToolWindow(outline, WindowSystem.SOUTHEAST);
 		addToolWindow(outline, WindowSystem.NORTHEAST);
 	}
 
 	@Override
-	public void addAction(Action a, String imageName, KeyStroke keyStroke) {
-		app.getWindowSystem().addAction(component, a, imageName, keyStroke);
+	public void addAction(Action a, String imageName, KeyStroke keyStroke, int pos) {
+		app.getWindowSystem().addAction(component, a, imageName, keyStroke, pos);
 	}
 
 }

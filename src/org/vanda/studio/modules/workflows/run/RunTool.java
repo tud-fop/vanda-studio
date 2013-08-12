@@ -3,27 +3,20 @@ package org.vanda.studio.modules.workflows.run;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -59,7 +52,6 @@ public class RunTool implements SemanticsToolFactory {
 	private static final class Tool {
 		private final WorkflowEditor wfe;
 		// private final Model mm;
-		private final SemanticAnalysis semA;
 		private final Application app;
 		private final Generator prof;
 		private final List<Run> runs;
@@ -86,14 +78,13 @@ public class RunTool implements SemanticsToolFactory {
 		public Tool(WorkflowEditor wfe, SemanticAnalysis semA, Generator prof) {
 			this.wfe = wfe;
 			// this.mm = mm;
-			this.semA = semA;
 			app = wfe.getApplication();
 			this.prof = prof;
 
 			wfe.addAction(new GenerateAction(), "run-build",
-					KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
+					KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK),3);
 			wfe.addAction(new RunAction(), "system-run",
-					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK),4);
 
 			runs = new ArrayList<Run>();
 
