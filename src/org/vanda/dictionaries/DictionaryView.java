@@ -381,13 +381,15 @@ public class DictionaryView extends JPanel implements ViewTransition,
 		Dimension dim = new Dimension(40, 0);
 		radioBoxPane.add(new Box.Filler(dim, dim, dim));
 
-		spinner = new JSpinner(new SpinnerNumberModel(MyDouble.initPrecision, MyDouble.minPrecision,
+		spinner = new JSpinner(new SpinnerNumberModel(viewState.getPrecision(), MyDouble.minPrecision,
 				MyDouble.maxPrecision, 1));
 		spinner.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				int val = ((SpinnerNumberModel) spinner.getModel()).getNumber().intValue();
 				setVisible(false);
+				viewState.setPrecision(val);
+				observable.notify(viewState);
 				MyDouble.setPrecision(val);
 				computeCellSizes();
 				setVisible(true);
@@ -682,7 +684,9 @@ public class DictionaryView extends JPanel implements ViewTransition,
 	public void tableViewState() {
 		setVisible(false);
 		remove(bestView);
+		int oldPrecision = viewState.getPrecision();
 		viewState = new DictionaryViews.TableViewState();
+		viewState.setPrecision(oldPrecision);
 		viewState.selectView(this);
 		observable.notify(viewState);
 	}
@@ -691,7 +695,9 @@ public class DictionaryView extends JPanel implements ViewTransition,
 	public void bestViewState() {
 		setVisible(false);
 		remove(tableView);
+		int oldPrecision = viewState.getPrecision();
 		viewState = new DictionaryViews.BestViewState();
+		viewState.setPrecision(oldPrecision);
 		viewState.selectView(this);
 		observable.notify(viewState);
 	}
