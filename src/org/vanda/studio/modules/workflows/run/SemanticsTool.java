@@ -62,6 +62,11 @@ public class SemanticsTool implements ToolFactory {
 			public void notify(DatabaseEvent<Database> event) {
 				event.doNotify(this);
 			}
+
+			@Override
+			public void nameChange(Database d) {
+				// do nothing
+			}
 		}
 
 		// Model model;

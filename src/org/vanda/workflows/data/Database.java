@@ -15,6 +15,7 @@ import org.vanda.workflows.data.Databases.DataChange;
 public final class Database {
 
 	private final ArrayList<HashMap<String, String>> assignments;
+	private final ArrayList<String> assignmentNames;
 	private int cursor;
 	private final MultiplexObserver<DatabaseEvent<Database>> observable;
 	private int update;
@@ -22,6 +23,7 @@ public final class Database {
 
 	public Database() {
 		assignments = new ArrayList<HashMap<String, String>>();
+		assignmentNames = new ArrayList<String>();
 		cursor = 0;
 		observable = new MultiplexObserver<DatabaseEvent<Database>>();
 		events = new LinkedList<DatabaseEvent<Database>>();
@@ -65,6 +67,21 @@ public final class Database {
 		}
 	}
 
+	public String getName() {
+		return assignmentNames.get(cursor);
+	}
+
+	public void setName(String name) {
+		beginUpdate();
+		if (cursor == assignmentNames.size()) {
+			assignmentNames.add(name);
+		} else {
+			assignmentNames.set(cursor, name);
+		}
+		events.add(new Databases.NameChange<Database>(this));
+		endUpdate();
+	}
+
 	public HashMap<String, String> getRow(int location) {
 		return assignments.get(location);
 	}
@@ -78,6 +95,7 @@ public final class Database {
 				events.add(new DataChange<Database>(this, e.getKey()));
 			}
 			assignments.add(row);
+			assignmentNames.add(assignmentNames.get(cursor) + "(2)");
 		} finally {
 			endUpdate();
 		}
@@ -176,6 +194,10 @@ public final class Database {
 		} finally {
 			endUpdate();
 		}
+	}
+
+	public String getName(int i) {
+		return assignmentNames.get(i);
 	}
 
 }

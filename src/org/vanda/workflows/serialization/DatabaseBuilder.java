@@ -31,6 +31,7 @@ public class DatabaseBuilder {
 			for (Map.Entry<String, String> e : a.entrySet()) {
 				result.put(e.getKey(), e.getValue());
 			}
+			result.setName("run");
 			result.next();
 		}
 		result.home();

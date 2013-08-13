@@ -88,8 +88,13 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 		@Override
 		public void notify(DatabaseEvent<Database> event) {
-			// event.doNotify(this);
-			Database d = event.getDatabase();
+			event.doNotify(this);
+
+		}
+
+		@Override
+		public void cursorChange(Database d) {
+			// Database d = event.getDatabase();
 			Element el = Element.fromString(d.get(l.getKey()));
 			e.beginUpdate();
 			try {
@@ -98,17 +103,24 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 			} finally {
 				e.endUpdate();
 			}
-
-		}
-
-		@Override
-		public void cursorChange(Database d) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override
 		public void dataChange(Database d, Object key) {
+			if (key.equals(l.getKey())) {
+				Element el = Element.fromString(d.get(l.getKey()));
+				e.beginUpdate();
+				try {
+					e.setPrefix(el.getPrefix());
+					e.setValue(el.getValue());
+				} finally {
+					e.endUpdate();
+				}
+			}
+		}
 
+		@Override
+		public void nameChange(Database d) {
 		}
 
 	}
@@ -118,16 +130,16 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 		JLabel label1 = new JLabel("Name");
 		final JTextField value = new JTextField(l.getName());
 		value.addFocusListener(new FocusListener() {
-			
+
 			@Override
 			public void focusLost(FocusEvent arg0) {
 				l.setName(value.getText());
 			}
-			
+
 			@Override
 			public void focusGained(FocusEvent arg0) {
 				// TODO Auto-generated method stub
-				
+
 			}
 		});
 
