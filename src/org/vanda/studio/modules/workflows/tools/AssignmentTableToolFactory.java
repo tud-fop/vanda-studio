@@ -4,27 +4,34 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
+import javax.swing.DefaultCellEditor;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
@@ -49,7 +56,11 @@ import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Elements.ElementEvent;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
+import org.vanda.workflows.hyper.Workflows.WorkflowListener;
 
 public class AssignmentTableToolFactory implements ToolFactory {
 
@@ -94,7 +105,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 	}
 
-	private static class AssignmentTableModel extends AbstractTableModel {
+	private static class AssignmentTableModel extends AbstractTableModel implements WorkflowListener<MutableWorkflow> {
 		private static final long serialVersionUID = -75059113029383402L;
 		protected final Database db;
 		protected final SortedMap<Integer, Literal> literals;
@@ -102,22 +113,31 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		protected AbstractTableModel rowHeaderModel;
 		protected JTable rowHeader;
 
+		private ElementVisitor literalAddedVisitor = new ElementVisitor() {
+			@Override
+			public void visitTool(Tool t) {
+				// Do nothing
+			}
+
+			@Override
+			public void visitLiteral(Literal l) {
+				literals.put((Integer) literals.size(), l);
+			}
+		};
+
 		public AssignmentTableModel(WorkflowEditor wfe) {
 			db = wfe.getDatabase();
 			literals = new TreeMap<Integer, Literal>();
 			for (Job j : wfe.getView().getWorkflow().getChildren())
-				j.visit(new ElementVisitor() {
-					@Override
-					public void visitTool(Tool t) {
-						// Do nothing
-					}
+				j.visit(literalAddedVisitor);
+			wfe.getView().getWorkflow().getObservable().addObserver(new Observer<WorkflowEvent<MutableWorkflow>>() {
 
-					@Override
-					public void visitLiteral(Literal l) {
-						literals.put((Integer) literals.size(), l);
-					}
-				});
+				@Override
+				public void notify(WorkflowEvent<MutableWorkflow> event) {
+					event.doNotify(AssignmentTableModel.this);
+				}
 
+			});
 		}
 
 		@Override
@@ -132,7 +152,11 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		@Override
 		public Object getValueAt(int arg0, int arg1) {
-			return db.getRow(arg0).get(literals.get(arg1).getKey());
+			Object value = db.getRow(arg0).get(literals.get(arg1).getKey());
+			if (value == null)
+				return "";
+			else
+				return value;
 		}
 
 		public JTable getRowHeader() {
@@ -142,6 +166,16 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		@Override
 		public String getColumnName(int i) {
 			return literals.get(i).getName();
+		}
+
+		public int getKey(JTable table) {
+			return table.getSelectedColumn();
+		}
+
+		@Override
+		public void fireTableStructureChanged() {
+			super.fireTableStructureChanged();
+			rowHeaderModel.fireTableStructureChanged();
 		}
 
 		public void setupRowHeader(JTable table) {
@@ -171,8 +205,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 				@Override
 				public void setValueAt(Object value, int rowIndex, int columnIndex) {
 					if (value instanceof String) {
-						if (db.getCursor() == rowIndex)
-							db.setName((String) value);
+						db.setName((String) value, rowIndex);
 					}
 
 				}
@@ -184,8 +217,91 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			rowHeader.setForeground(tableHeader.getForeground());
 			rowHeader.setOpaque(true);
 			rowHeader.setFont(tableHeader.getFont());
+
+			JTextField txt = new JTextField();
+			rowHeader.setDefaultEditor(String.class, new CustomCellEditor(txt));
+
 			// rowHeader.setFixedCellHeight(rowHeader.getRowHeight());
 			// rowHeader.setCellRenderer(new RowHeaderRenderer(table));
+		}
+
+		private class CustomCellEditor extends DefaultCellEditor {
+
+			public CustomCellEditor(JTextField textField) {
+				super(textField);
+				textField.addFocusListener(new FocusListener() {
+
+					@Override
+					public void focusGained(FocusEvent arg0) {
+					}
+
+					@Override
+					public void focusLost(FocusEvent arg0) {
+						rowHeader.editingCanceled(new ChangeEvent(rowHeader));
+					}
+				});
+
+			}
+		}
+
+		@Override
+		public void childAdded(MutableWorkflow mwf, Job j) {
+			j.visit(literalAddedVisitor);
+			fireTableStructureChanged();
+		}
+
+		@Override
+		public void childModified(MutableWorkflow mwf, Job j) {
+			j.visit(new ElementVisitor() {
+
+				@Override
+				public void visitTool(Tool t) {
+					// do nothing
+				}
+
+				@Override
+				public void visitLiteral(Literal l) {
+					for (Integer i : literals.keySet()) {
+						if (literals.get(i) == l) {
+							fireTableStructureChanged();
+							break;
+						}
+					}
+				}
+			});
+		}
+
+		@Override
+		public void childRemoved(final MutableWorkflow mwf, Job j) {
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					System.out.println("child removed");
+					literals.clear();
+					for (Job j : mwf.getChildren()) {
+						j.visit(literalAddedVisitor);
+					}
+					fireTableStructureChanged();
+				}
+			});
+
+		}
+
+		@Override
+		public void connectionAdded(MutableWorkflow mwf, ConnectionKey cc) {
+		}
+
+		@Override
+		public void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc) {
+		}
+
+		@Override
+		public void propertyChanged(MutableWorkflow mwf) {
+		}
+
+		@Override
+		public void updated(MutableWorkflow mwf) {
 		}
 	}
 
@@ -223,6 +339,11 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		}
 
 		@Override
+		public int getKey(JTable table) {
+			return table.getSelectedRow();
+		}
+
+		@Override
 		public void setupRowHeader(JTable table) {
 			this.rowHeaderModel = new AbstractTableModel() {
 				private static final long serialVersionUID = -7544430252212958916L;
@@ -250,36 +371,19 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			rowHeader.setOpaque(true);
 			rowHeader.setFont(tableHeader.getFont());
 			rowHeader.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+			rowHeader.setCellSelectionEnabled(false);
+			rowHeader.setFocusable(false);
 			// rowHeader.setFixedCellHeight(table.getRowHeight());
 			// rowHeader.setCellRenderer(new RowHeaderRenderer(table));
 		}
-	}
-
-	private static class RowHeaderRenderer extends JLabel implements ListCellRenderer {
-		private static final long serialVersionUID = 3819862156147897186L;
-
-		RowHeaderRenderer(JTable table) {
-			JTableHeader tableHeader = table.getTableHeader();
-			setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-			setHorizontalAlignment(CENTER);
-			setForeground(tableHeader.getForeground());
-			setOpaque(true);
-			setFont(tableHeader.getFont());
-		}
-
-		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean fSelected,
-				boolean fCellHasFocus) {
-			setText((value == null) ? "" : value.toString());
-			return this;
-		}
-
 	}
 
 	private interface TransposeState {
 		void selectTableModel(Transposeable t);
 
 		void transpose(Transposeable t);
+
+		void selectEntry(Transposeable t, int run, int key);
 	}
 
 	private interface Transposeable {
@@ -288,6 +392,8 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		void selectNormalView();
 
 		void setTransposeState(TransposeState ts);
+
+		void selectEntry(int row, int column);
 	}
 
 	private static class Normal implements TransposeState {
@@ -300,6 +406,11 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		@Override
 		public void transpose(Transposeable t) {
 			t.setTransposeState(new Transposed());
+		}
+
+		@Override
+		public void selectEntry(Transposeable t, int run, int key) {
+			t.selectEntry(run, key);
 		}
 	}
 
@@ -315,13 +426,44 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			t.setTransposeState(new Normal());
 		}
 
+		@Override
+		public void selectEntry(Transposeable t, int run, int key) {
+			t.selectEntry(key, run);
+		}
+
 	}
 
 	private class AssignmentTableDialog extends JPanel implements Transposeable, DatabaseListener<Database> {
+		private class StopCellEditing implements Runnable {
+			private final JTable table;
+
+			public StopCellEditing(JTable table) {
+				this.table = table;
+			}
+
+			@Override
+			public void run() {
+				if (table.isEditing())
+					table.getCellEditor().stopCellEditing();
+			}
+		}
+
+		private class ClearSelection implements Runnable {
+			private final JTable table;
+
+			public ClearSelection(JTable table) {
+				this.table = table;
+			}
+
+			@Override
+			public void run() {
+				table.clearSelection();
+			}
+		}
+
 		private class NormalSelectionListener implements ListSelectionListener {
 			private final JTable table;
 			private final JTable row;
-			private int update = 0;
 
 			public NormalSelectionListener(JTable table, JTable row) {
 				this.table = table;
@@ -330,46 +472,43 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
-				if (arg0.getLastIndex() == -1 || arg0.getValueIsAdjusting()) 
+				if (arg0.getLastIndex() == -1 || arg0.getValueIsAdjusting())
 					return;
-				System.out.println("update " + update + " last " + arg0.getLastIndex());
-				beginUpdate();
-				if (arg0.getLastIndex() == table.getSelectedColumn() || arg0.getLastIndex() == table.getSelectedRow()) {
-					if (update == 1) {
-						System.out.println("table");
-						row.clearSelection();
-						if (row.getEditingRow() != -1) {
-							
-						}
-						int run = table.getSelectedRow();
-						int key = table.getSelectedColumn();
-						updateSelection(run, key);
-					}
-				} else if (arg0.getLastIndex() == row.getSelectedRow()) {
-					if (update == 1) {
-						System.out.println("row");
-						table.clearSelection();
-						int run = arg0.getLastIndex();
-						updateSelection(run, -1);
-					}
+				System.out.println(" last " + arg0.getLastIndex());
+				if (table.getSelectedColumn() == -1 || table.getSelectedRow() == -1)
+					return;
+				if (row.isEditing()) {
+					SwingUtilities.invokeLater(new StopCellEditing(row));
 				}
-				endUpdate();
-			}
-
-			private void beginUpdate() {
-				update++;
-			}
-
-			private void endUpdate() {
-				update--;
+				SwingUtilities.invokeLater(new ClearSelection(row));
+				int run = table.getSelectedRow();
+				int key = table.getSelectedColumn();
+				updateSelection(run, key);
 			}
 		}
-		
-//		private class RowSelectionListener implements ListSelectionListener {
-//			private final JTable table;
-//			private final JTable row;
-//			public 
-//		}
+
+		private class RowSelectionListener implements ListSelectionListener {
+			private final JTable table;
+			private final JTable row;
+
+			public RowSelectionListener(JTable table, JTable row) {
+				this.table = table;
+				this.row = row;
+			}
+
+			@Override
+			public void valueChanged(ListSelectionEvent arg0) {
+				if (arg0.getLastIndex() == -1 || arg0.getValueIsAdjusting())
+					return;
+				System.out.println("last " + arg0.getLastIndex());
+				if (row.getSelectedColumn() == -1 || row.getSelectedRow() == -1)
+					return;
+				SwingUtilities.invokeLater(new ClearSelection(table));
+				int run = row.getSelectedRow();
+				updateSelection(run, -1);
+			}
+
+		}
 
 		private class TransposedSelectionListener implements ListSelectionListener {
 			private final JTable table;
@@ -398,7 +537,10 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		private TransposeState transposeState;
 
 		private NormalSelectionListener normalSelect;
+		private RowSelectionListener rowHeaderSelect;
 		private TransposedSelectionListener transSelect;
+
+		private MouseListener mouseListener;
 
 		private final JPanel pLeft;
 		private final JPanel pRight;
@@ -426,11 +568,12 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 			normalSelect = new NormalSelectionListener(table, atm.getRowHeader());
 			transSelect = new TransposedSelectionListener(table);
+			rowHeaderSelect = new RowSelectionListener(table, atm.getRowHeader());
 
 			table.getSelectionModel().addListSelectionListener(normalSelect);
 			table.getColumnModel().getSelectionModel().addListSelectionListener(normalSelect);
 
-			atm.getRowHeader().getSelectionModel().addListSelectionListener(normalSelect);
+			atm.getRowHeader().getSelectionModel().addListSelectionListener(rowHeaderSelect);
 
 			db.getObservable().addObserver(new Observer<DatabaseEvent<Database>>() {
 
@@ -450,6 +593,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+					SwingUtilities.invokeLater(new StopCellEditing(atm.getRowHeader()));
 					transposeState.transpose(AssignmentTableDialog.this);
 				}
 			});
@@ -499,28 +643,66 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			layout.setVerticalGroup(tableVert);
 
 			pRight = new JPanel(new BorderLayout());
+			mouseListener = new MouseListener() {
+
+				@Override
+				public void mouseReleased(MouseEvent arg0) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mousePressed(MouseEvent arg0) {
+					// SwingUtilities.invokeLater(new
+					// StopCellEditing(atm.getRowHeader()));
+				}
+
+				@Override
+				public void mouseExited(MouseEvent arg0) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent arg0) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					SwingUtilities.invokeLater(new StopCellEditing(atm.getRowHeader()));
+				}
+			};
+			tablePane.getViewport().addMouseListener(mouseListener);
+			tablePane.getRowHeader().addMouseListener(mouseListener);
 
 			add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pLeft, pRight), BorderLayout.CENTER);
 		}
 
+		private void changeView(ListSelectionListener oldListener, ListSelectionListener newListener,
+				AssignmentTableModel atm) {
+			int row = table.getSelectedRow();
+			int column = table.getSelectedColumn();
+			table.getSelectionModel().removeListSelectionListener(oldListener);
+			table.getColumnModel().getSelectionModel().removeListSelectionListener(oldListener);
+			table.setModel(atm);
+			tablePane.setRowHeaderView(atm.getRowHeader());
+			table.getSelectionModel().addListSelectionListener(newListener);
+			table.getColumnModel().getSelectionModel().addListSelectionListener(newListener);
+			table.getSelectionModel().setSelectionInterval(column, column);
+			table.getColumnModel().getSelectionModel().setSelectionInterval(row, row);
+
+		}
+
 		@Override
 		public void selectTransposedView() {
-			table.getSelectionModel().removeListSelectionListener(normalSelect);
-			table.getColumnModel().getSelectionModel().removeListSelectionListener(normalSelect);
-			table.setModel(tatm);
-			tablePane.setRowHeaderView(tatm.getRowHeader());
-			table.getSelectionModel().addListSelectionListener(transSelect);
-			table.getColumnModel().getSelectionModel().addListSelectionListener(transSelect);
+			changeView(normalSelect, transSelect, tatm);
 		}
 
 		@Override
 		public void selectNormalView() {
-			table.getSelectionModel().removeListSelectionListener(transSelect);
-			table.getColumnModel().getSelectionModel().removeListSelectionListener(transSelect);
-			table.setModel(atm);
-			tablePane.setRowHeaderView(atm.getRowHeader());
-			table.getSelectionModel().addListSelectionListener(normalSelect);
-			table.getColumnModel().getSelectionModel().addListSelectionListener(normalSelect);
+			changeView(transSelect, normalSelect, atm);
 		}
 
 		@Override
@@ -530,15 +712,28 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		}
 
 		public void updateAll() {
-			atm.fireTableStructureChanged();
-			tatm.fireTableStructureChanged();
-			table.updateUI();
-			tablePane.updateUI();
-			updateUI();
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					atm.fireTableStructureChanged();
+					tatm.fireTableStructureChanged();
+					table.updateUI();
+					tablePane.updateUI();
+					updateUI();
+				}
+			});
 		}
 
 		@Override
 		public void cursorChange(Database d) {
+			int key = ((AssignmentTableModel) table.getModel()).getKey(table);
+			if (key != -1) {
+				transposeState.selectEntry(this, d.getCursor(), key);
+			} else {
+				updateSelection(d.getCursor(), -1);
+			}
+
 		}
 
 		@Override
@@ -560,13 +755,18 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			if (atm.literals.get(key) != null)
 				pRight.add(eefs.literalFactories.createEditor(db, wfe.getView().getWorkflow(), atm.literals.get(key)),
 						BorderLayout.CENTER);
-			else
-				pRight.add(new JLabel("There exists no such literal."));
+			else {
+				JLabel text = new JLabel("There exists no such literal.");
+				text.addMouseListener(mouseListener);
+				pRight.add(text);
+			}
 			revalidate();
 		}
 
-		private void beginUpdate() {
-
+		@Override
+		public void selectEntry(int row, int column) {
+			table.getSelectionModel().setSelectionInterval(row, row);
+			table.getColumnModel().getSelectionModel().setSelectionInterval(column, column);
 		}
 	}
 

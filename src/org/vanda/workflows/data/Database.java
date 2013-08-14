@@ -68,15 +68,22 @@ public final class Database {
 	}
 
 	public String getName() {
-		return assignmentNames.get(cursor);
+		if (cursor < assignmentNames.size()) 
+			return assignmentNames.get(cursor);
+		else 
+			return "";
 	}
 
 	public void setName(String name) {
+		setName(name, cursor);
+	}
+	
+	public void setName(String name, int i) {
 		beginUpdate();
-		if (cursor == assignmentNames.size()) {
+		if (i == assignmentNames.size()) {
 			assignmentNames.add(name);
 		} else {
-			assignmentNames.set(cursor, name);
+			assignmentNames.set(i, name);
 		}
 		events.add(new Databases.NameChange<Database>(this));
 		endUpdate();
