@@ -1,24 +1,16 @@
 package org.vanda.studio.modules.workflows.tools;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.GridLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -35,19 +27,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
-import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import org.vanda.studio.app.Application;
@@ -55,13 +44,11 @@ import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
-import org.vanda.util.JXRowHeaderTable;
 import org.vanda.util.Observer;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.data.Databases.DatabaseEvent;
 import org.vanda.workflows.data.Databases.DatabaseListener;
 import org.vanda.workflows.elements.ElementVisitor;
-import org.vanda.workflows.elements.Elements.ElementEvent;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.ConnectionKey;
@@ -79,7 +66,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		public OpenAssignmentTableAction(WorkflowEditor wfe) {
 			this.wfe = wfe;
-			wfe.getApplication().getShutdownObservable().addObserver(new Observer<Application> () {
+			wfe.getApplication().getShutdownObservable().addObserver(new Observer<Application>() {
 
 				@Override
 				public void notify(Application event) {
@@ -92,7 +79,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 						});
 					}
 				}
-				
+
 			});
 		}
 
@@ -103,17 +90,18 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		@Override
 		public void invoke() {
+			// Create a new editor only if none is opened,
+			// otherwise bring existing one to the front
 			if (f != null)
 				SwingUtilities.invokeLater(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						f.toFront();
-						f.repaint();						
+						f.repaint();
 					}
 				});
 			else {
-				// AssignmentTable lt = new AssignmentTable(wfe);
 				AssignmentTableDialog lt = new AssignmentTableDialog(wfe);
 				f = new JFrame("Assignment table");
 				f.addWindowListener(new WindowAdapter() {
@@ -127,28 +115,49 @@ public class AssignmentTableToolFactory implements ToolFactory {
 				f.pack();
 				f.setLocationRelativeTo(wfe.getApplication().getWindowSystem().getMainWindow());
 				f.setVisible(true);
-				
+
 			}
 		}
 
 	}
 
-	private class DatabaseObserver implements Observer<Object> {
-
-		private AssignmentTable lt;
-
-		public DatabaseObserver(AssignmentTable lt) {
-			this.lt = lt;
-		}
-
-		@Override
-		public void notify(Object event) {
-			lt.update(false);
-		}
-
-	}
-
+	/**
+	 * The TableModel yields the connection to the Database. It listens for
+	 * WorkflowEvents, to update itself in case of creation / removal of new
+	 * Literals.
+	 * 
+	 * @author kgebhardt
+	 * 
+	 */
 	private static class AssignmentTableModel extends AbstractTableModel implements WorkflowListener<MutableWorkflow> {
+		/**
+		 * This table is the row header of the main table
+		 * 
+		 * @author kgebhardt
+		 * 
+		 */
+		protected class RowHeaderTable extends JTable {
+			private static final long serialVersionUID = -6693774875669907410L;
+
+			public RowHeaderTable(AbstractTableModel rowHeaderModel) {
+				super(rowHeaderModel);
+				setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+				setForeground(getTableHeader().getForeground());
+				setBackground(getTableHeader().getBackground());
+				setOpaque(true);
+				setFont(getTableHeader().getFont());
+				setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+			}
+
+			@Override
+			public Dimension getPreferredScrollableViewportSize() {
+				Dimension d = super.getPreferredScrollableViewportSize();
+				d.width = super.getColumnModel().getColumn(0).getPreferredWidth();
+				return d;
+			}
+
+		}
+
 		private static final long serialVersionUID = -75059113029383402L;
 		protected final Database db;
 		protected final SortedMap<Integer, Literal> literals;
@@ -159,7 +168,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		private ElementVisitor literalAddedVisitor = new ElementVisitor() {
 			@Override
 			public void visitTool(Tool t) {
-				// Do nothing
+				// do nothing
 			}
 
 			@Override
@@ -181,6 +190,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 				}
 
 			});
+			setupRowHeader();
 		}
 
 		@Override
@@ -221,7 +231,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			rowHeaderModel.fireTableStructureChanged();
 		}
 
-		public void setupRowHeader(JTable table) {
+		public void setupRowHeader() {
 			rowHeaderModel = new AbstractTableModel() {
 				private static final long serialVersionUID = -7001109023530114177L;
 
@@ -253,31 +263,20 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 				}
 			};
-			rowHeader = new JTable(rowHeaderModel);
-			JTableHeader tableHeader = rowHeader.getTableHeader();
-			rowHeader.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-			// rowHeader.setHorizontalAlignment(TableCellRenderer.CENTER);
-			rowHeader.setForeground(tableHeader.getForeground());
-			rowHeader.setOpaque(true);
-			rowHeader.setFont(tableHeader.getFont());
-
+			rowHeader = new RowHeaderTable(rowHeaderModel);
+			rowHeader.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			rowHeader.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 			JTextField txt = new JTextField();
 			rowHeader.setDefaultEditor(String.class, new CustomCellEditor(txt));
 
-			// rowHeader.setFixedCellHeight(rowHeader.getRowHeight());
-			// rowHeader.setCellRenderer(new RowHeaderRenderer(table));
 		}
 
 		private class CustomCellEditor extends DefaultCellEditor {
+			private static final long serialVersionUID = 4727103518497915680L;
 
 			public CustomCellEditor(JTextField textField) {
 				super(textField);
-				textField.addFocusListener(new FocusListener() {
-
-					@Override
-					public void focusGained(FocusEvent arg0) {
-					}
-
+				textField.addFocusListener(new FocusAdapter() {
 					@Override
 					public void focusLost(FocusEvent arg0) {
 						rowHeader.editingCanceled(new ChangeEvent(rowHeader));
@@ -320,7 +319,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 				@Override
 				public void run() {
-					System.out.println("child removed");
+					// FIXME System.out.println("child removed");
 					literals.clear();
 					for (Job j : mwf.getChildren()) {
 						j.visit(literalAddedVisitor);
@@ -348,6 +347,12 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		}
 	}
 
+	/**
+	 * Transposed version of the AssignmentTableModel, i.e. diagonally mirrored
+	 * 
+	 * @author kgebhardt
+	 * 
+	 */
 	private static class TransposedAssignmentTableModel extends AssignmentTableModel {
 
 		private static final long serialVersionUID = -7089434006145996832L;
@@ -387,7 +392,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		}
 
 		@Override
-		public void setupRowHeader(JTable table) {
+		public void setupRowHeader() {
 			this.rowHeaderModel = new AbstractTableModel() {
 				private static final long serialVersionUID = -7544430252212958916L;
 
@@ -406,18 +411,9 @@ public class AssignmentTableToolFactory implements ToolFactory {
 					return literals.get(arg0).getName();
 				}
 			};
-			rowHeader = new JTable(rowHeaderModel);
-			JTableHeader tableHeader = rowHeader.getTableHeader();
-			rowHeader.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-			// rowHeader.setHorizontalAlignment(TableCellRenderer.CENTER);
-			rowHeader.setForeground(tableHeader.getForeground());
-			rowHeader.setOpaque(true);
-			rowHeader.setFont(tableHeader.getFont());
-			rowHeader.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+			rowHeader = new RowHeaderTable(rowHeaderModel);
 			rowHeader.setCellSelectionEnabled(false);
 			rowHeader.setFocusable(false);
-			// rowHeader.setFixedCellHeight(table.getRowHeight());
-			// rowHeader.setCellRenderer(new RowHeaderRenderer(table));
 		}
 	}
 
@@ -504,55 +500,74 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			}
 		}
 
+		/**
+		 * SelectionListener for Normal i.e. non-mirrored Table-Mode
+		 * 
+		 * @author kgebhardt
+		 * 
+		 */
 		private class NormalSelectionListener implements ListSelectionListener {
 			private final JTable table;
-			private final JTable row;
+			private final JTable rowHeader;
 
 			public NormalSelectionListener(JTable table, JTable row) {
 				this.table = table;
-				this.row = row;
+				this.rowHeader = row;
 			}
 
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
 				if (arg0.getLastIndex() == -1 || arg0.getValueIsAdjusting())
 					return;
-				System.out.println(" last " + arg0.getLastIndex());
+				// FIXME System.out.println(" last " + arg0.getLastIndex());
 				if (table.getSelectedColumn() == -1 || table.getSelectedRow() == -1)
 					return;
-				if (row.isEditing()) {
-					SwingUtilities.invokeLater(new StopCellEditing(row));
+				if (rowHeader.isEditing()) {
+					SwingUtilities.invokeLater(new StopCellEditing(rowHeader));
 				}
-				SwingUtilities.invokeLater(new ClearSelection(row));
+				SwingUtilities.invokeLater(new ClearSelection(rowHeader));
 				int run = table.getSelectedRow();
 				int key = table.getSelectedColumn();
 				updateSelection(run, key);
 			}
 		}
 
-		private class RowSelectionListener implements ListSelectionListener {
-			private final JTable table;
-			private final JTable row;
+		/**
+		 * SelectionListener for RowHeader in non-mirrored Table-Mode.
+		 * 
+		 * @author kgebhardt
+		 * 
+		 */
+		private class NormalRowHeaderSelectionListener implements ListSelectionListener {
+			private final JTable mainTable;
+			private final JTable rowHeader;
 
-			public RowSelectionListener(JTable table, JTable row) {
-				this.table = table;
-				this.row = row;
+			public NormalRowHeaderSelectionListener(JTable table, JTable row) {
+				this.mainTable = table;
+				this.rowHeader = row;
 			}
 
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
 				if (arg0.getLastIndex() == -1 || arg0.getValueIsAdjusting())
 					return;
-				System.out.println("last " + arg0.getLastIndex());
-				if (row.getSelectedColumn() == -1 || row.getSelectedRow() == -1)
+				// FIXME System.out.println("last " + arg0.getLastIndex());
+				if (rowHeader.getSelectedColumn() == -1 || rowHeader.getSelectedRow() == -1)
 					return;
-				SwingUtilities.invokeLater(new ClearSelection(table));
-				int run = row.getSelectedRow();
+				SwingUtilities.invokeLater(new ClearSelection(mainTable));
+				int run = rowHeader.getSelectedRow();
 				updateSelection(run, -1);
 			}
 
 		}
 
+		/**
+		 * SelectionListener for TransposedTableMode There is no RowHeader
+		 * Listener, since it is not selectable.
+		 * 
+		 * @author kgebhardt
+		 * 
+		 */
 		private class TransposedSelectionListener implements ListSelectionListener {
 			private final JTable table;
 
@@ -579,14 +594,14 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		private final JScrollPane tablePane;
 		private TransposeState transposeState;
 
-		private NormalSelectionListener normalSelect;
-		private RowSelectionListener rowHeaderSelect;
-		private TransposedSelectionListener transSelect;
+		private NormalSelectionListener normalSelList;
+		private NormalRowHeaderSelectionListener rowHeadSelList;
+		private TransposedSelectionListener transSelList;
 
-		private MouseListener mouseListener;
+		private MouseListener rowHeaderEditingStopMouseListener;
 
-		private final JPanel pLeft;
-		private final JPanel pRight;
+		private final JPanel buttonAndTabelPanel;
+		private final JPanel literalEditorPanel;
 
 		public AssignmentTableDialog(WorkflowEditor wfe) {
 			super(new BorderLayout());
@@ -594,30 +609,56 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			db = wfe.getDatabase();
 			this.wfe = wfe;
 
-			pLeft = new JPanel();
-			GroupLayout layout = new GroupLayout(pLeft);
-			pLeft.setLayout(layout);
+			buttonAndTabelPanel = new JPanel();
+			GroupLayout layout = new GroupLayout(buttonAndTabelPanel);
+			buttonAndTabelPanel.setLayout(layout);
 
-			// create Table
+			// create Table in normal mode
 			atm = new AssignmentTableModel(wfe);
 			tatm = new TransposedAssignmentTableModel(wfe);
 			table = new JTable(atm);
 			table.setCellSelectionEnabled(true);
+			table.setTableHeader(new JTableHeader(table.getColumnModel()) {
+				private static final long serialVersionUID = -3125419306047857928L;
+
+				@Override
+				public boolean getReorderingAllowed() {
+					return false;
+				}
+
+				@Override
+				public Dimension getMinimumSize() {
+					Dimension d = super.getMinimumSize();
+					d.height = JTableHeader.HEIGHT;
+					return d;
+				}
+			});
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			atm.setupRowHeader(table);
-			tatm.setupRowHeader(table);
 			tablePane = new JScrollPane(table);
 			tablePane.setRowHeaderView(atm.getRowHeader());
+			tablePane.setColumnHeader(new JViewport() {
+				private static final long serialVersionUID = -1142664914807579190L;
 
-			normalSelect = new NormalSelectionListener(table, atm.getRowHeader());
-			transSelect = new TransposedSelectionListener(table);
-			rowHeaderSelect = new RowSelectionListener(table, atm.getRowHeader());
+				@Override
+				public Dimension getPreferredSize() {
+					Dimension d = super.getPreferredSize();
+					d.height = new JLabel("123").getPreferredSize().height + 4;
+					return d;
+				}
+			});
 
-			table.getSelectionModel().addListSelectionListener(normalSelect);
-			table.getColumnModel().getSelectionModel().addListSelectionListener(normalSelect);
+			// create SelectionListeners
+			normalSelList = new NormalSelectionListener(table, atm.getRowHeader());
+			rowHeadSelList = new NormalRowHeaderSelectionListener(table, atm.getRowHeader());
+			transSelList = new TransposedSelectionListener(table);
 
-			atm.getRowHeader().getSelectionModel().addListSelectionListener(rowHeaderSelect);
+			// add normal Listeners to the table
+			table.getSelectionModel().addListSelectionListener(normalSelList);
+			table.getColumnModel().getSelectionModel().addListSelectionListener(normalSelList);
+			atm.getRowHeader().getSelectionModel().addListSelectionListener(rowHeadSelList);
 
+			// register DatabaseObserver
 			db.getObservable().addObserver(new Observer<DatabaseEvent<Database>>() {
 
 				@Override
@@ -627,18 +668,16 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 			});
 
-			// transpose button
+			// add transpose button
 			JButton transposeButton = new JButton(new AbstractAction("\u2922") {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
+				private static final long serialVersionUID = 7260156402014653557L;
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					SwingUtilities.invokeLater(new StopCellEditing(atm.getRowHeader()));
 					transposeState.transpose(AssignmentTableDialog.this);
 				}
+
 			});
 			transposeButton.setToolTipText("transpose");
 			transposeButton.setFont(transposeButton.getFont().deriveFont(14.0f));
@@ -646,9 +685,6 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 			// add run button
 			JButton addButton = new JButton(new AbstractAction("add run") {
-				/**
-				 * 
-				 */
 				private static final long serialVersionUID = 1L;
 
 				@Override
@@ -661,10 +697,6 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 			// remove run button
 			JButton removeButton = new JButton(new AbstractAction("delete run") {
-
-				/**
-				 * 
-				 */
 				private static final long serialVersionUID = 1L;
 
 				@Override
@@ -674,53 +706,31 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 			});
 
+			// button layout
 			ParallelGroup buttonVert = layout.createParallelGroup().addComponent(addButton).addComponent(removeButton);
 			SequentialGroup buttonHor = layout.createSequentialGroup().addComponent(addButton)
 					.addComponent(removeButton);
 
-			// setup layout
-			ParallelGroup tableHor = layout.createParallelGroup().addComponent(tablePane).addGroup(buttonHor);
-			SequentialGroup tableVert = layout.createSequentialGroup().addComponent(tablePane).addGroup(buttonVert);
-
-			layout.setHorizontalGroup(tableHor);
-			layout.setVerticalGroup(tableVert);
-
-			pRight = new JPanel(new BorderLayout());
-			mouseListener = new MouseListener() {
-
-				@Override
-				public void mouseReleased(MouseEvent arg0) {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void mousePressed(MouseEvent arg0) {
-					// SwingUtilities.invokeLater(new
-					// StopCellEditing(atm.getRowHeader()));
-				}
-
-				@Override
-				public void mouseExited(MouseEvent arg0) {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void mouseEntered(MouseEvent arg0) {
-					// TODO Auto-generated method stub
-
-				}
-
+			// create mouse listener to detect row header focus lost while editing
+			rowHeaderEditingStopMouseListener = new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
 					SwingUtilities.invokeLater(new StopCellEditing(atm.getRowHeader()));
 				}
 			};
-			tablePane.getViewport().addMouseListener(mouseListener);
-			tablePane.getRowHeader().addMouseListener(mouseListener);
+			tablePane.getViewport().addMouseListener(rowHeaderEditingStopMouseListener);
+			tablePane.getRowHeader().addMouseListener(rowHeaderEditingStopMouseListener);
 
-			add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pLeft, pRight), BorderLayout.CENTER);
+			// main layout
+			ParallelGroup tableHor = layout.createParallelGroup().addComponent(tablePane).addGroup(buttonHor);
+			SequentialGroup tableVert = layout.createSequentialGroup().addComponent(tablePane).addGroup(buttonVert);
+
+			layout.setHorizontalGroup(tableHor);
+			layout.setVerticalGroup(tableVert);
+			literalEditorPanel = new JPanel(new BorderLayout());
+
+			add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, buttonAndTabelPanel, literalEditorPanel),
+					BorderLayout.CENTER);
 		}
 
 		private void changeView(ListSelectionListener oldListener, ListSelectionListener newListener,
@@ -740,12 +750,12 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		@Override
 		public void selectTransposedView() {
-			changeView(normalSelect, transSelect, tatm);
+			changeView(normalSelList, transSelList, tatm);
 		}
 
 		@Override
 		public void selectNormalView() {
-			changeView(transSelect, normalSelect, atm);
+			changeView(transSelList, normalSelList, atm);
 		}
 
 		@Override
@@ -790,18 +800,23 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		}
 
 		private void updateSelection(int run, int key) {
-			System.out.println("run: " + run + " key: " + key);
+			// FIXME System.out.println("run: " + run + " key: " + key);
 			if (db.getCursor() != run && -1 < run && run < db.getSize()) {
 				db.setCursor(run);
 			}
-			pRight.removeAll();
-			if (atm.literals.get(key) != null)
-				pRight.add(eefs.literalFactories.createEditor(db, wfe.getView().getWorkflow(), atm.literals.get(key)),
+			literalEditorPanel.removeAll();
+			if (key == -1) {
+				JLabel text = new JLabel("Please select a literal.");
+				text.addMouseListener(rowHeaderEditingStopMouseListener);
+				literalEditorPanel.add(text);
+			} else if (atm.literals.get(key) != null)
+				literalEditorPanel.add(
+						eefs.literalFactories.createEditor(db, wfe.getView().getWorkflow(), atm.literals.get(key)),
 						BorderLayout.CENTER);
 			else {
 				JLabel text = new JLabel("There exists no such literal.");
-				text.addMouseListener(mouseListener);
-				pRight.add(text);
+				text.addMouseListener(rowHeaderEditingStopMouseListener);
+				literalEditorPanel.add(text);
 			}
 			revalidate();
 		}
@@ -810,299 +825,6 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		public void selectEntry(int row, int column) {
 			table.getSelectionModel().setSelectionInterval(row, row);
 			table.getColumnModel().getSelectionModel().setSelectionInterval(column, column);
-		}
-	}
-
-	private class AssignmentTable extends JPanel {
-		private class EditableHeader extends JTableHeader implements CellEditorListener {
-
-			@Override
-			public void editingCanceled(ChangeEvent arg0) {
-				System.out.println("Canceled" + arg0);
-			}
-
-			@Override
-			public void editingStopped(ChangeEvent arg0) {
-				System.out.println("Stopped" + arg0);
-
-			}
-
-		}
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private final Database db;
-		private final Map<String, Literal> literals;
-		private boolean isTransposed = true;
-		private final JXRowHeaderTable tAssignments;
-		private final JPanel pRight, pLeft;
-		private final JScrollPane scr;
-		private String[] keys;
-		private int update = 0;
-
-		public AssignmentTable(final WorkflowEditor wfe) {
-			super(new BorderLayout());
-			db = wfe.getDatabase();
-			db.getObservable().addObserver(new DatabaseObserver(this));
-			keys = db.getRow(0).keySet().toArray(new String[wfe.getDatabase().getRow(0).keySet().size()]);
-			literals = new HashMap<String, Literal>();
-			this.pRight = new JPanel(new BorderLayout());
-			this.pLeft = new JPanel(new BorderLayout());
-			for (Job j : wfe.getView().getWorkflow().getChildren())
-				j.visit(new ElementVisitor() {
-					@Override
-					public void visitTool(Tool t) {
-						// Do nothing
-					}
-
-					@Override
-					public void visitLiteral(Literal l) {
-						literals.put(l.getKey(), l);
-						l.getObservable().addObserver(new Observer<ElementEvent<Literal>>() {
-							@Override
-							public void notify(ElementEvent<Literal> event) {
-								update(false);
-							}
-						});
-					}
-				});
-
-			tAssignments = new JXRowHeaderTable();
-			scr = new JScrollPane(tAssignments);
-			update(false);
-			tAssignments.setSortable(false);
-			tAssignments.setEditable(false);
-			tAssignments.setCellSelectionEnabled(true);
-			tAssignments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			// tAssignments.getRowHeader().setTableHeader(new EditableHeader());
-
-			// tAssignments.getTableHeader().addPropertyChangeListener(new
-			// PropertyChangeListener() {
-			//
-			// @Override
-			// public void propertyChange(PropertyChangeEvent arg0) {
-			// System.out.println(arg0);
-			// }
-			//
-			// });
-
-			tAssignments.getRowHeader().getModel().addTableModelListener(new TableModelListener() {
-
-				@Override
-				public void tableChanged(TableModelEvent arg0) {
-					if (arg0.getType() == TableModelEvent.UPDATE) {
-
-						System.out.println(arg0.getColumn() + " " + arg0.getFirstRow());
-						if (arg0.getFirstRow() != -1) {
-							beginUpdate();
-							String newName = (String) tAssignments.getRowHeader().getModel()
-									.getValueAt(arg0.getFirstRow(), arg0.getColumn());
-							db.setName(newName);
-							endUpdate();
-						}
-
-					}
-
-				}
-			});
-
-			ListSelectionListener rowHeaderSelectionListener = new ListSelectionListener() {
-				private int run;
-
-				private void endUpdate() {
-					update--;
-					System.out.println(update + " " + run);
-					if (update == 0) {
-						if (-1 < run && run < db.getSize()) {
-							db.setCursor(run);
-						}
-					}
-				}
-
-				@Override
-				public void valueChanged(ListSelectionEvent arg0) {
-					if (isTransposed)
-						return;
-					// if(arg0.getValueIsAdjusting())
-					// return;
-					System.out.println("Selection Update" + update + " " + arg0.getFirstIndex() + " "
-							+ arg0.getLastIndex());
-					// beginUpdate();
-					run = tAssignments.getRowHeader().getSelectedRow();
-					if (run == -1) {
-						// AssignmentTable.this.endUpdate();
-						// return;
-					}
-					if (-1 < run && run < db.getSize()) {
-						db.setCursor(run);
-					}
-					// endUpdate();
-				}
-			};
-			tAssignments.getRowHeader().getSelectionModel().addListSelectionListener(rowHeaderSelectionListener);
-
-			ListSelectionListener lsl = new ListSelectionListener() {
-				private Integer run;
-				private String key;
-
-				private void beginUpdate() {
-					update++;
-				}
-
-				private void endUpdate() {
-					update--;
-					if (update == 0) {
-						if (0 <= run && run < db.getSize()) {
-							db.setCursor(run);
-						}
-						if (literals.get(key) != null)
-							pRight.add(
-									eefs.literalFactories.createEditor(db, wfe.getView().getWorkflow(),
-											literals.get(key)), BorderLayout.CENTER);
-						else
-							pRight.add(new JLabel("There exists no such literal."));
-						revalidate();
-					}
-				}
-
-				@Override
-				public void valueChanged(ListSelectionEvent arg0) {
-					beginUpdate();
-					pRight.removeAll();
-					if (tAssignments.getSelectedColumn() == -1 || tAssignments.getSelectedRow() == -1) {
-						pRight.add(new JLabel("Select a cell."));
-						AssignmentTable.this.endUpdate();
-						return;
-					}
-					if (isTransposed) {
-						key = keys[tAssignments.getSelectedColumn()];
-						run = tAssignments.getSelectedRow();
-					} else {
-						key = keys[tAssignments.getSelectedRow()];
-						run = tAssignments.getSelectedColumn();
-					}
-					endUpdate();
-				}
-			};
-			tAssignments.getSelectionModel().addListSelectionListener(lsl);
-			tAssignments.getColumnModel().getSelectionModel().addListSelectionListener(lsl);
-
-			JButton buttonCorner = new JButton(new AbstractAction("\u2922") {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					isTransposed = !isTransposed;
-					tAssignments.getRowHeader().setEditable(isTransposed);
-					update(true);
-					scr.setRowHeaderView(tAssignments.getRowHeader());
-				}
-			});
-			buttonCorner.setToolTipText("transpose");
-			buttonCorner.setFont(buttonCorner.getFont().deriveFont(14.0f));
-
-			scr.setRowHeaderView(tAssignments.getRowHeader());
-			scr.setCorner(JScrollPane.UPPER_LEFT_CORNER, buttonCorner);
-			pLeft.add(scr, BorderLayout.CENTER);
-
-			JPanel pSouth = new JPanel(new GridLayout(1, 2));
-			pSouth.add(new JButton(new AbstractAction("add run") {
-
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					db.addRow();
-					db.setCursor(db.getSize() - 1);
-				}
-
-			}));
-			pSouth.add(new JButton(new AbstractAction("delete run") {
-
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					tAssignments.clearSelection();
-					db.delRow();
-				}
-
-			}));
-			pLeft.add(pSouth, BorderLayout.SOUTH);
-
-			add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, pLeft, pRight));
-		}
-
-		private void update(boolean hasBeenTransposed) {
-			beginUpdate();
-			String[] columnNames = new String[db.getSize()];
-			for (int i = 0; i < db.getSize(); i++)
-				columnNames[i] = db.getName(i);
-
-			String[] rowNames = new String[keys.length];
-			for (int i = 0; i < keys.length; i++)
-				if (literals.containsKey(keys[i]))
-					rowNames[i] = literals.get(keys[i]).getName();
-				else
-					rowNames[i] = keys[i];
-
-			String[][] data = new String[keys.length][columnNames.length];
-			for (int i = 0; i < keys.length; i++)
-				for (int j = 0; j < db.getSize(); j++)
-					data[i][j] = db.getRow(j).get(keys[i]);
-
-			int selectedRow = tAssignments.getSelectedRow();
-			int selectedColumn = tAssignments.getSelectedColumn();
-
-			if (isTransposed) {
-				((DefaultTableModel) tAssignments.getModel()).setDataVector(transpose(data), rowNames);
-				tAssignments.setRowHeaderData(columnNames);
-			} else {
-				((DefaultTableModel) tAssignments.getModel()).setDataVector(data, columnNames);
-				tAssignments.setRowHeaderData(rowNames);
-			}
-
-			if (hasBeenTransposed) {
-				tAssignments.getSelectionModel().setSelectionInterval(selectedColumn, selectedColumn);
-				tAssignments.getColumnModel().getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
-			} else {
-				tAssignments.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
-				tAssignments.getColumnModel().getSelectionModel().setSelectionInterval(selectedColumn, selectedColumn);
-			}
-
-			scr.setRowHeaderView(tAssignments.getRowHeader());
-
-			tAssignments.packAll();
-			endUpdate();
-		}
-
-		private String[][] transpose(String[][] mx) {
-			String[][] result = new String[mx[0].length][mx.length];
-
-			for (int i = 0; i < mx.length; i++)
-				for (int j = 0; j < mx[0].length; j++)
-					result[j][i] = mx[i][j];
-
-			return result;
-		}
-
-		private void beginUpdate() {
-			update++;
-		}
-
-		private void endUpdate() {
-			update--;
 		}
 	}
 
