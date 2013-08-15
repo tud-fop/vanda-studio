@@ -4,15 +4,21 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -33,6 +39,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -43,6 +50,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
+import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
@@ -67,9 +75,25 @@ public class AssignmentTableToolFactory implements ToolFactory {
 	private class OpenAssignmentTableAction implements Action {
 
 		private WorkflowEditor wfe;
+		private JFrame f = null;
 
 		public OpenAssignmentTableAction(WorkflowEditor wfe) {
 			this.wfe = wfe;
+			wfe.getApplication().getShutdownObservable().addObserver(new Observer<Application> () {
+
+				@Override
+				public void notify(Application event) {
+					if (f != null) {
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								f.dispose();
+							}
+						});
+					}
+				}
+				
+			});
 		}
 
 		@Override
@@ -79,13 +103,32 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		@Override
 		public void invoke() {
-			// AssignmentTable lt = new AssignmentTable(wfe);
-			AssignmentTableDialog lt = new AssignmentTableDialog(wfe);
-			JFrame f = new JFrame("Assignment table");
-			f.setContentPane(lt);
-			f.pack();
-			f.setLocationRelativeTo(wfe.getApplication().getWindowSystem().getMainWindow());
-			f.setVisible(true);
+			if (f != null)
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						f.toFront();
+						f.repaint();						
+					}
+				});
+			else {
+				// AssignmentTable lt = new AssignmentTable(wfe);
+				AssignmentTableDialog lt = new AssignmentTableDialog(wfe);
+				f = new JFrame("Assignment table");
+				f.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosed(WindowEvent arg0) {
+						f = null;
+					}
+				});
+				f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+				f.setContentPane(lt);
+				f.pack();
+				f.setLocationRelativeTo(wfe.getApplication().getWindowSystem().getMainWindow());
+				f.setVisible(true);
+				
+			}
 		}
 
 	}
