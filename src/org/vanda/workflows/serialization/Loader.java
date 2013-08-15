@@ -100,8 +100,9 @@ public class Loader {
 					@Override
 					public void process(DatabaseBuilder b1, RowBuilder b2) {
 						b1.assignments.add(b2.assignment);
+						b1.names.add(b2.name);
 					}
-				}, null, null);
+				}, RowBuilder.createProcessor(), null);
 	}
 
 	private SingleElementHandlerFactory<WorkflowBuilder> databaseHandler(

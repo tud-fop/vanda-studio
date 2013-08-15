@@ -64,6 +64,8 @@ public class Storer {
 		for (int i = 0; i < d.getSize(); i++) {
 			HashMap<String, String> row = d.getRow(i);
 			ppw.startNode("row");
+			if (d.getName(i) != null)
+				ppw.addAttribute("name", d.getName(i));
 			for (Map.Entry<String, String> e : row.entrySet()) {
 				ppw.startNode("assignment");
 				ppw.addAttribute("key", e.getKey()); // Integer.toHexString(e.getKey().intValue()));

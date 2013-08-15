@@ -9,9 +9,11 @@ import org.vanda.xml.Factory;
 
 public class DatabaseBuilder {
 	LinkedList<HashMap<String, String>> assignments;
+	LinkedList<String> names;
 
 	public DatabaseBuilder() {
 		assignments = new LinkedList<HashMap<String, String>>();
+		names = new LinkedList<String>();
 	}
 
 	public static Factory<DatabaseBuilder> createFactory() {
@@ -27,11 +29,13 @@ public class DatabaseBuilder {
 
 	public Database build() {
 		Database result = new Database();
-		for (HashMap<String, String> a : assignments) {
+		for (int i = 0; i < assignments.size(); ++i) {
+			HashMap<String, String> a = assignments.get(i);
 			for (Map.Entry<String, String> e : a.entrySet()) {
 				result.put(e.getKey(), e.getValue());
 			}
-			result.setName("run");
+			String name = names.get(i);
+			result.setName( name != null ? name : "" );
 			result.next();
 		}
 		result.home();
