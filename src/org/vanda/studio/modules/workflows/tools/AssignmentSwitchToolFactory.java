@@ -5,8 +5,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.URL;
@@ -87,13 +87,13 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 
 			@Override
 			public void nameChange(Database d) {
-				aName.setText(d.getName());				
+				aName.setText(d.getName());
 			}
-			
+
 		}
-		
-		private static int ICON_SIZE = 24;
-		
+
+		private static int ICON_SIZE = 18;
+
 		private JTextField aName;
 		JPanel pan;
 
@@ -103,7 +103,16 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 
 		public EditAssignmentTool(WorkflowEditor wfe) {
 			// Panel and basic Layout
-			pan = new JPanel();
+			pan = new JPanel() {
+				private static final long serialVersionUID = -5904333485102276761L;
+
+				@Override
+				public Dimension getPreferredSize() {
+					Dimension d = super.getPreferredSize();
+					d.width = 250;
+					return d;
+				}
+			};
 			GroupLayout layout = new GroupLayout(pan);
 			pan.setLayout(layout);
 			layout.setAutoCreateContainerGaps(true);
@@ -115,52 +124,54 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 			PreviousAssignmentAction prev = new PreviousAssignmentAction(db);
 			wfe.addAction(prev, KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.ALT_MASK), 5);
 			JButton prevButton = createNavigationButton(prev, "arrow-left", wfe.getApplication());
-			
-			
-			NextAssignmentAction next = new NextAssignmentAction(db);
-			wfe.addAction(next,KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.ALT_MASK), 6);
-			JButton nextButton = createNavigationButton(next, "arrow-right", wfe.getApplication());
-			
-			aName = new JTextField();
-			aName.addFocusListener(new FocusListener() {
 
+			NextAssignmentAction next = new NextAssignmentAction(db);
+			wfe.addAction(next, KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.ALT_MASK), 6);
+			final JButton nextButton = createNavigationButton(next, "arrow-right", wfe.getApplication());
+
+			aName = new JTextField() {
+				private static final long serialVersionUID = 3301633459959703449L;
+
+				@Override
+				public Dimension getPreferredSize() {
+					Dimension d = super.getPreferredSize();
+					d.height = nextButton.getSize().height;
+					return d;
+				}
+			};
+			aName.addFocusListener(new FocusAdapter() {
 				@Override
 				public void focusLost(FocusEvent arg0) {
 					db.setName(aName.getText());
 				}
-
-				@Override
-				public void focusGained(FocusEvent arg0) {
-					// do nothing
-				}
 			});
 			final Listener dl = new Listener();
-			
+
 			// init Label
 			dl.cursorChange(db);
-			
-			db.getObservable().addObserver(new Observer<DatabaseEvent<Database>> () {
+
+			db.getObservable().addObserver(new Observer<DatabaseEvent<Database>>() {
 
 				@Override
 				public void notify(DatabaseEvent<Database> event) {
 					event.doNotify(dl);
 				}
-				
+
 			});
-			
-			SequentialGroup horizontal = layout.createSequentialGroup().addComponent(prevButton)
-					.addComponent(aName).addComponent(nextButton);
-			ParallelGroup vertical = layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+
+			SequentialGroup horizontal = layout.createSequentialGroup().addComponent(prevButton).addComponent(aName)
+					.addComponent(nextButton);
+			ParallelGroup vertical = layout.createParallelGroup(GroupLayout.Alignment.CENTER)
 					.addComponent(prevButton).addComponent(aName).addComponent(nextButton);
 
 			layout.setHorizontalGroup(horizontal);
 			layout.setVerticalGroup(vertical);
-			
+
 			// add Tool Component
 			wfe.addToolWindow(getComponent(), WindowSystem.EAST);
 
 		}
-		
+
 		private JButton createNavigationButton(final Action a, String imageName, Application app) {
 			URL url = ClassLoader.getSystemClassLoader().getResource(imageName + ".png");
 			JButton b = new JButton();
@@ -183,7 +194,7 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 			}
 			return b;
 		}
-		
+
 	}
 
 	@Override
