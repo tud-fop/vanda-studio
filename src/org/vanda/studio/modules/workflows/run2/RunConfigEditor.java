@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,9 @@ import javax.swing.SpinnerNumberModel;
 
 import org.vanda.util.Pair;
 import org.vanda.workflows.data.Database;
+import org.vanda.workflows.elements.ElementVisitor;
+import org.vanda.workflows.elements.Literal;
+import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
 
 /**
@@ -105,7 +109,8 @@ public class RunConfigEditor {
 		// TODO remember previous selections and priorities
 		for (int i = 0; i < db.getSize(); ++i) {
 			final Integer a_i = new Integer(i);
-			JCheckBox assignment = new JCheckBox(new AbstractAction("Run " + a_i) {
+			String name = db.getName(i);
+			JCheckBox assignment = new JCheckBox(new AbstractAction(name != null ? name : "") {
 				private static final long serialVersionUID = 1827258959703699422L;
 
 				@Override
@@ -116,7 +121,14 @@ public class RunConfigEditor {
 						assignmentSelection.add(a_i);
 				}
 			});
+			boolean selectable = DatabaseValueChecker.checkDatabseRow(jobs, db.getRow(i));
 			JSpinner priority = new JSpinner(new SpinnerNumberModel(i, 0, 1000, 1));
+			
+			if (!selectable) {
+				assignment.setEnabled(false);
+				priority.setEnabled(false);
+			}
+			
 			priority.setMaximumSize(new Dimension(20, JSpinner.HEIGHT));
 			priorityMap.put((Integer) i, priority);
 			ParallelGroup row = layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(assignment)
@@ -146,6 +158,7 @@ public class RunConfigEditor {
 						priorities.put(new Pair<Job, Integer>(j, i), (Integer) priorityMap.get(i).getValue());
 					}
 				}
+				Collections.sort(assignmentSelection);
 				r.evokeExecution(assignmentSelection, dir.getAbsolutePath(), priorities);
 			}
 		});
@@ -161,5 +174,38 @@ public class RunConfigEditor {
 		layout.setVerticalGroup(layout.createSequentialGroup().addGroup(executionEnvironmentVertical)
 				.addGroup(tableRows).addGroup(executionSystemVertical));
 
+	}
+	
+	private static class DatabaseValueChecker {
+		private static class LiteralVisitor implements ElementVisitor {
+			private final Map<String, String> row;
+			private boolean b = true;
+			public LiteralVisitor(Map<String, String> row) {
+				this.row = row;
+			}
+			
+			@Override
+			public void visitLiteral(Literal l) {
+				if (row.get(l.getKey()) == null || row.get(l.getKey()).equals(":"))
+					b = false;
+			}
+
+			@Override
+			public void visitTool(Tool t) {
+				// do nothing
+			}
+			
+			public boolean getValue() {
+				return b;
+			}
+
+		}
+		public static boolean checkDatabseRow(Collection<Job> jobs, final HashMap<String, String> row) {
+			LiteralVisitor v = new LiteralVisitor(row);
+			for (Job j : jobs) {
+				j.visit(v);
+			}
+			return v.getValue();
+		}
 	}
 }

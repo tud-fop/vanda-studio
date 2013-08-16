@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 
 import org.vanda.execution.model.ExecutableWorkflowFactory;
@@ -33,7 +33,7 @@ import org.vanda.workflows.serialization.Storer;
 public class RunTool implements SemanticsToolFactory {
 	private class Tool {
 		public final class RunAction implements Action, Runner {
-			private JFrame f;
+			private JDialog f;
 
 			@Override
 			public String getName() {
@@ -42,13 +42,17 @@ public class RunTool implements SemanticsToolFactory {
 
 			@Override
 			public void invoke() {
-				f = new JFrame("Execute Workflow");
+				f = new JDialog(wfe.getApplication().getWindowSystem().getMainWindow(), "Execute Workflow");
 				RunConfigEditor rce = new RunConfigEditor(wfe.getView().getWorkflow().getChildren(), wfe.getDatabase(),
 						app.getProperty("outputPath"), RunAction.this);
 				f.setContentPane(rce.getComponent());
+				f.setAlwaysOnTop(true);
+				f.setAutoRequestFocus(true);
+				f.setModal(true);
 				f.pack();
 				f.setLocationRelativeTo(app.getWindowSystem().getMainWindow());
 				f.setVisible(true);
+
 			}
 
 			public void evokeExecution(List<Integer> assingmentSelection, String filePath,

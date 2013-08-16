@@ -66,7 +66,8 @@ public class SyntaxUpdater implements Observer<WorkflowEvent<MutableWorkflow>>, 
 			// remove ErrorHighlighting
 			if (markedConnections != null)
 				for (ConnectionKey cc : markedConnections)
-					view.getConnectionView(cc).setMarked(false);
+					if (view.getConnectionView(cc) != null) 
+						view.getConnectionView(cc).setMarked(false);
 		} catch (TypeCheckingException e) {
 			List<Pair<String, Set<ConnectionKey>>> errors = e.getErrors();
 			HashSet<ConnectionKey> allErrors = new HashSet<ConnectionKey>();
