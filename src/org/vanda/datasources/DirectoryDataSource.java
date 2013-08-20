@@ -6,6 +6,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -51,6 +53,13 @@ public class DirectoryDataSource implements DataSource {
 				@Override
 				public boolean accept(File _, String name) {
 					return name.matches(filter);
+				}
+			});
+			Arrays.sort(l, new Comparator<String>() {
+				@Override
+				public int compare(String o1, String o2) {
+					// TODO Auto-generated method stub
+					return o1.compareTo(o2);
 				}
 			});
 			if (l != null)
