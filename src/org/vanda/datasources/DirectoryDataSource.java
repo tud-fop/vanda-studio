@@ -15,6 +15,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -42,6 +43,7 @@ public class DirectoryDataSource implements DataSource {
 
 		private Element element;
 		private JList selector;
+		private JScrollPane scroll;
 
 		public DirectoryElementSelector() {
 			selector = new JList();
@@ -60,11 +62,12 @@ public class DirectoryDataSource implements DataSource {
 						element.setValue(selector.getSelectedValue().toString());
 				}
 			});
+			scroll = new JScrollPane(selector);
 		}
 
 		@Override
 		public JComponent getComponent() {
-			return selector;
+			return scroll;
 		}
 
 		@Override
