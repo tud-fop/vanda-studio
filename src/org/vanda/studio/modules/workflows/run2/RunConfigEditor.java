@@ -21,6 +21,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
@@ -50,6 +51,7 @@ public class RunConfigEditor {
 	private JLabel lFolder;
 	public File dir;
 	private List<Integer> assignmentSelection;
+	private List<JCheckBox> assignmentCheckboxes;
 	private Map<Integer, JSpinner> priorityMap;
 
 	public JComponent getComponent() {
@@ -91,19 +93,23 @@ public class RunConfigEditor {
 				.addComponent(lFolder).addComponent(tFolder).addComponent(bFolder);
 
 		// AssignmentSelectionTable
+		JPanel tablePane = new JPanel();
+		GroupLayout tableLayout = new GroupLayout(tablePane);
+		tablePane.setLayout(tableLayout);
 		assignmentSelection = new ArrayList<Integer>();
 		priorityMap = new HashMap<Integer, JSpinner>();
+		assignmentCheckboxes = new ArrayList<JCheckBox>(); 
 
-		ParallelGroup leftColumn = layout.createParallelGroup();
-		ParallelGroup rightColumn = layout.createParallelGroup();
-		SequentialGroup tableRows = layout.createSequentialGroup();
+		ParallelGroup leftColumn = tableLayout.createParallelGroup();
+		ParallelGroup rightColumn = tableLayout.createParallelGroup();
+		SequentialGroup tableRows = tableLayout.createSequentialGroup();
 
 		// Table Head
 		JLabel headerLeft = new JLabel("Assignment");
 		JLabel headerRight = new JLabel("Priority");
 		leftColumn.addComponent(headerLeft);
 		rightColumn.addComponent(headerRight);
-		tableRows.addGroup(layout.createParallelGroup().addComponent(headerLeft).addComponent(headerRight));
+		tableRows.addGroup(tableLayout.createParallelGroup().addComponent(headerLeft).addComponent(headerRight));
 
 		// Table Content
 		// TODO remember previous selections and priorities
@@ -121,25 +127,69 @@ public class RunConfigEditor {
 						assignmentSelection.add(a_i);
 				}
 			});
+			assignmentCheckboxes.add(assignment);
 			boolean selectable = DatabaseValueChecker.checkDatabseRow(jobs, db.getRow(i));
 			JSpinner priority = new JSpinner(new SpinnerNumberModel(i, 0, 1000, 1));
-			
+
 			if (!selectable) {
 				assignment.setEnabled(false);
 				priority.setEnabled(false);
 			}
-			
+
 			priority.setMaximumSize(new Dimension(20, JSpinner.HEIGHT));
 			priorityMap.put((Integer) i, priority);
-			ParallelGroup row = layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(assignment)
-					.addComponent(priority);
+			ParallelGroup row = tableLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+					.addComponent(assignment).addComponent(priority);
 			leftColumn.addComponent(assignment);
 			rightColumn.addComponent(priority);
 			tableRows.addGroup(row);
 		}
-		SequentialGroup tableColumns = layout.createSequentialGroup().addGroup(leftColumn)
+		SequentialGroup tableColumns = tableLayout.createSequentialGroup().addGroup(leftColumn)
 				.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, 50)
 				.addGroup(rightColumn);
+
+		tableLayout.setHorizontalGroup(tableColumns);
+		tableLayout.setVerticalGroup(tableRows);
+
+		tablePane.revalidate();
+		tablePane.repaint();
+		JScrollPane tableScrollPane = new JScrollPane(tablePane);
+
+		// Select All / None Buttons
+		JButton selectAllButton = new JButton(new AbstractAction("select all") {
+			private static final long serialVersionUID = -7778511164140696020L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				for (JCheckBox acb : assignmentCheckboxes) {
+					if (!acb.isSelected()) {
+						acb.setSelected(true);
+						acb.getAction().actionPerformed(null);
+					}
+				}
+
+			}
+		});
+
+		JButton selectNoneButton = new JButton(new AbstractAction("clear selection") {
+			private static final long serialVersionUID = 1004649182223613515L;
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				for (JCheckBox acb : assignmentCheckboxes) {
+					if (acb.isSelected()) {
+						acb.setSelected(false);
+						acb.getAction().actionPerformed(null);
+					}
+				}
+
+			}
+
+		});
+		SequentialGroup buttonsVert = layout.createSequentialGroup().addComponent(selectAllButton)
+				.addComponent(selectNoneButton);
+		ParallelGroup buttonsHori = layout.createParallelGroup().addComponent(selectAllButton)
+				.addComponent(selectNoneButton);
 
 		// ExecutionSystem Selection
 		// TODO read out available Systems from somewhere
@@ -170,20 +220,21 @@ public class RunConfigEditor {
 
 		// Setup entire layout
 		layout.setHorizontalGroup(layout.createParallelGroup().addGroup(exexutionEnvironmentHorizontal)
-				.addGroup(tableColumns).addGroup(executionSystemHorizontal));
+				.addComponent(tableScrollPane).addGroup(buttonsHori).addGroup(executionSystemHorizontal));
 		layout.setVerticalGroup(layout.createSequentialGroup().addGroup(executionEnvironmentVertical)
-				.addGroup(tableRows).addGroup(executionSystemVertical));
+				.addComponent(tableScrollPane).addGroup(buttonsVert).addGroup(executionSystemVertical));
 
 	}
-	
+
 	private static class DatabaseValueChecker {
 		private static class LiteralVisitor implements ElementVisitor {
 			private final Map<String, String> row;
 			private boolean b = true;
+
 			public LiteralVisitor(Map<String, String> row) {
 				this.row = row;
 			}
-			
+
 			@Override
 			public void visitLiteral(Literal l) {
 				if (row.get(l.getKey()) == null || row.get(l.getKey()).equals(":"))
@@ -194,12 +245,13 @@ public class RunConfigEditor {
 			public void visitTool(Tool t) {
 				// do nothing
 			}
-			
+
 			public boolean getValue() {
 				return b;
 			}
 
 		}
+
 		public static boolean checkDatabseRow(Collection<Job> jobs, final HashMap<String, String> row) {
 			LiteralVisitor v = new LiteralVisitor(row);
 			for (Job j : jobs) {

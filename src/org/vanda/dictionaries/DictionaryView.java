@@ -40,7 +40,7 @@ import org.vanda.util.Observable;
 
 /**
  * The class DictView is a Swing Component for viewing the output of the EM
- * algorithm for training a probablistic bilingual dictionary.
+ * algorithm for training a probabilistic bilingual dictionary.
  * 
  * @author stueber
  */
