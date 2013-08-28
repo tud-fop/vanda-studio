@@ -2,8 +2,10 @@ package org.vanda.studio.modules.workflows.inspector;
 
 import javax.swing.JComponent;
 
-import org.vanda.studio.modules.workflows.model.WorkflowDecoration.SelectionVisitor;
-import org.vanda.studio.modules.workflows.model.WorkflowDecoration.WorkflowSelection;
+
+import org.vanda.view.AbstractView.SelectionVisitor;
+import org.vanda.view.AbstractView;
+import org.vanda.view.View;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
@@ -17,8 +19,7 @@ public final class EditorialVisitor implements SelectionVisitor {
 
 	private final ElementEditorFactories eefs;
 	private AbstractEditorFactory editorFactory = null;
-
-	public EditorialVisitor(ElementEditorFactories eefs) {
+	public EditorialVisitor(ElementEditorFactories eefs, View view) {
 		this.eefs = eefs;
 	}
 
@@ -83,11 +84,16 @@ public final class EditorialVisitor implements SelectionVisitor {
 		};
 	}
 	
-	public static AbstractEditorFactory createAbstractFactory(ElementEditorFactories eefs, WorkflowSelection ws) {
-		EditorialVisitor visitor = new EditorialVisitor(eefs);
-		if (ws != null)
-			ws.visit(visitor);
+	public static AbstractEditorFactory createAbstractFactory(ElementEditorFactories eefs, View view) {
+		EditorialVisitor visitor = new EditorialVisitor(eefs, view);
+		// Show Workflow-Preview in case of multi-selection
+		if (view.getCurrentSelection().size() > 1)
+			view.getWorkflowView().visit(visitor, view);
+		else 
+			for (AbstractView av : view.getCurrentSelection()) 
+			av.visit(visitor, view);
 		return visitor.getEditorFactory();
 	}
+
 
 }

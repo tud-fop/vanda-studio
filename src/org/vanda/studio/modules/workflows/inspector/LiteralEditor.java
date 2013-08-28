@@ -1,10 +1,8 @@
 package org.vanda.studio.modules.workflows.inspector;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 
 import javax.swing.GroupLayout;
 import javax.swing.JComponent;
@@ -48,8 +46,8 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 			Element e = event.getElement();
 			String s = e.toString();
 			if (!s.equals(d.get(l.getKey()))) {
-				d.put(l.getKey(), s);
 				l.setType(rds.getType(e));
+				d.put(l.getKey(), s);
 			}
 		}
 	}
@@ -90,9 +88,14 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 		@Override
 		public void notify(DatabaseEvent<Database> event) {
-			// event.doNotify(this);
-			Database d = event.getDatabase();
-			Element el = Element.fromString(d.get(l.getKey()));
+			event.doNotify(this);
+
+		}
+
+		@Override
+		public void cursorChange(Database d) {
+			// Database d = event.getDatabase();
+			Element el = Element.fromString(d.get(l.getKey()));	
 			e.beginUpdate();
 			try {
 				e.setPrefix(el.getPrefix());
@@ -100,17 +103,24 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 			} finally {
 				e.endUpdate();
 			}
-
-		}
-
-		@Override
-		public void cursorChange(Database d) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override
 		public void dataChange(Database d, Object key) {
+			if (key.equals(l.getKey())) {
+				Element el = Element.fromString(d.get(l.getKey()));
+				e.beginUpdate();
+				try {
+					e.setPrefix(el.getPrefix());
+					e.setValue(el.getValue());
+				} finally {
+					e.endUpdate();
+				}
+			}
+		}
 
+		@Override
+		public void nameChange(Database d) {
 		}
 
 	}
@@ -119,17 +129,10 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 	public JComponent createEditor(Database d, MutableWorkflow wf, final Literal l) {
 		JLabel label1 = new JLabel("Name");
 		final JTextField value = new JTextField(l.getName());
-		value.addFocusListener(new FocusListener() {
-			
+		value.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent arg0) {
 				l.setName(value.getText());
-			}
-			
-			@Override
-			public void focusGained(FocusEvent arg0) {
-				// TODO Auto-generated method stub
-				
 			}
 		});
 

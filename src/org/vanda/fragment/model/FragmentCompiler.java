@@ -7,7 +7,11 @@ import org.vanda.util.RepositoryItem;
 
 public interface FragmentCompiler extends RepositoryItem {
 
-	Fragment compile(String name, DataflowAnalysis dfa,
+	Fragment compile(String name, 
+//			DataflowAnalysis dfa,
+//			ExecutableWorkflow ewf,
+			SyntaxAnalysis synA, 
+			SemanticAnalysis semA, 
 			ArrayList<Fragment> fragments, FragmentIO app);
 
 	Type getFragmentType();

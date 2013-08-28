@@ -1,3 +1,4 @@
+
 package org.vanda.studio.core;
 
 import java.awt.Rectangle;

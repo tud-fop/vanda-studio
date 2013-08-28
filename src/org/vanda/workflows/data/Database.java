@@ -14,14 +14,16 @@ import org.vanda.workflows.data.Databases.DataChange;
 
 public final class Database {
 
-	private final ArrayList<HashMap<Integer, String>> assignments;
+	private final ArrayList<HashMap<String, String>> assignments;
+	private final ArrayList<String> assignmentNames;
 	private int cursor;
 	private final MultiplexObserver<DatabaseEvent<Database>> observable;
 	private int update;
 	private LinkedList<DatabaseEvent<Database>> events;
 
 	public Database() {
-		assignments = new ArrayList<HashMap<Integer, String>>();
+		assignments = new ArrayList<HashMap<String, String>>();
+		assignmentNames = new ArrayList<String>();
 		cursor = 0;
 		observable = new MultiplexObserver<DatabaseEvent<Database>>();
 		events = new LinkedList<DatabaseEvent<Database>>();
@@ -40,7 +42,7 @@ public final class Database {
 		}
 	}
 
-	public String get(Integer key) {
+	public String get(String key) {
 		String result = null;
 		if (cursor < assignments.size())
 			result = assignments.get(cursor).get(key);
@@ -65,19 +67,42 @@ public final class Database {
 		}
 	}
 
-	public HashMap<Integer, String> getRow(int location) {
+	public String getName() {
+		if (cursor < assignmentNames.size()) 
+			return assignmentNames.get(cursor);
+		else 
+			return "";
+	}
+
+	public void setName(String name) {
+		setName(name, cursor);
+	}
+	
+	public void setName(String name, int i) {
+		beginUpdate();
+		if (i == assignmentNames.size()) {
+			assignmentNames.add(name);
+		} else {
+			assignmentNames.set(i, name);
+		}
+		events.add(new Databases.NameChange<Database>(this));
+		endUpdate();
+	}
+
+	public HashMap<String, String> getRow(int location) {
 		return assignments.get(location);
 	}
 
 	public void addRow() {
 		beginUpdate();
 		try {
-			HashMap<Integer, String> row = new HashMap<Integer, String>();
-			for (Entry<Integer, String> e : assignments.get(cursor).entrySet()) {
+			HashMap<String, String> row = new HashMap<String, String>();
+			for (Entry<String, String> e : assignments.get(cursor).entrySet()) {
 				row.put(e.getKey(), e.getValue());
 				events.add(new DataChange<Database>(this, e.getKey()));
 			}
 			assignments.add(row);
+			assignmentNames.add(assignmentNames.get(cursor) + "(2)");
 		} finally {
 			endUpdate();
 		}
@@ -89,13 +114,13 @@ public final class Database {
 		if (cursor < assignments.size()) {
 			beginUpdate();
 			try {
-				HashMap<Integer, String> theRow = assignments.get(cursor);
+				HashMap<String, String> theRow = assignments.get(cursor);
 				assignments.remove(cursor);
-				for (Entry<Integer, String> e : theRow.entrySet())
+				for (Entry<String, String> e : theRow.entrySet())
 					events.add(new DataChange<Database>(this, e.getKey()));
+			} finally {
 				cursor = 0;
 				events.add(new CursorChange<Database>(this));
-			} finally {
 				endUpdate();
 			}
 		}
@@ -110,7 +135,7 @@ public final class Database {
 	}
 
 	public boolean hasNext() {
-		return cursor < assignments.size();
+		return cursor < assignments.size() - 1;
 	}
 
 	public boolean hasPrev() {
@@ -153,8 +178,8 @@ public final class Database {
 		}
 	}
 
-	public void put(Integer key, String value) {
-		HashMap<Integer, String> m;
+	public void put(String key, String value) {
+		HashMap<String, String> m;
 		beginUpdate();
 		try {
 			String oldvalue;
@@ -165,8 +190,9 @@ public final class Database {
 					oldvalue = assignments.get(cursor).remove(key);
 			} else {
 				if (cursor == assignments.size()) {
-					m = new HashMap<Integer, String>();
+					m = new HashMap<String, String>();
 					assignments.add(m);
+					assignmentNames.add("");
 				} else
 					m = assignments.get(cursor);
 				oldvalue = m.put(key, value);
@@ -176,6 +202,10 @@ public final class Database {
 		} finally {
 			endUpdate();
 		}
+	}
+
+	public String getName(int i) {
+		return assignmentNames.get(i);
 	}
 
 }

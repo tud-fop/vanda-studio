@@ -10,24 +10,39 @@ import org.vanda.util.Observable;
 import org.vanda.util.Observer;
 import org.vanda.workflows.elements.ElementReturnVisitor;
 import org.vanda.workflows.elements.ElementVisitor;
+import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.RendererAssortment;
+import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.ElementAdapters.ElementAdapterEvent;
 import org.vanda.workflows.hyper.ElementAdapters.ElementAdapterListener;
 import org.vanda.workflows.hyper.Jobs.*;
 
 public class Job implements ElementAdapterListener<ElementAdapter> {
 	private final ElementAdapter element;
+	private final String id;
 	public Map<Port, Location> bindings;
 	protected final double[] dimensions = new double[4];
-	private final MultiplexObserver<JobEvent<Job>> observable;
+	protected final MultiplexObserver<JobEvent<Job>> observable;
 
-	public Job(ElementAdapter element) {
+	public Job(ElementAdapter element, String id) {
+		this.id = id;
 		this.element = element;
 		if (element.getObservable() != null)
 			observable = new MultiplexObserver<JobEvent<Job>>();
 		else
 			observable = null;
+		rebind();
+	}
+	
+	public Job(ElementAdapter element) {
+		this(element, null);
+	}
+	
+	public Job(ElementAdapter element, boolean createObservable) {
+		this.id = null;
+		this.element = element;
+		this.observable = new MultiplexObserver<JobEvent<Job>>();
 		rebind();
 	}
 
@@ -43,6 +58,10 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 		return dimensions[3];
 	}
 
+	public String getId() {
+		return id;
+	}
+	
 	public List<Port> getInputPorts() {
 		return element.getInputPorts();
 	}
@@ -117,6 +136,21 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 		element.visit(v);
 	}
 
+	public void visit(final JobVisitor v) {
+		element.visit(new ElementVisitor() {
+
+			@Override
+			public void visitLiteral(Literal l) {
+				v.visitLiteral(Job.this, l);
+			}
+
+			@Override
+			public void visitTool(Tool t) {
+				v.visitTool(Job.this, t);
+			}
+		});
+	}
+
 	public <R> R visitReturn(ElementReturnVisitor<R> v) {
 		return element.visitReturn(v);
 	}
@@ -131,6 +165,7 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 
 	@Override
 	public void propertyChanged(ElementAdapter e) {
+		// if (element.getObservable() != null)
 		observable.notify(new PropertyChangedEvent<Job>(this));
 	}
 

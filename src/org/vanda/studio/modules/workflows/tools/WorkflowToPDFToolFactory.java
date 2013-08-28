@@ -11,8 +11,8 @@ import javax.swing.KeyStroke;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.fop.svg.PDFTranscoder;
+import org.vanda.presentationmodel.PresentationModel;
 import org.vanda.studio.app.Application;
-import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
@@ -43,7 +43,7 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 			JFileChooser chooser = new JFileChooser("");
 			chooser.setDialogType(JFileChooser.SAVE_DIALOG);
 			chooser.setVisible(true);
-			int result = chooser.showSaveDialog(null);
+			int result = chooser.showSaveDialog(wfe.getApplication().getWindowSystem().getMainWindow());
 
 			if (result == JFileChooser.APPROVE_OPTION) {
 				File chosenFile;
@@ -54,9 +54,8 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 					chosenFile = new File(chooser.getSelectedFile().getPath()
 							+ ".pdf");
 				try {
-					DrecksAdapter da = new DrecksAdapter(
-							wfe.getWorkflowDecoration());
-					mxGraph graph = da.getGraph();
+					PresentationModel pm = new PresentationModel(wfe.getView(), wfe);
+					mxGraph graph = pm.getVisualization().getGraph();
 					Document svg = mxCellRenderer.createSvgDocument(graph,
 							null, 1, null, null);
 					String code = mxUtils
@@ -87,7 +86,7 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 	public Object instantiate(WorkflowEditor wfe) {
 		Action a = new ExportWorkflowToPDFAction(wfe);
 		wfe.addAction(a, "application-pdf",
-				KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_MASK),7);
 		return a;
 	}
 }

@@ -28,6 +28,7 @@ import org.vanda.studio.modules.workflows.run.ProfileManager;
 import org.vanda.studio.modules.workflows.run.RunTool;
 import org.vanda.studio.modules.workflows.run.SemanticsTool;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
+import org.vanda.studio.modules.workflows.tools.AssignmentSwitchToolFactory;
 import org.vanda.studio.modules.workflows.tools.AssignmentTableToolFactory;
 import org.vanda.studio.modules.workflows.tools.PaletteTool;
 import org.vanda.studio.modules.workflows.tools.SaveTool;
@@ -97,8 +98,9 @@ public class WorkflowModule implements Module {
 			eefs.literalFactories.add(new LiteralEditor(app));
 
 			LinkedList<SemanticsToolFactory> srep = new LinkedList<SemanticsToolFactory>();
-			srep.add(new RunTool(new GeneratorImpl(app, profile)));
+//			srep.add(new RunTool(new GeneratorImpl(app, profile)));
 			srep.add(new InspectorTool(eefs));
+			srep.add(new org.vanda.studio.modules.workflows.run2.RunTool(new GeneratorImpl(app,profile)));
 
 			toolFactories = new LinkedList<ToolFactory>();
 			toolFactories.add(new PaletteTool());
@@ -106,15 +108,16 @@ public class WorkflowModule implements Module {
 			toolFactories.add(new WorkflowToPDFToolFactory(app));
 			toolFactories.add(new SemanticsTool(srep));
 			toolFactories.add(new AssignmentTableToolFactory(eefs));
+			toolFactories.add(new AssignmentSwitchToolFactory());
 
 			app.getWindowSystem()
 					.addAction(null, new OpenManagerAction(), null);
 			app.getWindowSystem().addAction(null, new OpenWorkflowAction(),
 					"document-open",
-					KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK));
+					KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK),1);
 			app.getWindowSystem().addAction(null, new NewWorkflowAction(),
 					"document-new",
-					KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK));
+					KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK),0);
 		}
 
 		protected class NewWorkflowAction implements Action {
@@ -151,8 +154,9 @@ public class WorkflowModule implements Module {
 				String lastDir = app.getProperty("lastDir");
 				if (lastDir != null)
 					chooser.setCurrentDirectory(new File(lastDir));
-				chooser.setVisible(true);
-				int result = chooser.showOpenDialog(null);
+				
+				// center dialog over main window
+				int result = chooser.showOpenDialog(app.getWindowSystem().getMainWindow());
 
 				// once file choice is approved, load the chosen file
 				if (result == JFileChooser.APPROVE_OPTION) {

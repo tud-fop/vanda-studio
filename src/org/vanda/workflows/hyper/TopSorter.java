@@ -2,10 +2,12 @@ package org.vanda.workflows.hyper;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.WeakHashMap;
 
 import org.vanda.workflows.elements.Port;
@@ -110,18 +112,29 @@ public final class TopSorter {
 	private final ForwardArray forwardArray = new ForwardArray();
 	private final InputBlock inputBlock = new InputBlock();
 	private final Result result = new Result();
+	private Comparator<Job> priorities;
 	
 	public void init(MutableWorkflow workflow) {
+		init(workflow, new Comparator<Job>() {
+			@Override
+			public int compare(Job arg0, Job arg1) {
+				return arg0.hashCode() - arg1.hashCode();
+			}
+		});
+	}
+	
+	public void init(MutableWorkflow workflow, Comparator<Job> priorities) {
 		forwardArray.init(workflow);
 		inputBlock.init(workflow.getChildren());
 		result.init(workflow.getChildren().size());		
+		this.priorities = priorities;
 	}
 
 	public void proceed() {
-		LinkedList<Job> workingset = new LinkedList<Job>();
+		PriorityQueue<Job> workingset = new PriorityQueue<Job>(10, priorities);
 		inputBlock.addUnblocked(workingset);
 		while (!workingset.isEmpty()) {
-			Job ji = workingset.pop();
+			Job ji = workingset.poll();
 			result.add(ji);
 			for (Job ji2 : forwardArray.getForward(ji)) {
 				if (inputBlock.unblock(ji2))

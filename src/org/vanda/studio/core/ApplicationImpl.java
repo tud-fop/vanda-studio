@@ -3,9 +3,12 @@
  */
 package org.vanda.studio.core;
 
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,8 +58,7 @@ public final class ApplicationImpl implements Application {
 	protected final Observer<Tool> typeObserver;
 	protected final Properties properties;
 
-	protected static String PROPERTIES_FILE = System.getProperty("user.home")
-			+ "/.vanda/studio.conf";
+	protected static String PROPERTIES_FILE = System.getProperty("user.home") + "/.vanda/studio.conf";
 
 	public ApplicationImpl() {
 		this(true);
@@ -112,6 +114,19 @@ public final class ApplicationImpl implements Application {
 
 		// converterToolRepository.getAddObservable().addObserver(typeObserver);
 		toolRepository.getAddObservable().addObserver(typeObserver);
+		
+		// Register a Monospace font that can display all unicode-Characters
+		if (gui) {
+			try {
+				URL url = ClassLoader.getSystemClassLoader().getResource(
+						"unifont-5.1.20080907.ttf");
+				
+				Font monospaceFont = Font.createFont(Font.TRUETYPE_FONT, new File(url.getFile()));
+				GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(monospaceFont);
+			} catch (Exception e) {
+			}
+			
+		}
 	}
 
 	@Override
@@ -127,6 +142,8 @@ public final class ApplicationImpl implements Application {
 	@Override
 	public String findFile(String value) {
 		// System.out.println(getProperty("inputPath"));
+		if (value == null)
+			return "";
 		if (value.startsWith("/"))
 			return value;
 		if (value.contains(":")) {
@@ -258,17 +275,13 @@ public final class ApplicationImpl implements Application {
 	public String getProperty(String key) {
 		if (!properties.containsKey(key)) {
 			if (key.equals("inputPath"))
-				setProperty(key, System.getProperty("user.home") + "/"
-						+ ".vanda/input/");
+				setProperty(key, System.getProperty("user.home") + "/" + ".vanda/input/");
 			if (key.equals("toolsPath"))
-				setProperty(key, System.getProperty("user.home") + "/"
-						+ ".vanda/interfaces/");
+				setProperty(key, System.getProperty("user.home") + "/" + ".vanda/interfaces/");
 			if (key.equals("lastInputPath"))
-				setProperty(key, System.getProperty("user.home") + "/"
-						+ ".vanda/input/");
+				setProperty(key, System.getProperty("user.home") + "/" + ".vanda/input/");
 			if (key.equals("outputPath"))
-				setProperty(key, System.getProperty("user.home") + "/"
-						+ ".vanda/output/");
+				setProperty(key, System.getProperty("user.home") + "/" + ".vanda/output/");
 		}
 		return properties.getProperty(key);
 	}

@@ -3,10 +3,9 @@
  */
 package org.vanda.studio.app;
 
-import java.awt.Image;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.KeyStroke;
 
 import org.vanda.util.Action;
@@ -94,6 +93,10 @@ public interface WindowSystem {
 	 * Call this *before* adding c as a contentWindow.
 	 */
 	void addAction(JComponent c, Action a, KeyStroke keyStroke);
+	
+	/**
+	 */
+	void addAction(JComponent c, Action a, KeyStroke keyStroke, int pos);
 
 	/**
 	 * Creates a new tab in the main pane.
@@ -110,10 +113,14 @@ public interface WindowSystem {
 	/**
 	 */
 	void addToolWindow(JComponent window, Icon i, JComponent c, LayoutSelector layout);
-
+	
 	/**
 	 */
 	void disableAction(Action a);
+	
+	/**
+	 */
+	void disableAction(JComponent window, Action a);
 	
 	/**
 	 */
@@ -121,9 +128,16 @@ public interface WindowSystem {
 	
 	/**
 	 */
+	void enableAction(JComponent window, Action a);
+	/**
+	 */
 	void focusContentWindow(JComponent c);
 	
 	void focusToolWindow(JComponent c);
+	
+	/**
+	 */
+	JFrame getMainWindow();
 	
 	/**
 	 */
@@ -135,6 +149,6 @@ public interface WindowSystem {
 
 	/**
 	 */
-	void addAction(JComponent c, Action a, String imageName, KeyStroke keyStroke);
+	void addAction(JComponent c, Action a, String imageName, KeyStroke keyStroke, int pos);
 
 }

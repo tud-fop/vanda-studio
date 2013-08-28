@@ -155,8 +155,11 @@ public class DirectoryDataSource implements DataSource {
 			tFilter = new JTextField(filter);
 			JLabel lType = new JLabel("Type", JLabel.TRAILING);
 			cType = new JComboBox(app.getTypes().toArray());
-			cType.setSelectedItem(type);
-
+			// handle creation of new datasources (type == null)
+			if (type != null) 
+				cType.setSelectedItem(type);
+			else if (app.getTypes().size() > 0)
+				cType.setSelectedIndex(0);
 			pan.add(tFolder);
 			pan.add(tFilter);
 			

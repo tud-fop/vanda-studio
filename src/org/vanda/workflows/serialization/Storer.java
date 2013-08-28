@@ -24,7 +24,7 @@ public class Storer {
 		final PrettyPrintWriter ppw = new PrettyPrintWriter(writer);
 		ppw.startNode("workflow");
 		ppw.addAttribute("name", w.getName());
-		for (Job j : w.getChildren()) {
+		for (final Job j : w.getChildren()) {
 			ppw.startNode("job");
 			j.visit(new ElementVisitor() {
 				@Override
@@ -33,12 +33,14 @@ public class Storer {
 					ppw.addAttribute("type", l.getType().toString());
 					// ppw.addAttribute("value", l.getName());
 					ppw.addAttribute("name", l.getName());
-					ppw.addAttribute("key", Integer.toHexString(l.getKey()));
+					ppw.addAttribute("key", l.getKey()); // Integer.toHexString(l.getKey()));
 					ppw.endNode(); // literal
 				}
 
 				@Override
 				public void visitTool(Tool t) {
+					if (j.getId() != null) 
+						ppw.addAttribute("id", j.getId());
 					ppw.startNode("tool");
 					ppw.addAttribute("id", t.getId());
 					ppw.endNode(); // tool
@@ -47,8 +49,7 @@ public class Storer {
 			for (Map.Entry<Port, Location> e : j.bindings.entrySet()) {
 				ppw.startNode("bind");
 				ppw.addAttribute("port", e.getKey().getIdentifier());
-				ppw.addAttribute("variable",
-						Integer.toHexString(e.getValue().hashCode()));
+				ppw.addAttribute("variable", Integer.toHexString(e.getValue().hashCode()));
 				ppw.endNode(); // bind
 			}
 			ppw.startNode("geometry");
@@ -61,11 +62,13 @@ public class Storer {
 		}
 		ppw.startNode("database");
 		for (int i = 0; i < d.getSize(); i++) {
-			HashMap<Integer, String> row = d.getRow(i);
+			HashMap<String, String> row = d.getRow(i);
 			ppw.startNode("row");
-			for (Map.Entry<Integer, String> e : row.entrySet()) {
+			if (d.getName(i) != null)
+				ppw.addAttribute("name", d.getName(i));
+			for (Map.Entry<String, String> e : row.entrySet()) {
 				ppw.startNode("assignment");
-				ppw.addAttribute("key", Integer.toHexString(e.getKey().intValue()));
+				ppw.addAttribute("key", e.getKey()); // Integer.toHexString(e.getKey().intValue()));
 				ppw.addAttribute("value", e.getValue());
 				ppw.endNode(); // assignment
 			}

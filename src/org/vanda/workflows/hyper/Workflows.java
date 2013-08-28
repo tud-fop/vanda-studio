@@ -1,5 +1,6 @@
 package org.vanda.workflows.hyper;
 
+
 /**
  * Observer infrastructure for workflows. Using generic type <W> here to
  * circumvent circular dependency.

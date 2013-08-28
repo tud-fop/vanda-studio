@@ -25,7 +25,9 @@ public class PreviewsModule implements Module {
 				new ScoresPreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("Alignments"),
 				new AlignmentsPreviewFactory(app));
-		app.registerPreviewFactory(null, new MonospacePreviewFactory());
+		// app.registerPreviewFactory(new CompositeType("Execution"),
+		// new WorkflowExecutionPreview(app, profile);
+		app.registerPreviewFactory(null, new MonospacePreviewFactory(app));
 		return null;
 	}
 

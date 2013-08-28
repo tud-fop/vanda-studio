@@ -3,27 +3,20 @@ package org.vanda.studio.modules.workflows.run;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -41,10 +34,10 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import org.vanda.fragment.model.Fragment;
-import org.vanda.fragment.model.Fragments;
 import org.vanda.fragment.model.Generator;
-import org.vanda.fragment.model.Model;
+//import org.vanda.fragment.model.Model;
+import org.vanda.fragment.model.SemanticAnalysis;
+import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
@@ -52,12 +45,13 @@ import org.vanda.types.Types;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.RCChecker;
+import org.vanda.view.View;
 
 public class RunTool implements SemanticsToolFactory {
 
 	private static final class Tool {
 		private final WorkflowEditor wfe;
-		private final Model mm;
+		// private final Model mm;
 		private final Application app;
 		private final Generator prof;
 		private final List<Run> runs;
@@ -80,15 +74,17 @@ public class RunTool implements SemanticsToolFactory {
 
 		}
 
-		public Tool(WorkflowEditor wfe, Model mm, Generator prof) {
+		// public Tool(WorkflowEditor wfe, Model mm, Generator prof) {
+		public Tool(WorkflowEditor wfe, SemanticAnalysis semA, Generator prof) {
 			this.wfe = wfe;
-			this.mm = mm;
+			// this.mm = mm;
 			app = wfe.getApplication();
 			this.prof = prof;
+
 			wfe.addAction(new GenerateAction(), "run-build",
-					KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK));
+					KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_MASK),3);
 			wfe.addAction(new RunAction(), "system-run",
-					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK));
+					KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK),4);
 
 			runs = new ArrayList<Run>();
 
@@ -114,8 +110,7 @@ public class RunTool implements SemanticsToolFactory {
 				public void itemStateChanged(ItemEvent e) {
 					Run r = (Run) lRuns.getSelectedItem();
 					if (r != null) {
-						Document doc = ((Run) lRuns.getSelectedItem())
-								.getDocument();
+						Document doc = ((Run) lRuns.getSelectedItem()).getDocument();
 						tRuntool.setDocument(doc);
 						tRuntool.setCaretPosition(doc.getLength());
 					}
@@ -157,8 +152,7 @@ public class RunTool implements SemanticsToolFactory {
 			private final SimpleAttributeSet style;
 			private final StyledDocument doc;
 
-			public StreamGobbler(InputStream is, SimpleAttributeSet style,
-					StyledDocument doc, Application app) {
+			public StreamGobbler(InputStream is, SimpleAttributeSet style, StyledDocument doc, Application app) {
 				this.is = is;
 				this.style = style;
 				this.doc = doc;
@@ -172,13 +166,10 @@ public class RunTool implements SemanticsToolFactory {
 					while ((line = br.readLine()) != null) {
 						synchronized (doc) {
 							try {
-								if (line.startsWith("Running:")
-										| line.startsWith("Done:"))
-									doc.insertString(doc.getLength(), line
-											+ "\n", infoStyle);
+								if (line.startsWith("Running:") | line.startsWith("Done:"))
+									doc.insertString(doc.getLength(), line + "\n", infoStyle);
 								else
-									doc.insertString(doc.getLength(), line
-											+ "\n", style);
+									doc.insertString(doc.getLength(), line + "\n", style);
 							} catch (BadLocationException e) {
 								// ignore
 							}
@@ -233,13 +224,9 @@ public class RunTool implements SemanticsToolFactory {
 			private StreamGobbler isg;
 			private StreamGobbler esg;
 
-			public StateRunning(Application app, Fragment f, StyledDocument doc) {
+			public StateRunning(Application app, String id, StyledDocument doc) {
 				try {
-					process = Runtime.getRuntime().exec(
-							RCChecker.getOutPath() + "/"
-									+ Fragments.normalize(f.getId()), null,
-							null);
-
+					process = Runtime.getRuntime().exec(RCChecker.getOutPath() + "/" + id, null, null);
 				} catch (Exception e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}
@@ -290,22 +277,20 @@ public class RunTool implements SemanticsToolFactory {
 			}
 		}
 
-		private final class Run extends SwingWorker<String, String> implements
-				RunTransitions {
+		private final class Run extends SwingWorker<String, String> implements RunTransitions {
 			private StyledDocument doc;
 			private Date date;
-			private Fragment frag;
+			private String id;
 			private RunState state = new StateInit();
 
-			public Run(Fragment fragment) {
+			public Run(String id) {
 				doc = new DefaultStyledDocument();
 				doc.addDocumentListener(new DocumentListener() {
 
 					@Override
 					public void insertUpdate(DocumentEvent e) {
 						if (lRuns.getSelectedItem() == Run.this) {
-							tRuntool.setCaretPosition(tRuntool.getText()
-									.length());
+							tRuntool.setCaretPosition(tRuntool.getText().length());
 							// pMain.revalidate();
 						}
 					}
@@ -324,10 +309,9 @@ public class RunTool implements SemanticsToolFactory {
 
 				});
 				date = new Date();
-				frag = fragment;
+				this.id = id;
 				try {
-					doc.insertString(doc.getLength(), date.toString() + "\n",
-							messageStyle);
+					doc.insertString(doc.getLength(), date.toString() + "\n", messageStyle);
 				} catch (BadLocationException e1) {
 					// ignore
 				}
@@ -357,7 +341,9 @@ public class RunTool implements SemanticsToolFactory {
 			public void doFinish() {
 				state = new StateDone();
 				try {
-					mm.checkWorkflow();
+					// mm.checkWorkflow();
+					//FIXME but obsolete
+
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -368,7 +354,7 @@ public class RunTool implements SemanticsToolFactory {
 
 			@Override
 			public void doRun() {
-				state = new StateRunning(app, frag, doc);
+				state = new StateRunning(app, id, doc);
 				lRuns.repaint();
 				pMain.revalidate();
 				state.finish(this);
@@ -443,9 +429,9 @@ public class RunTool implements SemanticsToolFactory {
 
 			@Override
 			public void invoke() {
-				Fragment frag = generate();
-				if (frag != null) {
-					Run r = new Run(frag);
+				String id = generate();
+				if (id != null) {
+					Run r = new Run(id);
 					runs.add(r);
 					r.execute();
 					lRuns.setModel(new DefaultComboBoxModel(runs.toArray()));
@@ -458,16 +444,22 @@ public class RunTool implements SemanticsToolFactory {
 
 		}
 
-		private Fragment generate() {
+		private String generate() {
+			SyntaxAnalysis synA = wfe.getSyntaxAnalysis();
+			SemanticAnalysis semA = wfe.getSemanticAnalysis();
 			try {
-				mm.checkWorkflow();
+				// mm.checkWorkflow();
+				wfe.getSyntaxAnalysis().checkWorkflow();
 			} catch (Exception e1) {
 				app.sendMessage(new ExceptionMessage(e1));
 			}
-			if (mm.getDataflowAnalysis().isConnected()
-					&& Types.canUnify(mm.getFragmentType(), prof.getRootType())) {
+			// if (mm.getExecutableWorkflow().isConnected() &&
+			// mm.getDataflowAnalysis().isConnected() &&
+			if (semA.getDFA().isConnected() && Types.canUnify(synA.getFragmentType(), prof.getRootType())) {
+
 				try {
-					return prof.generate(mm.getDataflowAnalysis());
+					// return prof.generate(mm.getDataflowAnalysis());
+					return prof.generate(wfe.getView().getWorkflow(), synA, semA); // .getExecutableWorkflow());
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}
@@ -484,8 +476,9 @@ public class RunTool implements SemanticsToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe, Model model) {
-		return new Tool(wfe, model, prof);
+	// public Object instantiate(WorkflowEditor wfe, Model model, View view) {
+	public Object instantiate(WorkflowEditor wfe, SyntaxAnalysis synA, SemanticAnalysis semA, View view) {
+		return new Tool(wfe, semA, prof);
 	}
 
 }

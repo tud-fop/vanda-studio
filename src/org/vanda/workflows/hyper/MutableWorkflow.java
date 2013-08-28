@@ -2,7 +2,7 @@ package org.vanda.workflows.hyper;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -16,7 +16,7 @@ import org.vanda.workflows.hyper.Jobs.JobEvent;
 import org.vanda.workflows.hyper.Jobs.JobListener;
 import org.vanda.workflows.hyper.Workflows.*;
 
-public final class MutableWorkflow implements JobListener<Job> {
+public class MutableWorkflow implements JobListener<Job> {
 
 	private final MultiplexObserver<WorkflowEvent<MutableWorkflow>> observable;
 	private LinkedList<WorkflowEvent<MutableWorkflow>> events;
@@ -53,6 +53,13 @@ public final class MutableWorkflow implements JobListener<Job> {
 		t.init(this);
 		t.proceed();
 		return t.getSorted();
+	}
+	
+	public Job[] getSorted(Comparator<Job> priorities) throws Exception {
+		TopSorter t = new TopSorter();
+		t.init(this, priorities);
+		t.proceed();
+		return t.getSorted();		
 	}
 
 	public void addChild(final Job job) {
@@ -132,6 +139,9 @@ public final class MutableWorkflow implements JobListener<Job> {
 								removeConnection(new ConnectionKey(j2, ip));
 					varSources.remove(var);
 				}
+				for (Port ip : ji.getInputPorts()) {
+					removeConnection(new ConnectionKey(ji, ip));
+				}
 				ji.uninsert();
 				events.add(new Workflows.ChildRemovedEvent<MutableWorkflow>(
 						this, ji));
@@ -144,7 +154,9 @@ public final class MutableWorkflow implements JobListener<Job> {
 	public void removeConnection(ConnectionKey cc) {
 		beginUpdate();
 		try {
-			Location old = cc.target.bindings.remove(cc.targetPort);
+			Location old = null;
+			if (cc.target.isInserted())
+				old = cc.target.bindings.remove(cc.targetPort);
 			if (old != null)
 				events.add(new Workflows.ConnectionRemovedEvent<MutableWorkflow>(
 						this, cc));

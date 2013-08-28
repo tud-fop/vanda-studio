@@ -19,7 +19,7 @@ public final class SaveTool implements ToolFactory {
 	public Object instantiate(WorkflowEditor wfe) {
 		Action a = new SaveWorkflowAction(wfe);
 		wfe.addAction(a, "document-save",
-				KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK),0);
 		return a;
 	}
 
@@ -75,7 +75,7 @@ public final class SaveTool implements ToolFactory {
 			if (lastDir != null)
 				chooser.setCurrentDirectory(new File(lastDir));
 			chooser.setVisible(true);
-			int result = chooser.showSaveDialog(null);
+			int result = chooser.showSaveDialog(wfe.getApplication().getWindowSystem().getMainWindow());
 
 			// once file choice is approved, save the chosen file
 			if (result == JFileChooser.APPROVE_OPTION) {
@@ -88,7 +88,7 @@ public final class SaveTool implements ToolFactory {
 				try {
 //					Serialization ser = new Serialization(wfe.getApplication()
 //							.getToolMetaRepository().getRepository());
-					new Storer().store(wfe.getWorkflowDecoration().getRoot(), wfe.getDatabase(), filePath);
+					new Storer().store(wfe.getView().getWorkflow(), wfe.getDatabase(), filePath);
 				} catch (Exception e) {
 					wfe.getApplication().sendMessage(new ExceptionMessage(e));
 				}

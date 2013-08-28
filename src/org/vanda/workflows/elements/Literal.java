@@ -7,49 +7,58 @@ import org.vanda.workflows.elements.Elements.*;
 
 public final class Literal {
 
-	private final Integer key;
+	private String key;
 	private String name;
 	private Type type;
 	private final MultiplexObserver<ElementEvent<Literal>> observable;
-	
-	public Literal(Type type, String name, Integer key) {
+
+	private Literal(Type type, String name) {
 		this.type = type;
 		this.name = name;
-		if (key != null)
-			this.key = key;
-		else
-			this.key = hashCode();
 		observable = new MultiplexObserver<ElementEvent<Literal>>();
 	}
-	
-	public int getKey() {
+
+	public Literal(Type type, String name, String key) {
+		this(type, name);
+		if (key == null)
+			this.key = Integer.toHexString(hashCode());
+		else
+			this.key = key;
+	}
+
+	public Literal(Type type, String name, int key) {
+		this(type, name);
+		this.key = Integer.toHexString(key);
+	}
+
+	public String getKey() {
 		return key;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public Observable<ElementEvent<Literal>> getObservable() {
 		return observable;
 	}
-	
+
 	public Type getType() {
 		return type;
 	}
-	
+
 	public void setName(String name) {
 		if (!name.equals(this.name)) {
 			this.name = name;
 			observable.notify(new ValueChangeEvent<Literal>(this));
 		}
 	}
-	
+
 	public void setType(Type type) {
 		if (!type.equals(this.type)) {
 			this.type = type;
 			observable.notify(new TypeChangeEvent<Literal>(this));
 		}
 	}
-	
+
 }

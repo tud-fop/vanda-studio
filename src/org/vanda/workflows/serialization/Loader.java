@@ -66,7 +66,7 @@ public class Loader {
 					}
 				}, GeometryBuilder.createProcessor(), null);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	private SingleElementHandlerFactory<WorkflowBuilder> jobHandler(
 			SingleElementHandlerFactory<JobBuilder> literalHandler,
@@ -80,7 +80,7 @@ public class Loader {
 					public void process(WorkflowBuilder b1, JobBuilder b2) {
 						b1.jbs.add(b2.build());
 					}
-				}, null, null);
+				}, JobBuilder.createProcessor(), null);
 	}
 
 	private SingleElementHandlerFactory<RowBuilder> assignmentHandler() {
@@ -100,8 +100,9 @@ public class Loader {
 					@Override
 					public void process(DatabaseBuilder b1, RowBuilder b2) {
 						b1.assignments.add(b2.assignment);
+						b1.names.add(b2.name);
 					}
-				}, null, null);
+				}, RowBuilder.createProcessor(), null);
 	}
 
 	private SingleElementHandlerFactory<WorkflowBuilder> databaseHandler(

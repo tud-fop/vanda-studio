@@ -7,7 +7,7 @@ import org.vanda.xml.SingleFieldProcessor;
 
 public final class AssignmentBuilder {
 
-	public Integer key;
+	public String key;
 
 	public String value;
 
@@ -31,7 +31,7 @@ public final class AssignmentBuilder {
 
 		@Override
 		public void process(String name, String value, AssignmentBuilder b) {
-			b.key = Integer.parseInt(value, 16);
+			b.key = value; //Integer.parseInt(value, 16);
 		}
 
 		@Override

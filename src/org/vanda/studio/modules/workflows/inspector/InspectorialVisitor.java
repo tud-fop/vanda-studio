@@ -2,9 +2,13 @@ package org.vanda.studio.modules.workflows.inspector;
 
 import java.util.Locale;
 
-import org.vanda.fragment.model.Model;
-import org.vanda.studio.modules.workflows.model.WorkflowDecoration.SelectionVisitor;
-import org.vanda.studio.modules.workflows.model.WorkflowDecoration.WorkflowSelection;
+
+import org.vanda.view.AbstractView;
+import org.vanda.view.AbstractView.SelectionVisitor;
+import org.vanda.view.View;
+//import org.vanda.fragment.model.Model;
+import org.vanda.fragment.model.SemanticAnalysis;
+import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.types.Type;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
@@ -14,12 +18,16 @@ import org.vanda.workflows.hyper.MutableWorkflow;
 
 public final class InspectorialVisitor implements SelectionVisitor {
 
-	private final Model mm;
+//	private final Model mm;
 	private final StringBuilder sb;
-
-	public InspectorialVisitor(final Model mm) {
+	private final SyntaxAnalysis synA; 
+	private final SemanticAnalysis semA;
+	
+	public InspectorialVisitor(final SyntaxAnalysis synA, final SemanticAnalysis semA) {
 		sb = new StringBuilder();
-		this.mm = mm;
+//		this.mm = mm;
+		this.synA = synA;
+		this.semA = semA;
 	}
 
 	@Override
@@ -57,10 +65,14 @@ public final class InspectorialVisitor implements SelectionVisitor {
 		sb.append('.');
 		sb.append(cc.targetPort.getIdentifier());
 		sb.append("</td></tr>");
-		Type type = mm.getType(variable);
+//		Type type = mm.getType(variable);
+		Type type = synA.getType(variable);
 		if (type != null) {
 			sb.append("<tr><th align=left>Value</th><td>");
-			sb.append(mm.getDataflowAnalysis().getValue(variable));
+//			sb.append(mm.getDataflowAnalysis().getValue(variable));
+			// TODO make this work with multiple assignments
+//			sb.append(mm.getExecutableWorkflow().getValue(variable));
+			sb.append(semA.getDFA().getValue(variable));
 			sb.append("</td><td>&nbsp;</td><th align=left>Type</th><td>");
 			sb.append(type.toString());
 			sb.append("</td></tr>");
@@ -172,10 +184,13 @@ public final class InspectorialVisitor implements SelectionVisitor {
 		sb.append("</th></tr>");
 		// sb.append("<dt>Variable</dt><dd>x");
 		// sb.append(variable.toString());
-		Type type = mm.getType(variable);
+//		Type type = mm.getType(variable);
+		Type type = synA.getType(variable);
 		if (type != null) {
 			sb.append("<tr><th align=left>Value</th><td>");
-			sb.append(mm.getDataflowAnalysis().getValue(variable));
+//			sb.append(mm.getDataflowAnalysis().getValue(variable));
+//			sb.append(mm.getExecutableWorkflow().getValue(variable));
+			sb.append(semA.getDFA().getValue(variable));
 			sb.append("</td><td>&nbsp;</td><th align=left>Type</th><td>");
 			sb.append(type.toString());
 			sb.append("</td></tr>");
@@ -183,13 +198,17 @@ public final class InspectorialVisitor implements SelectionVisitor {
 		sb.append("</table></html>");
 	}
 	
-	public static String inspect(Model mm, WorkflowSelection ws) {
-		InspectorialVisitor visitor = new InspectorialVisitor(mm);
-		if (ws != null) {
-			ws.visit(visitor);
+//	public static String inspect(Model mm, View view) {
+	public static String inspect(SyntaxAnalysis synA, SemanticAnalysis semA, View view) {
+		InspectorialVisitor visitor = new InspectorialVisitor(synA, semA);
+		// size == 1, to avoid arbitrary inspection in case of multi selection
+		if (view.getCurrentSelection().size() == 1) {
+			for (AbstractView av : view.getCurrentSelection())
+				av.visit(visitor, view);
 			return visitor.getInspection();
 		} else {
-			return "";
+			view.getWorkflowView().visit(visitor, view);
+			return visitor.getInspection();
 		}
 	}
 

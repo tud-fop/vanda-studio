@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -58,7 +59,7 @@ import org.vanda.util.Observer;
 public class WindowSystemImpl implements WindowSystem {
 
 	private static int ICON_SIZE = 24;
-	
+
 	protected final Application app;
 	protected final JFrame mainWindow;
 	protected JLayeredPane mainPane;
@@ -74,9 +75,20 @@ public class WindowSystemImpl implements WindowSystem {
 	protected ButtonGroup modeGroup;
 	protected HashMap<JComponent, JInternalFrame> frames;
 
+	/**
+	 * stores TreeMap from indices to MenuItems for each menu the natural
+	 * ordering of keys is exploited to order the menu items
+	 */
+	protected HashMap<JMenu, TreeMap<Integer, JMenuItem>> items;
+
+	/**
+	 * 
+	 */
+	protected HashMap<JPanel, TreeMap<Integer, JButton>> tools;
+	protected HashMap<JComponent, HashMap<Action, JButton>> actionToButton;
+
 	@SuppressWarnings("serial")
-	private static class LayoutTabbedPane extends JTabbedPane implements
-			LayoutSelector {
+	private static class LayoutTabbedPane extends JTabbedPane implements LayoutSelector {
 
 		@Override
 		public <L> L selectLayout(LayoutAssortment<L> la) {
@@ -118,9 +130,10 @@ public class WindowSystemImpl implements WindowSystem {
 		iconToolBar = new JPanel(fl);
 		iconToolBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 		fileMenu = new JMenu("Studio");
+		items = new HashMap<JMenu, TreeMap<Integer, JMenuItem>>();
+		items.put(fileMenu, new TreeMap<Integer, JMenuItem>());
 		JMenuItem exitMenuItem = new JMenuItem("Exit");
-		exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
-				KeyEvent.CTRL_MASK));
+		exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_MASK));
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -128,7 +141,7 @@ public class WindowSystemImpl implements WindowSystem {
 			}
 		});
 
-		fileMenu.add(exitMenuItem);
+		items.get(fileMenu).put(3, exitMenuItem);
 		addSeparator();
 		menuBar.add(fileMenu);
 
@@ -137,8 +150,7 @@ public class WindowSystemImpl implements WindowSystem {
 		modeMenuItems = new HashMap<UIMode, JRadioButtonMenuItem>();
 		Collection<UIMode> modes = app.getUIModes();
 		for (final UIMode m : modes) {
-			JRadioButtonMenuItem item = new JRadioButtonMenuItem(m.getName(),
-					app.getUIMode() == m);
+			JRadioButtonMenuItem item = new JRadioButtonMenuItem(m.getName(), app.getUIMode() == m);
 			item.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -162,6 +174,10 @@ public class WindowSystemImpl implements WindowSystem {
 		windowMenus = new HashMap<JComponent, JMenu>();
 		windowTools = new HashMap<JComponent, List<JComponent>>();
 		iconToolBars = new HashMap<JComponent, JPanel>();
+		tools = new HashMap<JPanel, TreeMap<Integer, JButton>>();
+		tools.put(null, new TreeMap<Integer, JButton>());
+		actionToButton = new HashMap<JComponent, HashMap<Action, JButton>>();
+		actionToButton.put(null, new HashMap<Action, JButton>());
 		frames = new HashMap<JComponent, JInternalFrame>();
 
 		mainWindow.setJMenuBar(menuBar);
@@ -209,12 +225,14 @@ public class WindowSystemImpl implements WindowSystem {
 						menuBar.add(menu, 1);
 					}
 				}
-				if (iconToolBars.get(c) != null) {
-					iconToolBar.removeAll();
-					iconToolBar.add(iconToolBars.get(null));
-					if (c != null)
-						iconToolBar.add(iconToolBars.get(c));
-				}
+
+				iconToolBar.removeAll();
+				iconToolBar.add(iconToolBars.get(null));
+				if (iconToolBars.get(c) != null && c != null)
+					iconToolBar.add(iconToolBars.get(c));
+				iconToolBar.revalidate();
+				iconToolBar.repaint();
+
 				menuBar.revalidate();
 				menuBar.repaint();
 				mainPane.removeAll();
@@ -251,10 +269,8 @@ public class WindowSystemImpl implements WindowSystem {
 	}
 
 	@Override
-	public void addAction(JComponent c, final Action a, String imageName,
-			KeyStroke keyStroke) {
-		URL url = ClassLoader.getSystemClassLoader().getResource(
-				imageName + ".png");
+	public void addAction(JComponent c, final Action a, String imageName, KeyStroke keyStroke, int pos) {
+		URL url = ClassLoader.getSystemClassLoader().getResource(imageName + ".png");
 		JButton b = new JButton();
 		b.addActionListener(new ActionListener() {
 
@@ -265,8 +281,7 @@ public class WindowSystemImpl implements WindowSystem {
 		});
 		try {
 			Image i = ImageIO.read(url);
-			b.setIcon(new ImageIcon(i.getScaledInstance(ICON_SIZE, ICON_SIZE,
-					Image.SCALE_SMOOTH)));
+			b.setIcon(new ImageIcon(i.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_SMOOTH)));
 			b.setPreferredSize(new Dimension(ICON_SIZE + 2, ICON_SIZE + 2));
 			b.setMargin(new Insets(0, 0, 0, 0));
 			b.setToolTipText(a.getName());
@@ -278,18 +293,29 @@ public class WindowSystemImpl implements WindowSystem {
 			FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
 			fl.setVgap(1);
 			iconToolBars.put(c, new JPanel(fl));
-			iconToolBars.get(c).setComponentOrientation(
-					ComponentOrientation.LEFT_TO_RIGHT);
+			iconToolBars.get(c).setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+			tools.put(iconToolBars.get(c), new TreeMap<Integer, JButton>());
+			actionToButton.put(c, new HashMap<Action, JButton>());
 		}
-		iconToolBars.get(c).add(b);
+		tools.get(iconToolBars.get(c)).put((Integer) pos, b);
+		actionToButton.get(c).put(a, b);
+		iconToolBars.get(c).removeAll();
+		for (Integer i : tools.get(iconToolBars.get(c)).navigableKeySet()) {
+			iconToolBars.get(c).add(tools.get(iconToolBars.get(c)).get(i));
+		}
 		if (c == null)
 			for (ChangeListener cl : contentPane.getChangeListeners())
 				cl.stateChanged(new ChangeEvent(contentPane));
-		addAction(c, a, keyStroke);
+		addAction(c, a, keyStroke, pos);
 	}
 
 	@Override
 	public void addAction(JComponent c, final Action a, KeyStroke keyStroke) {
+		addAction(c, a, keyStroke, 0);
+	}
+
+	@Override
+	public void addAction(JComponent c, final Action a, KeyStroke keyStroke, int pos) {
 		JMenuItem item = new JMenuItem(a.getName());
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -307,10 +333,20 @@ public class WindowSystemImpl implements WindowSystem {
 				windowMenus.put(c, menu);
 				if (contentPane.getSelectedComponent() == c)
 					menuBar.add(menu, 1);
+				items.put(menu, new TreeMap<Integer, JMenuItem>());
 			}
-			menu.add(item);
-		} else
-			fileMenu.insert(item, 0);
+			items.get(menu).put((Integer) pos, item);
+			menu.removeAll();
+			for (Integer i : items.get(menu).navigableKeySet()) {
+				menu.insert(items.get(menu).get(i), i);
+			}
+		} else {
+			items.get(fileMenu).put((Integer) pos, item);
+			fileMenu.removeAll();
+			for (Integer i : items.get(fileMenu).navigableKeySet()) {
+				fileMenu.insert(items.get(fileMenu).get(i), i);
+			}
+		}
 	}
 
 	/**
@@ -322,10 +358,8 @@ public class WindowSystemImpl implements WindowSystem {
 		if (c.getName().length() <= maxLength) {
 			name = c.getName();
 		} else {
-			name = c.getName().substring(0, (maxLength - 3) / 2)
-					+ "..."
-					+ c.getName().substring(
-							c.getName().length() - (maxLength - 3) / 2 - 1);
+			name = c.getName().substring(0, (maxLength - 3) / 2) + "..."
+					+ c.getName().substring(c.getName().length() - (maxLength - 3) / 2 - 1);
 		}
 		int ix = contentPane.indexOfComponent(c);
 
@@ -335,8 +369,7 @@ public class WindowSystemImpl implements WindowSystem {
 		} else {
 			contentPane.add(name, c);
 			int idx = contentPane.getTabCount() - 1;
-			contentPane.setTabComponentAt(idx, new ButtonTabComponent(
-					contentPane, a));
+			contentPane.setTabComponentAt(idx, new ButtonTabComponent(contentPane, a));
 			contentPane.setToolTipTextAt(idx, c.getName());
 		}
 	}
@@ -351,8 +384,7 @@ public class WindowSystemImpl implements WindowSystem {
 	/**
 	 */
 	@Override
-	public void addToolWindow(JComponent window, Icon i, JComponent c,
-			LayoutSelector layout) {
+	public void addToolWindow(JComponent window, Icon i, JComponent c, LayoutSelector layout) {
 		List<JComponent> tcs = windowTools.get(window);
 		if (tcs == null) {
 			tcs = new ArrayList<JComponent>();
@@ -371,23 +403,47 @@ public class WindowSystemImpl implements WindowSystem {
 
 	@Override
 	public void disableAction(Action a) {
+		disableAction(null, a);
+	}
+
+	@Override
+	public void disableAction(JComponent window, Action a) {
+		JMenu menu = windowMenus.get(window);
+		if (menu == null)
+			menu = fileMenu;
 		// find item that is labeled with action's name
-		for (int i = 0; i < fileMenu.getItemCount(); i++) {
-			if (fileMenu.getItem(i) != null
-					&& fileMenu.getItem(i).getText().equals(a.getName())) {
-				fileMenu.getItem(i).setEnabled(false);
+		for (int i = 0; i < menu.getItemCount(); i++) {
+			if (menu.getItem(i) != null && menu.getItem(i).getText().equals(a.getName())) {
+				menu.getItem(i).setEnabled(false);
 			}
+		}
+		if (actionToButton.get(window) != null) {
+			JButton b = actionToButton.get(window).get(a);
+			if (b != null)
+				b.setEnabled(false);
 		}
 	}
 
 	@Override
 	public void enableAction(Action a) {
+		enableAction(null, a);
+	}
+
+	@Override
+	public void enableAction(JComponent window, Action a) {
+		JMenu menu = windowMenus.get(window);
+		if (menu == null)
+			menu = fileMenu;
 		// find item that is labeled with action's name
-		for (int i = 0; i < fileMenu.getItemCount(); i++) {
-			if (fileMenu.getItem(i) != null
-					&& fileMenu.getItem(i).getText().equals(a.getName())) {
-				fileMenu.getItem(i).setEnabled(true);
+		for (int i = 0; i < menu.getItemCount(); i++) {
+			if (menu.getItem(i) != null && menu.getItem(i).getText().equals(a.getName())) {
+				menu.getItem(i).setEnabled(true);
 			}
+		}
+		if (actionToButton.get(window) != null) {
+			JButton b = actionToButton.get(window).get(a);
+			if (b != null)
+				b.setEnabled(true);
 		}
 	}
 
@@ -407,6 +463,11 @@ public class WindowSystemImpl implements WindowSystem {
 		contentPane.setSelectedComponent(c);
 		for (ChangeListener cl : contentPane.getChangeListeners())
 			cl.stateChanged(new ChangeEvent(contentPane));
+	}
+
+	@Override
+	public JFrame getMainWindow() {
+		return mainWindow;
 	}
 
 	/**

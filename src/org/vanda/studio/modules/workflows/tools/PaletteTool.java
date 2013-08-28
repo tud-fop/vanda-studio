@@ -1,8 +1,7 @@
 package org.vanda.studio.modules.workflows.tools;
 
 import java.awt.BorderLayout;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DragSource;
+import java.awt.Component;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -17,13 +16,11 @@ import javax.swing.GroupLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.vanda.studio.modules.workflows.jgraph.DrecksAdapter;
-import org.vanda.studio.modules.workflows.jgraph.mxDragGestureListener;
+import org.vanda.presentationmodel.palette.PresentationModel;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.types.Types;
@@ -32,9 +29,6 @@ import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.LiteralAdapter;
 import org.vanda.workflows.hyper.ToolAdapter;
-
-import com.mxgraph.model.mxICell;
-import com.mxgraph.swing.mxGraphComponent;
 
 public class PaletteTool implements ToolFactory {
 	// TODO see below: beamer mode and stuff
@@ -55,7 +49,7 @@ public class PaletteTool implements ToolFactory {
 
 	public static class Palette {
 		protected final WorkflowEditor wfe;
-		protected mxGraphComponent searchGraph;
+		protected Component searchGraph;
 		protected JPanel palette;
 		protected JXTaskPaneContainer taskPaneContainer;
 		protected JTextField textField;
@@ -71,7 +65,7 @@ public class PaletteTool implements ToolFactory {
 			scrollPane = new JScrollPane();
 			templates = new ArrayList<Job>();
 			// paletteComponent = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-			// 		scrollPane, new JPanel());
+			// scrollPane, new JPanel());
 			textField = new JTextField(20);
 			textField.setDragEnabled(true);
 			textField.addKeyListener(new KeyAdapter() {
@@ -82,24 +76,27 @@ public class PaletteTool implements ToolFactory {
 			});
 			resultPane = new JXTaskPane("Search Results");
 			resultPane.setVisible(false);
-			
+
 			JLabel lab = new JLabel("Search");
 			searchPane = new JPanel();
 			searchPane.add(lab);
 			searchPane.add(textField);
-			
+
 			GroupLayout layout = new GroupLayout(searchPane);
 			searchPane.setLayout(layout);
 			layout.setAutoCreateGaps(true);
 			layout.setAutoCreateContainerGaps(true);
-			layout.setHorizontalGroup(layout.createSequentialGroup()
+			layout.setHorizontalGroup(layout
+					.createSequentialGroup()
 					.addGroup(layout.createParallelGroup().addComponent(lab))
-					.addGroup(layout.createParallelGroup().addComponent(textField)));
+					.addGroup(
+							layout.createParallelGroup()
+									.addComponent(textField)));
 
 			layout.setVerticalGroup(layout.createSequentialGroup().addGroup(
-					layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(lab).addComponent(textField)));
+					layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+							.addComponent(lab).addComponent(textField)));
 
-			
 			palette = new JPanel(new BorderLayout());
 			palette.setName("Palette");
 			palette.add(searchPane, BorderLayout.NORTH);
@@ -148,7 +145,7 @@ public class PaletteTool implements ToolFactory {
 			Collections.sort(categories);
 			for (String category : categories) {
 				JXTaskPane categoryPane = new JXTaskPane(category);
-				mxGraphComponent graphComp = renderTemplates(catMap
+				Component graphComp = renderTemplates(catMap
 						.get(category));
 				categoryPane.add(graphComp);
 				categoryPane.setCollapsed(true);
@@ -180,7 +177,8 @@ public class PaletteTool implements ToolFactory {
 					searchGraph = renderTemplates(searchResults);
 					resultPane.add(searchGraph);
 				}
-				resultPane.revalidate(); // in particular if searchResults.isEmpty()
+				resultPane.revalidate(); // in particular if
+											// searchResults.isEmpty()
 				resultPane.setCollapsed(false);
 				resultPane.setVisible(true);
 			} else
@@ -189,31 +187,18 @@ public class PaletteTool implements ToolFactory {
 
 	}
 
-	protected static mxGraphComponent renderTemplates(List<Job> ts) {
-		DrecksAdapter da = new DrecksAdapter(null);
-		da.getGraph().setCellsLocked(true);
-		da.getGraph().setDropEnabled(false);
-		da.getGraph().getModel().beginUpdate();
-		try {
-			// top left corner of first palette tool, width, height
-			double[] d = { 20, 10, 100, 80 };
-			for (Job template : ts) {
-				template.setDimensions(d);
-				mxICell cell = da.renderChild(null, template);
-				cell.setId(template.getElement().getId());
-				d[1] += cell.getGeometry().getHeight() + 10;
-			}
-		} finally {
-			da.getGraph().getModel().endUpdate();
+	protected static Component renderTemplates(List<Job> ts) {
+		PresentationModel pm = new PresentationModel();
+
+		// top left corner of first palette tool, width, height
+		double[] d = { 20, 10, 100, 80 };
+		for (Job template : ts) {
+			template.setDimensions(d);
+			d[1] += pm.addJobAdapter(template) + 10;
 		}
-		mxGraphComponent c = new mxGraphComponent(da.getGraph());
-		c.setConnectable(false);
-		c.setDragEnabled(false);
-		DragSource ds = new DragSource();
-		ds.createDefaultDragGestureRecognizer(c.getGraphControl(),
-				DnDConstants.ACTION_COPY_OR_MOVE,
-				new mxDragGestureListener(c.getGraph()));
-		return c;
+
+		// mxGraphComponent c = new mxGraphComponent(da.getGraph());
+		return pm.getComponent();
 	}
 
 	@Override
