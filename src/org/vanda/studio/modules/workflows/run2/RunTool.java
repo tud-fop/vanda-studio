@@ -37,7 +37,7 @@ public class RunTool implements SemanticsToolFactory {
 
 			@Override
 			public String getName() {
-				return "Run2";
+				return "Run";
 			}
 
 			@Override

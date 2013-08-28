@@ -186,18 +186,20 @@ public class RunConfigEditor {
 			}
 
 		});
-		SequentialGroup buttonsVert = layout.createSequentialGroup().addComponent(selectAllButton)
+		SequentialGroup buttonsHori = layout.createSequentialGroup().addComponent(selectAllButton)
 				.addComponent(selectNoneButton);
-		ParallelGroup buttonsHori = layout.createParallelGroup().addComponent(selectAllButton)
+		ParallelGroup buttonsVert = layout.createParallelGroup().addComponent(selectAllButton)
 				.addComponent(selectNoneButton);
 
 		// ExecutionSystem Selection
 		// TODO read out available Systems from somewhere
 		JLabel exLabel = new JLabel("Execution System");
 		JComboBox<String> exSystem = new JComboBox<String>();
+		exLabel.setEnabled(false);
 		exSystem.setMaximumSize(new Dimension(Short.MAX_VALUE, JComboBox.HEIGHT));
 		exSystem.addItem("Shell Compiler");
-		JButton exButton = new JButton(new AbstractAction("Run") {
+		exSystem.setEnabled(false);
+		JButton exButton = new JButton(new AbstractAction("Open Execution Preview") {
 			private static final long serialVersionUID = 3626621817499179974L;
 
 			@Override
