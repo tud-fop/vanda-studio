@@ -438,7 +438,7 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		component.setHorizontalPageCount(0);
 		component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		app.getUIModeObservable().addObserver(new Observer<Application>() {
+		Observer<Application> appObserver = new Observer<Application>() {
 			@Override
 			public void notify(Application a) {
 				if (a.getUIMode().isLargeContent())
@@ -446,7 +446,11 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 				else
 					component.zoomActual();
 			}
-		});
+		};
+		app.getUIModeObservable().addObserver(appObserver);
+		// initialize zoom
+		appObserver.notify(app);
+		
 	}
 
 	protected void setupOutline() {
