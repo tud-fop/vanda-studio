@@ -165,7 +165,7 @@ public class RunConfigEditor {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				for (JCheckBox acb : assignmentCheckboxes) {
-					if (!acb.isSelected()) {
+					if (!acb.isSelected() && acb.isEnabled()) {
 						acb.setSelected(true);
 						acb.getAction().actionPerformed(null);
 					}
