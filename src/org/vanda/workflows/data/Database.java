@@ -15,7 +15,7 @@ import org.vanda.workflows.data.Databases.DataChange;
 public final class Database {
 
 	private final ArrayList<HashMap<String, String>> assignments;
-	private final ArrayList<String> assignmentNames;
+	private final LinkedList<String> assignmentNames;
 	private int cursor;
 	private final MultiplexObserver<DatabaseEvent<Database>> observable;
 	private int update;
@@ -23,7 +23,7 @@ public final class Database {
 
 	public Database() {
 		assignments = new ArrayList<HashMap<String, String>>();
-		assignmentNames = new ArrayList<String>();
+		assignmentNames = new LinkedList<String>();
 		cursor = 0;
 		observable = new MultiplexObserver<DatabaseEvent<Database>>();
 		events = new LinkedList<DatabaseEvent<Database>>();
@@ -102,7 +102,19 @@ public final class Database {
 				events.add(new DataChange<Database>(this, e.getKey()));
 			}
 			assignments.add(row);
-			assignmentNames.add(assignmentNames.get(cursor) + "(2)");
+			// copies current name and adds "(i)" as suffix
+			// where i is the smallest integer > 1 that is not used
+			String nameProto = assignmentNames.get(cursor);
+			if (nameProto.matches(".*[(]\\d+[)]")) {
+				int i = nameProto.lastIndexOf('(');
+				nameProto = nameProto.subSequence(0, i).toString();
+			}
+			int i;
+			for (i = 2; ; ++i) {
+				if (!assignmentNames.contains(nameProto + "(" + i + ")"))
+					break;				
+			}
+			assignmentNames.add(nameProto + "(" + i + ")");
 		} finally {
 			endUpdate();
 		}
@@ -116,6 +128,7 @@ public final class Database {
 			try {
 				HashMap<String, String> theRow = assignments.get(cursor);
 				assignments.remove(cursor);
+				assignmentNames.remove(cursor);
 				for (Entry<String, String> e : theRow.entrySet())
 					events.add(new DataChange<Database>(this, e.getKey()));
 			} finally {
