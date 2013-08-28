@@ -3,7 +3,6 @@ package org.vanda.studio.modules.workflows.inspector;
 import java.awt.BorderLayout;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 
 import javax.swing.GroupLayout;
 import javax.swing.JComponent;

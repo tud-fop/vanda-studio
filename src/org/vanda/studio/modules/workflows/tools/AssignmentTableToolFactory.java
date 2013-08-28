@@ -711,7 +711,8 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			SequentialGroup buttonHor = layout.createSequentialGroup().addComponent(addButton)
 					.addComponent(removeButton);
 
-			// create mouse listener to detect row header focus lost while editing
+			// create mouse listener to detect row header focus lost while
+			// editing
 			rowHeaderEditingStopMouseListener = new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
@@ -835,10 +836,45 @@ public class AssignmentTableToolFactory implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe) {
-		Action a = new OpenAssignmentTableAction(wfe);
+	public Object instantiate(final WorkflowEditor wfe) {
+		final Action a = new OpenAssignmentTableAction(wfe);
 		wfe.addAction(a, "application-vnd.sun.xml.calc", KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_MASK), 4);
+
+		// disables assignment table if database is empty
+		final DatabaseListener<Database> listener = new DatabaseListener<Database>() {
+			private boolean active = true;
+
+			@Override
+			public void cursorChange(Database d) {
+			}
+
+			@Override
+			public void dataChange(Database d, Object key) {
+				if (active && d.getSize() == 0) {
+					wfe.disableAction(a);
+					active = false;
+				} else if (!active && d.getSize() > 0) {
+					wfe.enableAction(a);
+					active = true;
+				}
+			}
+
+			@Override
+			public void nameChange(Database d) {
+			}
+		};
+		wfe.getDatabase().getObservable().addObserver(new Observer<DatabaseEvent<Database>>() {
+
+			@Override
+			public void notify(DatabaseEvent<Database> event) {
+				event.doNotify(listener);
+			}
+
+		});
+
+		// initialize button
+		listener.dataChange(wfe.getDatabase(), null);
+
 		return a;
 	}
-
 }

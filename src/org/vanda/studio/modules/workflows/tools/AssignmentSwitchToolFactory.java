@@ -78,18 +78,26 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 
 	private static class EditAssignmentTool {
 		private class Listener implements DatabaseListener<Database> {
-
+			boolean active = true;
+			
 			@Override
 			public void cursorChange(Database d) {
 				aName.setText(d.getName());
-				label.setText(d.getCursor() + 1 + " / " + d.getSize());
+				if (d.getSize() == 0) 
+					aName.setEnabled(false);
+				else 
+					aName.setEnabled(true);
+				if (d.getSize() > 0) 
+					label.setText(d.getCursor() + 1 + " / " + d.getSize());
+				else 
+					label.setText("0 / 0");
 				// enable / disable prev/next-Buttons
 				if (d.getCursor() == 0)
 					prevButton.setEnabled(false);
 				else
 					prevButton.setEnabled(true);
 
-				if (d.getCursor() == d.getSize() - 1)
+				if (d.getSize() == 0 || d.getCursor() == d.getSize() - 1)
 					nextButton.setEnabled(false);
 				else
 					nextButton.setEnabled(true);
@@ -98,7 +106,13 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 
 			@Override
 			public void dataChange(Database d, Object key) {
-				// do nothing
+				if (active == false && d.getSize() > 0) {
+					active = true;
+					cursorChange(d);
+				} else if (active == true && d.getSize() == 0) {
+					active = false;
+					cursorChange(d);
+				}
 			}
 
 			@Override
@@ -181,9 +195,11 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 			label = new JLabel();
 
 			final Listener dl = new Listener();
-
+			
 			// init Label
 			dl.cursorChange(db);
+			// init State
+			dl.dataChange(db, null);
 
 			db.getObservable().addObserver(new Observer<DatabaseEvent<Database>>() {
 
