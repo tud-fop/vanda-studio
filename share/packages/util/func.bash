@@ -28,14 +28,14 @@ run () {
 	
 	echo "Checking: ${args[0]}" >> "$logFile"
 	inNew="${args[4]}"
-	for (( i=5; i < $(( ${args[1]} + 3 )); i++ )); do
+	for (( i=5; i < $(( ${args[1]} + 4 )); i++ )); do
 		if [[ "${args[i]}" -nt "$inNew" ]]; then
 			inNew="${args[$i]}"
 		fi
 	done
 
-	outOld="${args[$((${args[1]} + 3))]}"
-	for (( i=$(( ${args[1]} + 3 )); i < $#; i++ )); do
+	outOld="${args[$((${args[1]} + 4))]}"
+	for (( i=$(( ${args[1]} + 4 )); i < $#; i++ )); do
 		if [[ "${args[$i]}" -ot "$inNew" ]]; then
 			outOld="${args[$i]}"
 		fi
@@ -58,4 +58,8 @@ run () {
 	fi
 
 	echo "Done: ${args[0]}"
+}
+
+CAT () {
+	cat $@
 }
