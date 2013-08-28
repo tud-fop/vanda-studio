@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,10 +28,14 @@ import javax.swing.SpinnerNumberModel;
 
 import org.vanda.util.Pair;
 import org.vanda.workflows.data.Database;
-import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
+import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.Tool;
+import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.JobVisitor;
+import org.vanda.workflows.hyper.Location;
+import org.vanda.workflows.hyper.MutableWorkflow;
 
 /**
  * Dialogue to select Run-Directory, Assignments, Run-System
@@ -58,7 +61,7 @@ public class RunConfigEditor {
 		return pan;
 	}
 
-	public RunConfigEditor(final Collection<Job> jobs, Database db, String path, final Runner r) {
+	public RunConfigEditor(final MutableWorkflow mwf, Database db, String path, final Runner r) {
 		// Panel and basic Layout
 		pan = new JPanel();
 		GroupLayout layout = new GroupLayout(pan);
@@ -98,7 +101,7 @@ public class RunConfigEditor {
 		tablePane.setLayout(tableLayout);
 		assignmentSelection = new ArrayList<Integer>();
 		priorityMap = new HashMap<Integer, JSpinner>();
-		assignmentCheckboxes = new ArrayList<JCheckBox>(); 
+		assignmentCheckboxes = new ArrayList<JCheckBox>();
 
 		ParallelGroup leftColumn = tableLayout.createParallelGroup();
 		ParallelGroup rightColumn = tableLayout.createParallelGroup();
@@ -128,7 +131,7 @@ public class RunConfigEditor {
 				}
 			});
 			assignmentCheckboxes.add(assignment);
-			boolean selectable = DatabaseValueChecker.checkDatabseRow(jobs, db.getRow(i));
+			boolean selectable = DatabaseValueChecker.checkDatabseRow(mwf, db.getRow(i));
 			JSpinner priority = new JSpinner(new SpinnerNumberModel(i, 0, 1000, 1));
 
 			if (!selectable) {
@@ -206,7 +209,7 @@ public class RunConfigEditor {
 			public void actionPerformed(ActionEvent arg0) {
 				Map<Pair<Job, Integer>, Integer> priorities = new HashMap<Pair<Job, Integer>, Integer>();
 				for (Integer i : priorityMap.keySet()) {
-					for (Job j : jobs) {
+					for (Job j : mwf.getChildren()) {
 						priorities.put(new Pair<Job, Integer>(j, i), (Integer) priorityMap.get(i).getValue());
 					}
 				}
@@ -229,37 +232,92 @@ public class RunConfigEditor {
 	}
 
 	private static class DatabaseValueChecker {
-		private static class LiteralVisitor implements ElementVisitor {
-			private final Map<String, String> row;
-			private boolean b = true;
-
-			public LiteralVisitor(Map<String, String> row) {
-				this.row = row;
+		private static class JobTraverser implements JobVisitor {
+			private boolean allLitsConnected = true;
+			private final List<Literal> literals;
+			private final List<Job> workingSet;
+			private final MutableWorkflow mwf; 
+			
+			public JobTraverser(List<Literal> literals, MutableWorkflow mwf, List<Job> workingSet) {
+				this.literals = literals;
+				this.mwf = mwf;
+				this.workingSet = workingSet;
+			}
+			
+			@Override
+			public void visitTool(Job j, Tool t) {
+				for (Port ip : j.getInputPorts()) {
+					Location l = j.bindings.get(ip);
+					ConnectionKey src = mwf.getVariableSource(l);
+					if (src != null)
+						workingSet.add(src.target);
+					else 
+						allLitsConnected = false;
+				}
 			}
 
 			@Override
-			public void visitLiteral(Literal l) {
-				if (row.get(l.getKey()) == null || row.get(l.getKey()).equals(":"))
-					b = false;
+			public void visitLiteral(Job j, Literal l) {
+				literals.add(l);
 			}
-
-			@Override
-			public void visitTool(Tool t) {
-				// do nothing
+			
+			public boolean allLiteralsConnected() {
+				return allLitsConnected;
 			}
+		}
+		
+		
 
-			public boolean getValue() {
-				return b;
+		public static boolean checkDatabseRow(MutableWorkflow mwf, final HashMap<String, String> row) {
+			boolean b = true;
+			try {
+				for (Literal l : detectConnectedLiterals(mwf)) {
+					if (row.get(l.getKey()) == null || row.get(l.getKey()).equals(":"))
+						b = false;
+				}
+			} catch (MissingInputsException e) {
+				b = false;
 			}
-
+			return b;
 		}
 
-		public static boolean checkDatabseRow(Collection<Job> jobs, final HashMap<String, String> row) {
-			LiteralVisitor v = new LiteralVisitor(row);
-			for (Job j : jobs) {
-				j.visit(v);
+		public static List<Literal> detectConnectedLiterals(final MutableWorkflow mwf) throws MissingInputsException {
+			final List<Literal> literals = new ArrayList<Literal>();
+			final List<Job> workingSet = new ArrayList<Job>();
+			// add sink tools
+			for (Job j : mwf.getChildren()) {
+				j.visit(new JobVisitor() {
+
+					@Override
+					public void visitTool(Job j, Tool t) {
+						if (t.getId().equals("SinkTool")) {
+							workingSet.add(j);
+						}
+					}
+
+					@Override
+					public void visitLiteral(Job j, Literal l) {
+						// do nothing
+					}
+				});
 			}
-			return v.getValue();
+			JobTraverser jv = new JobTraverser(literals, mwf, workingSet); 
+			
+			while (!workingSet.isEmpty()) {
+				Job j = workingSet.remove(workingSet.size() - 1);
+				j.visit(jv);
+			}
+			
+			if (jv.allLiteralsConnected())
+				return literals;
+			else 
+				throw new MissingInputsException();
 		}
+	}
+
+	private static class MissingInputsException extends Exception {
+
+		private static final long serialVersionUID = -964570440435994657L;
+
 	}
 }
