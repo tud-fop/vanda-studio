@@ -5,6 +5,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -21,7 +25,7 @@ import org.vanda.util.Observer;
 public class DoubleDataSource implements DataSource {
 
 	private static final Type TYPE = new CompositeType("Double");
-	
+
 	public DoubleDataSource() {
 	}
 
@@ -40,15 +44,31 @@ public class DoubleDataSource implements DataSource {
 						element.setValue(jNumber.getText());
 				}
 			});
+			jNumber.addFocusListener(new FocusAdapter() {
+
+				@Override
+				public void focusLost(FocusEvent arg0) {
+					if (element != null)
+						element.setValue(jNumber.getText());
+				}
+			});
 		}
 
 		@Override
 		public JComponent getComponent() {
-			JPanel pan = new JPanel(new GridBagLayout());
+			final JPanel pan = new JPanel(new GridBagLayout());
 			GridBagConstraints gbc = new GridBagConstraints();
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.weightx = 1;
 			pan.add(jNumber, gbc);
+			pan.addMouseListener(new MouseAdapter() {
+
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					pan.requestFocusInWindow();
+				}
+
+			});
 			return pan;
 		}
 
@@ -101,7 +121,7 @@ public class DoubleDataSource implements DataSource {
 	public Type getType(Element element) {
 		return TYPE;
 	}
-	
+
 	public class IntegerDataSourceEditor extends DataSourceEditor {
 
 		@Override
@@ -118,7 +138,7 @@ public class DoubleDataSource implements DataSource {
 		public void write() {
 			// Do nothing.
 		}
-		
+
 	}
 
 	@Override
