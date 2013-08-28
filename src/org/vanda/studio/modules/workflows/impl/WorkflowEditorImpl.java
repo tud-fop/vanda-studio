@@ -91,7 +91,6 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		configureComponent();
 		component.getGraphControl().addMouseListener(new EditMouseAdapter());
 		component.addKeyListener(new DelKeyListener());
-		component.zoomActual();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -126,7 +125,7 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		// send some initial event ("updated" will be sent)
 		view.getWorkflow().beginUpdate();
 		view.getWorkflow().endUpdate();
-		
+
 		// focus window
 		app.getWindowSystem().focusContentWindow(component);
 		component.requestFocusInWindow();
