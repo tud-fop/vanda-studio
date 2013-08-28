@@ -225,14 +225,14 @@ public class WindowSystemImpl implements WindowSystem {
 						menuBar.add(menu, 1);
 					}
 				}
-				
+
 				iconToolBar.removeAll();
 				iconToolBar.add(iconToolBars.get(null));
-				if (iconToolBars.get(c) != null && c != null) 
-						iconToolBar.add(iconToolBars.get(c));
+				if (iconToolBars.get(c) != null && c != null)
+					iconToolBar.add(iconToolBars.get(c));
 				iconToolBar.revalidate();
 				iconToolBar.repaint();
-				
+
 				menuBar.revalidate();
 				menuBar.repaint();
 				mainPane.removeAll();
@@ -417,9 +417,11 @@ public class WindowSystemImpl implements WindowSystem {
 				menu.getItem(i).setEnabled(false);
 			}
 		}
-		JButton b = actionToButton.get(window).get(a);
-		if (b != null)
-			b.setEnabled(false);
+		if (actionToButton.get(window) != null) {
+			JButton b = actionToButton.get(window).get(a);
+			if (b != null)
+				b.setEnabled(false);
+		}
 	}
 
 	@Override
@@ -438,9 +440,11 @@ public class WindowSystemImpl implements WindowSystem {
 				menu.getItem(i).setEnabled(true);
 			}
 		}
-		JButton b = actionToButton.get(window).get(a);
-		if (b != null)
-			b.setEnabled(true);
+		if (actionToButton.get(window) != null) {
+			JButton b = actionToButton.get(window).get(a);
+			if (b != null)
+				b.setEnabled(true);
+		}
 	}
 
 	@Override
