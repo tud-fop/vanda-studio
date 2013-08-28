@@ -192,6 +192,7 @@ public final class Database {
 				if (cursor == assignments.size()) {
 					m = new HashMap<String, String>();
 					assignments.add(m);
+					assignmentNames.add("");
 				} else
 					m = assignments.get(cursor);
 				oldvalue = m.put(key, value);
