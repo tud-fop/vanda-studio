@@ -92,6 +92,16 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	}
 
 	@Override
+	public void enableAction(Action a) {
+		app.getWindowSystem().enableAction(component, a);
+	}
+	
+	@Override
+	public void disableAction(Action a) {
+		app.getWindowSystem().disableAction(component, a);
+	}
+	
+	@Override
 	public void focusToolWindow(JComponent c) {
 		app.getWindowSystem().focusToolWindow(c);
 	}

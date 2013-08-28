@@ -27,4 +27,6 @@ public interface WorkflowEditor {
 	SyntaxAnalysis getSyntaxAnalysis();
 	SemanticAnalysis getSemanticAnalysis();
 	void addAction(Action a, String imageName, KeyStroke keyStroke, int pos);
+	void enableAction(Action a);
+	void disableAction(Action a);
 }

@@ -85,6 +85,7 @@ public class WindowSystemImpl implements WindowSystem {
 	 * 
 	 */
 	protected HashMap<JPanel, TreeMap<Integer, JButton>> tools;
+	protected HashMap<JComponent, HashMap<Action, JButton>> actionToButton;
 
 	@SuppressWarnings("serial")
 	private static class LayoutTabbedPane extends JTabbedPane implements LayoutSelector {
@@ -175,6 +176,8 @@ public class WindowSystemImpl implements WindowSystem {
 		iconToolBars = new HashMap<JComponent, JPanel>();
 		tools = new HashMap<JPanel, TreeMap<Integer, JButton>>();
 		tools.put(null, new TreeMap<Integer, JButton>());
+		actionToButton = new HashMap<JComponent, HashMap<Action, JButton>>();
+		actionToButton.put(null, new HashMap<Action, JButton>());
 		frames = new HashMap<JComponent, JInternalFrame>();
 
 		mainWindow.setJMenuBar(menuBar);
@@ -292,8 +295,10 @@ public class WindowSystemImpl implements WindowSystem {
 			iconToolBars.put(c, new JPanel(fl));
 			iconToolBars.get(c).setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 			tools.put(iconToolBars.get(c), new TreeMap<Integer, JButton>());
+			actionToButton.put(c, new HashMap<Action, JButton>());
 		}
 		tools.get(iconToolBars.get(c)).put((Integer) pos, b);
+		actionToButton.get(c).put(a, b);
 		iconToolBars.get(c).removeAll();
 		for (Integer i : tools.get(iconToolBars.get(c)).navigableKeySet()) {
 			iconToolBars.get(c).add(tools.get(iconToolBars.get(c)).get(i));
@@ -412,6 +417,9 @@ public class WindowSystemImpl implements WindowSystem {
 				menu.getItem(i).setEnabled(false);
 			}
 		}
+		JButton b = actionToButton.get(window).get(a);
+		if (b != null)
+			b.setEnabled(false);
 	}
 
 	@Override
@@ -430,6 +438,9 @@ public class WindowSystemImpl implements WindowSystem {
 				menu.getItem(i).setEnabled(true);
 			}
 		}
+		JButton b = actionToButton.get(window).get(a);
+		if (b != null)
+			b.setEnabled(true);
 	}
 
 	@Override
