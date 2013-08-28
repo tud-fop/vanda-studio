@@ -12,6 +12,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,6 +38,10 @@ public class IntegerDataSource implements DataSource {
 
 		public IntegerElement() {
 			jNumber = new JSpinner(new SpinnerNumberModel());
+			// disable digit grouping
+			JSpinner.NumberEditor editor = new JSpinner.NumberEditor(jNumber);
+			editor.getFormat().setGroupingUsed(false);
+			jNumber.setEditor(editor);
 			jNumber.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
 			jNumber.addChangeListener(new ChangeListener() {
 				@Override
