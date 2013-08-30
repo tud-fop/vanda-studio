@@ -18,8 +18,6 @@ import org.vanda.workflows.hyper.TopSorter.TopSortException;
 import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 import org.vanda.workflows.hyper.Workflows.WorkflowListener;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
-
 public class SyntaxUpdater implements Observer<WorkflowEvent<MutableWorkflow>>, WorkflowListener<MutableWorkflow> {
 
 	@Override

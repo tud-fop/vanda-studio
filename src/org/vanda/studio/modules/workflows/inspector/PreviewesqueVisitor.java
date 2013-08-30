@@ -84,6 +84,8 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 			public JComponent createButtons(final Application app) {
 				JPanel pan = new JPanel(new GridLayout(3,1));
 				JButton bOpen = new JButton(new AbstractAction("edit") {
+					private static final long serialVersionUID = 2959913172246062587L;
+
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						app.getPreviewFactory(type).openEditor(app.findFile(value));
