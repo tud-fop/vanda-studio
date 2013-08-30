@@ -73,18 +73,8 @@ public class ConnectionAdapter {
 				// Then remove this hack
 				else {
 					view.addConnectionView(connectionKey);
-					view.getConnectionView(connectionKey)
-							.getObservable()
-							.addObserver(
-									new Observer<ViewEvent<AbstractView>>() {
-
-										@Override
-										public void notify(
-												ViewEvent<AbstractView> event) {
-											event.doNotify(connectionViewListener);
-										}
-
-									});
+					view.getConnectionView(connectionKey).getObservable()
+							.addObserver(connectionViewObserver);
 					view.getConnectionView(connectionKey).setSelected(selected);
 				}
 			}
@@ -92,8 +82,7 @@ public class ConnectionAdapter {
 
 		@Override
 		public void rightClick(MouseEvent e) {
-			PopupMenu menu = new PopupMenu(
-					((ConnectionCell) visualization).toString());
+			PopupMenu menu = new PopupMenu(((ConnectionCell) visualization).toString());
 
 			@SuppressWarnings("serial")
 			JMenuItem item = new JMenuItem("Remove Connection") {
@@ -110,8 +99,7 @@ public class ConnectionAdapter {
 
 	}
 
-	private class ConnectionViewListener implements
-			AbstractView.ViewListener<AbstractView> {
+	private class ConnectionViewListener implements AbstractView.ViewListener<AbstractView> {
 
 		@Override
 		public void highlightingChanged(AbstractView v) {
@@ -126,7 +114,7 @@ public class ConnectionAdapter {
 			else
 				visualization.highlight(false);
 		}
-		
+
 		@Override
 		public void runProgressUpdate(AbstractView _) {
 			// do nothing
@@ -134,9 +122,7 @@ public class ConnectionAdapter {
 
 		@Override
 		public void selectionChanged(AbstractView v) {
-			visualization.getObservable().notify(
-					new SelectionChangedEvent<Cell>(visualization, v
-							.isSelected()));
+			visualization.getObservable().notify(new SelectionChangedEvent<Cell>(visualization, v.isSelected()));
 		}
 
 		@Override
@@ -145,14 +131,15 @@ public class ConnectionAdapter {
 		}
 	}
 
-	ConnectionCellListener connectionCellListener;
+	private ConnectionCellListener connectionCellListener;
+	private Observer<CellEvent<Cell>> connectionCellObserver;
 
 	private final ConnectionKey connectionKey;
+	
 	private ConnectionViewListener connectionViewListener;
+	private Observer<ViewEvent<AbstractView>> connectionViewObserver;
 
-	Observer<ViewEvent<AbstractView>> connectionViewObserver;
-
-	View view;
+	private View view;
 
 	private final ConnectionCell visualization;
 
@@ -163,8 +150,7 @@ public class ConnectionAdapter {
 	 * @param visualization
 	 * @param view
 	 */
-	public ConnectionAdapter(ConnectionKey connectionKey,
-			ConnectionCell visualization, View view) {
+	public ConnectionAdapter(ConnectionKey connectionKey, ConnectionCell visualization, View view) {
 		// System.out.println("Hand-Drawn edge!");
 		this.visualization = visualization;
 		this.connectionKey = connectionKey;
@@ -172,15 +158,15 @@ public class ConnectionAdapter {
 
 		// register at Connection View
 		connectionCellListener = new ConnectionCellListener();
-		visualization.getObservable().addObserver(
-				new Observer<CellEvent<Cell>>() {
+		connectionCellObserver = new Observer<CellEvent<Cell>>() {
 
-					@Override
-					public void notify(CellEvent<Cell> event) {
-						event.doNotify(connectionCellListener);
-					}
+			@Override
+			public void notify(CellEvent<Cell> event) {
+				event.doNotify(connectionCellListener);
+			}
 
-				});
+		};
+		visualization.getObservable().addObserver(connectionCellObserver);
 
 		// create ConnectionView
 		view.addConnectionView(connectionKey);
@@ -195,14 +181,12 @@ public class ConnectionAdapter {
 		};
 
 		// Register at ConnectionView
-		view.getConnectionView(connectionKey).getObservable()
-				.addObserver(connectionViewObserver);
+		view.getConnectionView(connectionKey).getObservable().addObserver(connectionViewObserver);
 
 		// identify Source Job and Source Port
 		OutPortCell sourcePortCell = visualization.getSourceCell();
 		JobCell sourceJobCell = (JobCell) sourcePortCell.getParentCell();
-		PresentationModel pm = (PresentationModel) ((WorkflowCell) visualization
-				.getParentCell()).getDataInterface();
+		PresentationModel pm = (PresentationModel) ((WorkflowCell) visualization.getParentCell()).getDataInterface();
 		Job sourceJob = null;
 		JobAdapter sourceJobAdapter = null;
 		Port sourcePort = null;
@@ -224,8 +208,7 @@ public class ConnectionAdapter {
 		// Add Connection to Workflow
 		// This is done last, because it will trigger the typecheck,
 		// which requires the ConnectionView to be created before
-		view.getWorkflow().addConnection(connectionKey,
-				sourceJob.bindings.get(sourcePort));
+		view.getWorkflow().addConnection(connectionKey, sourceJob.bindings.get(sourcePort));
 	}
 
 	/**
@@ -236,8 +219,7 @@ public class ConnectionAdapter {
 	 * @param mwf
 	 * @param view
 	 */
-	public ConnectionAdapter(ConnectionKey cc, PresentationModel pm,
-			MutableWorkflow mwf, View view) {
+	public ConnectionAdapter(ConnectionKey cc, PresentationModel pm, MutableWorkflow mwf, View view) {
 		// System.out.println("loaded edge" + cc);
 		this.connectionKey = cc;
 		this.view = view;
@@ -260,38 +242,37 @@ public class ConnectionAdapter {
 		InPortCell target = tJA.getInPortCell(targetPort);
 		assert (source != null && target != null);
 
-		visualization = new ConnectionCell(pm.getVisualization(), source,
-				target);
+		visualization = new ConnectionCell(pm.getVisualization(), source, target);
 
 		// Register at ConnectionView
 		connectionViewListener = new ConnectionViewListener();
 		AbstractView connectionView = view.getConnectionView(connectionKey);
-		
+
 		// FIXME just a workaround
 		if (connectionView == null) {
 			view.addConnectionView(connectionKey);
 			connectionView = view.getConnectionView(connectionKey);
 		}
-		connectionView.getObservable().addObserver(
-				new Observer<ViewEvent<AbstractView>>() {
+		connectionViewObserver = new Observer<ViewEvent<AbstractView>>() {
 
-					@Override
-					public void notify(ViewEvent<AbstractView> event) {
-						event.doNotify(connectionViewListener);
-					}
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				event.doNotify(connectionViewListener);
+			}
 
-				});
+		};
+		connectionView.getObservable().addObserver(connectionViewObserver);
 
 		connectionCellListener = new ConnectionCellListener();
-		visualization.getObservable().addObserver(
-				new Observer<CellEvent<Cell>>() {
+		connectionCellObserver = new Observer<CellEvent<Cell>>() {
 
-					@Override
-					public void notify(CellEvent<Cell> event) {
-						event.doNotify(connectionCellListener);
-					}
+			@Override
+			public void notify(CellEvent<Cell> event) {
+				event.doNotify(connectionCellListener);
+			}
 
-				});
+		};
+		visualization.getObservable().addObserver(connectionCellObserver);
 	}
 
 	public void destroy(Graph graph) {

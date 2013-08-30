@@ -86,6 +86,8 @@ public class WindowSystemImpl implements WindowSystem {
 	 */
 	protected HashMap<JPanel, TreeMap<Integer, JButton>> tools;
 	protected HashMap<JComponent, HashMap<Action, JButton>> actionToButton;
+	private Observer<Application> shutdownObserver;
+	private Observer<Application> uiModeObserver;
 
 	@SuppressWarnings("serial")
 	private static class LayoutTabbedPane extends JTabbedPane implements LayoutSelector {
@@ -103,13 +105,14 @@ public class WindowSystemImpl implements WindowSystem {
 	 */
 	public WindowSystemImpl(Application app) {
 		this.app = app;
-		app.getShutdownObservable().addObserver(new Observer<Application>() {
+		shutdownObserver = new Observer<Application>() {
 			@Override
 			public void notify(Application a) {
 				mainWindow.setVisible(false);
 				mainWindow.dispose();
 			}
-		});
+		};
+		app.getShutdownObservable().addObserver(shutdownObserver);
 		mainWindow = new JFrame("Vanda Studio");
 		mainWindow.setSize(800, 600);
 		mainWindow.setLocation(100, 100);
@@ -161,14 +164,15 @@ public class WindowSystemImpl implements WindowSystem {
 			modeGroup.add(item);
 			modeMenuItems.put(m, item);
 		}
-		app.getUIModeObservable().addObserver(new Observer<Application>() {
+		uiModeObserver = new Observer<Application>() {
 			@Override
 			public void notify(Application a) {
 				JRadioButtonMenuItem item = modeMenuItems.get(a.getUIMode());
 				if (item != null)
 					item.setSelected(true);
 			}
-		});
+		};
+		app.getUIModeObservable().addObserver(uiModeObserver);
 		menuBar.add(optionsMenu);
 
 		windowMenus = new HashMap<JComponent, JMenu>();

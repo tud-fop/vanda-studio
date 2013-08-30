@@ -14,6 +14,7 @@ public class WorkflowAdapter {
 
 	private final View view; 
 	private final WorkflowCellListener wfcl;
+	private final Observer<CellEvent<Cell>> workflowCellObserver;
 	private final WorkflowCell visualization;
 	private class WorkflowCellListener implements CellListener<Cell> {
 
@@ -59,13 +60,14 @@ public class WorkflowAdapter {
 		this.view = view;
 		this.wfcl = new WorkflowCellListener();
 		this.visualization = new WorkflowCell(di);
-		visualization.getObservable().addObserver(new Observer<CellEvent<Cell>>() {
+		workflowCellObserver = new Observer<CellEvent<Cell>>() {
 
 			@Override
 			public void notify(CellEvent<Cell> event) {
 				event.doNotify(wfcl);
 			}
-		});
+		};
+		visualization.getObservable().addObserver(workflowCellObserver);
 		
 		//initial selection of Workflow
 		view.getWorkflowView().setSelected(true);

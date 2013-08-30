@@ -95,7 +95,7 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 		@Override
 		public void cursorChange(Database d) {
 			// Database d = event.getDatabase();
-			Element el = Element.fromString(d.get(l.getKey()));	
+			Element el = Element.fromString(d.get(l.getKey()));
 			e.beginUpdate();
 			try {
 				e.setPrefix(el.getPrefix());
@@ -136,11 +136,13 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 			}
 		});
 
-		// FIXME memory leaks probable due to all the observers
 		final Element e = Element.fromString(d.get(l.getKey()));
-		e.getObservable().addObserver(new ElementObserver(d, l));
-		l.getObservable().addObserver(new LiteralObserver(value));
-		d.getObservable().addObserver(new DatabaseObserver(l, e));
+		ElementObserver elemObs = new ElementObserver(d, l);
+		e.getObservable().addObserver(elemObs);
+		LiteralObserver litObs = new LiteralObserver(value);
+		l.getObservable().addObserver(litObs);
+		DatabaseObserver dbObs = new DatabaseObserver(l, e);
+		d.getObservable().addObserver(dbObs);
 		ElementSelector selector = rds.createSelector();
 		selector.setElement(e);
 
@@ -156,10 +158,37 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 		layout.setVerticalGroup(layout.createSequentialGroup().addGroup(
 				layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(label1).addComponent(value)));
 
-		JPanel main = new JPanel(new BorderLayout());
+		JPanel main = new LiteralEditorPanel(new BorderLayout(), elemObs, litObs, dbObs, selector);
 		main.add(editor, BorderLayout.NORTH);
 		main.add(selector.getComponent(), BorderLayout.CENTER);
 		return main;
+	}
+
+	/**
+	 * Special Panel that holds references to the observers
+	 * 
+	 * @author kgebhardt
+	 * 
+	 */
+	private static class LiteralEditorPanel extends JPanel {
+		private static final long serialVersionUID = -8903445266661640539L;
+		@SuppressWarnings("unused")
+		private final ElementObserver elemObs;
+		@SuppressWarnings("unused")
+		private final LiteralObserver litObs;
+		@SuppressWarnings("unused")
+		private final DatabaseObserver dbObs;
+		@SuppressWarnings("unused")
+		private final ElementSelector selector;
+
+		public LiteralEditorPanel(BorderLayout borderLayout, ElementObserver elemObs, LiteralObserver litObs,
+				DatabaseObserver dbObs, ElementSelector selector) {
+			super(borderLayout);
+			this.elemObs = elemObs;
+			this.litObs = litObs;
+			this.dbObs = dbObs;
+			this.selector = selector;
+		}
 	}
 
 }

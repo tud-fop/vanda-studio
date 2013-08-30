@@ -84,28 +84,30 @@ public class JobAdapter {
 
 	}
 
-	Map<Port, InPortCell> inports;
-	Job job;
-	JobCell jobCell;
-	JobCellListener jobCellListener;
+	private Map<Port, InPortCell> inports;
+	private Job job;
+	private JobCell jobCell;
+	private JobCellListener jobCellListener;
+	private Observer<CellEvent<Cell>> jobCellObserver;
 
-	Map<Port, LocationAdapter> locations;
+	private Map<Port, LocationAdapter> locations;
 
-	Map<Port, OutPortCell> outports;
+	private Map<Port, OutPortCell> outports;
 
 	JobAdapter(Job job, Graph graph, WorkflowCell wfc) {
 		setUpCells(graph, job, wfc);
 		this.jobCellListener = new JobCellListener();
 
 		// register at jobCell
-		jobCell.getObservable().addObserver(new Observer<CellEvent<Cell>>() {
+		jobCellObserver = new Observer<CellEvent<Cell>>() {
 
 			@Override
 			public void notify(CellEvent<Cell> event) {
 				event.doNotify(jobCellListener);
 			}
 
-		});
+		};
+		jobCell.getObservable().addObserver(jobCellObserver);
 	}
 
 	public void destroy(Graph graph) {

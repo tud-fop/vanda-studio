@@ -57,21 +57,21 @@ public class LocationAdapter {
 	}
 
 	LocationCell locationCell;
-	LocationCellListener locationCellListener;
+	private LocationCellListener locationCellListener;
+	private Observer<CellEvent<Cell>> locationCellObserver;
 
 	public LocationAdapter(Graph g, LayoutManager layoutManager, JobCell jobCell) {
 		locationCell = new LocationCell(g, layoutManager, jobCell);
+		locationCellListener = new LocationCellListener();
+		locationCellObserver = new Observer<CellEvent<Cell>>() {
 
-		this.locationCellListener = new LocationCellListener();
-		locationCell.getObservable().addObserver(
-				new Observer<CellEvent<Cell>>() {
+			@Override
+			public void notify(CellEvent<Cell> event) {
+				event.doNotify(locationCellListener);
+			}
 
-					@Override
-					public void notify(CellEvent<Cell> event) {
-						event.doNotify(locationCellListener);
-					}
-
-				});
+		};
+		locationCell.getObservable().addObserver(locationCellObserver);
 	}
 
 

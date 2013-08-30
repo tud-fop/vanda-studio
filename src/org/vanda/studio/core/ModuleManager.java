@@ -32,6 +32,8 @@ public class ModuleManager {
 	
 	/** module instances */
 	protected ArrayList<Object> instances;
+	
+	private Observer<Application> shutdownObserver;
 
 	/**
 	 * @param application
@@ -41,13 +43,13 @@ public class ModuleManager {
 		this.application = application;
 		modules = new ArrayList<Module>();
 		instances = new ArrayList<Object>();
-		application.getShutdownObservable().addObserver(
-			new Observer<Application>() {
-				@Override
-				public void notify(Application a) {
-					finalizeModules();
-				}
-			});
+		shutdownObserver = new Observer<Application>() {
+			@Override
+			public void notify(Application a) {
+				finalizeModules();
+			}
+		};
+		application.getShutdownObservable().addObserver(shutdownObserver);
 	}
 	
 	/**

@@ -33,8 +33,7 @@ public class PresentationModel implements DataInterface {
 	 * @author kgebhardt
 	 * 
 	 */
-	protected class WorkflowListener implements
-			Workflows.WorkflowListener<MutableWorkflow> {
+	protected class WorkflowListener implements Workflows.WorkflowListener<MutableWorkflow> {
 
 		@Override
 		public void childAdded(MutableWorkflow mwf, Job j) {
@@ -75,15 +74,15 @@ public class PresentationModel implements DataInterface {
 
 	}
 
-	Map<ConnectionKey, ConnectionAdapter> connections;
+	private Map<ConnectionKey, ConnectionAdapter> connections;
 	protected final Graph graph;
-	List<JobAdapter> jobs;
+	private List<JobAdapter> jobs;
 	// LayoutManagerFactoryInterface layoutManager = new JGraphRendering();
-	View view;
+	private View view;
 	private int update = 0;
 	protected final WorkflowEditor wfe;
 	private final WorkflowAdapter wfa;
-
+	private Observer<Workflows.WorkflowEvent<MutableWorkflow>> workflowObserver;
 	/*
 	 * map that holds Layouts for all Job-Types, where String is
 	 * <code>Job.getName()</code>
@@ -101,19 +100,16 @@ public class PresentationModel implements DataInterface {
 		jobs = new ArrayList<JobAdapter>();
 		connections = new WeakHashMap<ConnectionKey, ConnectionAdapter>();
 		workflowListener = new WorkflowListener();
-		view.getWorkflow()
-				.getObservable()
-				.addObserver(
-						new Observer<Workflows.WorkflowEvent<MutableWorkflow>>() {
+		workflowObserver = new Observer<Workflows.WorkflowEvent<MutableWorkflow>>() {
 
-							@Override
-							public void notify(
-									WorkflowEvent<MutableWorkflow> event) {
-								event.doNotify(workflowListener);
+			@Override
+			public void notify(WorkflowEvent<MutableWorkflow> event) {
+				event.doNotify(workflowListener);
 
-							}
+			}
 
-						});
+		};
+		view.getWorkflow().getObservable().addObserver(workflowObserver);
 		setupPresentationModel();
 	}
 
@@ -124,8 +120,7 @@ public class PresentationModel implements DataInterface {
 	 * @param tparval
 	 * @param tval
 	 */
-	private void addConnectionAdapter(ConnectionCell connectionCell,
-			JobCell tparval, InPortCell tval) {
+	private void addConnectionAdapter(ConnectionCell connectionCell, JobCell tparval, InPortCell tval) {
 		Job j = null;
 		Port p = null;
 		for (JobAdapter ja : jobs) {
@@ -149,8 +144,7 @@ public class PresentationModel implements DataInterface {
 		ConnectionKey connectionKey = new ConnectionKey(j, p);
 		beginUpdate();
 		if (!connections.containsKey(connectionKey))
-			connections.put(connectionKey, new ConnectionAdapter(connectionKey,
-					connectionCell, view));
+			connections.put(connectionKey, new ConnectionAdapter(connectionKey, connectionCell, view));
 		endUpdate();
 
 	}
@@ -225,9 +219,7 @@ public class PresentationModel implements DataInterface {
 		}
 		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
 			if (connections.get(ck) == null)
-				connections.put(ck,
-						new ConnectionAdapter(ck, this, view.getWorkflow(),
-								view));
+				connections.put(ck, new ConnectionAdapter(ck, this, view.getWorkflow(), view));
 		}
 	}
 
@@ -238,16 +230,14 @@ public class PresentationModel implements DataInterface {
 		if (id.equals("literal"))
 			ele = new LiteralAdapter(new Literal(Types.undefined, "literal", null));
 		else
-			ele = new ToolAdapter(wfe.getApplication().getToolMetaRepository()
-					.getRepository().getItem(id));
+			ele = new ToolAdapter(wfe.getApplication().getToolMetaRepository().getRepository().getItem(id));
 		Job j = new Job(ele);
 		j.setDimensions(d);
 		addJobAdapter(j);
 	}
 
 	@Override
-	public void createConnection(ConnectionCell connectionCell,
-			JobCell tparval, InPortCell tval) {
+	public void createConnection(ConnectionCell connectionCell, JobCell tparval, InPortCell tval) {
 		addConnectionAdapter(connectionCell, tparval, tval);
 	}
 

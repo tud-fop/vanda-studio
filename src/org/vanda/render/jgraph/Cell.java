@@ -5,13 +5,15 @@ import java.awt.event.MouseEvent;
 import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.RightClickEvent;
 import org.vanda.util.MultiplexObserver;
+import org.vanda.util.Observer;
 
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 
 public abstract class Cell {
 
-	protected MultiplexObserver<CellEvent<Cell>> observable;
+	private MultiplexObserver<CellEvent<Cell>> observable;
+	protected Observer<CellEvent<Cell>> graphObserver;
 	protected mxCell visualization;
 
 	protected Object z;
@@ -23,15 +25,15 @@ public abstract class Cell {
 		
 		// Register at Graph
 		if (graph != null) {
-			getObservable().addObserver(
-					new org.vanda.util.Observer<CellEvent<Cell>>() {
+			graphObserver = new org.vanda.util.Observer<CellEvent<Cell>>() {
 
-						@Override
-						public void notify(CellEvent<Cell> event) {
-							event.doNotify(graph.getCellChangeListener());
-						}
+				@Override
+				public void notify(CellEvent<Cell> event) {
+					event.doNotify(graph.getCellChangeListener());
+				}
 
-					});
+			};
+			getObservable().addObserver(graphObserver);
 		}
 
 		visualization = new mxCell(this);

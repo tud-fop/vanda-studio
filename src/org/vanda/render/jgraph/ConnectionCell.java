@@ -82,14 +82,15 @@ public class ConnectionCell extends Cell {
 						.getParent(target));
 
 				// register graph for cell changes
-				getObservable().addObserver(new Observer<CellEvent<Cell>>() {
+				graphObserver = new Observer<CellEvent<Cell>>() {
 
 					@Override
 					public void notify(CellEvent<Cell> event) {
 						event.doNotify(graph.getCellChangeListener());
 					}
 
-				});
+				};
+				getObservable().addObserver(graphObserver);
 
 				// Create ConnectionAdapter
 				((WorkflowCell) ((mxICell) graph.getGraph().getDefaultParent())

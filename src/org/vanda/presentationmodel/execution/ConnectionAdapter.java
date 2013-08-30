@@ -75,16 +75,7 @@ public class ConnectionAdapter {
 					view.addConnectionView(connectionKey);
 					view.getConnectionView(connectionKey)
 							.getObservable()
-							.addObserver(
-									new Observer<ViewEvent<AbstractView>>() {
-
-										@Override
-										public void notify(
-												ViewEvent<AbstractView> event) {
-											event.doNotify(connectionViewListener);
-										}
-
-									});
+							.addObserver(connectionViewObserver);
 					view.getConnectionView(connectionKey).setSelected(selected);
 				}
 			}
@@ -144,14 +135,15 @@ public class ConnectionAdapter {
 		}
 	}
 
-	ConnectionCellListener connectionCellListener;
+	private ConnectionCellListener connectionCellListener;
+	private Observer<CellEvent<Cell>> connectionCellObserver;
 
 	private final ConnectionKey connectionKey;
+	
 	private ConnectionViewListener connectionViewListener;
+	private Observer<ViewEvent<AbstractView>> connectionViewObserver;
 
-	Observer<ViewEvent<AbstractView>> connectionViewObserver;
-
-	View view;
+	private View view;
 
 	private final ConnectionCell visualization;
 
@@ -171,15 +163,15 @@ public class ConnectionAdapter {
 
 		// register at Connection View
 		connectionCellListener = new ConnectionCellListener();
-		visualization.getObservable().addObserver(
-				new Observer<CellEvent<Cell>>() {
+		connectionCellObserver = new Observer<CellEvent<Cell>>() {
 
-					@Override
-					public void notify(CellEvent<Cell> event) {
-						event.doNotify(connectionCellListener);
-					}
+			@Override
+			public void notify(CellEvent<Cell> event) {
+				event.doNotify(connectionCellListener);
+			}
 
-				});
+		};
+		visualization.getObservable().addObserver(connectionCellObserver);
 
 		// create ConnectionView
 		view.addConnectionView(connectionKey);
@@ -194,8 +186,7 @@ public class ConnectionAdapter {
 		};
 
 		// Register at ConnectionView
-		view.getConnectionView(connectionKey).getObservable()
-				.addObserver(connectionViewObserver);
+		view.getConnectionView(connectionKey).getObservable().addObserver(connectionViewObserver);
 
 		// identify Source Job and Source Port
 		OutPortCell sourcePortCell = visualization.getSourceCell();
@@ -269,26 +260,26 @@ public class ConnectionAdapter {
 			view.addConnectionView(connectionKey);
 			connectionView = view.getConnectionView(connectionKey);
 		}
-		connectionView.getObservable().addObserver(
-				new Observer<ViewEvent<AbstractView>>() {
+		connectionViewObserver = new Observer<ViewEvent<AbstractView>>() {
 
-					@Override
-					public void notify(ViewEvent<AbstractView> event) {
-						event.doNotify(connectionViewListener);
-					}
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				event.doNotify(connectionViewListener);
+			}
 
-				});
+		};
+		connectionView.getObservable().addObserver(connectionViewObserver);
 
 		connectionCellListener = new ConnectionCellListener();
-		visualization.getObservable().addObserver(
-				new Observer<CellEvent<Cell>>() {
+		connectionCellObserver = new Observer<CellEvent<Cell>>() {
 
-					@Override
-					public void notify(CellEvent<Cell> event) {
-						event.doNotify(connectionCellListener);
-					}
+			@Override
+			public void notify(CellEvent<Cell> event) {
+				event.doNotify(connectionCellListener);
+			}
 
-				});
+		};
+		visualization.getObservable().addObserver(connectionCellObserver);
 	}
 
 	public void destroy(Graph graph) {

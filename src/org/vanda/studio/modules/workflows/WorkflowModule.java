@@ -25,7 +25,6 @@ import org.vanda.studio.modules.workflows.inspector.LiteralEditor;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.run.InspectorTool;
 import org.vanda.studio.modules.workflows.run.ProfileManager;
-import org.vanda.studio.modules.workflows.run.RunTool;
 import org.vanda.studio.modules.workflows.run.SemanticsTool;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
 import org.vanda.studio.modules.workflows.tools.AssignmentSwitchToolFactory;

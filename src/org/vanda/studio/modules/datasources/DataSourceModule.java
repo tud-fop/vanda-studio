@@ -79,6 +79,7 @@ public class DataSourceModule implements Module {
 		private Storer st;
 		private Application a;
 		private JFrame f = null;
+		private Observer<Application> shutdownObserver;
 
 		public DataSourceEditorAction(Application a, RootDataSource ds, Storer st) {
 			this.ds = ds;
@@ -86,7 +87,7 @@ public class DataSourceModule implements Module {
 			this.a = a;
 
 			// Eventually close open editor on system shutdown
-			a.getShutdownObservable().addObserver(new Observer<Application>() {
+			shutdownObserver = new Observer<Application>() {
 				@Override
 				public void notify(Application event) {
 					if (f != null) {
@@ -99,7 +100,8 @@ public class DataSourceModule implements Module {
 						});
 					}
 				}
-			});
+			}; 
+			a.getShutdownObservable().addObserver(shutdownObserver);
 		}
 
 		@Override

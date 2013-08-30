@@ -67,8 +67,7 @@ public class LocationAdapter {
 
 	}
 
-	private class LocationViewListener implements
-			AbstractView.ViewListener<AbstractView> {
+	private class LocationViewListener implements AbstractView.ViewListener<AbstractView> {
 
 		@Override
 		public void highlightingChanged(AbstractView v) {
@@ -78,10 +77,9 @@ public class LocationAdapter {
 
 		@Override
 		public void markChanged(AbstractView v) {
-			locationCell.getObservable().notify(
-					new MarkChangedEvent<Cell>(locationCell));
+			locationCell.getObservable().notify(new MarkChangedEvent<Cell>(locationCell));
 		}
-		
+
 		@Override
 		public void runProgressUpdate(AbstractView _) {
 			// do nothing
@@ -89,9 +87,7 @@ public class LocationAdapter {
 
 		@Override
 		public void selectionChanged(AbstractView v) {
-			locationCell.getObservable().notify(
-					new SelectionChangedEvent<Cell>(locationCell, v
-							.isSelected()));
+			locationCell.getObservable().notify(new SelectionChangedEvent<Cell>(locationCell, v.isSelected()));
 		}
 
 		@Override
@@ -101,8 +97,10 @@ public class LocationAdapter {
 	}
 
 	LocationCell locationCell;
-	LocationCellListener locationCellListener;
-	LocationViewListener locationViewListener;
+	private LocationCellListener locationCellListener;
+	private Observer<CellEvent<Cell>> locationCellObserver;
+	private LocationViewListener locationViewListener;
+	private Observer<ViewEvent<AbstractView>> locationViewObserver;
 
 	Port port;
 
@@ -110,20 +108,20 @@ public class LocationAdapter {
 
 	View view;
 
-	public LocationAdapter(Graph g, View view, LayoutManager layoutManager,
-			JobCell jobCell, Port port, Location location) {
+	public LocationAdapter(Graph g, View view, LayoutManager layoutManager, JobCell jobCell, Port port,
+			Location location) {
 		locationCell = new LocationCell(g, layoutManager, jobCell);
 
 		this.locationCellListener = new LocationCellListener();
-		locationCell.getObservable().addObserver(
-				new Observer<CellEvent<Cell>>() {
+		locationCellObserver = new Observer<CellEvent<Cell>>() {
 
-					@Override
-					public void notify(CellEvent<Cell> event) {
-						event.doNotify(locationCellListener);
-					}
+			@Override
+			public void notify(CellEvent<Cell> event) {
+				event.doNotify(locationCellListener);
+			}
 
-				});
+		};
+		locationCell.getObservable().addObserver(locationCellObserver);
 
 		this.view = view;
 		this.port = port;
@@ -131,14 +129,14 @@ public class LocationAdapter {
 		locationViewListener = new LocationViewListener();
 
 		// Register at LocationView
-		view.getLocationView(variable).getObservable()
-				.addObserver(new Observer<ViewEvent<AbstractView>>() {
+		locationViewObserver = new Observer<ViewEvent<AbstractView>>() {
 
-					@Override
-					public void notify(ViewEvent<AbstractView> event) {
-						event.doNotify(locationViewListener);
-					}
-				});
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				event.doNotify(locationViewListener);
+			}
+		};
+		view.getLocationView(variable).getObservable().addObserver(locationViewObserver);
 	}
 
 	public void updateLocation(Job job) {

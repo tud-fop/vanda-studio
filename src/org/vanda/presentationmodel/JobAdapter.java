@@ -148,7 +148,6 @@ public class JobAdapter {
 		@Override
 		public void highlightingChanged(AbstractView v) {
 			// TODO Auto-generated method stub
-
 		}
 
 		@Override
@@ -178,18 +177,21 @@ public class JobAdapter {
 		}
 	}
 
-	Map<Port, InPortCell> inports;
-	Job job;
-	JobCell jobCell;
-	JobCellListener jobCellListener;
-	JobListener jobListener;
-	JobViewListener jobViewListener;
+	private Map<Port, InPortCell> inports;
+	private Job job;
+	private JobCell jobCell;
+	private JobCellListener jobCellListener;
+	private Observer<CellEvent<Cell>> jobCellObserver;
+	private JobListener jobListener;
+	private Observer<Jobs.JobEvent<Job>> jobObserver;
+	private JobViewListener jobViewListener;
+	private Observer<ViewEvent<AbstractView>> jobViewObserver;
 
-	Map<Location, LocationAdapter> locations;
+	private Map<Location, LocationAdapter> locations;
 
-	Map<Port, OutPortCell> outports;
+	private Map<Port, OutPortCell> outports;
 
-	View view;
+	private View view;
 
 	public JobAdapter(Job job, Graph graph, View view, WorkflowCell wfc) {
 		this.view = view;
@@ -198,36 +200,39 @@ public class JobAdapter {
 		this.jobCellListener = new JobCellListener();
 
 		// Register at Job
-		if (job.getObservable() != null)
-			job.getObservable().addObserver(new Observer<Jobs.JobEvent<Job>>() {
+		if (job.getObservable() != null) {
+			jobObserver = new Observer<Jobs.JobEvent<Job>>() {
 
 				@Override
 				public void notify(JobEvent<Job> event) {
 					event.doNotify(jobListener);
 				}
 
-			});
-
+			};
+			job.getObservable().addObserver(jobObserver);
+		}
 		// register at jobCell
-		jobCell.getObservable().addObserver(new Observer<CellEvent<Cell>>() {
+		jobCellObserver = new Observer<CellEvent<Cell>>() {
 
 			@Override
 			public void notify(CellEvent<Cell> event) {
 				event.doNotify(jobCellListener);
 			}
 
-		});
+		};
+		jobCell.getObservable().addObserver(jobCellObserver);
 
 		// register at jobView
-		this.jobViewListener = new JobViewListener();
-		view.getJobView(job).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
+		jobViewListener = new JobViewListener();
+		jobViewObserver = new Observer<ViewEvent<AbstractView>>() {
 
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
 				event.doNotify(jobViewListener);
 			}
 			
-		});
+		};
+		view.getJobView(job).getObservable().addObserver(jobViewObserver);
 	}
 
 	public void destroy(Graph graph) {

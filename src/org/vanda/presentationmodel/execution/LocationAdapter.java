@@ -96,28 +96,31 @@ public class LocationAdapter {
 	}
 
 	LocationCell locationCell;
-	LocationCellListener locationCellListener;
-	LocationViewListener locationViewListener;
+	private LocationCellListener locationCellListener;
+	private Observer<CellEvent<Cell>> locationCellObserver;
+	private LocationViewListener locationViewListener;
+	private Observer<ViewEvent<AbstractView>> locationViewObserver;
 
-	Port port;
+	private Port port;
 
-	Location variable;
+	private Location variable;
 
-	View view;
+	private View view;
 
 	public LocationAdapter(Graph g, View view, LayoutManager layoutManager, JobCell jobCell, Port port,
 			Location location) {
 		locationCell = new LocationCell(g, layoutManager, jobCell);
 
-		this.locationCellListener = new LocationCellListener();
-		locationCell.getObservable().addObserver(new Observer<CellEvent<Cell>>() {
+		locationCellListener = new LocationCellListener();
+		locationCellObserver = new Observer<CellEvent<Cell>>() {
 
 			@Override
 			public void notify(CellEvent<Cell> event) {
 				event.doNotify(locationCellListener);
 			}
 
-		});
+		};
+		locationCell.getObservable().addObserver(locationCellObserver);
 
 		this.view = view;
 		this.port = port;
@@ -125,13 +128,14 @@ public class LocationAdapter {
 		locationViewListener = new LocationViewListener();
 
 		// Register at LocationView
-		view.getLocationView(variable).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
+		locationViewObserver = new Observer<ViewEvent<AbstractView>>() {
 
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
 				event.doNotify(locationViewListener);
 			}
-		});
+		};
+		view.getLocationView(variable).getObservable().addObserver(locationViewObserver);
 	}
 
 	public void updateLocation(Job job) {

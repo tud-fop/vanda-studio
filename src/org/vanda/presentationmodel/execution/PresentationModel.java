@@ -22,8 +22,7 @@ public class PresentationModel {
 	 * @author kgebhardt
 	 * 
 	 */
-	protected class WorkflowListener implements
-			Workflows.WorkflowListener<MutableWorkflow> {
+	protected class WorkflowListener implements Workflows.WorkflowListener<MutableWorkflow> {
 
 		@Override
 		public void childAdded(MutableWorkflow mwf, Job j) {
@@ -64,11 +63,11 @@ public class PresentationModel {
 
 	}
 
-	Map<ConnectionKey, ConnectionAdapter> connections;
+	private Map<ConnectionKey, ConnectionAdapter> connections;
 	protected final Graph graph;
-	List<JobAdapter> jobs;
+	private List<JobAdapter> jobs;
 	// LayoutManagerFactoryInterface layoutManager = new JGraphRendering();
-	View view;
+	private View view;
 	private int update = 0;
 	private final WorkflowAdapter wfa;
 
@@ -80,6 +79,7 @@ public class PresentationModel {
 	// some Layouts
 
 	private final WorkflowListener workflowListener;
+	private final Observer<Workflows.WorkflowEvent<MutableWorkflow>> workflowObserver;
 
 	public PresentationModel(View view) {
 		this.view = view;
@@ -89,19 +89,16 @@ public class PresentationModel {
 		jobs = new ArrayList<JobAdapter>();
 		connections = new WeakHashMap<ConnectionKey, ConnectionAdapter>();
 		workflowListener = new WorkflowListener();
-		view.getWorkflow()
-				.getObservable()
-				.addObserver(
-						new Observer<Workflows.WorkflowEvent<MutableWorkflow>>() {
+		workflowObserver = new Observer<Workflows.WorkflowEvent<MutableWorkflow>>() {
 
-							@Override
-							public void notify(
-									WorkflowEvent<MutableWorkflow> event) {
-								event.doNotify(workflowListener);
+			@Override
+			public void notify(WorkflowEvent<MutableWorkflow> event) {
+				event.doNotify(workflowListener);
 
-							}
+			}
 
-						});
+		};
+		view.getWorkflow().getObservable().addObserver(workflowObserver);
 		setupPresentationModel();
 	}
 
@@ -175,11 +172,8 @@ public class PresentationModel {
 		}
 		for (ConnectionKey ck : view.getWorkflow().getConnections()) {
 			if (connections.get(ck) == null)
-				connections.put(ck,
-						new ConnectionAdapter(ck, this, view.getWorkflow(),
-								view));
+				connections.put(ck, new ConnectionAdapter(ck, this, view.getWorkflow(), view));
 		}
 	}
-
 
 }

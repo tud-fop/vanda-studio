@@ -18,10 +18,13 @@ import javax.swing.text.Document;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.modules.previews.Previews.Preview;
+import org.vanda.util.Observer;
 
 public class MonospacePreviewFactory implements PreviewFactory {
 	private final List<WeakReference<Preview>> previews;
 	private final Application app;
+	private Observer<Application> uiModeObserver;
+
 
 	private interface FontSizeSelector {
 		public Font setFontSize(Font f);
@@ -126,7 +129,8 @@ public class MonospacePreviewFactory implements PreviewFactory {
 	public MonospacePreviewFactory(Application app) {
 		this.app = app;
 		this.previews = new ArrayList<WeakReference<Preview>>();
-		app.getUIModeObservable().addObserver(new Previews.UIObserver(previews));
+		uiModeObserver = new Previews.UIObserver(previews);
+		app.getUIModeObservable().addObserver(uiModeObserver);
 	}
 
 	@Override

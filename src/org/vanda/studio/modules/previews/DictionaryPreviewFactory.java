@@ -24,13 +24,15 @@ final class DictionaryPreviewFactory implements PreviewFactory {
 	private final HashMap<String, WeakReference<Dictionary>> openDictionaries;
 	private final LinkedList<WeakReference<Preview>> ds;
 	private DictionaryViewState viewState;
+	private Observer<Application> uiModeObserver;
 
 	public DictionaryPreviewFactory(Application app) {
 		this.app = app;
 		viewState = new DictionaryViews.TableViewState();
 		openDictionaries = new HashMap<String, WeakReference<Dictionary>>();
 		ds = new LinkedList<WeakReference<Preview>>();
-		app.getUIModeObservable().addObserver(new Previews.UIObserver(ds));
+		uiModeObserver = new Previews.UIObserver(ds);
+		app.getUIModeObservable().addObserver(uiModeObserver);
 	}
 
 	@Override
