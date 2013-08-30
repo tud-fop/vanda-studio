@@ -14,6 +14,7 @@ import org.vanda.util.Util;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Jobs.JobEvent;
 import org.vanda.workflows.hyper.Jobs.JobListener;
+import org.vanda.workflows.hyper.TopSorter.TopSortException;
 import org.vanda.workflows.hyper.Workflows.*;
 
 public class MutableWorkflow implements JobListener<Job> {
@@ -48,18 +49,18 @@ public class MutableWorkflow implements JobListener<Job> {
 		return children;
 	}
 
-	public Job[] getSorted() throws Exception {
+	public Job[] getSorted() throws TopSortException {
 		TopSorter t = new TopSorter();
 		t.init(this);
 		t.proceed();
-		return t.getSorted();
+		return t.getSorted(this);		
 	}
-	
-	public Job[] getSorted(Comparator<Job> priorities) throws Exception {
+
+	public Job[] getSorted(Comparator<Job> priorities) throws TopSortException {
 		TopSorter t = new TopSorter();
 		t.init(this, priorities);
 		t.proceed();
-		return t.getSorted();		
+		return t.getSorted(this);
 	}
 
 	public void addChild(final Job job) {
@@ -87,8 +88,7 @@ public class MutableWorkflow implements JobListener<Job> {
 			if (old != variable) {
 				if (old != null)
 					throw new RuntimeException("!!!"); // FIXME better exception
-				events.add(new Workflows.ConnectionAddedEvent<MutableWorkflow>(
-						this, cc));
+				events.add(new Workflows.ConnectionAddedEvent<MutableWorkflow>(this, cc));
 			}
 		} finally {
 			endUpdate();
@@ -105,8 +105,7 @@ public class MutableWorkflow implements JobListener<Job> {
 			LinkedList<WorkflowEvent<MutableWorkflow>> ev = events;
 			events = new LinkedList<Workflows.WorkflowEvent<MutableWorkflow>>();
 			Util.notifyAll(observable, ev);
-			observable
-					.notify(new Workflows.UpdatedEvent<MutableWorkflow>(this));
+			observable.notify(new Workflows.UpdatedEvent<MutableWorkflow>(this));
 		}
 	}
 
@@ -143,8 +142,7 @@ public class MutableWorkflow implements JobListener<Job> {
 					removeConnection(new ConnectionKey(ji, ip));
 				}
 				ji.uninsert();
-				events.add(new Workflows.ChildRemovedEvent<MutableWorkflow>(
-						this, ji));
+				events.add(new Workflows.ChildRemovedEvent<MutableWorkflow>(this, ji));
 			}
 		} finally {
 			endUpdate();
@@ -158,8 +156,7 @@ public class MutableWorkflow implements JobListener<Job> {
 			if (cc.target.isInserted())
 				old = cc.target.bindings.remove(cc.targetPort);
 			if (old != null)
-				events.add(new Workflows.ConnectionRemovedEvent<MutableWorkflow>(
-						this, cc));
+				events.add(new Workflows.ConnectionRemovedEvent<MutableWorkflow>(this, cc));
 		} finally {
 			endUpdate();
 		}
@@ -183,9 +180,7 @@ public class MutableWorkflow implements JobListener<Job> {
 	public void setName(String name) {
 		if (!name.equals(this.name)) {
 			this.name = name;
-			observable
-					.notify(new Workflows.PropertyChangedEvent<MutableWorkflow>(
-							this));
+			observable.notify(new Workflows.PropertyChangedEvent<MutableWorkflow>(this));
 		}
 	}
 
@@ -219,8 +214,7 @@ public class MutableWorkflow implements JobListener<Job> {
 
 	@Override
 	public void propertyChanged(Job j) {
-		observable.notify(new Workflows.ChildModifiedEvent<MutableWorkflow>(
-				this, j));
+		observable.notify(new Workflows.ChildModifiedEvent<MutableWorkflow>(this, j));
 	}
 
 	public void typeCheck(TypeChecker tc) throws TypeCheckingException {

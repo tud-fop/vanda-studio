@@ -8,6 +8,7 @@ import org.vanda.types.Type;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.TopSorter.TopSortException;
 import org.vanda.workflows.hyper.TypeChecker;
 import org.vanda.workflows.hyper.TypeCheckingException;
 
@@ -43,7 +44,7 @@ public class SyntaxAnalysis {
 
 	}
 
-	public void checkWorkflow() throws TypeCheckingException, Exception {
+	public void checkWorkflow() throws TypeCheckingException, TopSortException {
 		sorted = null;
 		typeCheck();
 		if (priorities != null)

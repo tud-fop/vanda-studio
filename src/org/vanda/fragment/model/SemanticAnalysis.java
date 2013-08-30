@@ -25,6 +25,7 @@ public class SemanticAnalysis {
 			assignment = db.getRow(db.getCursor());
 		dfa.init(assignment, db.getCursor(), synA.getSorted());
 		observable.notify(this);
+
 	}
 
 	/**
@@ -52,7 +53,7 @@ public class SemanticAnalysis {
 		dfa.init(assignment, i, synA.getSorted());
 		return dfa;
 	}
-	
+
 	public Observable<SemanticAnalysis> getObservable() {
 		return observable;
 	}

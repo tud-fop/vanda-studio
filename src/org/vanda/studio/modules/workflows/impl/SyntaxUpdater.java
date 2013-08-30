@@ -14,8 +14,11 @@ import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.TypeCheckingException;
+import org.vanda.workflows.hyper.TopSorter.TopSortException;
 import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 import org.vanda.workflows.hyper.Workflows.WorkflowListener;
+
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
 public class SyntaxUpdater implements Observer<WorkflowEvent<MutableWorkflow>>, WorkflowListener<MutableWorkflow> {
 
@@ -64,10 +67,12 @@ public class SyntaxUpdater implements Observer<WorkflowEvent<MutableWorkflow>>, 
 		try {
 			synA.checkWorkflow();
 			// remove ErrorHighlighting
-			if (markedConnections != null)
+			if (markedConnections != null) {
 				for (ConnectionKey cc : markedConnections)
-					if (view.getConnectionView(cc) != null) 
+					if (view.getConnectionView(cc) != null)
 						view.getConnectionView(cc).setMarked(false);
+				markedConnections = null;
+			}
 		} catch (TypeCheckingException e) {
 			List<Pair<String, Set<ConnectionKey>>> errors = e.getErrors();
 			HashSet<ConnectionKey> allErrors = new HashSet<ConnectionKey>();
@@ -77,7 +82,7 @@ public class SyntaxUpdater implements Observer<WorkflowEvent<MutableWorkflow>>, 
 				for (ConnectionKey eq : eqs) {
 					view.getConnectionView(eq).setMarked(true);
 					allErrors.add(eq);
-				}				
+				}
 			}
 			if (markedConnections != null) {
 				markedConnections.removeAll(allErrors);
@@ -85,8 +90,19 @@ public class SyntaxUpdater implements Observer<WorkflowEvent<MutableWorkflow>>, 
 					view.getConnectionView(cc).setMarked(false);
 			}
 			markedConnections = allErrors;
+		} catch (TopSortException e) {
+			for (ConnectionKey cc : e.getCyclicConnections()) {
+				if (markedConnections == null)
+					markedConnections = new HashSet<ConnectionKey>();
+				if (!markedConnections.contains(cc)) {
+					markedConnections.add(cc);
+					view.getConnectionView(cc).setMarked(true);
+				}
+			}
+
 		} catch (Exception e) {
 			// TOP-SORT error
+			System.out.println("TOP-SORT error");
 			app.sendMessage(new ExceptionMessage(e));
 		}
 	}
