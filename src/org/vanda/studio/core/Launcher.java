@@ -36,7 +36,7 @@ public final class Launcher implements Runnable {
 			ex.printStackTrace();
 		}
 
-		Application app = new ApplicationImpl();
+		ApplicationImpl app = new ApplicationImpl();
 		Module[] ms = {
 				new org.vanda.studio.modules.messages.MessageModule(),
 				new org.vanda.studio.modules.tools.ToolsModule(),
@@ -50,7 +50,8 @@ public final class Launcher implements Runnable {
 		for (Module m : ms)
 			moduleManager.loadModule(m);
 		moduleManager.initModules();
-
+		app.setModuleManager(moduleManager);
+		
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(app));
 		// throw new NullPointerException("brain is null");
 	}

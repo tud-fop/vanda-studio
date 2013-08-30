@@ -45,6 +45,8 @@ public final class ApplicationImpl implements Application {
 	protected final ArrayList<UIMode> modes;
 	// outdated protected final CompositeRepository<Tool>
 	// converterToolRepository;
+	// to keep a reference to the ModuleManager 
+	protected ModuleManager moduleManager;
 	protected final MultiplexObserver<Message> messageObservable;
 	protected final MultiplexObserver<Application> modeObservable;
 	// protected final CompositeRepository<Profile> profileRepository;
@@ -295,7 +297,11 @@ public final class ApplicationImpl implements Application {
 			sendMessage(new ExceptionMessage(e));
 		}
 	}
-
+	
+	public void setModuleManager(ModuleManager moduleManager) {
+		this.moduleManager = moduleManager;
+	}
+	
 	public PreviewFactory getPreviewFactory(Type type) {
 		PreviewFactory result = previewFactories.get(type);
 		if (result == null)

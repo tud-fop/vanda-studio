@@ -12,7 +12,6 @@ import javax.swing.event.ListSelectionListener;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
-import org.vanda.studio.app.WindowSystem;
 import org.vanda.util.Action;
 import org.vanda.util.Message;
 import org.vanda.util.Observer;

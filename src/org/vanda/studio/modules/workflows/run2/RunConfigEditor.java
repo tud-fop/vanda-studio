@@ -236,14 +236,12 @@ public class RunConfigEditor {
 			private boolean allLitsConnected = true;
 			private final List<Literal> literals;
 			private final List<Job> workingSet;
-			private final List<Job> visited;
 			private final MutableWorkflow mwf;
 			
-			public JobTraverser(List<Literal> literals, MutableWorkflow mwf, List<Job> workingSet, List<Job> visited) {
+			public JobTraverser(List<Literal> literals, MutableWorkflow mwf, List<Job> workingSet) {
 				this.literals = literals;
 				this.mwf = mwf;
 				this.workingSet = workingSet;
-				this.visited = visited;
 			}
 			
 			@Override
@@ -251,7 +249,7 @@ public class RunConfigEditor {
 				for (Port ip : j.getInputPorts()) {
 					Location l = j.bindings.get(ip);
 					ConnectionKey src = mwf.getVariableSource(l);
-					if (src != null && ! visited.contains(src.target))
+					if (src != null)
 						workingSet.add(src.target);
 					else 
 						allLitsConnected = false;
@@ -273,6 +271,7 @@ public class RunConfigEditor {
 		public static boolean checkDatabseRow(MutableWorkflow mwf, final HashMap<String, String> row) {
 			boolean b = true;
 			try {
+				// FIXME do this just once
 				for (Literal l : detectConnectedLiterals(mwf)) {
 					if (row.get(l.getKey()) == null || row.get(l.getKey()).equals(":"))
 						b = false;
@@ -286,7 +285,6 @@ public class RunConfigEditor {
 		public static List<Literal> detectConnectedLiterals(final MutableWorkflow mwf) throws MissingInputsException {
 			final List<Literal> literals = new ArrayList<Literal>();
 			final List<Job> workingSet = new ArrayList<Job>();
-			final List<Job> visited = new ArrayList<Job> ();
 			// add sink tools
 			for (Job j : mwf.getChildren()) {
 				j.visit(new JobVisitor() {
@@ -304,11 +302,10 @@ public class RunConfigEditor {
 					}
 				});
 			}
-			JobTraverser jv = new JobTraverser(literals, mwf, workingSet, visited); 
+			JobTraverser jv = new JobTraverser(literals, mwf, workingSet); 
 			
 			while (!workingSet.isEmpty()) {
 				Job j = workingSet.remove(workingSet.size() - 1);
-				visited.add(j);
 				j.visit(jv);
 			}
 			
