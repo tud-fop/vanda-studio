@@ -49,6 +49,7 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	protected SemanticAnalysis semA;
 	protected SyntaxAnalysis synA;
 	protected final View view;
+	private Observer<Application> appObserver;
 
 	public DefaultWorkflowEditorImpl(Application app, Pair<MutableWorkflow, Database> phd) {
 		this.app = app;
@@ -438,7 +439,7 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		component.setHorizontalPageCount(0);
 		component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-		Observer<Application> appObserver = new Observer<Application>() {
+		appObserver = new Observer<Application>() {
 			@Override
 			public void notify(Application a) {
 				if (a.getUIMode().isLargeContent())

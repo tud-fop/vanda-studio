@@ -5,6 +5,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -20,9 +22,7 @@ import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.mxDropTargetListener;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.WindowSystem;
-
 import org.vanda.studio.modules.workflows.model.ToolFactory;
-
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.HasActions;
@@ -67,18 +67,22 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 
 	protected final SyntaxUpdater synUp;
 
+	private final Observer<WorkflowEvent<MutableWorkflow>> mwfObserver;
+	
+	private final Collection<Object> tools;
 	// protected final JSplitPane mainpane;
-
+	
 	public WorkflowEditorImpl(Application app, List<ToolFactory> toolFactories, Pair<MutableWorkflow, Database> phd) {
 		super(app, phd);
 		presentationModel = new PresentationModel(view, this);
 
-		view.getWorkflow().getObservable().addObserver(new Observer<WorkflowEvent<MutableWorkflow>>() {
+		mwfObserver = new Observer<WorkflowEvent<MutableWorkflow>>() {
 			@Override
 			public void notify(WorkflowEvent<MutableWorkflow> event) {
 				event.doNotify(WorkflowEditorImpl.this);
 			}
-		});
+		};
+		view.getWorkflow().getObservable().addObserver(mwfObserver);
 
 		synA = new SyntaxAnalysis(phd.fst);
 		synUp = new SyntaxUpdater(app, synA, view);
@@ -112,8 +116,9 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		component.setName(view.getWorkflow().getName());
 		app.getWindowSystem().addContentWindow(null, component, null);
 
+		tools = new ArrayList<Object>();
 		for (ToolFactory tf : toolFactories)
-			tf.instantiate(this);
+			tools.add(tf.instantiate(this));
 
 		addAction(new CheckWorkflowAction(this), "document-preview",
 				KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK), 2);

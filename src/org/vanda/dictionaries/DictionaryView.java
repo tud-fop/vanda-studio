@@ -34,9 +34,8 @@ import javax.swing.table.TableColumn;
 
 import org.vanda.dictionaries.Dictionary.MyDouble;
 import org.vanda.dictionaries.DictionaryViews.DictionaryViewState;
+import org.vanda.dictionaries.DictionaryViews.MutableDictionaryViewState;
 import org.vanda.dictionaries.DictionaryViews.ViewTransition;
-import org.vanda.util.MultiplexObserver;
-import org.vanda.util.Observable;
 
 /**
  * The class DictView is a Swing Component for viewing the output of the EM
@@ -320,11 +319,11 @@ public class DictionaryView extends JPanel implements ViewTransition,
 	 * Indicates whether BestView or TableView is shown
 	 */
 	private DictionaryViewState viewState;
-
+	
 	/**
-	 * To observe DictionaryViewState changes
+	 * Reference to ViewState of the factory.
 	 */
-	private MultiplexObserver<DictionaryViewState> observable;
+	private final MutableDictionaryViewState mViewState;
 
 	static {
 		JLabel label = new JLabel("");
@@ -339,11 +338,11 @@ public class DictionaryView extends JPanel implements ViewTransition,
 	 * @param d
 	 *            The dictionary.
 	 */
-	public DictionaryView(Dictionary d, DictionaryViewState viewState_) {
+	public DictionaryView(Dictionary d, MutableDictionaryViewState viewState_) {
 		boolean isEnglish = true;
-		this.viewState = viewState_;
-		this.observable = new MultiplexObserver<DictionaryViewState>();
-
+		this.viewState = viewState_.value;
+		this.mViewState = viewState_;
+		
 		model = d; // new Dictionary(fileName, separator);
 
 		table = new JTable(new MyTableModel());
@@ -389,7 +388,7 @@ public class DictionaryView extends JPanel implements ViewTransition,
 				int val = ((SpinnerNumberModel) spinner.getModel()).getNumber().intValue();
 				setVisible(false);
 				viewState.setPrecision(val);
-				observable.notify(viewState);
+				mViewState.value = viewState;
 				MyDouble.setPrecision(val);
 				computeCellSizes();
 				setVisible(true);
@@ -688,7 +687,7 @@ public class DictionaryView extends JPanel implements ViewTransition,
 		viewState = new DictionaryViews.TableViewState();
 		viewState.setPrecision(oldPrecision);
 		viewState.selectView(this);
-		observable.notify(viewState);
+		mViewState.value = viewState;
 	}
 
 	@Override
@@ -699,7 +698,7 @@ public class DictionaryView extends JPanel implements ViewTransition,
 		viewState = new DictionaryViews.BestViewState();
 		viewState.setPrecision(oldPrecision);
 		viewState.selectView(this);
-		observable.notify(viewState);
+		mViewState.value = viewState;
 	}
 
 	@Override
@@ -720,9 +719,4 @@ public class DictionaryView extends JPanel implements ViewTransition,
 		validate();
 		adjustCellEntryLabel(false);
 	}
-
-	public Observable<DictionaryViewState> getObservable() {
-		return observable;
-	}
-
 }

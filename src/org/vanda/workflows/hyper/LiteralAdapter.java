@@ -19,6 +19,7 @@ import org.vanda.workflows.hyper.ElementAdapters.*;
 public final class LiteralAdapter implements ElementAdapter, ElementListener<Literal> {
 	
 	private Literal lit;
+	private Observer<ElementEvent<Literal>> literalObserver;
 	private Port port;
 	private List<Port> ports;
 	private final MultiplexObserver<ElementAdapterEvent<ElementAdapter>> observable;
@@ -96,13 +97,14 @@ public final class LiteralAdapter implements ElementAdapter, ElementListener<Lit
 
 	@Override
 	public void rebind() {
-		// TODO Auto-generated method stub
-		lit.getObservable().addObserver(new Observer<ElementEvent<Literal>>() {
+		if (literalObserver == null)
+			literalObserver = new Observer<ElementEvent<Literal>>() {
 				@Override
 				public void notify(ElementEvent<Literal> event) {
 					event.doNotify(LiteralAdapter.this);
 				}
-			});
+			};
+		lit.getObservable().addObserver(literalObserver);
 
 	}
 

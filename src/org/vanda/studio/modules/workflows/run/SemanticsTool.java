@@ -1,13 +1,15 @@
 package org.vanda.studio.modules.workflows.run;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+
+
 //import org.vanda.fragment.model.Model;
 import org.vanda.fragment.model.SemanticAnalysis;
 import org.vanda.fragment.model.SyntaxAnalysis;
-
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Observer;
@@ -28,16 +30,17 @@ public class SemanticsTool implements ToolFactory {
 			
 			private final SemanticAnalysis semA;
 			private final SyntaxAnalysis synA;
+			private final Observer<SyntaxAnalysis> syntaxObserver;
 			
 			public SemanticUpdater(SyntaxAnalysis synA, SemanticAnalysis semA, Database db) {
-				synA.getSyntaxChangedObservable().addObserver(new Observer<SyntaxAnalysis>() {
+				syntaxObserver = new Observer<SyntaxAnalysis>() {
 
 					@Override
 					public void notify(SyntaxAnalysis event) {
 						update(event);
 					}
-				});
-				
+				};
+				synA.getSyntaxChangedObservable().addObserver(syntaxObserver);
 				db.getObservable().addObserver(this);
 
 				this.semA = semA;
@@ -69,11 +72,12 @@ public class SemanticsTool implements ToolFactory {
 			}
 		}
 
-		// Model model;
-		private SemanticAnalysis semA;
-		private SyntaxAnalysis synA;
-		private View view;
-		private SemanticUpdater semUp;
+		private final SemanticAnalysis semA;
+		private final SyntaxAnalysis synA;
+		private final View view;
+		@SuppressWarnings("unused")
+		private final SemanticUpdater semUp;
+		private final Collection<Object> tools;
 
 		public Tool(WorkflowEditor wfe, Collection<SemanticsToolFactory> stfs) {
 
@@ -82,9 +86,10 @@ public class SemanticsTool implements ToolFactory {
 			synA = wfe.getSyntaxAnalysis();
 			semA = wfe.getSemanticAnalysis();
 			semUp = new SemanticUpdater(synA, semA, wfe.getDatabase());
+			tools = new ArrayList<Object>();
 			for (SemanticsToolFactory stf : stfs)
 				// stf.instantiate(wfe, model, view);
-				stf.instantiate(wfe, synA, semA, view);
+				tools.add(stf.instantiate(wfe, synA, semA, view));
 
 		}
 

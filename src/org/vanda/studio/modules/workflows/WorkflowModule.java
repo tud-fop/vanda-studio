@@ -27,6 +27,7 @@ import org.vanda.studio.modules.workflows.run.InspectorTool;
 import org.vanda.studio.modules.workflows.run.ProfileManager;
 import org.vanda.studio.modules.workflows.run.SemanticsTool;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
+import org.vanda.studio.modules.workflows.run.ProfileManager.ProfileOpener;
 import org.vanda.studio.modules.workflows.tools.AssignmentSwitchToolFactory;
 import org.vanda.studio.modules.workflows.tools.AssignmentTableToolFactory;
 import org.vanda.studio.modules.workflows.tools.PaletteTool;
@@ -175,7 +176,7 @@ public class WorkflowModule implements Module {
 			}
 		}
 
-		public final class OpenManagerAction implements Action {
+		public final class OpenManagerAction implements Action , ProfileOpener {			
 			@Override
 			public String getName() {
 				return "Manage Fragment Profiles...";
@@ -184,17 +185,13 @@ public class WorkflowModule implements Module {
 			@Override
 			public void invoke() {
 				if (manager == null) {
-					manager = new ProfileManager(app, repository);
-					manager.getCloseObservable().addObserver(
-							new CloseObserver());
+					manager = new ProfileManager(app, repository, this);
 				}
 				manager.focus();
 			}
-		}
 
-		public final class CloseObserver implements Observer<ProfileManager> {
 			@Override
-			public void notify(ProfileManager event) {
+			public void closeManager() {
 				manager = null;
 			}
 		}

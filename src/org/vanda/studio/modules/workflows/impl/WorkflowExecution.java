@@ -40,6 +40,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 
 	private final class CancelAction implements Action {
 		private Run run;
+		private Observer<RunEvent> runObserver;
 
 		@Override
 		public String getName() {
@@ -59,7 +60,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 		public void enable(Run run) {
 			this.run = run;
 			app.getWindowSystem().enableAction(component, this);
-			run.getObserver().addObserver(new Observer<RunEvent>() {
+			runObserver = new Observer<RunEvent>() {
 
 				@Override
 				public void notify(RunEvent event) {
@@ -89,8 +90,8 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 						}
 					});
 				}
-
-			});
+			};
+			run.getObserver().addObserver(runObserver);
 		}
 	}
 
@@ -119,6 +120,9 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 	private final Generator prof;
 	private final PresentationModel pm;
 	private final CancelAction cancel;
+	@SuppressWarnings("unused")
+	private final Object semanticsToolInstance;
+
 
 	public WorkflowExecution(Application app, Pair<MutableWorkflow, Database> phd, Generator prof, RunConfig rc)
 			throws TypeCheckingException {
@@ -145,7 +149,8 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 		ElementEditorFactories eefs = new ElementEditorFactories();
 		LinkedList<SemanticsToolFactory> srep = new LinkedList<SemanticsToolFactory>();
 		srep.add(new InspectorTool(eefs));
-		new SemanticsTool(srep).instantiate(this);
+		SemanticsTool semanticsTool = new SemanticsTool(srep);
+		semanticsToolInstance = semanticsTool.instantiate(this);
 
 		// add Menu-Actions
 		addAction(new RunAction(), KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK), 0);

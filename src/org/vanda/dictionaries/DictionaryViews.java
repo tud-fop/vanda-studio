@@ -1,6 +1,10 @@
 package org.vanda.dictionaries;
 
 public class DictionaryViews {
+	public static class MutableDictionaryViewState {
+		public DictionaryViewState value;
+	}
+	
 	public interface DictionaryViewState {
 		public void toTableViewState(ViewTransition vt);
 

@@ -50,7 +50,7 @@ public final class DataflowAnalysis implements JobVisitor {
 		jobIds = new HashMap<Job, String>();
 		jobSpecs = new HashMap<Job, String>();
 		values = new HashMap<Location, String>();
-		if (sorted == null || assignment == null)
+		if (sorted == null || assignment == null && !executable)
 			return;
 		Jobs.visitAll(sorted, this);
 	}

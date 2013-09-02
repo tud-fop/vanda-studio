@@ -63,10 +63,12 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		private WorkflowEditor wfe;
 		private JFrame f = null;
+		private final Observer<Application> shutdownObserver;
+		protected Observer<DatabaseEvent<Database>> databaseObserver;
 
 		public OpenAssignmentTableAction(WorkflowEditor wfe) {
 			this.wfe = wfe;
-			wfe.getApplication().getShutdownObservable().addObserver(new Observer<Application>() {
+			shutdownObserver = new Observer<Application>() {
 
 				@Override
 				public void notify(Application event) {
@@ -79,8 +81,8 @@ public class AssignmentTableToolFactory implements ToolFactory {
 						});
 					}
 				}
-
-			});
+			};
+			wfe.getApplication().getShutdownObservable().addObserver(shutdownObserver);
 		}
 
 		@Override
@@ -160,6 +162,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		private static final long serialVersionUID = -75059113029383402L;
 		protected final Database db;
+		private final Observer<WorkflowEvent<MutableWorkflow>> workflowObserver;
 		protected final SortedMap<Integer, Literal> literals;
 
 		protected AbstractTableModel rowHeaderModel;
@@ -182,14 +185,15 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			literals = new TreeMap<Integer, Literal>();
 			for (Job j : wfe.getView().getWorkflow().getChildren())
 				j.visit(literalAddedVisitor);
-			wfe.getView().getWorkflow().getObservable().addObserver(new Observer<WorkflowEvent<MutableWorkflow>>() {
+			workflowObserver = new Observer<WorkflowEvent<MutableWorkflow>>() {
 
 				@Override
 				public void notify(WorkflowEvent<MutableWorkflow> event) {
 					event.doNotify(AssignmentTableModel.this);
 				}
 
-			});
+			};
+			wfe.getView().getWorkflow().getObservable().addObserver(workflowObserver);
 			setupRowHeader();
 		}
 
@@ -585,6 +589,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		private static final long serialVersionUID = 4113799454513800879L;
 		private final Database db;
+		private final Observer<DatabaseEvent<Database>> dbObserver;
 		private final WorkflowEditor wfe;
 
 		private final AssignmentTableModel atm;
@@ -659,14 +664,15 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			atm.getRowHeader().getSelectionModel().addListSelectionListener(rowHeadSelList);
 
 			// register DatabaseObserver
-			db.getObservable().addObserver(new Observer<DatabaseEvent<Database>>() {
+			dbObserver = new Observer<DatabaseEvent<Database>>() {
 
 				@Override
 				public void notify(DatabaseEvent<Database> event) {
 					event.doNotify(AssignmentTableDialog.this);
 				}
 
-			});
+			};
+			db.getObservable().addObserver(dbObserver);
 
 			// add transpose button
 			JButton transposeButton = new JButton(new AbstractAction("\u2922") {
@@ -837,7 +843,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 	@Override
 	public Object instantiate(final WorkflowEditor wfe) {
-		final Action a = new OpenAssignmentTableAction(wfe);
+		final OpenAssignmentTableAction a = new OpenAssignmentTableAction(wfe);
 		wfe.addAction(a, "application-vnd.sun.xml.calc", KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_MASK), 4);
 
 		// disables assignment table if database is empty
@@ -863,14 +869,15 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			public void nameChange(Database d) {
 			}
 		};
-		wfe.getDatabase().getObservable().addObserver(new Observer<DatabaseEvent<Database>>() {
+		a.databaseObserver = new Observer<DatabaseEvent<Database>>() {
 
 			@Override
 			public void notify(DatabaseEvent<Database> event) {
 				event.doNotify(listener);
 			}
 
-		});
+		};
+		wfe.getDatabase().getObservable().addObserver(a.databaseObserver);
 
 		// initialize button
 		listener.dataChange(wfe.getDatabase(), null);

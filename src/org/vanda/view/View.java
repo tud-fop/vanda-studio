@@ -114,13 +114,16 @@ public class View {
 	WeakHashMap<Location, LocationView> variables;
 	Map<String, JobView> runEventMultiplexTable;
 
-	ViewListener<AbstractView> viewEventListener;
+	private final ViewListener<AbstractView> viewEventListener;
+	private final Observer<ViewEvent<AbstractView>> viewEventObserver;
 
 	MutableWorkflow workflow;
 
 	private WorkflowListener workflowListener;
-
+	private Observer<WorkflowEvent<MutableWorkflow>> workflowObserver;
 	private WorkflowView workflowView;
+
+	private Observer<RunEvent> runEventObserver;
 
 	public Observer<RunEvent> getRunEventObserver() {
 		if (runEventMultiplexTable == null) {
@@ -129,54 +132,56 @@ public class View {
 				if (j.getId() != null)
 					runEventMultiplexTable.put(j.getId(), jobs.get(j));
 			}
-		}
-		return new Observer<RunEvent>() {
 
-			@Override
-			public void notify(RunEvent event) {
-				event.doNotify(new RunEventListener() {
-					@Override 
-					public void progressUpdate(String id, int progress) {
-						JobView jv = runEventMultiplexTable.get(id);
-						if (jv != null) 
-							jv.getState().progress(jv, progress);
-					}
+			runEventObserver = new Observer<RunEvent>() {
 
-					@Override
-					public void runStarted(String id) {
-						// FIXME System.out.println("started: " + id);
-						JobView jv = runEventMultiplexTable.get(id);
-						if (jv != null)
-							jv.getState().run(jv);
-					}
-
-					@Override
-					public void runFinished(String id) {
-						// FIXME System.out.println("finished: " + id);
-						JobView jv = runEventMultiplexTable.get(id);
-						if (jv != null)
-							jv.getState().finish(jv);
-					}
-
-					@Override
-					public void runCancelled(String id) {
-						// FIXME System.out.println("cancelled: " + id);
-						JobView jv = runEventMultiplexTable.get(id);
-						if (jv != null)
-							jv.getState().cancel(jv);
-					}
-
-					@Override
-					public void cancelledAll() {
-						// FIXME System.out.println("cancelled all");
-						for (JobView jv : runEventMultiplexTable.values()) {
-							jv.getState().cancel(jv);
+				@Override
+				public void notify(RunEvent event) {
+					event.doNotify(new RunEventListener() {
+						@Override
+						public void progressUpdate(String id, int progress) {
+							JobView jv = runEventMultiplexTable.get(id);
+							if (jv != null)
+								jv.getState().progress(jv, progress);
 						}
-					}
-				});
-			}
 
-		};
+						@Override
+						public void runStarted(String id) {
+							// FIXME System.out.println("started: " + id);
+							JobView jv = runEventMultiplexTable.get(id);
+							if (jv != null)
+								jv.getState().run(jv);
+						}
+
+						@Override
+						public void runFinished(String id) {
+							// FIXME System.out.println("finished: " + id);
+							JobView jv = runEventMultiplexTable.get(id);
+							if (jv != null)
+								jv.getState().finish(jv);
+						}
+
+						@Override
+						public void runCancelled(String id) {
+							// FIXME System.out.println("cancelled: " + id);
+							JobView jv = runEventMultiplexTable.get(id);
+							if (jv != null)
+								jv.getState().cancel(jv);
+						}
+
+						@Override
+						public void cancelledAll() {
+							// FIXME System.out.println("cancelled all");
+							for (JobView jv : runEventMultiplexTable.values()) {
+								jv.getState().cancel(jv);
+							}
+						}
+					});
+				}
+
+			};
+		}
+		return runEventObserver;
 
 	}
 
@@ -202,7 +207,7 @@ public class View {
 			@Override
 			public void runProgressUpdate(AbstractView v) {
 			}
-			
+
 			@Override
 			public void selectionChanged(AbstractView v) {
 				// TODO this will cause multiple notifications for one selection
@@ -217,6 +222,15 @@ public class View {
 
 		};
 
+		viewEventObserver = new Observer<ViewEvent<AbstractView>>() {
+
+			@Override
+			public void notify(ViewEvent<AbstractView> event) {
+				event.doNotify(viewEventListener);
+			}
+
+		};
+
 		setWorkflowView(new WorkflowView());
 
 		for (Job j : workflow.getChildren()) {
@@ -227,53 +241,34 @@ public class View {
 		}
 		for (ConnectionKey ck : workflow.getConnections())
 			addConnectionView(ck);
-		workflow.getObservable().addObserver(new Observer<WorkflowEvent<MutableWorkflow>>() {
+
+		workflowObserver = new Observer<WorkflowEvent<MutableWorkflow>>() {
 
 			@Override
 			public void notify(WorkflowEvent<MutableWorkflow> event) {
 				event.doNotify(workflowListener);
 			}
 
-		});
+		};
+		workflow.getObservable().addObserver(workflowObserver);
 	}
 
 	public void addConnectionView(ConnectionKey cc) {
 		if (!connections.containsKey(cc)) {
 			connections.put(cc, new ConnectionView());
-			connections.get(cc).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
-
-				@Override
-				public void notify(ViewEvent<AbstractView> event) {
-					event.doNotify(viewEventListener);
-				}
-
-			});
+			connections.get(cc).getObservable().addObserver(viewEventObserver);
 		}
 	}
 
 	private void addJobView(Job j) {
 		JobView jv = new JobView();
 		jobs.put(j, jv);
-		jv.getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
-
-			@Override
-			public void notify(ViewEvent<AbstractView> event) {
-				event.doNotify(viewEventListener);
-			}
-
-		});
+		jv.getObservable().addObserver(viewEventObserver);
 	}
 
 	private void addLocationView(Location l) {
 		variables.put(l, new LocationView());
-		variables.get(l).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
-
-			@Override
-			public void notify(ViewEvent<AbstractView> event) {
-				event.doNotify(viewEventListener);
-			}
-
-		});
+		variables.get(l).getObservable().addObserver(viewEventObserver);
 	}
 
 	public <T, T2 extends AbstractView> void addMarked(WeakHashMap<T, T2> whm, List<AbstractView> marked) {
@@ -354,14 +349,7 @@ public class View {
 
 	private void setWorkflowView(WorkflowView workflowView) {
 		this.workflowView = workflowView;
-		workflowView.getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
-
-			@Override
-			public void notify(ViewEvent<AbstractView> event) {
-				event.doNotify(viewEventListener);
-			}
-
-		});
+		workflowView.getObservable().addObserver(viewEventObserver);
 	}
 
 	public void removeSelectedCell() {

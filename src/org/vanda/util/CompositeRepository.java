@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-
 /**
  * @author buechse
  * 
@@ -17,7 +16,9 @@ public final class CompositeRepository<T> implements Repository<T>, MetaReposito
 	protected HashSet<Repository<? extends T>> repositories;
 
 	protected MultiplexObserver<Repository<? extends T>> addRepositoryObservable;
+	private Observer<Repository<? extends T>> addRepositoryMultiplexObserver;
 	protected MultiplexObserver<Repository<? extends T>> removeRepositoryObservable;
+	private Observer<Repository<? extends T>> removeRepositoryMultiplexObserver;
 
 	protected MultiplexObserver<T> addObservable;
 	protected MultiplexObserver<T> modifyObservable;
@@ -30,43 +31,42 @@ public final class CompositeRepository<T> implements Repository<T>, MetaReposito
 		addObservable = new MultiplexObserver<T>();
 		modifyObservable = new MultiplexObserver<T>();
 		removeObservable = new MultiplexObserver<T>();
-		addRepositoryObservable
-				.addObserver(new Observer<Repository<? extends T>>() {
 
-					@Override
-					public void notify(Repository<? extends T> r) {
+		addRepositoryMultiplexObserver = new Observer<Repository<? extends T>>() {
 
-						// "forward" child events
-						r.getAddObservable().addObserver(addObservable);
-						r.getRemoveObservable().addObserver(removeObservable);
-						r.getModifyObservable().addObserver(modifyObservable);
+			@Override
+			public void notify(Repository<? extends T> r) {
 
-						// pretend all items of r have been added
-						Util.notifyAll(addObservable, r.getItems());
+				// "forward" child events
+				r.getAddObservable().addObserver(addObservable);
+				r.getRemoveObservable().addObserver(removeObservable);
+				r.getModifyObservable().addObserver(modifyObservable);
 
-					}
+				// pretend all items of r have been added
+				Util.notifyAll(addObservable, r.getItems());
 
-				});
+			}
 
-		removeRepositoryObservable
-				.addObserver(new Observer<Repository<? extends T>>() {
+		};
+		addRepositoryObservable.addObserver(addRepositoryMultiplexObserver);
 
-					@Override
-					public void notify(Repository<? extends T> r) {
+		removeRepositoryMultiplexObserver = new Observer<Repository<? extends T>>() {
 
-						// stop forwarding
-						r.getAddObservable().removeObserver(addObservable);
-						r.getRemoveObservable()
-								.removeObserver(removeObservable);
-						r.getModifyObservable()
-								.removeObserver(modifyObservable);
+			@Override
+			public void notify(Repository<? extends T> r) {
 
-						// pretend all items of r have been removed
-						Util.notifyAll(removeObservable, r.getItems());
+				// stop forwarding
+				r.getAddObservable().removeObserver(addObservable);
+				r.getRemoveObservable().removeObserver(removeObservable);
+				r.getModifyObservable().removeObserver(modifyObservable);
 
-					}
+				// pretend all items of r have been removed
+				Util.notifyAll(removeObservable, r.getItems());
 
-				});
+			}
+
+		};
+		removeRepositoryObservable.addObserver(removeRepositoryMultiplexObserver);
 	}
 
 	@Override
@@ -85,8 +85,7 @@ public final class CompositeRepository<T> implements Repository<T>, MetaReposito
 		if (r == null)
 			throw new IllegalArgumentException("repository must not be null");
 		if (!repositories.add(r))
-			throw new UnsupportedOperationException(
-					"cannot add repository twice");
+			throw new UnsupportedOperationException("cannot add repository twice");
 
 		addRepositoryObservable.notify(r);
 	}
@@ -126,8 +125,7 @@ public final class CompositeRepository<T> implements Repository<T>, MetaReposito
 		if (r == null)
 			throw new IllegalArgumentException("repository must not be null");
 		if (!repositories.remove(r))
-			throw new UnsupportedOperationException(
-					"cannot add repository twice");
+			throw new UnsupportedOperationException("cannot add repository twice");
 
 		removeRepositoryObservable.notify(r);
 

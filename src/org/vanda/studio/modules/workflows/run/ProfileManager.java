@@ -16,8 +16,6 @@ import javax.swing.event.ListDataListener;
 import org.vanda.fragment.model.Profile;
 import org.vanda.studio.app.Application;
 import org.vanda.util.Action;
-import org.vanda.util.MultiplexObserver;
-import org.vanda.util.Observable;
 import org.vanda.util.Observer;
 import org.vanda.util.Repository;
 import org.vanda.util.RepositoryItem;
@@ -26,13 +24,13 @@ public final class ProfileManager {
 
 	private final Application app;
 	// private final SimpleRepository<Profile> repository;
-	private final MultiplexObserver<ProfileManager> closeObservable;
 	private JPanel contentPane;
+	private final ProfileOpener profOpener;
 
-	public ProfileManager(Application app, Repository<Profile> repository) {
+	public ProfileManager(Application app, Repository<Profile> repository, ProfileOpener profOpener) {
 		this.app = app;
+		this.profOpener = profOpener;
 		// this.repository = repository;
-		closeObservable = new MultiplexObserver<ProfileManager>();
 		JList list = new JList(new RepositoryListModel<Profile>(repository));
 		JScrollPane listScroll = new JScrollPane(list);
 		contentPane = new JPanel(new BorderLayout());
@@ -57,10 +55,6 @@ public final class ProfileManager {
 	public void focus() {
 		app.getWindowSystem().focusContentWindow(contentPane);
 	}
-	
-	public Observable<ProfileManager> getCloseObservable() {
-		return closeObservable;
-	}
 
 	private final class CloseAction implements Action {
 		@Override
@@ -72,7 +66,7 @@ public final class ProfileManager {
 		public void invoke() {
 			app.getWindowSystem().removeContentWindow(contentPane);
 			contentPane = null;
-			closeObservable.notify(ProfileManager.this);
+			profOpener.closeManager();
 		}
 	}
 
@@ -124,6 +118,10 @@ public final class ProfileManager {
 						ListDataEvent.INTERVAL_ADDED, 0, items.size()));
 		}
 
+	}
+	
+	public interface ProfileOpener {
+		void closeManager();
 	}
 
 }

@@ -12,7 +12,7 @@ import javax.swing.JEditorPane;
 import org.vanda.dictionaries.Dictionary;
 import org.vanda.dictionaries.DictionaryView;
 import org.vanda.dictionaries.DictionaryViews;
-import org.vanda.dictionaries.DictionaryViews.DictionaryViewState;
+import org.vanda.dictionaries.DictionaryViews.MutableDictionaryViewState;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.modules.previews.Previews.Preview;
@@ -23,12 +23,13 @@ final class DictionaryPreviewFactory implements PreviewFactory {
 	private final Application app;
 	private final HashMap<String, WeakReference<Dictionary>> openDictionaries;
 	private final LinkedList<WeakReference<Preview>> ds;
-	private DictionaryViewState viewState;
+	private MutableDictionaryViewState viewState;
 	private Observer<Application> uiModeObserver;
 
 	public DictionaryPreviewFactory(Application app) {
 		this.app = app;
-		viewState = new DictionaryViews.TableViewState();
+		viewState = new MutableDictionaryViewState(); 
+		viewState.value = new DictionaryViews.TableViewState();
 		openDictionaries = new HashMap<String, WeakReference<Dictionary>>();
 		ds = new LinkedList<WeakReference<Preview>>();
 		uiModeObserver = new Previews.UIObserver(ds);
@@ -42,12 +43,6 @@ final class DictionaryPreviewFactory implements PreviewFactory {
 			DictionaryView dv = new DictionaryView(dict, viewState);
 			dv.setLargeContent(app.getUIMode().isLargeContent());
 			dv.setLargeUI(app.getUIMode().isLargeUI());
-			dv.getObservable().addObserver(new Observer<DictionaryViewState>() {
-				@Override
-				public void notify(DictionaryViewState event) {
-					viewState = event;
-				}
-			});
 			ds.push(new WeakReference<Preview>(dv));
 			return dv;
 		} catch (IOException e) {
@@ -73,12 +68,6 @@ final class DictionaryPreviewFactory implements PreviewFactory {
 			DictionaryView dv = new DictionaryView(dict, viewState);
 			dv.setLargeContent(app.getUIMode().isLargeContent());
 			dv.setLargeUI(app.getUIMode().isLargeUI());
-			dv.getObservable().addObserver(new Observer<DictionaryViewState>() {
-				@Override
-				public void notify(DictionaryViewState event) {
-					viewState = event;
-				}
-			});
 			ds.push(new WeakReference<Preview>(dv));
 			dv.setName(value);
 			app.getWindowSystem().addContentWindow(null, dv, null);

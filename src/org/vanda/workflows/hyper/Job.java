@@ -20,6 +20,7 @@ import org.vanda.workflows.hyper.Jobs.*;
 
 public class Job implements ElementAdapterListener<ElementAdapter> {
 	private final ElementAdapter element;
+	private Observer<ElementAdapterEvent<ElementAdapter>> elementObserver;
 	private final String id;
 	public Map<Port, Location> bindings;
 	protected final double[] dimensions = new double[4];
@@ -34,11 +35,11 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 			observable = null;
 		rebind();
 	}
-	
+
 	public Job(ElementAdapter element) {
 		this(element, null);
 	}
-	
+
 	public Job(ElementAdapter element, boolean createObservable) {
 		this.id = null;
 		this.element = element;
@@ -61,7 +62,7 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 	public String getId() {
 		return id;
 	}
-	
+
 	public List<Port> getInputPorts() {
 		return element.getInputPorts();
 	}
@@ -110,15 +111,17 @@ public class Job implements ElementAdapterListener<ElementAdapter> {
 	 * call this after deserialization
 	 */
 	public void rebind() {
-		Observable<ElementAdapterEvent<ElementAdapter>> o = element
-				.getObservable();
-		if (o != null)
-			o.addObserver(new Observer<ElementAdapterEvent<ElementAdapter>>() {
-				@Override
-				public void notify(ElementAdapterEvent<ElementAdapter> event) {
-					event.doNotify(Job.this);
-				}
-			});
+		Observable<ElementAdapterEvent<ElementAdapter>> o = element.getObservable();
+		if (o != null) {
+			if (elementObserver == null)
+				elementObserver = new Observer<ElementAdapterEvent<ElementAdapter>>() {
+					@Override
+					public void notify(ElementAdapterEvent<ElementAdapter> event) {
+						event.doNotify(Job.this);
+					}
+				};
+			o.addObserver(elementObserver);
+		}
 		element.rebind();
 	}
 

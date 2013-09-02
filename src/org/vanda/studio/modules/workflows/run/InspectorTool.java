@@ -34,9 +34,11 @@ public class InspectorTool implements SemanticsToolFactory {
 
 	public final class Inspector {
 		private final WorkflowEditor wfe;
+		private final Observer<Object> workflowObserver;
 		// private final Model mm;
 		private final SyntaxAnalysis synA;
 		private final SemanticAnalysis semA;
+		private final Observer<SemanticAnalysis> semanticObserver;
 		private final JPanel contentPane;
 		private final JPanel panNorth;
 		private final JEditorPane inspector;
@@ -44,6 +46,7 @@ public class InspectorTool implements SemanticsToolFactory {
 		private JComponent editor;
 		private JComponent preview;
 		private final View view;
+		private final Observer<GlobalViewEvent<View>> viewObserver;
 
 		// public Inspector(WorkflowEditor wfe, Model mm, View view) {
 		public Inspector(WorkflowEditor wfe, SyntaxAnalysis synA, SemanticAnalysis semA, View view) {
@@ -84,32 +87,35 @@ public class InspectorTool implements SemanticsToolFactory {
 
 			};
 
-			wfe.getView().getObservable().addObserver(new Observer<GlobalViewEvent<View>>() {
+			viewObserver = new Observer<GlobalViewEvent<View>>() {
 
 				@Override
 				public void notify(GlobalViewEvent<View> event) {
 					event.doNotify(listener);
 				}
-			});
+			};
+			wfe.getView().getObservable().addObserver(viewObserver);
 
-			wfe.getView().getWorkflow().getObservable().addObserver(new Observer<Object>() {
+			workflowObserver = new Observer<Object>() {
 
 				@Override
 				public void notify(Object event) {
 					update();
 				}
 
-			});
-			
-			semA.getObservable().addObserver(new Observer<SemanticAnalysis>() {
+			};
+			wfe.getView().getWorkflow().getObservable().addObserver(workflowObserver);
+
+			semanticObserver = new Observer<SemanticAnalysis>() {
 
 				@Override
 				public void notify(SemanticAnalysis event) {
 					update();
 				}
-				
-			});
-			
+
+			};
+			semA.getObservable().addObserver(semanticObserver);
+
 			this.wfe.focusToolWindow(contentPane);
 			update();
 		}
@@ -139,8 +145,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			}
 			if (previewFactory != null) {
 				preview = previewFactory.createPreview(wfe.getApplication());
-				JComponent buttons = previewFactory.createButtons(wfe
-						.getApplication());
+				JComponent buttons = previewFactory.createButtons(wfe.getApplication());
 				panNorth.removeAll();
 				panNorth.add(therealinspector, BorderLayout.CENTER);
 				panNorth.add(buttons, BorderLayout.EAST);
@@ -171,7 +176,6 @@ public class InspectorTool implements SemanticsToolFactory {
 			// ws = newws;
 		}
 
-		
 	}
 
 	public InspectorTool(ElementEditorFactories eefs) {

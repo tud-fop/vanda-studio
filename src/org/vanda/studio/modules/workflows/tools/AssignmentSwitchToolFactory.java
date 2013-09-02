@@ -128,6 +128,7 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 		private JPanel pan;
 		private final JButton prevButton, nextButton;
 		private final JLabel label;
+		private final Observer<DatabaseEvent<Database>> databaseObserver;
 
 		public JComponent getComponent() {
 			return pan;
@@ -201,14 +202,15 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 			// init State
 			dl.dataChange(db, null);
 
-			db.getObservable().addObserver(new Observer<DatabaseEvent<Database>>() {
+			databaseObserver = new Observer<DatabaseEvent<Database>>() {
 
 				@Override
 				public void notify(DatabaseEvent<Database> event) {
 					event.doNotify(dl);
 				}
 
-			});
+			};
+			db.getObservable().addObserver(databaseObserver);
 
 			SequentialGroup horizontal = layout.createSequentialGroup().addComponent(prevButton).addComponent(aName)
 					.addComponent(label).addComponent(nextButton);
