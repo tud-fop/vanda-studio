@@ -25,7 +25,7 @@ XRSTranslate () {
 XRSNGrams () {
 	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
 	runhaskell "$VANDA/programs/XRSToHypergraph.hs" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
-	runhaskell "$VANDA/programs/XRSNGrams.hs" -f "$1/map.f" -z "$1/zhg" -l "$3"
+	runhaskell "$VANDA/programs/XRSNGrams.hs" -f "$1/map.f" -z "$1/zhg" -l "$3" +RTS -K256M
 	runhaskell "$VANDA/programs/XRSToHypergraph.hs" b2t -e "$1/map.e" -f "$1/map.f" -z "$1/zhg.new" > "$4"
 }
 
@@ -40,8 +40,7 @@ XRSNGrams () {
 # Evaluates the corpus according to the given model.
 NGrams () {
 	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
-	N=$(grep "grams:" "$2" | wc -l)
-	"runhaskell" "$VANDA/programs/NGrams.hs" -g "$2" "$3" > "$4"
+	runhaskell "$VANDA/programs/NGrams.hs" -l "$2" < "$3" > "$4"
 	echo "$3" > "${4}.meta"
 }
 
