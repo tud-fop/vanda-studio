@@ -1,6 +1,8 @@
 package org.vanda.studio.modules.workflows.tools;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
@@ -37,8 +39,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
+import org.vanda.datasources.Element;
+import org.vanda.datasources.RootDataSource;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
@@ -163,10 +168,11 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		private static final long serialVersionUID = -75059113029383402L;
 		protected final Database db;
 		private final Observer<WorkflowEvent<MutableWorkflow>> workflowObserver;
-		protected final SortedMap<Integer, Literal> literals;
+		public final SortedMap<Integer, Literal> literals;
 
 		protected AbstractTableModel rowHeaderModel;
 		protected JTable rowHeader;
+		private final RootDataSource rds;
 
 		private ElementVisitor literalAddedVisitor = new ElementVisitor() {
 			@Override
@@ -182,6 +188,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		public AssignmentTableModel(WorkflowEditor wfe) {
 			db = wfe.getDatabase();
+			rds = wfe.getApplication().getRootDataSource();
 			literals = new TreeMap<Integer, Literal>();
 			for (Job j : wfe.getView().getWorkflow().getChildren())
 				j.visit(literalAddedVisitor);
@@ -323,7 +330,6 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 				@Override
 				public void run() {
-					// FIXME System.out.println("child removed");
 					literals.clear();
 					for (Job j : mwf.getChildren()) {
 						j.visit(literalAddedVisitor);
@@ -348,6 +354,25 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		@Override
 		public void updated(MutableWorkflow mwf) {
+		}
+
+		public boolean isErroneous(int arg0, int arg1) {
+			Literal lit = literals.get(arg1);
+			String val = db.getRow(arg0).get(lit.getKey());
+			if (val == null)
+				return true;
+			return !rds.getType(Element.fromString(val)).equals(lit.getType());
+		}
+		
+		public boolean hasAValue(int arg0, int arg1) {
+			Literal lit = literals.get(arg1);
+			String val = db.getRow(arg0).get(lit.getKey());
+			if (val == null)
+				return false;
+			int i = val.indexOf(':');
+			if (i == -1 || i == val.length() - 1)
+				return false;
+			return true;
 		}
 	}
 
@@ -377,7 +402,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		@Override
 		public Object getValueAt(int arg0, int arg1) {
-			return db.getRow(arg1).get(literals.get(arg0).getKey());
+			return super.getValueAt(arg1, arg0);
 		}
 
 		@Override
@@ -393,6 +418,16 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		@Override
 		public int getKey(JTable table) {
 			return table.getSelectedRow();
+		}
+
+		@Override
+		public boolean isErroneous(int arg0, int arg1) {
+			return super.isErroneous(arg1, arg0);
+		}
+		
+		@Override
+		public boolean hasAValue(int arg0, int arg1) {
+			return super.hasAValue(arg1, arg0);
 		}
 
 		@Override
@@ -523,7 +558,6 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			public void valueChanged(ListSelectionEvent arg0) {
 				if (arg0.getLastIndex() == -1 || arg0.getValueIsAdjusting())
 					return;
-				// FIXME System.out.println(" last " + arg0.getLastIndex());
 				if (table.getSelectedColumn() == -1 || table.getSelectedRow() == -1)
 					return;
 				if (rowHeader.isEditing()) {
@@ -555,7 +589,6 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			public void valueChanged(ListSelectionEvent arg0) {
 				if (arg0.getLastIndex() == -1 || arg0.getValueIsAdjusting())
 					return;
-				// FIXME System.out.println("last " + arg0.getLastIndex());
 				if (rowHeader.getSelectedColumn() == -1 || rowHeader.getSelectedRow() == -1)
 					return;
 				SwingUtilities.invokeLater(new ClearSelection(mainTable));
@@ -622,6 +655,23 @@ public class AssignmentTableToolFactory implements ToolFactory {
 			atm = new AssignmentTableModel(wfe);
 			tatm = new TransposedAssignmentTableModel(wfe);
 			table = new JTable(atm);
+			table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+				private static final long serialVersionUID = -6915713192476941622L;
+
+				@Override
+				public Component getTableCellRendererComponent(JTable arg0, Object arg1, boolean arg2, boolean arg3, int arg4,
+						int arg5) {
+					Component comp = super.getTableCellRendererComponent(arg0, arg1, arg2, arg3, arg4, arg5);
+					if (((AssignmentTableModel) table.getModel()).isErroneous(arg4, arg5)) 
+						comp.setBackground(Color.red);
+					else if (!((AssignmentTableModel) table.getModel()).hasAValue(arg4, arg5))
+						comp.setBackground(Color.yellow);
+					else
+						comp.setBackground(table.getBackground());
+					return comp;					
+				}
+			});
+
 			table.setCellSelectionEnabled(true);
 			table.setTableHeader(new JTableHeader(table.getColumnModel()) {
 				private static final long serialVersionUID = -3125419306047857928L;
@@ -776,9 +826,11 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 				@Override
 				public void run() {
+					atm.fireTableDataChanged();
 					atm.fireTableStructureChanged();
+					tatm.fireTableDataChanged();
 					tatm.fireTableStructureChanged();
-					table.updateUI();
+					table.repaint();
 					tablePane.updateUI();
 					updateUI();
 				}
@@ -807,7 +859,6 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		}
 
 		private void updateSelection(int run, int key) {
-			// FIXME System.out.println("run: " + run + " key: " + key);
 			if (db.getCursor() != run && -1 < run && run < db.getSize()) {
 				db.setCursor(run);
 			}

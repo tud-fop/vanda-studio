@@ -53,7 +53,6 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 	}
 
 	public class LiteralObserver implements Observer<ElementEvent<Literal>>, ElementListener<Literal> {
-		// final Element ds;
 		final JTextField value;
 
 		public LiteralObserver(JTextField value) {
@@ -94,14 +93,16 @@ public class LiteralEditor implements ElementEditorFactory<Literal> {
 
 		@Override
 		public void cursorChange(Database d) {
-			// Database d = event.getDatabase();
-			Element el = Element.fromString(d.get(l.getKey()));
-			e.beginUpdate();
-			try {
-				e.setPrefix(el.getPrefix());
-				e.setValue(el.getValue());
-			} finally {
-				e.endUpdate();
+			String s = d.get(l.getKey());
+			if (s != null && !("").equals(s)) {
+				Element el = Element.fromString(d.get(l.getKey()));
+				e.beginUpdate();
+				try {
+					e.setPrefix(el.getPrefix());
+					e.setValue(el.getValue());
+				} finally {
+					e.endUpdate();
+				}
 			}
 		}
 
