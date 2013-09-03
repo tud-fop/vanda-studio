@@ -26,6 +26,8 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.SpinnerNumberModel;
 
+import org.vanda.datasources.Element;
+import org.vanda.datasources.RootDataSource;
 import org.vanda.util.Pair;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.elements.Literal;
@@ -61,7 +63,7 @@ public class RunConfigEditor {
 		return pan;
 	}
 
-	public RunConfigEditor(final MutableWorkflow mwf, Database db, String path, final Runner r) {
+	public RunConfigEditor(final MutableWorkflow mwf, Database db, RootDataSource rds, String path, final Runner r) {
 		// Panel and basic Layout
 		pan = new JPanel();
 		GroupLayout layout = new GroupLayout(pan);
@@ -115,6 +117,14 @@ public class RunConfigEditor {
 		tableRows.addGroup(tableLayout.createParallelGroup().addComponent(headerLeft).addComponent(headerRight));
 
 		// Table Content
+		List<Literal> connectedLiterals = null;
+		boolean inputsComplete = true;
+		try {
+			connectedLiterals = DatabaseValueChecker.detectConnectedLiterals(mwf);
+		} catch (MissingInputsException e) {
+			inputsComplete = false;
+		}
+
 		// TODO remember previous selections and priorities
 		for (int i = 0; i < db.getSize(); ++i) {
 			final Integer a_i = new Integer(i);
@@ -131,7 +141,8 @@ public class RunConfigEditor {
 				}
 			});
 			assignmentCheckboxes.add(assignment);
-			boolean selectable = DatabaseValueChecker.checkDatabseRow(mwf, db.getRow(i));
+			boolean selectable = inputsComplete
+					&& DatabaseValueChecker.checkDatabseRow(mwf, rds, db.getRow(i), connectedLiterals);
 			JSpinner priority = new JSpinner(new SpinnerNumberModel(i, 0, 1000, 1));
 
 			if (!selectable) {
@@ -237,13 +248,13 @@ public class RunConfigEditor {
 			private final List<Literal> literals;
 			private final List<Job> workingSet;
 			private final MutableWorkflow mwf;
-			
+
 			public JobTraverser(List<Literal> literals, MutableWorkflow mwf, List<Job> workingSet) {
 				this.literals = literals;
 				this.mwf = mwf;
 				this.workingSet = workingSet;
 			}
-			
+
 			@Override
 			public void visitTool(Job j, Tool t) {
 				for (Port ip : j.getInputPorts()) {
@@ -251,7 +262,7 @@ public class RunConfigEditor {
 					ConnectionKey src = mwf.getVariableSource(l);
 					if (src != null)
 						workingSet.add(src.target);
-					else 
+					else
 						allLitsConnected = false;
 				}
 			}
@@ -260,26 +271,27 @@ public class RunConfigEditor {
 			public void visitLiteral(Job j, Literal l) {
 				literals.add(l);
 			}
-			
+
 			public boolean allLiteralsConnected() {
 				return allLitsConnected;
 			}
 		}
-		
-		
 
-		public static boolean checkDatabseRow(MutableWorkflow mwf, final HashMap<String, String> row) {
-			boolean b = true;
-			try {
-				// FIXME do this just once
-				for (Literal l : detectConnectedLiterals(mwf)) {
-					if (row.get(l.getKey()) == null || row.get(l.getKey()).equals(":"))
-						b = false;
-				}
-			} catch (MissingInputsException e) {
-				b = false;
+		public static boolean checkDatabseRow(MutableWorkflow mwf, RootDataSource rds, final HashMap<String, String> row,
+				List<Literal> literals) {
+			if (literals == null)
+				return false;		
+			for (Literal l : literals) {
+				String val = row.get(l.getKey());
+				if (val == null)
+					return false;
+				if (!rds.getType(Element.fromString(val)).equals(l.getType()))
+					return false; 
+				int i = val.indexOf(':');
+				if (i == -1 || i == val.length() - 1)
+					return false;				
 			}
-			return b;
+			return true;
 		}
 
 		public static List<Literal> detectConnectedLiterals(final MutableWorkflow mwf) throws MissingInputsException {
@@ -302,16 +314,16 @@ public class RunConfigEditor {
 					}
 				});
 			}
-			JobTraverser jv = new JobTraverser(literals, mwf, workingSet); 
-			
+			JobTraverser jv = new JobTraverser(literals, mwf, workingSet);
+
 			while (!workingSet.isEmpty()) {
 				Job j = workingSet.remove(workingSet.size() - 1);
 				j.visit(jv);
 			}
-			
+
 			if (jv.allLiteralsConnected())
 				return literals;
-			else 
+			else
 				throw new MissingInputsException();
 		}
 	}

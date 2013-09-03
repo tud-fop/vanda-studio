@@ -44,7 +44,7 @@ public class RunTool implements SemanticsToolFactory {
 			public void invoke() {
 				f = new JDialog(wfe.getApplication().getWindowSystem().getMainWindow(), "Execute Workflow");
 				RunConfigEditor rce = new RunConfigEditor(wfe.getView().getWorkflow(), wfe.getDatabase(),
-						app.getProperty("outputPath"), RunAction.this);
+						app.getRootDataSource(), app.getProperty("outputPath"), RunAction.this);
 				f.setContentPane(rce.getComponent());
 				f.setAlwaysOnTop(true);
 				f.setAutoRequestFocus(true);
