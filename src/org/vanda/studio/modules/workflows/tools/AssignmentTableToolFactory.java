@@ -661,13 +661,20 @@ public class AssignmentTableToolFactory implements ToolFactory {
 				@Override
 				public Component getTableCellRendererComponent(JTable arg0, Object arg1, boolean arg2, boolean arg3, int arg4,
 						int arg5) {
-					Component comp = super.getTableCellRendererComponent(arg0, arg1, arg2, arg3, arg4, arg5);
-					if (((AssignmentTableModel) table.getModel()).isErroneous(arg4, arg5)) 
+					JLabel comp = (JLabel) super.getTableCellRendererComponent(arg0, arg1, arg2, arg3, arg4, arg5);
+					if (((AssignmentTableModel) table.getModel()).isErroneous(arg4, arg5)) {
 						comp.setBackground(Color.red);
-					else if (!((AssignmentTableModel) table.getModel()).hasAValue(arg4, arg5))
+						comp.setToolTipText("Literal and Datasource types do not match.");
+					}
+					else if (!((AssignmentTableModel) table.getModel()).hasAValue(arg4, arg5)) {
 						comp.setBackground(Color.yellow);
-					else
+						comp.setToolTipText("No value is selected.");
+					}
+					else {
 						comp.setBackground(table.getBackground());
+						comp.setToolTipText(null);
+					}
+						
 					return comp;					
 				}
 			});
@@ -859,6 +866,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		}
 
 		private void updateSelection(int run, int key) {
+			// FIXME System.out.println("run: " + run + " key: " + key);
 			if (db.getCursor() != run && -1 < run && run < db.getSize()) {
 				db.setCursor(run);
 			}
