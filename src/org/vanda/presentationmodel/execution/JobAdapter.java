@@ -148,12 +148,14 @@ public class JobAdapter {
 		}
 	}
 
-	Map<Port, InPortCell> inports;
-	Job job;
-	JobCell jobCell;
-	JobCellListener jobCellListener;
-	JobViewListener jobViewListener;
-
+	private Map<Port, InPortCell> inports;
+	private Job job;
+	private JobCell jobCell;
+	private JobCellListener jobCellListener;
+	private Observer<CellEvent<Cell>> jobCellObserver;
+	private JobViewListener jobViewListener;
+	private Observer<ViewEvent<AbstractView>> jobViewObserver;
+	
 	Map<Location, LocationAdapter> locations;
 
 	Map<Port, OutPortCell> outports;
@@ -166,25 +168,27 @@ public class JobAdapter {
 		this.jobCellListener = new JobCellListener();
 
 		// register at jobCell
-		jobCell.getObservable().addObserver(new Observer<CellEvent<Cell>>() {
+		jobCellObserver = new Observer<CellEvent<Cell>>() {
 
 			@Override
 			public void notify(CellEvent<Cell> event) {
 				event.doNotify(jobCellListener);
 			}
 
-		});
+		};
+		jobCell.getObservable().addObserver(jobCellObserver);
 
 		// register at jobView
-		this.jobViewListener = new JobViewListener();
-		view.getJobView(job).getObservable().addObserver(new Observer<ViewEvent<AbstractView>>() {
+		jobViewListener = new JobViewListener();
+		jobViewObserver = new Observer<ViewEvent<AbstractView>>() {
 
 			@Override
 			public void notify(ViewEvent<AbstractView> event) {
 				event.doNotify(jobViewListener);
 			}
 			
-		});
+		};
+		view.getJobView(job).getObservable().addObserver(jobViewObserver);
 	}
 
 	public void destroy(Graph graph) {
