@@ -18,30 +18,19 @@ import org.vanda.workflows.hyper.Jobs;
 import org.vanda.workflows.hyper.Location;
 
 // XXX removed: handle ports (see older versions)
-public final class DataflowAnalysis implements JobVisitor {
+public class DataflowAnalysis implements JobVisitor {
 	public static final String UNDEFINED = "UNDEFINED";
 	public static final String ROW_ID = "rowID";
 
-	private Map<String, String> assignment_;
-	private boolean connected;
-	private Map<Job, String> jobIds; // distinguish jobs that perform the same
+	protected Map<String, String> assignment_;
+	protected boolean connected;
+	protected Map<Job, String> jobIds; // distinguish jobs that perform the same
 										// operation, need not persist
-	private Map<Job, String> jobSpecs; // identify jobs that perform the same
+	protected Map<Job, String> jobSpecs; // identify jobs that perform the same
 										// operation, persist
-	private Map<Location, String> values;
-	
-	private int line;
+	protected Map<Location, String> values;
 
-	// FIXME provisional (dirty)
-	private final boolean executable;
-
-	public DataflowAnalysis() {
-		executable = false;
-	}
-
-	public DataflowAnalysis(boolean executable) {
-		this.executable = executable;
-	}
+	protected int line;
 
 	public void init(Map<String, String> assignment, int line, Job[] sorted) {
 		assignment_ = assignment;
@@ -50,7 +39,7 @@ public final class DataflowAnalysis implements JobVisitor {
 		jobIds = new HashMap<Job, String>();
 		jobSpecs = new HashMap<Job, String>();
 		values = new HashMap<Location, String>();
-		if (sorted == null || assignment == null && !executable)
+		if (sorted == null || assignment == null)
 			return;
 		Jobs.visitAll(sorted, this);
 	}
@@ -72,9 +61,7 @@ public final class DataflowAnalysis implements JobVisitor {
 		sb.append(values.get(j.bindings.get(p)).replace('/', '#'));
 	}
 
-	private String computeJobId(Job j, Tool t) {
-		if (executable)
-			return j.getId();
+	protected String computeJobId(Job j, Tool t) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('(');
 		sb.append(Integer.toHexString(j.hashCode()));
@@ -126,15 +113,12 @@ public final class DataflowAnalysis implements JobVisitor {
 	@Override
 	public void visitLiteral(Job j, Literal l) {
 		String value = "";
-		if (executable) {
-			value = l.getKey();
-		} else {
 		if (assignment_ != null)
 			value = assignment_.get(l.getKey());
-			if (value == null) {
-				value = l.getKey();
-			}
+		if (value == null) {
+			value = l.getKey();
 		}
+
 		values.put(j.bindings.get(j.getOutputPorts().get(0)), value);
 	}
 

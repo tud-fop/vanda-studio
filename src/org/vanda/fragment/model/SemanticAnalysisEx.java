@@ -1,6 +1,6 @@
 package org.vanda.fragment.model;
 
-import org.vanda.workflows.data.DataflowAnalysis;
+import org.vanda.workflows.data.DataflowAnalysisEx;
 
 public class SemanticAnalysisEx extends SemanticAnalysis {
 
@@ -10,7 +10,7 @@ public class SemanticAnalysisEx extends SemanticAnalysis {
 
 	@Override
 	public void updateDFA(SyntaxAnalysis synA) {
-		dfa = new DataflowAnalysis(true);
+		dfa = new DataflowAnalysisEx();
 		dfa.init(null, 0, synA.getSorted());
 	}
 
