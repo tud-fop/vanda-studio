@@ -104,16 +104,15 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 
 		@Override
 		public void invoke() {
-			// TODO retrieve "id" from some .run file, no need to build
-			// fragment again
+			// compile	
 			String id = generate();
+			// run after successful compilation
 			if (id != null) {
-				// FIXME System.out.println("invoked RunAction");
 				Run run = new Run(app, pm.getView().getRunEventObserver(), id);
 				run.run();
 				cancel.enable(run);
 				app.getWindowSystem().disableAction(component, this);
-			}
+			} 
 		}
 	}
 

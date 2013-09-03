@@ -621,6 +621,9 @@ public class AssignmentTableToolFactory implements ToolFactory {
 		}
 
 		private static final long serialVersionUID = 4113799454513800879L;
+		private final Color TYPE_ERROR = new Color(Integer.parseInt("FF8686", 16));
+		private final Color VALUE_ERROR = new Color(Integer.parseInt("FFEC8C", 16)); 
+		
 		private final Database db;
 		private final Observer<DatabaseEvent<Database>> dbObserver;
 		private final WorkflowEditor wfe;
@@ -663,11 +666,11 @@ public class AssignmentTableToolFactory implements ToolFactory {
 						int arg5) {
 					JLabel comp = (JLabel) super.getTableCellRendererComponent(arg0, arg1, arg2, arg3, arg4, arg5);
 					if (((AssignmentTableModel) table.getModel()).isErroneous(arg4, arg5)) {
-						comp.setBackground(Color.red);
+						comp.setBackground(TYPE_ERROR);
 						comp.setToolTipText("Literal and Datasource types do not match.");
 					}
 					else if (!((AssignmentTableModel) table.getModel()).hasAValue(arg4, arg5)) {
-						comp.setBackground(Color.yellow);
+						comp.setBackground(VALUE_ERROR);
 						comp.setToolTipText("No value is selected.");
 					}
 					else {

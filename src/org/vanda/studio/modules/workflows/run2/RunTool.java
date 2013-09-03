@@ -42,9 +42,18 @@ public class RunTool implements SemanticsToolFactory {
 
 			@Override
 			public void invoke() {
+				boolean validWorkflow = true;
+				try {
+					synA.checkWorkflow();
+				} catch (Exception e1) {
+					validWorkflow = false;
+					// app.sendMessage(new ExceptionMessage(e1));
+				}
+				validWorkflow &= semA.getDFA().isConnected()
+						&& Types.canUnify(synA.getFragmentType(), prof.getRootType());
 				f = new JDialog(wfe.getApplication().getWindowSystem().getMainWindow(), "Execute Workflow");
 				RunConfigEditor rce = new RunConfigEditor(wfe.getView().getWorkflow(), wfe.getDatabase(),
-						app.getRootDataSource(), app.getProperty("outputPath"), RunAction.this);
+						app.getRootDataSource(), app.getProperty("outputPath"), RunAction.this, validWorkflow);
 				f.setContentPane(rce.getComponent());
 				f.setAlwaysOnTop(true);
 				f.setAutoRequestFocus(true);
@@ -58,23 +67,23 @@ public class RunTool implements SemanticsToolFactory {
 			public void evokeExecution(List<Integer> assingmentSelection, String filePath,
 					Map<Pair<Job, Integer>, Integer> prioMap) {
 				f.dispose();
-				String id = generate();
-				if (id != null) {
-					// serialize Workflow + Database
-					Map<String, Integer> prioMapInst = new HashMap<String, Integer>();
-					MutableWorkflow ewf = ExecutableWorkflowFactory.generateExecutableWorkflow(wfe.getView()
-							.getWorkflow(), wfe.getDatabase(), assingmentSelection, synA, semA, prioMap, prioMapInst);
-					filePath += "/" + ewf.getName() + new Date().toString();
-					RunConfig rc = new RunConfig(filePath, prioMapInst);
-					try {
-						new Storer().store(ewf, wfe.getDatabase(), filePath + ".xwf");
-						new org.vanda.workflows.serialization.run.Storer().store(rc, filePath + ".run");
-					} catch (Exception e) {
-						wfe.getApplication().sendMessage(new ExceptionMessage(e));
-					}
-
+				
+				// TODO: probably obsolete, remove after testing
+				// String id = generate();
+				// if (id != null) {
+				// serialize Workflow + Database
+				Map<String, Integer> prioMapInst = new HashMap<String, Integer>();
+				MutableWorkflow ewf = ExecutableWorkflowFactory.generateExecutableWorkflow(wfe.getView().getWorkflow(),
+						wfe.getDatabase(), assingmentSelection, synA, semA, prioMap, prioMapInst);
+				filePath += "/" + ewf.getName() + new Date().toString();
+				RunConfig rc = new RunConfig(filePath, prioMapInst);
+				try {
+					new Storer().store(ewf, wfe.getDatabase(), filePath + ".xwf");
+					new org.vanda.workflows.serialization.run.Storer().store(rc, filePath + ".run");
 					// create WorkflowExecutionPreview from file
 					JComponent executionPreview = new WorkflowExecutionPreview(app, prof).createPreview(filePath);
+				} catch (Exception e) {
+					wfe.getApplication().sendMessage(new ExceptionMessage(e));
 				}
 			}
 
@@ -93,21 +102,23 @@ public class RunTool implements SemanticsToolFactory {
 			wfe.addAction(new RunAction(), "system-run", KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_MASK), 3);
 		}
 
-		private String generate() {
-			try {
-				synA.checkWorkflow();
-			} catch (Exception e1) {
-				app.sendMessage(new ExceptionMessage(e1));
-			}
-			if (semA.getDFA().isConnected() && Types.canUnify(synA.getFragmentType(), prof.getRootType())) {
-				try {
-					return prof.generate(wfe.getView().getWorkflow(), synA, semA);
-				} catch (IOException e) {
-					app.sendMessage(new ExceptionMessage(e));
-				}
-			}
-			return null;
-		}
+		// TODO: probably obsolete, remove after some testing
+		// private String generate() {
+		// // try {
+		// // synA.checkWorkflow();
+		// // } catch (Exception e1) {
+		// // app.sendMessage(new ExceptionMessage(e1));
+		// // }
+		// if (semA.getDFA().isConnected() &&
+		// Types.canUnify(synA.getFragmentType(), prof.getRootType())) {
+		// try {
+		// return prof.generate(wfe.getView().getWorkflow(), synA, semA);
+		// } catch (IOException e) {
+		// app.sendMessage(new ExceptionMessage(e));
+		// }
+		// }
+		// return null;
+		// }
 	}
 
 	private final Generator prof;

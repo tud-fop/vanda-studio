@@ -9,8 +9,13 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.NumberFormat;
 
+import javax.swing.InputVerifier;
 import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -32,15 +37,28 @@ public class DoubleDataSource implements DataSource {
 	private class IntegerElement implements ElementSelector, Observer<ElementEvent<Element>>, ElementListener<Element> {
 
 		private Element element;
-		private JTextField jNumber;
+		private JFormattedTextField jNumber;
 
 		public IntegerElement() {
-			jNumber = new JTextField();
+			jNumber = new JFormattedTextField(NumberFormat.getNumberInstance());
+			final InputVerifier iv = new InputVerifier() {
+				
+				@Override
+				public boolean verify(JComponent arg0) {
+					try { 
+						Double.parseDouble(jNumber.getText());
+						return true;
+					} catch (NumberFormatException e) {
+						return false;
+					}
+				}
+			};
+			jNumber.setInputVerifier(iv);
 			jNumber.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
 			jNumber.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					if (element != null)
+					if (element != null && iv.verify(null))
 						element.setValue(jNumber.getText());
 				}
 			});
@@ -48,7 +66,7 @@ public class DoubleDataSource implements DataSource {
 
 				@Override
 				public void focusLost(FocusEvent arg0) {
-					if (element != null)
+					if (element != null && iv.verify(null))
 						element.setValue(jNumber.getText());
 				}
 			});

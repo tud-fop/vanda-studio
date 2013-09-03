@@ -239,9 +239,9 @@ public class View {
 				addLocationView(j.bindings.get(p));
 			}
 		}
-		for (ConnectionKey ck : workflow.getConnections())
-			addConnectionView(ck);
 
+		// ConnectionViews are created later, when permanent ConnectionKey-instances exist 
+		
 		workflowObserver = new Observer<WorkflowEvent<MutableWorkflow>>() {
 
 			@Override

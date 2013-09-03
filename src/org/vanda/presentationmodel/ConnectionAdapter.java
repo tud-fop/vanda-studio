@@ -66,17 +66,16 @@ public class ConnectionAdapter {
 		public void setSelection(Cell c, boolean selected) {
 			if (connectionKey != null) {
 				ConnectionView cv = view.getConnectionView(connectionKey);
-				if (cv != null)
-					cv.setSelected(selected);
-				// FIXME: why are the connectionkeys removed from the
-				// WeakHashMap in View?
-				// Then remove this hack
-				else {
-					view.addConnectionView(connectionKey);
-					view.getConnectionView(connectionKey).getObservable()
-							.addObserver(connectionViewObserver);
-					view.getConnectionView(connectionKey).setSelected(selected);
-				}
+				// if (cv != null)
+				cv.setSelected(selected);
+				// TODO: bug seems to be fixed, remove after testing
+				//
+				// else {
+				// view.addConnectionView(connectionKey);
+				// view.getConnectionView(connectionKey).getObservable()
+				// .addObserver(connectionViewObserver);
+				// view.getConnectionView(connectionKey).setSelected(selected);
+				// }
 			}
 		}
 
@@ -135,7 +134,7 @@ public class ConnectionAdapter {
 	private Observer<CellEvent<Cell>> connectionCellObserver;
 
 	private final ConnectionKey connectionKey;
-	
+
 	private ConnectionViewListener connectionViewListener;
 	private Observer<ViewEvent<AbstractView>> connectionViewObserver;
 

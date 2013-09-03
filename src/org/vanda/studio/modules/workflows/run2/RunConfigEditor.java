@@ -58,19 +58,23 @@ public class RunConfigEditor {
 	private List<Integer> assignmentSelection;
 	private List<JCheckBox> assignmentCheckboxes;
 	private Map<Integer, JSpinner> priorityMap;
-
+	private boolean validWorkflow;
+	
 	public JComponent getComponent() {
 		return pan;
 	}
 
-	public RunConfigEditor(final MutableWorkflow mwf, Database db, RootDataSource rds, String path, final Runner r) {
+	public RunConfigEditor(final MutableWorkflow mwf, Database db, RootDataSource rds, String path, final Runner r,
+			boolean validWorkflow) {
+		this.validWorkflow = validWorkflow;
+		
 		// Panel and basic Layout
 		pan = new JPanel();
 		GroupLayout layout = new GroupLayout(pan);
 		pan.setLayout(layout);
 		layout.setAutoCreateContainerGaps(true);
 		layout.setAutoCreateGaps(true);
-
+		
 		// Execution Environment Folder Selection
 		dir = new File(path);
 		lFolder = new JLabel("Execution Environment");
@@ -118,7 +122,7 @@ public class RunConfigEditor {
 
 		// Table Content
 		List<Literal> connectedLiterals = null;
-		boolean inputsComplete = true;
+		boolean inputsComplete = validWorkflow;
 		try {
 			connectedLiterals = DatabaseValueChecker.detectConnectedLiterals(mwf);
 		} catch (MissingInputsException e) {
@@ -277,19 +281,19 @@ public class RunConfigEditor {
 			}
 		}
 
-		public static boolean checkDatabseRow(MutableWorkflow mwf, RootDataSource rds, final HashMap<String, String> row,
-				List<Literal> literals) {
+		public static boolean checkDatabseRow(MutableWorkflow mwf, RootDataSource rds,
+				final HashMap<String, String> row, List<Literal> literals) {
 			if (literals == null)
-				return false;		
+				return false;
 			for (Literal l : literals) {
 				String val = row.get(l.getKey());
 				if (val == null)
 					return false;
 				if (!rds.getType(Element.fromString(val)).equals(l.getType()))
-					return false; 
+					return false;
 				int i = val.indexOf(':');
 				if (i == -1 || i == val.length() - 1)
-					return false;				
+					return false;
 			}
 			return true;
 		}
