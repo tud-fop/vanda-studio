@@ -14,7 +14,7 @@ public class Storer {
 		Writer writer = new FileWriter(new File(filename));
 		final PrettyPrintWriter ppw = new PrettyPrintWriter(writer);
 		ppw.startNode("runconfig");
-		ppw.addAttribute("path",rc.getPath());
+		ppw.addAttribute("path", rc.getPath());
 		ppw.startNode("priorities");
 		for (String id : rc.getJobPriorities().keySet()) {
 			ppw.startNode("job");
@@ -24,6 +24,6 @@ public class Storer {
 		}
 		ppw.endNode(); // priorities
 		ppw.endNode(); // runconfig
-				
+
 	}
 }

@@ -304,7 +304,7 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 			/**
 			 * Implements extension of the component in all directions. For
 			 * extension below the origin (into negative space) the translate
-			 * will temporaly be used and reset with the next mouse released
+			 * will temporarily be used and reset with the next mouse released
 			 * event.
 			 */
 			@Override

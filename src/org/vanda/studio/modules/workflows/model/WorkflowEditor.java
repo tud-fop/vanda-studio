@@ -19,7 +19,6 @@ public interface WorkflowEditor {
 	void focusToolWindow(JComponent c);
 	Application getApplication();
 	Database getDatabase();
-//	WorkflowDecoration getWorkflowDecoration();
 
 	void removeToolWindow(JComponent c);
 	void setPalette(JComponent c);

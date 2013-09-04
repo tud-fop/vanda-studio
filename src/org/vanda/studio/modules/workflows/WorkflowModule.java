@@ -37,7 +37,6 @@ import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.ExternalRepository;
 import org.vanda.util.ListRepository;
-import org.vanda.util.Observer;
 import org.vanda.util.Pair;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.hyper.MutableWorkflow;

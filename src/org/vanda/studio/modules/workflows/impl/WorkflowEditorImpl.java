@@ -101,8 +101,6 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 				component.getVerticalScrollBar().setValue((int) (component.getVerticalScrollBar().getMaximum() * 0.35));
 			}
 		});
-		// component.getGraphControl().scrollRectToVisible(new
-		// Rectangle(133,1000,0,0));
 		// component.setPanning(true); // too complic: must press SHIFT+CONTROL
 		// (component.getGraph().getDefaultParent());
 		// mainpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, component,
@@ -111,7 +109,6 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		// mainpane.setResizeWeight(0.9);
 		// mainpane.setDividerSize(6);
 		// mainpane.setBorder(null);
-		// mainpane.setName(model.getRoot().getName());
 		// mainpane.setDividerLocation(0.7);
 		component.setName(view.getWorkflow().getName());
 		app.getWindowSystem().addContentWindow(null, component, null);

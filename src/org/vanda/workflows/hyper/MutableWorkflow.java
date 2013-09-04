@@ -113,7 +113,7 @@ public class MutableWorkflow implements JobListener<Job> {
 		return observable;
 	}
 
-	public Location getConnectionValue(ConnectionKey cc) {
+	public static Location getConnectionValue(ConnectionKey cc) {
 		return cc.target.bindings.get(cc.targetPort);
 	}
 
