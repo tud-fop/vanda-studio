@@ -43,8 +43,7 @@ import org.vanda.dictionaries.DictionaryViews.ViewTransition;
  * 
  * @author stueber
  */
-public class DictionaryView extends JPanel implements ViewTransition,
-		org.vanda.studio.modules.previews.Previews.Preview {
+public class DictionaryView extends JPanel implements ViewTransition {
 	/**
 	 * The class MyTableModel is the table model for the table containing the
 	 * output of the EM algorithm.
@@ -448,7 +447,6 @@ public class DictionaryView extends JPanel implements ViewTransition,
 		readjustFontSize();
 	}
 
-	@Override
 	public void setLargeContent(boolean value) {
 		if (value != isLargeContent) {
 			beginUpdate();
@@ -457,7 +455,6 @@ public class DictionaryView extends JPanel implements ViewTransition,
 		}
 	}
 
-	@Override
 	public void setLargeUI(boolean value) {
 		if (value != isLargeUI) {
 			beginUpdate();
@@ -466,12 +463,10 @@ public class DictionaryView extends JPanel implements ViewTransition,
 		}
 	}
 
-	@Override
 	public void beginUpdate() {
 		update++;
 	}
 
-	@Override
 	public void endUpdate() {
 		update--;
 		if (update == 0)

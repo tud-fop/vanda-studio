@@ -1,25 +1,24 @@
-package org.vanda.studio.modules.workflows.run2;
+package org.vanda.studio.modules.workflows.tools;
 
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 
 import org.vanda.execution.model.ExecutableWorkflowFactory;
 import org.vanda.fragment.model.Generator;
-//import org.vanda.fragment.model.Model;
 import org.vanda.fragment.model.SemanticAnalysis;
 import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.previews.WorkflowExecutionPreview;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
+import org.vanda.studio.modules.workflows.run2.RunConfig;
+import org.vanda.studio.modules.workflows.run2.RunConfigEditor;
 import org.vanda.studio.modules.workflows.run2.RunConfigEditor.Runner;
 import org.vanda.types.Types;
 import org.vanda.util.Action;
@@ -81,7 +80,7 @@ public class RunTool implements SemanticsToolFactory {
 					new Storer().store(ewf, wfe.getDatabase(), filePath + ".xwf");
 					new org.vanda.workflows.serialization.run.Storer().store(rc, filePath + ".run");
 					// create WorkflowExecutionPreview from file
-					JComponent executionPreview = new WorkflowExecutionPreview(app, prof).createPreview(filePath);
+					new WorkflowExecutionPreview(app, prof).createPreview(filePath);
 				} catch (Exception e) {
 					wfe.getApplication().sendMessage(new ExceptionMessage(e));
 				}

@@ -58,16 +58,13 @@ public class RunConfigEditor {
 	private List<Integer> assignmentSelection;
 	private List<JCheckBox> assignmentCheckboxes;
 	private Map<Integer, JSpinner> priorityMap;
-	private boolean validWorkflow;
 	
 	public JComponent getComponent() {
 		return pan;
 	}
 
 	public RunConfigEditor(final MutableWorkflow mwf, Database db, RootDataSource rds, String path, final Runner r,
-			boolean validWorkflow) {
-		this.validWorkflow = validWorkflow;
-		
+			boolean validWorkflow) {		
 		// Panel and basic Layout
 		pan = new JPanel();
 		GroupLayout layout = new GroupLayout(pan);

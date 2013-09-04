@@ -20,6 +20,35 @@ import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
 
 final class DictionaryPreviewFactory implements PreviewFactory {
+	private static class DictionaryPreview extends DictionaryView implements Previews.Preview {
+		private static final long serialVersionUID = -3571292329987894738L;
+
+		public DictionaryPreview(Dictionary d, MutableDictionaryViewState viewState_) {
+			super(d, viewState_);
+		}
+
+		@Override
+		public void beginUpdate() {
+			super.beginUpdate();
+		}
+
+		@Override
+		public void endUpdate() {
+			super.endUpdate();			
+		}
+
+		@Override
+		public void setLargeContent(boolean mode) {
+			super.setLargeContent(mode);
+		}
+
+		@Override
+		public void setLargeUI(boolean mode) {
+			super.setLargeUI(mode);			
+		}
+		
+	}
+	
 	private final Application app;
 	private final HashMap<String, WeakReference<Dictionary>> openDictionaries;
 	private final LinkedList<WeakReference<Preview>> ds;
@@ -40,7 +69,7 @@ final class DictionaryPreviewFactory implements PreviewFactory {
 	public JComponent createPreview(String value) {
 		try {
 			Dictionary dict = new Dictionary(new File(value).getAbsolutePath(), '\t');
-			DictionaryView dv = new DictionaryView(dict, viewState);
+			DictionaryPreview dv = new DictionaryPreview(dict, viewState);
 			dv.setLargeContent(app.getUIMode().isLargeContent());
 			dv.setLargeUI(app.getUIMode().isLargeUI());
 			ds.push(new WeakReference<Preview>(dv));
@@ -65,7 +94,7 @@ final class DictionaryPreviewFactory implements PreviewFactory {
 				// since we are using a weak reference, the leak is not
 				// significant
 			}
-			DictionaryView dv = new DictionaryView(dict, viewState);
+			DictionaryPreview dv = new DictionaryPreview(dict, viewState);
 			dv.setLargeContent(app.getUIMode().isLargeContent());
 			dv.setLargeUI(app.getUIMode().isLargeUI());
 			ds.push(new WeakReference<Preview>(dv));
