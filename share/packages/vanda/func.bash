@@ -40,8 +40,7 @@ XRSNGrams () {
 # Evaluates the corpus according to the given model.
 NGrams () {
 	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
-	N=$(grep "grams:" "$2" | wc -l)
-	"runhaskell" "$VANDA/programs/NGrams.hs" -g "$2" "$3" > "$4"
+	runhaskell "$VANDA/programs/NGrams.hs" -l "$2" < "$3" > "$4"
 	echo "$3" > "${4}.meta"
 }
 

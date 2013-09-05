@@ -6,6 +6,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -15,6 +17,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -42,6 +45,7 @@ public class DirectoryDataSource implements DataSource {
 
 		private Element element;
 		private JList selector;
+		private JScrollPane scroll;
 
 		public DirectoryElementSelector() {
 			selector = new JList();
@@ -49,6 +53,13 @@ public class DirectoryDataSource implements DataSource {
 				@Override
 				public boolean accept(File _, String name) {
 					return name.matches(filter);
+				}
+			});
+			Arrays.sort(l, new Comparator<String>() {
+				@Override
+				public int compare(String o1, String o2) {
+					// TODO Auto-generated method stub
+					return o1.compareTo(o2);
 				}
 			});
 			if (l != null)
@@ -60,11 +71,12 @@ public class DirectoryDataSource implements DataSource {
 						element.setValue(selector.getSelectedValue().toString());
 				}
 			});
+			scroll = new JScrollPane(selector);
 		}
 
 		@Override
 		public JComponent getComponent() {
-			return selector;
+			return scroll;
 		}
 
 		@Override
