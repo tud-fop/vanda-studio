@@ -2,7 +2,7 @@ package org.vanda.workflows.serialization.run;
 
 import java.io.File;
 
-import org.vanda.studio.modules.workflows.run2.RunConfig;
+import org.vanda.studio.modules.workflows.run.RunConfig;
 import org.vanda.util.Observer;
 import org.vanda.xml.ComplexFieldProcessor;
 import org.vanda.xml.CompositeElementHandlerFactory;
@@ -11,6 +11,11 @@ import org.vanda.xml.SimpleElementHandlerFactory;
 import org.vanda.xml.SimpleRootHandler;
 import org.vanda.xml.SingleElementHandlerFactory;
 
+/**
+ * Deserializes a RunConfig
+ * @author kgebhardt
+ *
+ */
 public class Loader {
 	@SuppressWarnings("unchecked")
 	private SingleElementHandlerFactory<Observer<RunConfig>> getRootHandler(

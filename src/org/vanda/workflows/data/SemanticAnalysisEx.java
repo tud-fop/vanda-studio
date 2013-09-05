@@ -1,7 +1,12 @@
-package org.vanda.fragment.model;
+package org.vanda.workflows.data;
 
-import org.vanda.workflows.data.DataflowAnalysisEx;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
+/**
+ * SemanticAnalysis for ExecutableWorkflow
+ * @author kgebhardt
+ *
+ */
 public class SemanticAnalysisEx extends SemanticAnalysis {
 
 	public SemanticAnalysisEx(SyntaxAnalysis synA) {

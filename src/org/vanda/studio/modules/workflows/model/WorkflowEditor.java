@@ -3,13 +3,13 @@ package org.vanda.studio.modules.workflows.model;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.LayoutSelector;
 import org.vanda.util.Action;
 import org.vanda.view.View;
 import org.vanda.workflows.data.Database;
+import org.vanda.workflows.data.SemanticAnalysis;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
 
 public interface WorkflowEditor {

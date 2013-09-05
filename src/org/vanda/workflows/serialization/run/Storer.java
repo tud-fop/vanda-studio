@@ -5,10 +5,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.vanda.studio.modules.workflows.run2.RunConfig;
+import org.vanda.studio.modules.workflows.run.RunConfig;
 
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 
+/**
+ * Serializes a RunConfig
+ * @author kgebhardt
+ *
+ */
 public class Storer {
 	public void store(RunConfig rc, String filename) throws IOException {
 		Writer writer = new FileWriter(new File(filename));

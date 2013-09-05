@@ -1,15 +1,14 @@
-package org.vanda.execution.model;
+package org.vanda.studio.modules.workflows.run;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.util.Pair;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.data.DataflowAnalysis;
+import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
@@ -20,6 +19,7 @@ import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.LiteralAdapter;
 import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
 /**
  * @author kgebhardt
@@ -88,15 +88,25 @@ public class ExecutableWorkflowFactory {
 
 	}
 
+	/**
+	 * Creates an executable instance of a given workflow, and fills priorityMapInstantiated with JobPriorities 
+	 * @param mwf  
+	 * @param db 
+	 * @param assignmentSelection List of selected AssignmentIndices
+	 * @param synA
+	 * @param semA
+	 * @param priorityMap (Job, AssignmentIndex) -> Priority
+	 * @param priorityMapInstantiated JobId -> Priority
+	 * @return
+	 */
 	public static MutableWorkflow generateExecutableWorkflow(MutableWorkflow mwf, Database db,
 			List<Integer> assignmentSelection, SyntaxAnalysis synA, SemanticAnalysis semA,
-			final Map<Pair<Job, Integer>, Integer> prioMap, final Map<String, Integer> prioMapInst) {
+			final Map<Pair<Job, Integer>, Integer> priorityMap, final Map<String, Integer> priorityMapInstantiated) {
 		final MutableWorkflow ewf = new MutableWorkflow(mwf.getName());
 		final double[] dims = workflowDimension(mwf);
 		int counter = 0;
 		for (final int i : assignmentSelection) {
-			// TODO skip unselected Assignments
-
+			// to translate between original Location and new copies
 			final Map<Location, Location> translation = new HashMap<Location, Location>();
 			final HashMap<String, String> dbRow = db.getRow(i);
 			final DataflowAnalysis dfa = semA.getDFA(synA, i);
@@ -124,7 +134,7 @@ public class ExecutableWorkflowFactory {
 						@Override
 						public void visitTool(Tool t) {
 							createJobInstance(ewf, dfa, dx, dy, translation, j, j.getElement());
-							prioMapInst.put(dfa.getJobId(j), prioMap.get(new Pair<Job, Integer>(j, (Integer) i)));
+							priorityMapInstantiated.put(dfa.getJobId(j), priorityMap.get(new Pair<Job, Integer>(j, (Integer) i)));
 						}
 
 					});

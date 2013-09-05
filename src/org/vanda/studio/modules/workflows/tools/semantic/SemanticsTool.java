@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows.run;
+package org.vanda.studio.modules.workflows.tools.semantic;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,22 +7,24 @@ import java.util.List;
 
 
 
+
 //import org.vanda.fragment.model.Model;
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
+
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Observer;
 import org.vanda.view.View;
 import org.vanda.workflows.data.Database;
+import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.data.Databases.DatabaseEvent;
 import org.vanda.workflows.data.Databases.DatabaseListener;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
 public class SemanticsTool implements ToolFactory {
 
 	private final static class Tool {
 		/**
-		 * Updates SemanticAnalysis if SyntaxAnalysis or Data changed
+		 * Updates SemanticAnalysis if SyntaxAnalysis or Database changed
 		 * @author kgebhardt
 		 *
 		 */
@@ -75,6 +77,7 @@ public class SemanticsTool implements ToolFactory {
 		private final SemanticAnalysis semA;
 		private final SyntaxAnalysis synA;
 		private final View view;
+		// Member variable needed to keep a reference to Observer
 		@SuppressWarnings("unused")
 		private final SemanticUpdater semUp;
 		private final Collection<Object> tools;

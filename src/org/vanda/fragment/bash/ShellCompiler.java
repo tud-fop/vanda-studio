@@ -10,16 +10,16 @@ import org.vanda.fragment.model.Fragment;
 import org.vanda.fragment.model.FragmentCompiler;
 import org.vanda.fragment.model.FragmentIO;
 import org.vanda.fragment.model.Fragments;
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.types.Type;
 import org.vanda.types.Types;
 import org.vanda.workflows.data.DataflowAnalysis;
+import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
 // XXX removed: handle ports (see older versions)
 // XXX removed: variables (names are computed statically) (see older versions)

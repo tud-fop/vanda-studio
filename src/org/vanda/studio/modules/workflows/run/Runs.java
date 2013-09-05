@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows.run2;
+package org.vanda.studio.modules.workflows.run;
 
 import java.util.Date;
 

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.vanda.types.Type;
 import org.vanda.util.RepositoryItem;
+import org.vanda.workflows.data.SemanticAnalysis;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
 public interface FragmentCompiler extends RepositoryItem {
 

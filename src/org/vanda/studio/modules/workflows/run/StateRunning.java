@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows.run2;
+package org.vanda.studio.modules.workflows.run;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,8 +14,8 @@ import org.vanda.execution.model.Runables.RunCancelledAll;
 import org.vanda.execution.model.Runables.RunEvent;
 import org.vanda.execution.model.Runables.RunFinished;
 import org.vanda.studio.app.Application;
-import org.vanda.studio.modules.workflows.run2.Runs.RunState;
-import org.vanda.studio.modules.workflows.run2.Runs.RunTransitions;
+import org.vanda.studio.modules.workflows.run.Runs.RunState;
+import org.vanda.studio.modules.workflows.run.Runs.RunTransitions;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
 import org.vanda.util.RCChecker;
@@ -136,7 +136,6 @@ public class StateRunning extends RunState {
 			if (line.startsWith("Done: ")) {
 				String newstring = line.replaceFirst("Done: ", "");
 				mo.notify(new Runables.RunFinished(newstring));
-				// FIXME System.out.println("Done: " + newstring);
 			}
 		}
 	}
@@ -181,7 +180,6 @@ public class StateRunning extends RunState {
 			if (line.startsWith("Running: ")) {
 				String newstring = line.replace("Running: ", "");
 				mo.notify(new Runables.RunStarted(newstring));
-				// FIXME System.out.println("Running: " + newstring);
 			}
 		}
 	}

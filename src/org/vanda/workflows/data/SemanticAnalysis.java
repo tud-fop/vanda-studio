@@ -1,12 +1,16 @@
-package org.vanda.fragment.model;
+package org.vanda.workflows.data;
 
 import java.util.HashMap;
 
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observable;
-import org.vanda.workflows.data.Database;
-import org.vanda.workflows.data.DataflowAnalysis;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
+/**
+ * Holds and updates the DataflowAnalysis of a Workflow.
+ * @author kgebhardt
+ *
+ */
 public class SemanticAnalysis {
 	protected DataflowAnalysis dfa;
 	private Database db;

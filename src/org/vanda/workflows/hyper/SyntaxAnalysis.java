@@ -1,4 +1,4 @@
-package org.vanda.fragment.model;
+package org.vanda.workflows.hyper;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -6,12 +6,13 @@ import java.util.Map;
 
 import org.vanda.types.Type;
 import org.vanda.util.MultiplexObserver;
-import org.vanda.workflows.hyper.Job;
-import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.TopSorter.TopSortException;
-import org.vanda.workflows.hyper.TypeChecker;
-import org.vanda.workflows.hyper.TypeCheckingException;
 
+/**
+ * Performs type checking and topological sorting of a Workflow, and stores the results 
+ * @author kgebhardt
+ *
+ */
 public class SyntaxAnalysis {
 	private MutableWorkflow hwf;
 	private Map<Object, Type> types = Collections.emptyMap();

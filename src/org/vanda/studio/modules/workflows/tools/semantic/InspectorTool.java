@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows.run;
+package org.vanda.studio.modules.workflows.tools.semantic;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -11,9 +11,9 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.text.html.HTMLDocument;
 
+
 //import org.vanda.fragment.model.Model;
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
+
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.inspector.AbstractEditorFactory;
 import org.vanda.studio.modules.workflows.inspector.AbstractPreviewFactory;
@@ -22,11 +22,12 @@ import org.vanda.studio.modules.workflows.inspector.ElementEditorFactories;
 import org.vanda.studio.modules.workflows.inspector.InspectorialVisitor;
 import org.vanda.studio.modules.workflows.inspector.PreviewesqueVisitor;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
-
 import org.vanda.util.Observer;
 import org.vanda.view.View;
 import org.vanda.view.View.GlobalViewEvent;
 import org.vanda.view.View.GlobalViewListener;
+import org.vanda.workflows.data.SemanticAnalysis;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
 public class InspectorTool implements SemanticsToolFactory {
 
@@ -157,23 +158,10 @@ public class InspectorTool implements SemanticsToolFactory {
 		}
 
 		public void update() {
-			// WorkflowSelection newws =
-			// wfe.getWorkflowDecoration().getSelection();
-			// List<AbstractView> ws = wfe.getView().getCurrentSelection();
-
-			// WorkflowSelection truews = newws;
-			// if (truews == null)
-			// truews = new
-			// WorkflowSelection(wfe.getWorkflowDecoration().getRoot());
-			// setInspection(InspectorialVisitor.inspect(mm, view));
 			setInspection(InspectorialVisitor.inspect(synA, semA, view));
-			// if (newws != ws) {
 			// editor and preview keep track of changes on their own
 			setEditor(EditorialVisitor.createAbstractFactory(eefs, view));
-			// setPreview(PreviewesqueVisitor.createPreviewFactory(mm, view));
 			setPreview(PreviewesqueVisitor.createPreviewFactory(semA, synA, view));
-			// }
-			// ws = newws;
 		}
 
 	}

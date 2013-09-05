@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows.tools;
+package org.vanda.studio.modules.workflows.tools.semantic;
 
 import java.awt.event.KeyEvent;
 import java.util.Date;
@@ -9,28 +9,33 @@ import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 
-import org.vanda.execution.model.ExecutableWorkflowFactory;
 import org.vanda.fragment.model.Generator;
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.modules.previews.WorkflowExecutionPreview;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
-import org.vanda.studio.modules.workflows.run.SemanticsToolFactory;
-import org.vanda.studio.modules.workflows.run2.RunConfig;
-import org.vanda.studio.modules.workflows.run2.RunConfigEditor;
-import org.vanda.studio.modules.workflows.run2.RunConfigEditor.Runner;
+import org.vanda.studio.modules.workflows.run.ExecutableWorkflowFactory;
+import org.vanda.studio.modules.workflows.run.RunConfig;
+import org.vanda.studio.modules.workflows.run.RunConfigEditor;
+import org.vanda.studio.modules.workflows.run.RunConfigEditor.Runner;
 import org.vanda.types.Types;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Pair;
 import org.vanda.view.View;
+import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 import org.vanda.workflows.serialization.Storer;
 
 public class RunTool implements SemanticsToolFactory {
 	private class Tool {
+		/**
+		 * Opens a dialog in which the setting for a RunConifg can be assigned. 
+		 * On execution it creates the RunConfig and opens the ExecutionPerspetive.
+		 * @author kgebhardt
+		 *
+		 */
 		public final class RunAction implements Action, Runner {
 			private JDialog f;
 

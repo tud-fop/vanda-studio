@@ -22,6 +22,8 @@ import org.vanda.workflows.hyper.Workflows;
 import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 
 /**
+ * Holds ViewObject for the Workflow, Jobs, Locations and Cells.
+ * ViewObjects are only weakly referenced. 
  * 
  * @author kgebhardt
  * 
@@ -108,17 +110,16 @@ public class View {
 
 	}
 
-	WeakHashMap<ConnectionKey, ConnectionView> connections;
-	WeakHashMap<Job, JobView> jobs;
+	private WeakHashMap<ConnectionKey, ConnectionView> connections;
+	private WeakHashMap<Job, JobView> jobs;
 	private MultiplexObserver<GlobalViewEvent<View>> observable;
-	WeakHashMap<Location, LocationView> variables;
-	Map<String, JobView> runEventMultiplexTable;
+	private WeakHashMap<Location, LocationView> variables;
+	private Map<String, JobView> runEventMultiplexTable;
 
 	private final ViewListener<AbstractView> viewEventListener;
 	private final Observer<ViewEvent<AbstractView>> viewEventObserver;
 
-	MutableWorkflow workflow;
-
+	private MutableWorkflow workflow;
 	private WorkflowListener workflowListener;
 	private Observer<WorkflowEvent<MutableWorkflow>> workflowObserver;
 	private WorkflowView workflowView;
@@ -196,7 +197,6 @@ public class View {
 
 			@Override
 			public void highlightingChanged(AbstractView v) {
-				// TODO Auto-generated method stub
 			}
 
 			@Override

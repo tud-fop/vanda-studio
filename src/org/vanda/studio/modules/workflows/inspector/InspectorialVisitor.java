@@ -2,18 +2,17 @@ package org.vanda.studio.modules.workflows.inspector;
 
 import java.util.Locale;
 
-
 import org.vanda.view.AbstractView;
 import org.vanda.view.AbstractView.SelectionVisitor;
 import org.vanda.view.View;
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.types.Type;
+import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
 public final class InspectorialVisitor implements SelectionVisitor {
 

@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows.run2;
+package org.vanda.studio.modules.workflows.run;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -6,6 +6,11 @@ import java.util.Map;
 
 import org.vanda.workflows.hyper.Job;
 
+/**
+ * Stores all information that is relevant for the execution system. 
+ * @author kgebhardt
+ *
+ */
 public class RunConfig {
 	private final String path;
 	private final Date date;
@@ -29,6 +34,9 @@ public class RunConfig {
 		return jobPriorities;
 	}
 	
+	/**
+	 * @return a Comperator that is used by the TopSorter to implement Job priorities
+	 */
 	public Comparator<Job> generateComperator() {
 		return new Comparator<Job>() {
 

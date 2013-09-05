@@ -8,17 +8,17 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.Application;
 import org.vanda.types.Type;
 import org.vanda.view.AbstractView;
 import org.vanda.view.AbstractView.SelectionVisitor;
 import org.vanda.view.View;
+import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
 public class PreviewesqueVisitor implements SelectionVisitor {
 

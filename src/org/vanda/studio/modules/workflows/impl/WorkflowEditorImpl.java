@@ -15,8 +15,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.presentationmodel.PresentationModel;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.mxDropTargetListener;
@@ -30,7 +28,9 @@ import org.vanda.util.Observer;
 import org.vanda.util.Pair;
 import org.vanda.util.Util;
 import org.vanda.workflows.data.Database;
+import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 import org.vanda.workflows.hyper.TypeCheckingException;
 import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 
@@ -68,10 +68,9 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 	protected final SyntaxUpdater synUp;
 
 	private final Observer<WorkflowEvent<MutableWorkflow>> mwfObserver;
-	
+
 	private final Collection<Object> tools;
-	// protected final JSplitPane mainpane;
-	
+
 	public WorkflowEditorImpl(Application app, List<ToolFactory> toolFactories, Pair<MutableWorkflow, Database> phd) {
 		super(app, phd);
 		presentationModel = new PresentationModel(view, this);

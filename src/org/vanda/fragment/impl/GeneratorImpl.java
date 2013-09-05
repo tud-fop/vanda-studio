@@ -13,15 +13,15 @@ import org.vanda.fragment.model.FragmentCompiler;
 import org.vanda.fragment.model.FragmentIO;
 import org.vanda.fragment.model.Generator;
 import org.vanda.fragment.model.Profile;
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.Application;
 import org.vanda.types.Type;
+import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
 import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 
 public class GeneratorImpl implements Generator, FragmentIO {
 

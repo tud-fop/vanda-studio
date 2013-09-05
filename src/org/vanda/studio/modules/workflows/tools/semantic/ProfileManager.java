@@ -1,4 +1,4 @@
-package org.vanda.studio.modules.workflows.run;
+package org.vanda.studio.modules.workflows.tools.semantic;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;

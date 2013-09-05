@@ -1,14 +1,14 @@
-package org.vanda.studio.modules.workflows.run2;
+package org.vanda.studio.modules.workflows.run;
 
 import java.util.Date;
 
 import org.vanda.execution.model.Runables.RunEvent;
 import org.vanda.studio.app.Application;
-import org.vanda.studio.modules.workflows.run2.Runs.RunState;
-import org.vanda.studio.modules.workflows.run2.Runs.RunTransitions;
-import org.vanda.studio.modules.workflows.run2.Runs.StateCancelled;
-import org.vanda.studio.modules.workflows.run2.Runs.StateInit;
-import org.vanda.studio.modules.workflows.run2.Runs.StateDone;
+import org.vanda.studio.modules.workflows.run.Runs.RunState;
+import org.vanda.studio.modules.workflows.run.Runs.RunTransitions;
+import org.vanda.studio.modules.workflows.run.Runs.StateCancelled;
+import org.vanda.studio.modules.workflows.run.Runs.StateDone;
+import org.vanda.studio.modules.workflows.run.Runs.StateInit;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observer;
 

@@ -7,7 +7,7 @@ import org.vanda.fragment.model.Generator;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.studio.modules.workflows.impl.WorkflowExecution;
-import org.vanda.studio.modules.workflows.run2.RunConfig;
+import org.vanda.studio.modules.workflows.run.RunConfig;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Pair;
 import org.vanda.workflows.data.Database;

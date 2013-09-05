@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.studio.app.Application;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
@@ -13,11 +12,18 @@ import org.vanda.view.View;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 import org.vanda.workflows.hyper.TypeCheckingException;
 import org.vanda.workflows.hyper.TopSorter.TopSortException;
 import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
 import org.vanda.workflows.hyper.Workflows.WorkflowListener;
 
+/**
+ * Renews the SyntaxAnalysis on WorkflowChanges. TypeChanges are forwarded via ChildModifiedEvents of the Workflows.
+ * Sets and resets syntax-error and top-sort-error-highlighting in the View.
+ * @author kgebhardt
+ *
+ */
 public class SyntaxUpdater implements Observer<WorkflowEvent<MutableWorkflow>>, WorkflowListener<MutableWorkflow> {
 
 	@Override

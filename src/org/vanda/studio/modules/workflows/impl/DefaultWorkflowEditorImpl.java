@@ -14,8 +14,6 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 
-import org.vanda.fragment.model.SemanticAnalysis;
-import org.vanda.fragment.model.SyntaxAnalysis;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.LayoutSelector;
@@ -26,9 +24,11 @@ import org.vanda.util.Observer;
 import org.vanda.util.Pair;
 import org.vanda.view.View;
 import org.vanda.workflows.data.Database;
+import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
+import org.vanda.workflows.hyper.SyntaxAnalysis;
 import org.vanda.workflows.hyper.Workflows.WorkflowListener;
 
 import com.mxgraph.model.mxICell;
@@ -41,6 +41,11 @@ import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
 
+/**
+ * Parent class for WorkflowEditor and WorkflowExecution that contains shared functionality
+ * @author kgebhardt
+ *
+ */
 public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListener<MutableWorkflow> {
 	protected final Application app;
 	protected mxGraphComponent component;

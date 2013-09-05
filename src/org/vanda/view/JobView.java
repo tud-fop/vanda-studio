@@ -15,7 +15,7 @@ public class JobView extends AbstractView implements Runable {
 
 	@Override
 	public void remove(View view) {
-		for (Job j : view.jobs.keySet())
+		for (Job j : view.getWorkflow().getChildren())
 			if (view.getJobView(j) == this) {
 				view.getWorkflow().removeChild(j);
 				break;
@@ -24,7 +24,7 @@ public class JobView extends AbstractView implements Runable {
 
 	@Override
 	public void visit(SelectionVisitor sv, View view) {
-		for (Job j : view.jobs.keySet())
+		for (Job j : view.getWorkflow().getChildren())
 			if (view.getJobView(j) == this) {
 				sv.visitJob(view.getWorkflow(), j);
 				break;

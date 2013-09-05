@@ -8,7 +8,7 @@ import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
 
 /**
- * stores selection / highlighting information.
+ * stores selection, highlighting and run information
  * 
  * @author kgebhardt
  * 
@@ -138,6 +138,11 @@ public abstract class AbstractView {
 
 	public abstract void remove(View view);
 
+	/**
+	 * not used: highlighted == marked
+	 * TODO: clean up!
+	 * @param highlighted
+	 */
 	public void setHighlighted(boolean highlighted) {
 		if (this.highlighted != highlighted) {
 			this.highlighted = highlighted;
