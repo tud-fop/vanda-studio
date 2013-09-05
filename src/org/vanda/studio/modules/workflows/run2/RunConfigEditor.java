@@ -86,8 +86,8 @@ public class RunConfigEditor {
 				JFileChooser fc = new JFileChooser(new File(tFolder.getText()));
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
-					tFolder.setText(file.getAbsolutePath());
+					dir = fc.getSelectedFile();
+					tFolder.setText(dir.getAbsolutePath());
 				}
 			}
 		});
