@@ -13,16 +13,17 @@ import org.vanda.xml.SingleElementHandlerFactory;
 
 /**
  * Deserializes a RunConfig
+ * 
  * @author kgebhardt
- *
+ * 
  */
 public class Loader {
 	@SuppressWarnings("unchecked")
 	private SingleElementHandlerFactory<Observer<RunConfig>> getRootHandler(
 			SingleElementHandlerFactory<RunConfigBuilder> prioritiesHandler) {
-		return new SimpleElementHandlerFactory<>("runconfig", new CompositeElementHandlerFactory<>(
-				prioritiesHandler), RunConfigBuilder.createFactory(),
-				new ComplexFieldProcessor<Observer<RunConfig>, RunConfigBuilder>() {
+		return new SimpleElementHandlerFactory<Observer<RunConfig>, RunConfigBuilder>("runconfig",
+				new CompositeElementHandlerFactory<RunConfigBuilder>(prioritiesHandler),
+				RunConfigBuilder.createFactory(), new ComplexFieldProcessor<Observer<RunConfig>, RunConfigBuilder>() {
 
 					@Override
 					public void process(Observer<RunConfig> b1, RunConfigBuilder b2) {

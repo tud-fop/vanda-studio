@@ -2,6 +2,7 @@ package org.vanda.studio.modules.workflows.inspector;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -10,9 +11,8 @@ import javax.swing.JPanel;
 
 import org.vanda.studio.app.Application;
 import org.vanda.types.Type;
-import org.vanda.view.AbstractView;
-import org.vanda.view.AbstractView.SelectionVisitor;
 import org.vanda.view.View;
+import org.vanda.view.Views.*;
 import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
@@ -35,11 +35,12 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 	public static AbstractPreviewFactory createPreviewFactory(SemanticAnalysis semA, SyntaxAnalysis synA, View view) {
 		PreviewesqueVisitor visitor = new PreviewesqueVisitor(semA, synA);
 		// Show Workflow-Preview in case of multi-selection
-		if (view.getCurrentSelection().size() > 1)
-			view.getWorkflowView().visit(visitor, view);
+		List<SelectionObject> sos = view.getCurrentSelection();
+		if (sos.size() > 1)
+			visitor.visitWorkflow(view.getWorkflow());
 		else
-			for (AbstractView av : view.getCurrentSelection())
-				av.visit(visitor, view);
+			for (SelectionObject so : sos)
+				so.visit(visitor, view.getWorkflow());
 		return visitor.getPreviewFactory();
 	}
 
@@ -53,7 +54,7 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 
 	@Override
 	public void visitConnection(MutableWorkflow wf, ConnectionKey cc) {
-		visitVariable(MutableWorkflow.getConnectionValue(cc), wf);
+		visitVariable(wf, MutableWorkflow.getConnectionValue(cc));
 	}
 
 	@Override
@@ -61,7 +62,7 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 	}
 
 	@Override
-	public void visitVariable(Location variable, MutableWorkflow wf) {
+	public void visitVariable(MutableWorkflow wf, Location variable) {
 		// XXX no support for nested workflows because wf is ignored
 		final Type type = synA.getType(variable);
 		final String value = semA.getDFA().getValue(variable);

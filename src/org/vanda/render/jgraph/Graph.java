@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragSource;
 import java.awt.event.MouseEvent;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -24,7 +25,6 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUndoableEdit;
 import com.mxgraph.util.mxUndoableEdit.mxUndoableChange;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxGraphSelectionModel.mxSelectionChange;
 import com.mxgraph.view.mxMultiplicity;
 import com.mxgraph.view.mxStylesheet;
 
@@ -121,7 +121,8 @@ public final class Graph {
 					Cell value = (Cell) gmodel.getValue(cell);
 					if (cell.getParent() != null /* && value.inModel() */)
 						value.onResize(Graph.this);
-				} else if (c instanceof mxSelectionChange) {
+				} /*else if (c instanceof mxSelectionChange) {
+					mxSelectionChange sc = (mxSelectionChange) c;
 					Object[] cells = graph.getSelectionCells();
 
 					if (cells != null) {
@@ -132,8 +133,20 @@ public final class Graph {
 					} else
 						clearSelection((Cell) ((mxCell) graph
 								.getDefaultParent()).getValue());
-				}
+				}*/
 			}
+		}
+
+	}
+
+	protected class SelectionChangeListener implements mxIEventListener {
+		@SuppressWarnings("unchecked")
+		@Override
+		public void invoke(Object sender, mxEventObject evt) {
+			mxIGraphModel gmodel = graph.getModel();
+			// yes, added and removed are swapped
+			updateSelection(gmodel, (Collection<Object>) evt.getProperty("removed"), true);
+			updateSelection(gmodel, (Collection<Object>) evt.getProperty("added"), false);
 		}
 
 	}
@@ -290,8 +303,8 @@ public final class Graph {
 
 	protected final CellChangeListener cellChangeListener;
 	protected final ChangeListener changeListener;
+	protected final SelectionChangeListener selectionChangeListener;
 	protected final mxGraph graph;
-	private int selectionUpdate = 0;
 
 	public Graph(WorkflowCell workflowCell) {
 		// Create graph and set graph properties
@@ -301,8 +314,9 @@ public final class Graph {
 		JGraphRendering.refStylesheet(1);
 		cellChangeListener = new CellChangeListener();
 		changeListener = new ChangeListener();
+		selectionChangeListener = new SelectionChangeListener();
 		graph.getModel().addListener(mxEvent.CHANGE, changeListener);
-		graph.getSelectionModel().addListener(mxEvent.UNDO, changeListener);
+		graph.getSelectionModel().addListener(mxEvent.CHANGE, selectionChangeListener);
 
 	}
 
@@ -340,8 +354,8 @@ public final class Graph {
 	}
 
 	public void setSelection(Cell cell, boolean selected) {
-		if (selectionUpdate > 0)
-			return;
+		// if (selectionUpdate > 0)
+		//	return;
 		if (selected)
 			graph.addSelectionCell(cell.getVisualization());
 		else
@@ -349,16 +363,18 @@ public final class Graph {
 
 	}
 
-	private void updateSelection(mxIGraphModel gmodel, Object[] cells) {
-		selectionUpdate++;
-		clearSelection((Cell) ((mxCell) graph.getDefaultParent()).getValue());
+	private static void updateSelection(mxIGraphModel gmodel, Collection<Object> cells, boolean selected) {
+		if (cells != null) {
+		// selectionUpdate++;
+		// clearSelection((Cell) ((mxCell) graph.getDefaultParent()).getValue());
 		
 		// set selection in View
-		for (Object o : cells) {
-			Cell cell = (Cell) gmodel.getValue(o);
-			cell.setSelection(true);
+			for (Object o : cells) {
+				Cell cell = (Cell) gmodel.getValue(o);
+				cell.setSelection(selected);
+			}
+		// selectionUpdate--;
 		}
-		selectionUpdate--;
 	}
 
 	public void removeCell(Cell cell) {

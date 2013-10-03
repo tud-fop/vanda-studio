@@ -9,13 +9,9 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
-import org.vanda.execution.model.Runables;
-import org.vanda.execution.model.Runables.RunCancelledAll;
-import org.vanda.execution.model.Runables.RunEvent;
-import org.vanda.execution.model.Runables.RunFinished;
+import org.vanda.execution.model.RunStates.*;
 import org.vanda.studio.app.Application;
-import org.vanda.studio.modules.workflows.run.Runs.RunState;
-import org.vanda.studio.modules.workflows.run.Runs.RunTransitions;
+import org.vanda.studio.modules.workflows.run.Runs.*;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
 import org.vanda.util.RCChecker;
@@ -23,14 +19,14 @@ import org.vanda.util.Util;
 
 public class StateRunning extends RunState {
 
-	private final Observer<RunEvent> obs;
+	private final Observer<RunEventId> obs;
 	private final String id;
 	private final Application app;
 	private final RunTransitions rt;
 
 	private Worker w;
 
-	public StateRunning(Observer<RunEvent> obs, String id, Application app, RunTransitions rt) {
+	public StateRunning(Observer<RunEventId> obs, String id, Application app, RunTransitions rt) {
 		this.obs = obs;
 		this.id = id;
 		this.app = app;
@@ -48,16 +44,23 @@ public class StateRunning extends RunState {
 		w = new Worker();
 		w.execute();
 	}
-
+	
+	@Override
+	public void visit(RunEventListener rsv) {
+		rsv.running();
+	}
+	
 	public String getString(Date date) {
 		return "[Running] " + date.toString();
 	}
 
-	private class Worker extends SwingWorker<String, RunEvent> implements Observer<RunEvent> {
+	private class Worker extends SwingWorker<String, RunEventId> implements Observer<RunEventId> {
 
 		private Process process;
 		private StreamGobbler esg;
 		private int retval = -1;
+		private final LineParser[] parsers = { new ProgressParser(), new RunningParser(), new DoneParser(),
+				new CancelledParser() };
 
 		@Override
 		protected String doInBackground() {
@@ -72,7 +75,7 @@ public class StateRunning extends RunState {
 			InputStream stderr = process.getErrorStream();
 			InputStreamReader isr = new InputStreamReader(stdin);
 			BufferedReader br = new BufferedReader(isr);
-			LineParser lp = new OrParser();
+			LineParser lp = new OrParser(parsers);
 			esg = new StreamGobbler(stderr);
 			esg.start();
 			try {
@@ -95,91 +98,86 @@ public class StateRunning extends RunState {
 				process = null;
 			}
 			if (retval != 0) {
-				obs.notify(new RunCancelledAll());
+				obs.notify(new RunEventId(new RunStateCancelled(), id));
 				rt.doCancel();
 			} else
-				obs.notify(new RunFinished(id));
-				rt.doFinish();
+				obs.notify(new RunEventId(new RunStateDone(), id));
+			rt.doFinish();
 		}
 
 		@Override
-		public void notify(RunEvent event) {
+		public void notify(RunEventId event) {
 			publish(event);
 		}
 
 		@Override
-		protected void process(List<RunEvent> res) {
+		protected void process(List<RunEventId> res) {
 			Util.notifyAll(obs, res);
 		}
 
 	}
 
 	private interface LineParser {
-		public void parseLine(String line, Observer<RunEvent> mo);
+		public void parseLine(String line, Observer<RunEventId> mo);
 	}
 
 	private static class CancelledParser implements LineParser {
-
 		@Override
-		public void parseLine(String line, Observer<RunEvent> mo) {
+		public void parseLine(String line, Observer<RunEventId> mo) {
 			if (line.startsWith("Cancelled: ")) {
 				String newstring = line.replaceFirst("Cancelled: ", "");
-				mo.notify(new Runables.RunFinished(newstring));
+				mo.notify(new RunEventId(new RunStateCancelled(), newstring));
 			}
 		}
 	}
 
 	private static class DoneParser implements LineParser {
-
 		@Override
-		public void parseLine(String line, Observer<RunEvent> mo) {
+		public void parseLine(String line, Observer<RunEventId> mo) {
 			if (line.startsWith("Done: ")) {
 				String newstring = line.replaceFirst("Done: ", "");
-				mo.notify(new Runables.RunFinished(newstring));
+				mo.notify(new RunEventId(new RunStateDone(), newstring));
 			}
 		}
 	}
 
 	private static class OrParser implements LineParser {
-		private final LineParser[] parsers = { new ProgressParser(), new RunningParser(), new DoneParser(), new CancelledParser() };
+		private final LineParser[] parsers;
+
+		public OrParser(LineParser... pa) {
+			parsers = pa.clone();
+		}
 
 		@Override
-		public void parseLine(String line, Observer<RunEvent> mo) {
+		public void parseLine(String line, Observer<RunEventId> mo) {
 			for (LineParser p : parsers) {
 				p.parseLine(line, mo);
 			}
 		}
 	}
-	
-	private static class ProgressParser implements LineParser {
 
+	private static class ProgressParser implements LineParser {
 		@Override
-		public void parseLine(String line, Observer<RunEvent> mo) {
+		public void parseLine(String line, Observer<RunEventId> mo) {
 			if (line.startsWith("Progress: ")) {
-				String [] field = line.replaceFirst("Progress: ", "").trim().split("@");
+				String[] field = line.replaceFirst("Progress: ", "").trim().split("@");
 				try {
 					String id = field[0];
 					int progress = Integer.parseInt(field[1]);
-					mo.notify(new Runables.RunProgress(id, progress));
-				} catch (NumberFormatException e){
+					mo.notify(new RunEventId(new RunStateProgress(progress), id));
+				} catch (NumberFormatException e) {
 					// ignore
 				}
-					
 			}
-			
-				
-			
 		}
-		
 	}
 
 	private static class RunningParser implements LineParser {
-
 		@Override
-		public void parseLine(String line, Observer<RunEvent> mo) {
+		public void parseLine(String line, Observer<RunEventId> mo) {
 			if (line.startsWith("Running: ")) {
 				String newstring = line.replace("Running: ", "");
-				mo.notify(new Runables.RunStarted(newstring));
+				mo.notify(new RunEventId(new RunStateRunning(), newstring));
 			}
 		}
 	}

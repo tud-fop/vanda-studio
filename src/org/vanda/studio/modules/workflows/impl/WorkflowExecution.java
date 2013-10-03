@@ -2,13 +2,15 @@ package org.vanda.studio.modules.workflows.impl;
 
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
-import org.vanda.execution.model.Runables.RunEvent;
-import org.vanda.execution.model.Runables.RunEventListener;
+import org.vanda.execution.model.RunStates.RunEvent;
+import org.vanda.execution.model.RunStates.*;
 import org.vanda.fragment.model.Generator;
 import org.vanda.presentationmodel.execution.PresentationModel;
 import org.vanda.studio.app.Application;
@@ -22,8 +24,10 @@ import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
 import org.vanda.util.Pair;
+import org.vanda.view.View;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.data.SemanticAnalysisEx;
+import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.SyntaxAnalysis;
 import org.vanda.workflows.hyper.TypeCheckingException;
@@ -33,15 +37,43 @@ import com.mxgraph.swing.mxGraphComponent;
 /**
  * execution environment for experiments
  * 
- * @author kgebhardt
+ * @author kgebhardt, buechse
  * 
  */
-public class WorkflowExecution extends DefaultWorkflowEditorImpl {
+public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Observer<RunEvent>, RunEventListener {
+
+	public static Map<String, Job> createIdMap(MutableWorkflow wf) {
+		Map<String, Job> result = new HashMap<String, Job>();
+		for (Job j : wf.getChildren()) {
+			if (j.getId() != null)
+				result.put(j.getId(), j);
+		}
+		return result;
+	}
+	
+	public static class RunEventObserver implements Observer<RunEventId> {
+		
+		private final Map<String, Job> idMap;
+		private final View v;
+		
+		public RunEventObserver(View v) {
+			this.v = v;
+			idMap = createIdMap(v.getWorkflow());
+		}
+
+		@Override
+		public void notify(RunEventId event) {
+			Job j = idMap.get(event.getId());
+			if (j == null) {
+				for (Job j1 : idMap.values())
+					v.getJobView(j1).notify(event.getEvent());
+			} else
+				v.getJobView(j).notify(event.getEvent());
+		}
+		
+	}
 
 	private final class CancelAction implements Action {
-		private Run run;
-		private Observer<RunEvent> runObserver;
-
 		@Override
 		public String getName() {
 			return "Cancel";
@@ -49,49 +81,15 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 
 		@Override
 		public void invoke() {
-			run.cancel();
-			disable();
+			run.cancelled();
 		}
 
 		public void disable() {
 			app.getWindowSystem().disableAction(component, this);
 		}
 
-		public void enable(Run run) {
-			this.run = run;
+		public void enable() {
 			app.getWindowSystem().enableAction(component, this);
-			runObserver = new Observer<RunEvent>() {
-
-				@Override
-				public void notify(RunEvent event) {
-					event.doNotify(new RunEventListener() {
-
-						@Override
-						public void runStarted(String _) {
-						}
-
-						@Override
-						public void runFinished(String id) {
-							if (CancelAction.this.run.getId().equals(id))
-								disable();
-						}
-
-						@Override
-						public void runCancelled(String _) {
-						}
-
-						@Override
-						public void cancelledAll() {
-							disable();
-						}
-
-						@Override
-						public void progressUpdate(String _, int progress) {
-						}
-					});
-				}
-			};
-			run.getObserver().addObserver(runObserver);
 		}
 	}
 
@@ -108,9 +106,10 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 			String id = generate();
 			// run after successful compilation
 			if (id != null) {
-				Run run = new Run(app, pm.getView().getRunEventObserver(), id);
-				run.run();
-				cancel.enable(run);
+				run = new Run(app, new RunEventObserver(pm.getView()), id);
+				run.getObservable().addObserver(WorkflowExecution.this);
+				run.running();
+				cancel.enable();
 				app.getWindowSystem().disableAction(component, this);
 			} 
 		}
@@ -118,6 +117,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 
 	private final Generator prof;
 	private final PresentationModel pm;
+	private Run run;
 	private final CancelAction cancel;
 	@SuppressWarnings("unused")
 	private final Object semanticsToolInstance;
@@ -180,6 +180,36 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl {
 
 	public JComponent getComponent() {
 		return component;
+	}
+
+	@Override
+	public void cancelled() {
+		cancel.disable();
+	}
+
+	@Override
+	public void done() {
+		cancel.disable();
+	}
+
+	@Override
+	public void progress(int progress) {
+		// do nothing 
+	}
+
+	@Override
+	public void ready() {
+		// do nothing
+	}
+
+	@Override
+	public void running() {
+		cancel.enable();
+	}
+
+	@Override
+	public void notify(RunEvent event) {
+		event.doNotify(this);
 	}
 
 }

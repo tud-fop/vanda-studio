@@ -1,10 +1,10 @@
 package org.vanda.studio.modules.workflows.inspector;
 
+import java.util.List;
 import java.util.Locale;
 
-import org.vanda.view.AbstractView;
-import org.vanda.view.AbstractView.SelectionVisitor;
 import org.vanda.view.View;
+import org.vanda.view.Views.*;
 import org.vanda.types.Type;
 import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.elements.Port;
@@ -170,7 +170,7 @@ public final class InspectorialVisitor implements SelectionVisitor {
 	}
 
 	@Override
-	public void visitVariable(Location variable, MutableWorkflow iwf) {
+	public void visitVariable(MutableWorkflow iwf, Location variable) {
 		sb.append("<html><table><tr><th colspan=5 align=left>Location ");
 		sb.append(Integer.toHexString(variable.hashCode()));
 		sb.append("</th></tr>");
@@ -190,12 +190,13 @@ public final class InspectorialVisitor implements SelectionVisitor {
 	public static String inspect(SyntaxAnalysis synA, SemanticAnalysis semA, View view) {
 		InspectorialVisitor visitor = new InspectorialVisitor(synA, semA);
 		// size == 1, to avoid arbitrary inspection in case of multi selection
-		if (view.getCurrentSelection().size() == 1) {
-			for (AbstractView av : view.getCurrentSelection())
-				av.visit(visitor, view);
+		List<SelectionObject> sos = view.getCurrentSelection();
+		if (sos.size() == 1) {
+			for (SelectionObject so : sos)
+				so.visit(visitor, view.getWorkflow());
 			return visitor.getInspection();
 		} else {
-			view.getWorkflowView().visit(visitor, view);
+			visitor.visitWorkflow(view.getWorkflow());
 			return visitor.getInspection();
 		}
 	}

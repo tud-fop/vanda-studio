@@ -24,8 +24,7 @@ import org.vanda.studio.modules.workflows.inspector.PreviewesqueVisitor;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Observer;
 import org.vanda.view.View;
-import org.vanda.view.View.GlobalViewEvent;
-import org.vanda.view.View.GlobalViewListener;
+import org.vanda.view.Views.*;
 import org.vanda.workflows.data.SemanticAnalysis;
 import org.vanda.workflows.hyper.SyntaxAnalysis;
 
@@ -47,7 +46,7 @@ public class InspectorTool implements SemanticsToolFactory {
 		private JComponent editor;
 		private JComponent preview;
 		private final View view;
-		private final Observer<GlobalViewEvent<View>> viewObserver;
+		private final Observer<ViewEvent<View>> viewObserver;
 
 		// public Inspector(WorkflowEditor wfe, Model mm, View view) {
 		public Inspector(WorkflowEditor wfe, SyntaxAnalysis synA, SemanticAnalysis semA, View view) {
@@ -74,8 +73,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			editor = null;
 			this.wfe.addToolWindow(contentPane, WindowSystem.SOUTHEAST);
 
-			final GlobalViewListener<View> listener = new GlobalViewListener<View>() {
-
+			final ViewListener<View> listener = new ViewListener<View>() {
 				@Override
 				public void markChanged(View v) {
 					// do nothing
@@ -86,12 +84,16 @@ public class InspectorTool implements SemanticsToolFactory {
 					update();
 				}
 
+				@Override
+				public void highlightingChanged(View v) {
+					// do nothing
+				}
 			};
 
-			viewObserver = new Observer<GlobalViewEvent<View>>() {
+			viewObserver = new Observer<ViewEvent<View>>() {
 
 				@Override
-				public void notify(GlobalViewEvent<View> event) {
+				public void notify(ViewEvent<View> event) {
 					event.doNotify(listener);
 				}
 			};

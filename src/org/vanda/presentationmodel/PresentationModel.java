@@ -226,7 +226,7 @@ public class PresentationModel implements DataInterface {
 	@Override
 	public void createJob(String id, double[] d) {
 		ElementAdapter ele;
-		// TODO literal should be recognized otherwise
+		// TODO literal should be recognized in another way
 		if (id.equals("literal"))
 			ele = new LiteralAdapter(new Literal(Types.undefined, "literal", null));
 		else

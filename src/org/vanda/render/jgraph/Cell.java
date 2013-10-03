@@ -115,6 +115,7 @@ public abstract class Cell {
 	}
 	
 	public abstract void setSelection(boolean selected);
+	
 	public void setVisualization(mxCell visualization) {
 		this.visualization = visualization;
 	}

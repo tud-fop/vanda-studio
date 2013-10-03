@@ -1,70 +1,45 @@
 package org.vanda.view;
 
-import org.vanda.execution.model.Runable;
-import org.vanda.execution.model.StateCancelled;
-import org.vanda.execution.model.StateDone;
-import org.vanda.execution.model.StateReady;
-import org.vanda.execution.model.StateRunning;
-import org.vanda.execution.model.Runables.RunState;
+import org.vanda.execution.model.RunStates.RunEvent;
+import org.vanda.execution.model.RunStates.RunEventListener;
+import org.vanda.execution.model.RunStates.*;
+import org.vanda.util.MultiplexObserver;
+import org.vanda.util.Observable;
+import org.vanda.util.Observer;
+import org.vanda.view.Views.SelectionObject;
+import org.vanda.view.Views.*;
 import org.vanda.workflows.hyper.Job;
 
-public class JobView extends AbstractView implements Runable {
+public class JobView extends AbstractView<Job> implements Observer<RunEvent> {
 
-	private RunState runState = new StateReady();
+	private final MultiplexObserver<RunEvent> rsObserver = new MultiplexObserver<RunEvent>();
+	private RunEvent runState = new RunStateReady();
 	private int progress = 0;
-
-	@Override
-	public void remove(View view) {
-		for (Job j : view.getWorkflow().getChildren())
-			if (view.getJobView(j) == this) {
-				view.getWorkflow().removeChild(j);
-				break;
-			}
-	}
-
-	@Override
-	public void visit(SelectionVisitor sv, View view) {
-		for (Job j : view.getWorkflow().getChildren())
-			if (view.getJobView(j) == this) {
-				sv.visitJob(view.getWorkflow(), j);
-				break;
-			}
-	}
-
-	@Override
-	public void doCancel() {
-		// TODO cancel execution
-		RunState oldState = runState;
-		runState = new StateCancelled();
-		getObservable().notify(new RunStateTransitionEvent<AbstractView>(this, oldState, runState));
-	}
-
-	@Override
-	public void doFinish() {
-		RunState oldState = runState;
-		runState = new StateDone();
-		getObservable().notify(new RunStateTransitionEvent<AbstractView>(this, oldState, runState));
-	}
-
-	@Override
-	public void doRun() {
-		RunState oldState = runState;
-		runState = new StateRunning();
-		getObservable().notify(new RunStateTransitionEvent<AbstractView>(this, oldState, runState));
+	
+	public JobView(ViewListener<AbstractView<?>> listener) {
+		super(listener);
 	}
 	
 	public int getRunProgress() {
 		return progress;
 	}
-
-	@Override
-	public RunState getState() {
-		return runState;
+	
+	public Observable<RunEvent> getRsObservable() {
+		return rsObserver;
 	}
 
 	@Override
-	public void updateProgress(int progress) {
-		this.progress = progress;
-		getObservable().notify(new RunProgressUpdateEvent<AbstractView>(this));
+	public SelectionObject createSelectionObject(Job t) {
+		return new JobSelectionObject(t);
+	}
+
+	public void visit(RunEventListener rsv) {
+		runState.doNotify(rsv);
+	}
+
+	@Override
+	public void notify(RunEvent event) {
+		runState = event;
+		rsObserver.notify(event);
 	}
 }

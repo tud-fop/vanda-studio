@@ -7,7 +7,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-import org.vanda.execution.model.Runables.RunState;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.CellListener;
@@ -21,9 +20,9 @@ import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl.PopupMenu;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
-import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.view.ConnectionView;
 import org.vanda.view.View;
+import org.vanda.view.Views.*;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
@@ -66,16 +65,7 @@ public class ConnectionAdapter {
 		public void setSelection(Cell c, boolean selected) {
 			if (connectionKey != null) {
 				ConnectionView cv = view.getConnectionView(connectionKey);
-				// if (cv != null)
 				cv.setSelected(selected);
-				// TODO: bug seems to be fixed, remove after testing
-				//
-				// else {
-				// view.addConnectionView(connectionKey);
-				// view.getConnectionView(connectionKey).getObservable()
-				// .addObserver(connectionViewObserver);
-				// view.getConnectionView(connectionKey).setSelected(selected);
-				// }
 			}
 		}
 
@@ -98,16 +88,16 @@ public class ConnectionAdapter {
 
 	}
 
-	private class ConnectionViewListener implements AbstractView.ViewListener<AbstractView> {
+	private class ConnectionViewListener implements ViewListener<AbstractView<?>> {
 
 		@Override
-		public void highlightingChanged(AbstractView v) {
+		public void highlightingChanged(AbstractView<?> v) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public void markChanged(AbstractView v) {
+		public void markChanged(AbstractView<?> v) {
 			if (v.isMarked())
 				visualization.highlight(true);
 			else
@@ -115,18 +105,8 @@ public class ConnectionAdapter {
 		}
 
 		@Override
-		public void runProgressUpdate(AbstractView _) {
-			// do nothing
-		}
-
-		@Override
-		public void selectionChanged(AbstractView v) {
+		public void selectionChanged(AbstractView<?> v) {
 			visualization.getObservable().notify(new SelectionChangedEvent<Cell>(visualization, v.isSelected()));
-		}
-
-		@Override
-		public void runStateTransition(AbstractView v, RunState from, RunState to) {
-			// do nothing
 		}
 	}
 
@@ -136,7 +116,7 @@ public class ConnectionAdapter {
 	private final ConnectionKey connectionKey;
 
 	private ConnectionViewListener connectionViewListener;
-	private Observer<ViewEvent<AbstractView>> connectionViewObserver;
+	private Observer<ViewEvent<AbstractView<?>>> connectionViewObserver;
 
 	private View view;
 
@@ -168,13 +148,13 @@ public class ConnectionAdapter {
 		visualization.getObservable().addObserver(connectionCellObserver);
 
 		// create ConnectionView
-		view.addConnectionView(connectionKey);
+		// view.addConnectionView(connectionKey);
 
 		connectionViewListener = new ConnectionViewListener();
-		connectionViewObserver = new Observer<ViewEvent<AbstractView>>() {
+		connectionViewObserver = new Observer<ViewEvent<AbstractView<?>>>() {
 
 			@Override
-			public void notify(ViewEvent<AbstractView> event) {
+			public void notify(ViewEvent<AbstractView<?>> event) {
 				event.doNotify(connectionViewListener);
 			}
 		};
@@ -245,17 +225,12 @@ public class ConnectionAdapter {
 
 		// Register at ConnectionView
 		connectionViewListener = new ConnectionViewListener();
-		AbstractView connectionView = view.getConnectionView(connectionKey);
+		AbstractView<?> connectionView = view.getConnectionView(connectionKey);
 
-		// FIXME just a workaround
-		if (connectionView == null) {
-			view.addConnectionView(connectionKey);
-			connectionView = view.getConnectionView(connectionKey);
-		}
-		connectionViewObserver = new Observer<ViewEvent<AbstractView>>() {
+		connectionViewObserver = new Observer<ViewEvent<AbstractView<?>>>() {
 
 			@Override
-			public void notify(ViewEvent<AbstractView> event) {
+			public void notify(ViewEvent<AbstractView<?>> event) {
 				event.doNotify(connectionViewListener);
 			}
 

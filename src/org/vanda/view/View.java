@@ -1,286 +1,87 @@
 package org.vanda.view;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.vanda.execution.model.Runables.RunEvent;
-import org.vanda.execution.model.Runables.RunEventListener;
-import org.vanda.execution.model.Runables.RunState;
 import org.vanda.util.MultiplexObserver;
 import org.vanda.util.Observer;
-import org.vanda.view.AbstractView.ViewEvent;
-import org.vanda.view.AbstractView.ViewListener;
-import org.vanda.workflows.elements.Port;
+import org.vanda.view.Views.*;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
 import org.vanda.workflows.hyper.MutableWorkflow;
-import org.vanda.workflows.hyper.Workflows;
-import org.vanda.workflows.hyper.Workflows.WorkflowEvent;
+import org.vanda.workflows.hyper.Workflows.WorkflowListener;
+import org.vanda.workflows.hyper.Workflows.*;
 
 /**
- * Holds ViewObject for the Workflow, Jobs, Locations and Cells.
- * ViewObjects are only weakly referenced. 
+ * Holds ViewObject for the Workflow, Jobs, Locations and Cells. ViewObjects are
+ * only weakly referenced.
  * 
  * @author kgebhardt
  * 
  */
-public class View {
-	public static interface GlobalViewEvent<V> {
-		void doNotify(GlobalViewListener<V> vl);
-	}
-
-	public static interface GlobalViewListener<V> {
-		void markChanged(V v);
-
-		void selectionChanged(V v);
-	}
-
-	public static class MarkChangedEvent<V> implements GlobalViewEvent<V> {
-		private final V v;
-
-		public MarkChangedEvent(V v) {
-			this.v = v;
-		}
-
-		@Override
-		public void doNotify(GlobalViewListener<V> vl) {
-			vl.markChanged(v);
-		}
-	}
-
-	public static class SelectionChangedEvent<V> implements GlobalViewEvent<V> {
-		private final V v;
-
-		public SelectionChangedEvent(V v) {
-			this.v = v;
-		}
-
-		@Override
-		public void doNotify(GlobalViewListener<V> vl) {
-			vl.selectionChanged(v);
-		}
-	}
-
-	public class WorkflowListener implements Workflows.WorkflowListener<MutableWorkflow> {
-
-		@Override
-		public void childAdded(MutableWorkflow mwf, Job j) {
-			addJobView(j);
-			for (Port p : j.getOutputPorts()) {
-				addLocationView(j.bindings.get(p));
-			}
-		}
-
-		@Override
-		public void childModified(MutableWorkflow mwf, Job j) {
-			// do nothing
-		}
-
-		@Override
-		public void childRemoved(MutableWorkflow mwf, Job j) {
-			if (j.bindings != null)
-				for (Location l : j.bindings.values())
-					variables.remove(l);
-			jobs.remove(j);
-		}
-
-		@Override
-		public void connectionAdded(MutableWorkflow mwf, ConnectionKey cc) {
-			addConnectionView(cc);
-		}
-
-		@Override
-		public void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc) {
-			connections.remove(cc);
-		}
-
-		@Override
-		public void propertyChanged(MutableWorkflow mwf) {
-			// do nothing
-		}
-
-		@Override
-		public void updated(MutableWorkflow mwf) {
-			// do nothing
-		}
-
-	}
+public class View implements WorkflowListener<MutableWorkflow> {
 
 	private WeakHashMap<ConnectionKey, ConnectionView> connections;
 	private WeakHashMap<Job, JobView> jobs;
-	private MultiplexObserver<GlobalViewEvent<View>> observable;
+	private MultiplexObserver<ViewEvent<View>> observable;
 	private WeakHashMap<Location, LocationView> variables;
-	private Map<String, JobView> runEventMultiplexTable;
 
-	private final ViewListener<AbstractView> viewEventListener;
-	private final Observer<ViewEvent<AbstractView>> viewEventObserver;
+	private final ViewListener<AbstractView<?>> viewEventListener;
 
 	private MutableWorkflow workflow;
-	private WorkflowListener workflowListener;
-	private Observer<WorkflowEvent<MutableWorkflow>> workflowObserver;
-	private WorkflowView workflowView;
+	private final Observer<WorkflowEvent<MutableWorkflow>> workflowObserver = new Observer<WorkflowEvent<MutableWorkflow>>() {
 
-	private Observer<RunEvent> runEventObserver;
-
-	public Observer<RunEvent> getRunEventObserver() {
-		if (runEventMultiplexTable == null) {
-			runEventMultiplexTable = new HashMap<String, JobView>();
-			for (Job j : jobs.keySet()) {
-				if (j.getId() != null)
-					runEventMultiplexTable.put(j.getId(), jobs.get(j));
-			}
-
-			runEventObserver = new Observer<RunEvent>() {
-
-				@Override
-				public void notify(RunEvent event) {
-					event.doNotify(new RunEventListener() {
-						@Override
-						public void progressUpdate(String id, int progress) {
-							JobView jv = runEventMultiplexTable.get(id);
-							if (jv != null)
-								jv.getState().progress(jv, progress);
-						}
-
-						@Override
-						public void runStarted(String id) {
-							// FIXME System.out.println("started: " + id);
-							JobView jv = runEventMultiplexTable.get(id);
-							if (jv != null)
-								jv.getState().run(jv);
-						}
-
-						@Override
-						public void runFinished(String id) {
-							// FIXME System.out.println("finished: " + id);
-							JobView jv = runEventMultiplexTable.get(id);
-							if (jv != null)
-								jv.getState().finish(jv);
-						}
-
-						@Override
-						public void runCancelled(String id) {
-							// FIXME System.out.println("cancelled: " + id);
-							JobView jv = runEventMultiplexTable.get(id);
-							if (jv != null)
-								jv.getState().cancel(jv);
-						}
-
-						@Override
-						public void cancelledAll() {
-							// FIXME System.out.println("cancelled all");
-							for (JobView jv : runEventMultiplexTable.values()) {
-								jv.getState().cancel(jv);
-							}
-						}
-					});
-				}
-
-			};
+		@Override
+		public void notify(WorkflowEvent<MutableWorkflow> event) {
+			event.doNotify(View.this);
 		}
-		return runEventObserver;
-
-	}
+	};
+	private WorkflowView workflowView;
 
 	public View(MutableWorkflow workflow) {
 		this.workflow = workflow;
-		this.observable = new MultiplexObserver<GlobalViewEvent<View>>();
+		this.observable = new MultiplexObserver<ViewEvent<View>>();
 		jobs = new WeakHashMap<Job, JobView>();
 		connections = new WeakHashMap<ConnectionKey, ConnectionView>();
 		variables = new WeakHashMap<Location, LocationView>();
-		workflowListener = new WorkflowListener();
-		viewEventListener = new ViewListener<AbstractView>() {
+		viewEventListener = new ViewListener<AbstractView<?>>() {
 
 			@Override
-			public void highlightingChanged(AbstractView v) {
+			public void highlightingChanged(AbstractView<?> v) {
 			}
 
 			@Override
-			public void markChanged(AbstractView v) {
+			public void markChanged(AbstractView<?> v) {
 				observable.notify(new MarkChangedEvent<View>(View.this));
 			}
 
 			@Override
-			public void runProgressUpdate(AbstractView v) {
-			}
-
-			@Override
-			public void selectionChanged(AbstractView v) {
+			public void selectionChanged(AbstractView<?> v) {
 				// TODO this will cause multiple notifications for one selection
 				// change
 				observable.notify(new SelectionChangedEvent<View>(View.this));
 			}
 
-			@Override
-			public void runStateTransition(AbstractView v, RunState from, RunState to) {
-				// TODO implement this
-			}
-
 		};
 
-		viewEventObserver = new Observer<ViewEvent<AbstractView>>() {
+		workflowView = new WorkflowView(viewEventListener);
 
-			@Override
-			public void notify(ViewEvent<AbstractView> event) {
-				event.doNotify(viewEventListener);
-			}
-
-		};
-
-		setWorkflowView(new WorkflowView());
-
-		for (Job j : workflow.getChildren()) {
-			addJobView(j);
-			for (Port p : j.getOutputPorts()) {
-				addLocationView(j.bindings.get(p));
-			}
-		}
-
-		// ConnectionViews are created later, when permanent ConnectionKey-instances exist 
-		
-		workflowObserver = new Observer<WorkflowEvent<MutableWorkflow>>() {
-
-			@Override
-			public void notify(WorkflowEvent<MutableWorkflow> event) {
-				event.doNotify(workflowListener);
-			}
-
-		};
 		workflow.getObservable().addObserver(workflowObserver);
 	}
 
-	public void addConnectionView(ConnectionKey cc) {
-		if (!connections.containsKey(cc)) {
-			connections.put(cc, new ConnectionView());
-			connections.get(cc).getObservable().addObserver(viewEventObserver);
-		}
-	}
-
-	private void addJobView(Job j) {
-		JobView jv = new JobView();
-		jobs.put(j, jv);
-		jv.getObservable().addObserver(viewEventObserver);
-	}
-
-	private void addLocationView(Location l) {
-		variables.put(l, new LocationView());
-		variables.get(l).getObservable().addObserver(viewEventObserver);
-	}
-
-	public <T, T2 extends AbstractView> void addMarked(WeakHashMap<T, T2> whm, List<AbstractView> marked) {
+	public <T, T2 extends AbstractView<T>> void addMarked(WeakHashMap<T, T2> whm, List<AbstractView<?>> marked) {
 		for (T2 v : whm.values())
 			if (v.isMarked())
 				marked.add(v);
 	}
 
-	public <T, T2 extends AbstractView> void addSelected(WeakHashMap<T, T2> whm, List<AbstractView> selection) {
-		for (T2 v : whm.values())
-			if (v.isSelected())
-				selection.add(v);
+	public <T, T2 extends AbstractView<T>> void addSelected(WeakHashMap<T, T2> whm, List<SelectionObject> selection) {
+		for (Map.Entry<T, T2> e : whm.entrySet())
+			if (e.getValue().isSelected())
+				selection.add(e.getValue().createSelectionObject(e.getKey()));
 	}
 
 	public void clearMarked() {
@@ -289,12 +90,12 @@ public class View {
 		clearMarked(variables);
 	}
 
-	public <T, T2 extends AbstractView> void clearMarked(WeakHashMap<T, T2> whm) {
+	public <T, T2 extends AbstractView<T>> void clearMarked(WeakHashMap<T, T2> whm) {
 		for (T2 v : whm.values())
 			v.setMarked(false);
 	}
 
-	public <T, T2 extends AbstractView> void clearSelected(WeakHashMap<T, T2> whm) {
+	public <T, T2 extends AbstractView<T>> void clearSelected(WeakHashMap<T, T2> whm) {
 		for (T2 v : whm.values())
 			v.setSelected(false);
 	}
@@ -306,36 +107,51 @@ public class View {
 	}
 
 	public ConnectionView getConnectionView(ConnectionKey ck) {
-		return connections.get(ck);
+		ConnectionView cv = connections.get(ck);
+		if (cv == null) {
+			cv = new ConnectionView(viewEventListener);
+			connections.put(ck, cv);
+		}
+		return cv;
 	}
 
-	public List<AbstractView> getCurrentSelection() {
-		List<AbstractView> currentSelection = new ArrayList<AbstractView>();
-		addSelected(connections, currentSelection);
-		addSelected(variables, currentSelection);
-		addSelected(jobs, currentSelection);
+	public List<SelectionObject> getCurrentSelection() {
+		List<SelectionObject> result = new ArrayList<SelectionObject>();
+		addSelected(connections, result);
+		addSelected(variables, result);
+		addSelected(jobs, result);
 		if (workflowView.isSelected())
-			currentSelection.add(workflowView);
-		return currentSelection;
+			result.add(workflowView.createSelectionObject(workflow));
+		return result;
 	}
 
 	public JobView getJobView(Job job) {
-		return jobs.get(job);
+		JobView jv = jobs.get(job);
+		if (jv == null) {
+			jv = new JobView(viewEventListener);
+			jobs.put(job, jv);
+		}
+		return jv;
 	}
 
 	public LocationView getLocationView(Location l) {
-		return variables.get(l);
+		LocationView lv = variables.get(l);
+		if (lv == null) {
+			lv = new LocationView(viewEventListener);
+			variables.put(l, lv);
+		}
+		return lv;
 	}
 
-	public List<AbstractView> getMarked() {
-		List<AbstractView> markedViews = new ArrayList<AbstractView>();
+	public List<AbstractView<?>> getMarked() {
+		List<AbstractView<?>> markedViews = new ArrayList<AbstractView<?>>();
 		addMarked(connections, markedViews);
 		addMarked(variables, markedViews);
 		addMarked(jobs, markedViews);
 		return markedViews;
 	}
 
-	public MultiplexObserver<GlobalViewEvent<View>> getObservable() {
+	public MultiplexObserver<ViewEvent<View>> getObservable() {
 		return observable;
 	}
 
@@ -347,16 +163,46 @@ public class View {
 		return workflowView;
 	}
 
-	private void setWorkflowView(WorkflowView workflowView) {
-		this.workflowView = workflowView;
-		workflowView.getObservable().addObserver(viewEventObserver);
+	public void removeSelectedCell() {
+		List<SelectionObject> selection = getCurrentSelection();
+		for (SelectionObject so : selection) {
+			so.remove(workflow);
+		}
 	}
 
-	public void removeSelectedCell() {
-		List<AbstractView> selection = getCurrentSelection();
-		for (AbstractView v : selection) {
-			v.remove(this);
-		}
+	@Override
+	public void childAdded(MutableWorkflow mwf, Job j) {
+		// do nothing
+	}
+
+	@Override
+	public void childModified(MutableWorkflow mwf, Job j) {
+		// do nothing
+	}
+
+	@Override
+	public void childRemoved(MutableWorkflow mwf, Job j) {
+		getJobView(j).setSelected(false);
+	}
+
+	@Override
+	public void connectionAdded(MutableWorkflow mwf, ConnectionKey cc) {
+		// do nothing
+	}
+
+	@Override
+	public void connectionRemoved(MutableWorkflow mwf, ConnectionKey cc) {
+		getConnectionView(cc).setSelected(false);
+	}
+
+	@Override
+	public void propertyChanged(MutableWorkflow mwf) {
+		// do nothing
+	}
+
+	@Override
+	public void updated(MutableWorkflow mwf) {
+		// do nothing
 	}
 
 }

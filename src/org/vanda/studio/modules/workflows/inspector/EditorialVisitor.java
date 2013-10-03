@@ -1,11 +1,12 @@
 package org.vanda.studio.modules.workflows.inspector;
 
+import java.util.List;
+
 import javax.swing.JComponent;
 
 
-import org.vanda.view.AbstractView.SelectionVisitor;
-import org.vanda.view.AbstractView;
 import org.vanda.view.View;
+import org.vanda.view.Views.*;
 import org.vanda.workflows.data.Database;
 import org.vanda.workflows.elements.ElementVisitor;
 import org.vanda.workflows.elements.Literal;
@@ -19,7 +20,8 @@ public final class EditorialVisitor implements SelectionVisitor {
 
 	private final ElementEditorFactories eefs;
 	private AbstractEditorFactory editorFactory = null;
-	public EditorialVisitor(ElementEditorFactories eefs, View view) {
+	
+	public EditorialVisitor(ElementEditorFactories eefs) {
 		this.eefs = eefs;
 	}
 
@@ -75,7 +77,7 @@ public final class EditorialVisitor implements SelectionVisitor {
 	}
 
 	@Override
-	public void visitVariable(final Location variable, final MutableWorkflow wf) {
+	public void visitVariable(final MutableWorkflow wf, final Location variable) {
 		editorFactory = new AbstractEditorFactory() {
 			@Override
 			public JComponent createEditor(Database d) {
@@ -85,13 +87,14 @@ public final class EditorialVisitor implements SelectionVisitor {
 	}
 	
 	public static AbstractEditorFactory createAbstractFactory(ElementEditorFactories eefs, View view) {
-		EditorialVisitor visitor = new EditorialVisitor(eefs, view);
+		EditorialVisitor visitor = new EditorialVisitor(eefs);
 		// Show Workflow-Preview in case of multi-selection
-		if (view.getCurrentSelection().size() > 1)
-			view.getWorkflowView().visit(visitor, view);
+		List<SelectionObject> sos = view.getCurrentSelection();
+		if (sos.size() > 1)
+			visitor.visitWorkflow(view.getWorkflow());
 		else 
-			for (AbstractView av : view.getCurrentSelection()) 
-			av.visit(visitor, view);
+			for (SelectionObject so : sos)
+				so.visit(visitor, view.getWorkflow());
 		return visitor.getEditorFactory();
 	}
 

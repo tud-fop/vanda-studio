@@ -7,7 +7,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-import org.vanda.execution.model.Runables.RunState;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.CellListener;
@@ -21,9 +20,9 @@ import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.studio.modules.workflows.impl.WorkflowEditorImpl.PopupMenu;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
-import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.view.ConnectionView;
 import org.vanda.view.View;
+import org.vanda.view.Views.*;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.ConnectionKey;
 import org.vanda.workflows.hyper.Job;
@@ -66,25 +65,13 @@ public class ConnectionAdapter {
 		public void setSelection(Cell c, boolean selected) {
 			if (connectionKey != null) {
 				ConnectionView cv = view.getConnectionView(connectionKey);
-				if (cv != null)
-					cv.setSelected(selected);
-				// FIXME: why are the connectionkeys removed from the
-				// WeakHashMap in View?
-				// Then remove this hack
-				else {
-					view.addConnectionView(connectionKey);
-					view.getConnectionView(connectionKey)
-							.getObservable()
-							.addObserver(connectionViewObserver);
-					view.getConnectionView(connectionKey).setSelected(selected);
-				}
+				cv.setSelected(selected);
 			}
 		}
 
 		@Override
 		public void rightClick(MouseEvent e) {
-			PopupMenu menu = new PopupMenu(
-					((ConnectionCell) visualization).toString());
+			PopupMenu menu = new PopupMenu(((ConnectionCell) visualization).toString());
 
 			@SuppressWarnings("serial")
 			JMenuItem item = new JMenuItem("Remove Connection") {
@@ -101,37 +88,25 @@ public class ConnectionAdapter {
 
 	}
 
-	private class ConnectionViewListener implements
-			AbstractView.ViewListener<AbstractView> {
+	private class ConnectionViewListener implements ViewListener<AbstractView<?>> {
 
 		@Override
-		public void highlightingChanged(AbstractView v) {
+		public void highlightingChanged(AbstractView<?> v) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public void markChanged(AbstractView v) {
+		public void markChanged(AbstractView<?> v) {
 			if (v.isMarked())
 				visualization.highlight(true);
 			else
 				visualization.highlight(false);
 		}
-		
-		@Override
-		public void runProgressUpdate(AbstractView _) {
-			// do nothing
-		}
 
 		@Override
-		public void selectionChanged(AbstractView v) {
-			visualization.getObservable().notify(
-					new SelectionChangedEvent<Cell>(visualization, v
-							.isSelected()));
-		}
-
-		@Override
-		public void runStateTransition(AbstractView v, RunState from, RunState to) {
+		public void selectionChanged(AbstractView<?> v) {
+			visualization.getObservable().notify(new SelectionChangedEvent<Cell>(visualization, v.isSelected()));
 		}
 	}
 
@@ -139,9 +114,9 @@ public class ConnectionAdapter {
 	private Observer<CellEvent<Cell>> connectionCellObserver;
 
 	private final ConnectionKey connectionKey;
-	
+
 	private ConnectionViewListener connectionViewListener;
-	private Observer<ViewEvent<AbstractView>> connectionViewObserver;
+	private Observer<ViewEvent<AbstractView<?>>> connectionViewObserver;
 
 	private View view;
 
@@ -154,8 +129,7 @@ public class ConnectionAdapter {
 	 * @param visualization
 	 * @param view
 	 */
-	public ConnectionAdapter(ConnectionKey connectionKey,
-			ConnectionCell visualization, View view) {
+	public ConnectionAdapter(ConnectionKey connectionKey, ConnectionCell visualization, View view) {
 		// System.out.println("Hand-Drawn edge!");
 		this.visualization = visualization;
 		this.connectionKey = connectionKey;
@@ -174,13 +148,13 @@ public class ConnectionAdapter {
 		visualization.getObservable().addObserver(connectionCellObserver);
 
 		// create ConnectionView
-		view.addConnectionView(connectionKey);
+		// view.addConnectionView(connectionKey);
 
 		connectionViewListener = new ConnectionViewListener();
-		connectionViewObserver = new Observer<ViewEvent<AbstractView>>() {
+		connectionViewObserver = new Observer<ViewEvent<AbstractView<?>>>() {
 
 			@Override
-			public void notify(ViewEvent<AbstractView> event) {
+			public void notify(ViewEvent<AbstractView<?>> event) {
 				event.doNotify(connectionViewListener);
 			}
 		};
@@ -191,8 +165,7 @@ public class ConnectionAdapter {
 		// identify Source Job and Source Port
 		OutPortCell sourcePortCell = visualization.getSourceCell();
 		JobCell sourceJobCell = (JobCell) sourcePortCell.getParentCell();
-		PresentationModel pm = (PresentationModel) ((WorkflowCell) visualization
-				.getParentCell()).getDataInterface();
+		PresentationModel pm = (PresentationModel) ((WorkflowCell) visualization.getParentCell()).getDataInterface();
 		Job sourceJob = null;
 		JobAdapter sourceJobAdapter = null;
 		Port sourcePort = null;
@@ -214,8 +187,7 @@ public class ConnectionAdapter {
 		// Add Connection to Workflow
 		// This is done last, because it will trigger the typecheck,
 		// which requires the ConnectionView to be created before
-		view.getWorkflow().addConnection(connectionKey,
-				sourceJob.bindings.get(sourcePort));
+		view.getWorkflow().addConnection(connectionKey, sourceJob.bindings.get(sourcePort));
 	}
 
 	/**
@@ -226,8 +198,7 @@ public class ConnectionAdapter {
 	 * @param mwf
 	 * @param view
 	 */
-	public ConnectionAdapter(ConnectionKey cc, PresentationModel pm,
-			MutableWorkflow mwf, View view) {
+	public ConnectionAdapter(ConnectionKey cc, PresentationModel pm, MutableWorkflow mwf, View view) {
 		// System.out.println("loaded edge" + cc);
 		this.connectionKey = cc;
 		this.view = view;
@@ -250,20 +221,15 @@ public class ConnectionAdapter {
 		InPortCell target = tJA.getInPortCell(targetPort);
 		assert (source != null && target != null);
 
-		visualization = new ConnectionCell(pm.getVisualization(), source,
-				target);
+		visualization = new ConnectionCell(pm.getVisualization(), source, target);
 
 		// Register at ConnectionView
 		connectionViewListener = new ConnectionViewListener();
-		AbstractView connectionView = view.getConnectionView(connectionKey);
-		if (connectionView == null) {
-			view.addConnectionView(connectionKey);
-			connectionView = view.getConnectionView(connectionKey);
-		}
-		connectionViewObserver = new Observer<ViewEvent<AbstractView>>() {
+		AbstractView<?> connectionView = view.getConnectionView(connectionKey);
+		connectionViewObserver = new Observer<ViewEvent<AbstractView<?>>>() {
 
 			@Override
-			public void notify(ViewEvent<AbstractView> event) {
+			public void notify(ViewEvent<AbstractView<?>> event) {
 				event.doNotify(connectionViewListener);
 			}
 

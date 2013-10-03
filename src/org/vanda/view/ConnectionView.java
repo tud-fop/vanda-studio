@@ -1,36 +1,17 @@
 package org.vanda.view;
 
 import org.vanda.workflows.hyper.ConnectionKey;
+import org.vanda.view.Views.SelectionObject;
+import org.vanda.view.Views.*;
 
-public class ConnectionView extends AbstractView {
+public class ConnectionView extends AbstractView<ConnectionKey> {
 
-	public ConnectionView() {
-		super();
-		//TODO remove this constructor as it is just for debugging
-//		System.out.println("Created ConnectionView" + this);
+	public ConnectionView(ViewListener<AbstractView<?>> listener) {
+		super(listener);
 	}
 	
 	@Override
-	public void remove(View view) {
-		for (ConnectionKey ck : view.getWorkflow().getConnections())
-			if (view.getConnectionView(ck) == this) {
-				view.getWorkflow().removeConnection(ck);
-				break;
-			}
-	}
-
-	@Override
-	public void visit(SelectionVisitor sv, View view) {
-		for (ConnectionKey ck : view.getWorkflow().getConnections())
-			if (view.getConnectionView(ck) == this) {
-				sv.visitConnection(view.getWorkflow(), ck);
-				break;
-			}
-	}
-	
-	@Override
-	public void finalize() {
-		//TODO remove this finalizer as it is just for debugging
-//		System.out.println("removed ConnectionView" + this);
+	public SelectionObject createSelectionObject(ConnectionKey t) {
+		return new ConnectionSelectionObject(t);
 	}
 }

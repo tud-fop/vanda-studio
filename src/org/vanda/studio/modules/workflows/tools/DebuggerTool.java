@@ -7,7 +7,7 @@ import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Observer;
 import org.vanda.view.View;
-import org.vanda.view.View.GlobalViewEvent;
+import org.vanda.view.Views.*;
 
 public class DebuggerTool implements ToolFactory {
 
@@ -26,10 +26,10 @@ public class DebuggerTool implements ToolFactory {
 			debugger = new JTextArea();
 			this.view.getObservable().addObserver(
 			//this.m.getWorkflowCheckObservable().addObserver(
-					new Observer<GlobalViewEvent<View>>() {
+					new Observer<ViewEvent<View>>() {
 
 						@Override
-						public void notify(GlobalViewEvent<View> event) {
+						public void notify(ViewEvent<View> event) {
 							// TODO Auto-generated method stub
 							
 						}

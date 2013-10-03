@@ -2,7 +2,6 @@ package org.vanda.presentationmodel.execution;
 
 import java.awt.event.MouseEvent;
 
-import org.vanda.execution.model.Runables.RunState;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellListener;
 import org.vanda.render.jgraph.Graph;
@@ -14,9 +13,9 @@ import org.vanda.render.jgraph.Cells.MarkChangedEvent;
 import org.vanda.render.jgraph.Cells.SelectionChangedEvent;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
-import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.view.LocationView;
 import org.vanda.view.View;
+import org.vanda.view.Views.*;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
@@ -67,31 +66,22 @@ public class LocationAdapter {
 
 	}
 
-	private class LocationViewListener implements AbstractView.ViewListener<AbstractView> {
+	private class LocationViewListener implements ViewListener<AbstractView<?>> {
 
 		@Override
-		public void highlightingChanged(AbstractView v) {
+		public void highlightingChanged(AbstractView<?> v) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public void markChanged(AbstractView v) {
+		public void markChanged(AbstractView<?> v) {
 			locationCell.getObservable().notify(new MarkChangedEvent<Cell>(locationCell));
 		}
 		
 		@Override
-		public void runProgressUpdate(AbstractView _) {
-			// do nothing
-		}
-
-		@Override
-		public void selectionChanged(AbstractView v) {
+		public void selectionChanged(AbstractView<?> v) {
 			locationCell.getObservable().notify(new SelectionChangedEvent<Cell>(locationCell, v.isSelected()));
-		}
-
-		@Override
-		public void runStateTransition(AbstractView v, RunState from, RunState to) {
 		}
 	}
 
@@ -99,7 +89,7 @@ public class LocationAdapter {
 	private LocationCellListener locationCellListener;
 	private Observer<CellEvent<Cell>> locationCellObserver;
 	private LocationViewListener locationViewListener;
-	private Observer<ViewEvent<AbstractView>> locationViewObserver;
+	private Observer<ViewEvent<AbstractView<?>>> locationViewObserver;
 
 	private Port port;
 
@@ -128,10 +118,10 @@ public class LocationAdapter {
 		locationViewListener = new LocationViewListener();
 
 		// Register at LocationView
-		locationViewObserver = new Observer<ViewEvent<AbstractView>>() {
+		locationViewObserver = new Observer<ViewEvent<AbstractView<?>>>() {
 
 			@Override
-			public void notify(ViewEvent<AbstractView> event) {
+			public void notify(ViewEvent<AbstractView<?>> event) {
 				event.doNotify(locationViewListener);
 			}
 		};

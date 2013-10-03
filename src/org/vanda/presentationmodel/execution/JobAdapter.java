@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.vanda.execution.model.Runables.RunState;
-import org.vanda.execution.model.Runables.RunStateVisitor;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.CellListener;
@@ -22,9 +20,9 @@ import org.vanda.render.jgraph.OutPortCell;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.util.Observer;
 import org.vanda.view.AbstractView;
-import org.vanda.view.AbstractView.ViewEvent;
 import org.vanda.view.JobView;
 import org.vanda.view.View;
+import org.vanda.view.Views.*;
 import org.vanda.workflows.elements.Port;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.Location;
@@ -90,17 +88,16 @@ public class JobAdapter {
 
 	}
 
-	private class JobViewListener implements
-			AbstractView.ViewListener<AbstractView> {
+	private class JobViewListener implements ViewListener<AbstractView<?>> {
 
 		@Override
-		public void highlightingChanged(AbstractView v) {
+		public void highlightingChanged(AbstractView<?> v) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public void markChanged(AbstractView v) {
+		public void markChanged(AbstractView<?> v) {
 			if (v.isMarked()) {
 				jobCell.highlight(true);
 
@@ -108,44 +105,44 @@ public class JobAdapter {
 				jobCell.highlight(false);
 			}
 		}
-		
-		@Override
-		public void runProgressUpdate(AbstractView v) {
-			jobCell.setProgress(((JobView) v).getRunProgress());
-		}
+//		
+//		@Override
+//		public void runProgressUpdate(AbstractView<?> v) {
+//			jobCell.setProgress(((JobView) v).getRunProgress());
+//		}
 
 		@Override
-		public void selectionChanged(AbstractView v) {
+		public void selectionChanged(AbstractView<?> v) {
 			jobCell.getObservable().notify(
 					new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
 		}
 
-		@Override
-		public void runStateTransition(AbstractView v, RunState from, RunState to) {
-			to.visit(new RunStateVisitor() {
-
-				@Override
-				public void cancelled() {
-					jobCell.setCancelled();
-				}
-
-				@Override
-				public void done() {
-					jobCell.setDone();					
-				}
-
-				@Override
-				public void ready() {
-					jobCell.setReady();
-				}
-
-				@Override
-				public void running() {
-					jobCell.setRunning();					
-				}
-				
-			});
-		}
+//		@Override
+//		public void runStateTransition(AbstractView<?> v, RunState from, RunState to) {
+//			to.doNotify(new RunEventListener() {
+//
+//				@Override
+//				public void cancelled() {
+//					jobCell.setCancelled();
+//				}
+//
+//				@Override
+//				public void done() {
+//					jobCell.setDone();					
+//				}
+//
+//				@Override
+//				public void ready() {
+//					jobCell.setReady();
+//				}
+//
+//				@Override
+//				public void running() {
+//					jobCell.setRunning();					
+//				}
+//				
+//			});
+//		}
 	}
 
 	private Map<Port, InPortCell> inports;
@@ -154,7 +151,7 @@ public class JobAdapter {
 	private JobCellListener jobCellListener;
 	private Observer<CellEvent<Cell>> jobCellObserver;
 	private JobViewListener jobViewListener;
-	private Observer<ViewEvent<AbstractView>> jobViewObserver;
+	private Observer<ViewEvent<AbstractView<?>>> jobViewObserver;
 	
 	Map<Location, LocationAdapter> locations;
 
@@ -180,10 +177,10 @@ public class JobAdapter {
 
 		// register at jobView
 		jobViewListener = new JobViewListener();
-		jobViewObserver = new Observer<ViewEvent<AbstractView>>() {
+		jobViewObserver = new Observer<ViewEvent<AbstractView<?>>>() {
 
 			@Override
-			public void notify(ViewEvent<AbstractView> event) {
+			public void notify(ViewEvent<AbstractView<?>> event) {
 				event.doNotify(jobViewListener);
 			}
 			
