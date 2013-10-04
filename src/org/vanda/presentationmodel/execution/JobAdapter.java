@@ -1,11 +1,11 @@
 package org.vanda.presentationmodel.execution;
 
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.vanda.execution.model.RunStates.*;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.Cells.CellEvent;
 import org.vanda.render.jgraph.Cells.CellListener;
@@ -105,44 +105,42 @@ public class JobAdapter {
 				jobCell.highlight(false);
 			}
 		}
-//		
-//		@Override
-//		public void runProgressUpdate(AbstractView<?> v) {
-//			jobCell.setProgress(((JobView) v).getRunProgress());
-//		}
 
 		@Override
 		public void selectionChanged(AbstractView<?> v) {
 			jobCell.getObservable().notify(
 					new SelectionChangedEvent<Cell>(jobCell, v.isSelected()));
 		}
+		
+	}
+	
+	private class RsListener implements RunEventListener {
 
-//		@Override
-//		public void runStateTransition(AbstractView<?> v, RunState from, RunState to) {
-//			to.doNotify(new RunEventListener() {
-//
-//				@Override
-//				public void cancelled() {
-//					jobCell.setCancelled();
-//				}
-//
-//				@Override
-//				public void done() {
-//					jobCell.setDone();					
-//				}
-//
-//				@Override
-//				public void ready() {
-//					jobCell.setReady();
-//				}
-//
-//				@Override
-//				public void running() {
-//					jobCell.setRunning();					
-//				}
-//				
-//			});
-//		}
+		@Override
+		public void cancelled() {
+			jobCell.setCancelled();
+		}
+
+		@Override
+		public void done() {
+			jobCell.setDone();					
+		}
+
+		@Override
+		public void progress(int progress) {
+			jobCell.setProgress(progress);			
+		}
+
+		@Override
+		public void ready() {
+			jobCell.setReady();
+		}
+
+		@Override
+		public void running() {
+			jobCell.setRunning();					
+		}
+		
 	}
 
 	private Map<Port, InPortCell> inports;
@@ -152,12 +150,12 @@ public class JobAdapter {
 	private Observer<CellEvent<Cell>> jobCellObserver;
 	private JobViewListener jobViewListener;
 	private Observer<ViewEvent<AbstractView<?>>> jobViewObserver;
+	private Observer<RunEvent> rsObserver;
+	private RunEventListener rsListener;
 	
-	Map<Location, LocationAdapter> locations;
-
-	Map<Port, OutPortCell> outports;
-
-	View view;
+	protected Map<Location, LocationAdapter> locations;
+	protected Map<Port, OutPortCell> outports;
+	protected View view;
 
 	public JobAdapter(Job job, Graph graph, View view, WorkflowCell wfc) {
 		this.view = view;
@@ -178,14 +176,23 @@ public class JobAdapter {
 		// register at jobView
 		jobViewListener = new JobViewListener();
 		jobViewObserver = new Observer<ViewEvent<AbstractView<?>>>() {
-
 			@Override
 			public void notify(ViewEvent<AbstractView<?>> event) {
 				event.doNotify(jobViewListener);
 			}
-			
 		};
-		view.getJobView(job).getObservable().addObserver(jobViewObserver);
+
+		rsListener = new RsListener();
+		rsObserver = new Observer<RunEvent>() {
+			@Override
+			public void notify(RunEvent event) {
+				event.doNotify(rsListener);
+			}			
+		};
+		
+		JobView jv = view.getJobView(job);
+		jv.getObservable().addObserver(jobViewObserver);
+		jv.getRsObservable().addObserver(rsObserver);
 	}
 
 	public void destroy(Graph graph) {
@@ -194,17 +201,6 @@ public class JobAdapter {
 		}
 		for (LocationAdapter la : locations.values()) 
 			la.destroy();
-	}
-
-	public List<Cell> getCells() {
-		ArrayList<Cell> cells = new ArrayList<Cell>();
-
-		for (LocationAdapter la : locations.values())
-			cells.add(la.locationCell);
-		cells.addAll(inports.values());
-		cells.addAll(outports.values());
-
-		return cells;
 	}
 
 	public InPortCell getInPortCell(Port pi) {

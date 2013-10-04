@@ -121,19 +121,7 @@ public final class Graph {
 					Cell value = (Cell) gmodel.getValue(cell);
 					if (cell.getParent() != null /* && value.inModel() */)
 						value.onResize(Graph.this);
-				} /*else if (c instanceof mxSelectionChange) {
-					mxSelectionChange sc = (mxSelectionChange) c;
-					Object[] cells = graph.getSelectionCells();
-
-					if (cells != null) {
-						// FIXME: selecting the default parent, if nothing is selected
-						if (cells.length == 0)
-							cells = new Object [] {graph.getDefaultParent()};
-						updateSelection(gmodel, cells);
-					} else
-						clearSelection((Cell) ((mxCell) graph
-								.getDefaultParent()).getValue());
-				}*/
+				}
 			}
 		}
 
@@ -365,15 +353,10 @@ public final class Graph {
 
 	private static void updateSelection(mxIGraphModel gmodel, Collection<Object> cells, boolean selected) {
 		if (cells != null) {
-		// selectionUpdate++;
-		// clearSelection((Cell) ((mxCell) graph.getDefaultParent()).getValue());
-		
-		// set selection in View
 			for (Object o : cells) {
 				Cell cell = (Cell) gmodel.getValue(o);
 				cell.setSelection(selected);
 			}
-		// selectionUpdate--;
 		}
 	}
 
