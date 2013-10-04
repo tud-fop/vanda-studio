@@ -9,11 +9,10 @@ import org.vanda.render.jgraph.Cells.SetSelectionEvent;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
-import com.mxgraph.util.mxStyleUtils;
 
 public class JobCell extends Cell {
 	protected String label;
-	protected RunVis runVis;
+	protected SupplementalStyle runVis;
 
 	// final LayoutManager layoutManager;
 
@@ -26,7 +25,7 @@ public class JobCell extends Cell {
 		visualization = new mxCell(this, new mxGeometry(), null);
 		setDimensions(new double[] { x, y, w, h });
 		r.render(this);
-		runVis = new Ready();
+		runVis = null;
 	}
 
 	@Override
@@ -36,12 +35,8 @@ public class JobCell extends Cell {
 
 	@Override
 	public void highlight(boolean highlight) {
-		if (highlight) {
-			getVisualization().setStyle(mxStyleUtils.addStylename(getVisualization().getStyle(), "highlighted"));
-		} else {
-			getVisualization().setStyle(mxStyleUtils.removeStylename(getVisualization().getStyle(), "highlighted"));
-		}
-		getObservable().notify(new MarkChangedEvent<Cell>(this));
+		if (JGraphRendering.highlightedStyle.updateStyle(getVisualization(), highlight))
+			getObservable().notify(new MarkChangedEvent<Cell>(this));
 
 	}
 
@@ -79,10 +74,7 @@ public class JobCell extends Cell {
 	}
 
 	public void setLabel(String label) {
-		if (label != null)
-			this.label = label;
-		else
-			this.label = "";
+		this.label = label == null ? "" : label;
 		getObservable().notify(new PropertyChangedEvent<Cell>(this));
 	}
 
@@ -121,84 +113,29 @@ public class JobCell extends Cell {
 	}
 
 	public void setCancelled() {
-		runVis.cancelled();
+		setRunVis(JGraphRendering.cancelledStyle);
 	}
 
 	public void setReady() {
-		runVis.ready();
+		setRunVis(null);
 	}
 
 	public void setDone() {
-		runVis.done();
+		setRunVis(JGraphRendering.doneStyle);
 	}
 
 	public void setRunning() {
-		runVis.running();
+		setRunVis(JGraphRendering.runningStyle);
 	}
 
-	private abstract class RunVis {
-		void cancelled() {
-			removeCurrentStyle();
-			getVisualization().setStyle(mxStyleUtils.addStylename(getVisualization().getStyle(), "cancelled"));
-			runVis = new Cancelled();
-			getObservable().notify(new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
-		};
-
-		void running() {
-			removeCurrentStyle();
-			getVisualization().setStyle(mxStyleUtils.addStylename(getVisualization().getStyle(), "running"));
-			runVis = new Running();
-			getObservable().notify(new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
-
-		};
-
-		void done() {
-			removeCurrentStyle();
-			getVisualization().setStyle(mxStyleUtils.addStylename(getVisualization().getStyle(), "done"));
-			runVis = new Done();
-			getObservable().notify(new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
-
-		};
-
-		void ready() {
-			removeCurrentStyle();
-			getVisualization().setStyle(mxStyleUtils.addStylename(getVisualization().getStyle(), "ready"));
-			runVis = new Ready();
-			getObservable().notify(new Cells.RunVisualizationChangedEvent<Cell>(JobCell.this));
-		};
-
-		public abstract void removeCurrentStyle();
-	}
-
-	private class Ready extends RunVis {
-
-		@Override
-		public void removeCurrentStyle() {
-			getVisualization().setStyle(mxStyleUtils.removeStylename(getVisualization().getStyle(), "ready"));
-		}
-	}
-
-	private class Running extends RunVis {
-
-		@Override
-		public void removeCurrentStyle() {
-			getVisualization().setStyle(mxStyleUtils.removeStylename(getVisualization().getStyle(), "running"));
-		}
-	}
-
-	private class Done extends RunVis {
-
-		@Override
-		public void removeCurrentStyle() {
-			getVisualization().setStyle(mxStyleUtils.removeStylename(getVisualization().getStyle(), "done"));
-		}
-	}
-
-	private class Cancelled extends RunVis {
-
-		@Override
-		public void removeCurrentStyle() {
-			getVisualization().setStyle(mxStyleUtils.removeStylename(getVisualization().getStyle(), "cancelled"));
+	private void setRunVis(SupplementalStyle rv) {
+		if (rv != runVis) {
+			if (runVis != null)
+				runVis.updateStyle(visualization, false);
+			runVis = rv;
+			if (runVis != null)
+				runVis.updateStyle(visualization, true);
+			getObservable().notify(new Cells.RunVisualizationChangedEvent<Cell>(this));
 		}
 	}
 

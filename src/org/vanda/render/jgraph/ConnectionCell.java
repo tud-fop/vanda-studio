@@ -8,7 +8,6 @@ import org.vanda.util.Observer;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
-import com.mxgraph.util.mxStyleUtils;
 
 public class ConnectionCell extends Cell {
 	boolean handdrawn;
@@ -52,16 +51,9 @@ public class ConnectionCell extends Cell {
 
 	@Override
 	public void highlight(boolean highlight) {
-		if (highlight) {
-			getVisualization().setStyle(
-					mxStyleUtils.addStylename(getVisualization().getStyle(),
-							"highlightededge"));
-		} else {
-			getVisualization().setStyle(
-					mxStyleUtils.removeStylename(visualization.getStyle(),
-							"highlightededge"));
-		}
-		getObservable().notify(new MarkChangedEvent<Cell>(this));
+		// XXX erroneous is what we want here, but naming is suboptimal
+		if (JGraphRendering.erroneousStyle.updateStyle(visualization, highlight))
+			getObservable().notify(new MarkChangedEvent<Cell>(this));
 
 	}
 
