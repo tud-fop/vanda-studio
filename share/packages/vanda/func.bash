@@ -9,8 +9,8 @@
 # Generates a Tree Corpus given a GHKM Hypergraph and a Sentence Corpus
 XRSTranslate () {
 	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
-	runhaskell "$VANDA/programs/XRSToHypergraph.hs" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
-	runhaskell "$VANDA/programs/XRSTranslate.hs" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" --complicated < "$3" > "$4"
+	"$VANDA/programs/XRSToHypergraph.hs" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
+	"$VANDA/programs/XRSTranslate.hs" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" --complicated < "$3" > "$4"
 }
 
 # XRSNGrams
@@ -24,9 +24,9 @@ XRSTranslate () {
 # Intersects a language model in ARPA format with a GHKM hypergraph.
 XRSNGrams () {
 	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
-	runhaskell "$VANDA/programs/XRSToHypergraph.hs" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
-	runhaskell "$VANDA/programs/XRSNGrams.hs" -f "$1/map.f" -z "$1/zhg" -l "$3"
-	runhaskell "$VANDA/programs/XRSToHypergraph.hs" b2t -e "$1/map.e" -f "$1/map.f" -z "$1/zhg.new" > "$4"
+	"$VANDA/programs/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
+	"$VANDA/programs/XRSNGrams" -f "$1/map.f" -z "$1/zhg" -l "$3"
+	"$VANDA/programs/XRSToHypergraph" b2t -e "$1/map.e" -f "$1/map.f" -z "$1/zhg.new" > "$4"
 }
 
 # NGrams
@@ -40,21 +40,6 @@ XRSNGrams () {
 # Evaluates the corpus according to the given model.
 NGrams () {
 	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
-	runhaskell "$VANDA/programs/NGrams.hs" -l "$2" < "$3" > "$4"
-	echo "$3" > "${4}.meta"
-}
-
-# KenLM
-# Version: 2013-01-31
-# Contact: Tobias.Denkinger@tu-dresden.de
-# Category: language model
-# IN n-gram model :: ARPA
-# IN english corpus :: SentenceCorpus
-# OUT logarithmic scores :: Scores
-#
-# Evaluates the corpus according to the given model.
-KenLM () {
-	export LD_LIBRARY_PATH="$HOME/.local/lib:$LD_LIBRARY_PATH"
-	"runhaskell" "$VANDA/programs/NGrams_KenLM.hs" -g "$2" -i "$3" -o "$4"
+	"$VANDA/programs/NGrams" -l "$2" < "$3" > "$4"
 	echo "$3" > "${4}.meta"
 }
