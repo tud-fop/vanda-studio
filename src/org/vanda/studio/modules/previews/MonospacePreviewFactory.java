@@ -24,6 +24,7 @@ public class MonospacePreviewFactory implements PreviewFactory {
 	private final List<WeakReference<Preview>> previews;
 	private final Application app;
 	private Observer<Application> uiModeObserver;
+	private boolean truncate;
 
 
 	private interface FontSizeSelector {
@@ -92,7 +93,7 @@ public class MonospacePreviewFactory implements PreviewFactory {
 			setFont(fontSizeSelector.setFontSize(getFont()));
 		}
 
-		public MonospacePreview(String value) {
+		public MonospacePreview(String value, boolean truncate) {
 			setContentType("text/plain; charset=utf-8");
 			setFont(new Font("Unifont", getFont().getStyle(), getFont().getSize()));
 			setLargeContent(app.getUIMode().isLargeContent());
@@ -105,7 +106,7 @@ public class MonospacePreviewFactory implements PreviewFactory {
 				try {
 					String line = null; // not declared within while loop
 					int i = 0;
-					while (i < 10 && (line = input.readLine()) != null) {
+					while ((i < 10 || !truncate) && (line = input.readLine()) != null) {
 						doc.insertString(doc.getLength(), line, null);
 						doc.insertString(doc.getLength(), System.getProperty("line.separator"), null);
 						i++;
@@ -127,7 +128,12 @@ public class MonospacePreviewFactory implements PreviewFactory {
 	}
 
 	public MonospacePreviewFactory(Application app) {
+		this(app, true);
+	}
+	
+	public MonospacePreviewFactory(Application app, boolean truncate) {
 		this.app = app;
+		this.truncate = truncate;
 		this.previews = new ArrayList<WeakReference<Preview>>();
 		uiModeObserver = new Previews.UIObserver(previews);
 		app.getUIModeObservable().addObserver(uiModeObserver);
@@ -135,7 +141,7 @@ public class MonospacePreviewFactory implements PreviewFactory {
 
 	@Override
 	public JComponent createPreview(String value) {
-		MonospacePreview mp = new MonospacePreview(value);
+		MonospacePreview mp = new MonospacePreview(value, truncate);
 		previews.add(new WeakReference<Preview>(mp));
 		return new JScrollPane(mp);
 	}
