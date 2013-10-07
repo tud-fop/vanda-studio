@@ -141,6 +141,8 @@ public class RunConfigEditor {
 						assignmentSelection.add(a_i);
 				}
 			});
+			assignmentSelection.add(a_i);
+			assignment.setSelected(assignmentSelection.contains(a_i));
 			assignmentCheckboxes.add(assignment);
 			boolean selectable = inputsComplete
 					&& DatabaseValueChecker.checkDatabseRow(mwf, rds, db.getRow(i), connectedLiterals);
