@@ -88,7 +88,7 @@ public class RootLinker implements FragmentLinker {
 		Collections.sort(sorted);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("#!/bin/bash\n\nset -e\n\n");
+		sb.append("#!/bin/bash\n\n");
 
 		sb.append("source " + RCPATH + "\n");
 		// sb.append("if [ -z \"$BASEPATH\" ]\nthen");

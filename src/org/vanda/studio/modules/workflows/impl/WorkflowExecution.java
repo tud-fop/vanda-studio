@@ -65,8 +65,8 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 		public void notify(RunEventId event) {
 			Job j = idMap.get(event.getId());
 			if (j == null) {
-				for (Job j1 : idMap.values())
-					v.getJobView(j1).notify(event.getEvent());
+				// for (Job j1 : idMap.values())
+				// 	v.getJobView(j1).notify(event.getEvent());
 			} else
 				v.getJobView(j).notify(event.getEvent());
 		}
@@ -106,7 +106,8 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 			String id = generate();
 			// run after successful compilation
 			if (id != null) {
-				run = new Run(app, new RunEventObserver(pm.getView()), id);
+				reo = new RunEventObserver(pm.getView());
+				run = new Run(app, reo, id);
 				run.getObservable().addObserver(WorkflowExecution.this);
 				run.running();
 				cancel.enable();
@@ -118,6 +119,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 	private final Generator prof;
 	private final PresentationModel pm;
 	private Run run;
+	private RunEventObserver reo;
 	private final CancelAction cancel;
 	@SuppressWarnings("unused")
 	private final Object semanticsToolInstance;
@@ -185,11 +187,13 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 	@Override
 	public void cancelled() {
 		cancel.disable();
+		reo = null;
 	}
 
 	@Override
 	public void done() {
 		cancel.disable();
+		reo = null;
 	}
 
 	@Override

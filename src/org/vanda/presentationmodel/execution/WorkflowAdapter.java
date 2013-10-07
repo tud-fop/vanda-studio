@@ -70,7 +70,7 @@ public class WorkflowAdapter {
 		visualization.getObservable().addObserver(workflowCellObserver);
 		
 		//initial selection of Workflow
-		view.getWorkflowView().setSelected(true);
+		// view.getWorkflowView().setSelected(true);
 	}
 	
 	public WorkflowCell getWorkflowCell() {
