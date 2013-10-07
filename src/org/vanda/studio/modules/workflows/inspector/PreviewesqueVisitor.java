@@ -10,6 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.vanda.studio.app.Application;
+import org.vanda.types.CompositeType;
 import org.vanda.types.Type;
 import org.vanda.view.View;
 import org.vanda.view.Views.*;
@@ -58,7 +59,20 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 	}
 
 	@Override
-	public void visitJob(MutableWorkflow wf, Job j) {
+	public void visitJob(MutableWorkflow wf, final Job j) {
+		apf = new AbstractPreviewFactory() {
+			
+			@Override
+			public JComponent createPreview(Application app) {
+				String log = app.findFile(semA.getDFA().getJobSpec(j) + "/log");
+				return app.getPreviewFactory(new CompositeType("log")).createPreview(log);
+			}
+			
+			@Override
+			public JComponent createButtons(Application app) {
+				return new JPanel();
+			}
+		};
 	}
 
 	@Override
