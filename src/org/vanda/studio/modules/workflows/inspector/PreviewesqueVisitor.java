@@ -60,6 +60,8 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 
 	@Override
 	public void visitJob(MutableWorkflow wf, final Job j) {
+		if (j.getId() == null)
+			return;
 		apf = new AbstractPreviewFactory() {
 			
 			@Override
