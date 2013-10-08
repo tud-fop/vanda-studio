@@ -46,18 +46,27 @@ run () {
 		if [[ "$inNew" -nt "$outOld" ]]; then
 			echo "Running: ${args[0]}" >> "$logFile"
 			"${@:3}" &>> "$logFile"
-			echo "Returned: $?" >> "$logFile"
+			retVal="$?"
+			echo "Returned: $retVal" >> "$logFile"
 		else
 			echo "Skipping: ${args[0]}" >> "$logFile"
 			echo "  Reason: Up-to-date file(s) found." >> "$logFile"
+			retVal="0"
 		fi
 	else
 		echo "Running: ${args[0]}" >> "$logFile"
 		"${@:3}" &>> "$logFile"
-		echo "Returned: $?" >> "$logFile"
+		retVal="$?"
+		echo "Returned: $retVal" >> "$logFile"
 	fi
 
-	echo "Done: ${args[0]}"
+	if [[ $retVal -eq 0 ]]
+	then
+		echo "Done: ${args[0]}"
+	else
+		echo "Cancelled: ${args[0]}"
+		rm -rf "${@:$((${args[1]} + 5))}"
+	fi
 }
 
 CAT () {
