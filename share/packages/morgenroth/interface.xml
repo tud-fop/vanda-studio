@@ -1,0 +1,47 @@
+<root>
+	<toolinterface
+		id="morgenroth"
+		name="BLEU Score"
+		version="2013-07-17"
+		contact="tobias.denkinger@tu-dresden.de"
+		category="Translation Models::Evaluation">
+
+		<description>Tools related to the BLEU score.</description>
+
+
+		<tool
+			type="Shell"
+			id="Bleu"
+			name="BLEU Score"
+			version="2013-07-17"
+			contact="tobias.denkinger@tu-dresden.de"
+			category="Translation Models::Evaluation"
+			status="">
+
+			<description>Calculates the BLEU score of a corpus given (only) ONE reference translation.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="reference" type="SentenceCorpus" />
+			<out name="score" type="Double" />
+		</tool>
+		
+		<tool
+			type="Shell"
+			id="Bleu4"
+			name="BLEU Score"
+			version="2013-10-08"
+			contact="tobias.denkinger@tu-dresden.de"
+			category="Translation Models::Evaluation"
+			status="">
+
+			<description>Calculates the BLEU score of a corpus given (only) FOUR reference translation.</description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="reference1" type="SentenceCorpus" />
+			<in name="reference2" type="SentenceCorpus" />
+			<in name="reference3" type="SentenceCorpus" />
+			<in name="reference4" type="SentenceCorpus" />
+			<out name="score" type="Double" />
+		</tool>
+	</toolinterface>
+</root>
