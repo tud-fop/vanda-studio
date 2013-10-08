@@ -69,8 +69,19 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 			}
 			
 			@Override
-			public JComponent createButtons(Application app) {
-				return new JPanel();
+			public JComponent createButtons(final Application app) {
+				final String log = app.findFile(semA.getDFA().getJobSpec(j) + "/log");
+				JPanel pan = new JPanel(new GridLayout(3,1));
+				JButton bOpen = new JButton(new AbstractAction("raw log") {
+					private static final long serialVersionUID = 2959913172246062587L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						app.getPreviewFactory(new CompositeType("log")).openEditor(app.findFile(log));
+					}
+				});
+				pan.add(bOpen);
+				return pan;
 			}
 		};
 	}
