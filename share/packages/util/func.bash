@@ -45,9 +45,11 @@ run () {
 	if [[ -f "$outOld" ]]; then
 		if [[ "$inNew" -nt "$outOld" ]]; then
 			echo "Running: ${args[0]}" >> "$logFile"
-			"${@:3}" &>> "$logFile"
+			(
+				set -ex
+				"${@:3}" &>> "$logFile"
+			)
 			retVal="$?"
-			echo "Returned: $retVal" >> "$logFile"
 		else
 			echo "Skipping: ${args[0]}" >> "$logFile"
 			echo "  Reason: Up-to-date file(s) found." >> "$logFile"
@@ -55,10 +57,14 @@ run () {
 		fi
 	else
 		echo "Running: ${args[0]}" >> "$logFile"
-		"${@:3}" &>> "$logFile"
+		(
+			set -ex
+			"${@:3}" &>> "$logFile"
+		)
 		retVal="$?"
-		echo "Returned: $retVal" >> "$logFile"
+		set +ev
 	fi
+	echo "Returned: $retVal" >> "$logFile"
 
 	if [[ $retVal -eq 0 ]]
 	then
