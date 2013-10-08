@@ -6,16 +6,13 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -41,10 +38,10 @@ public class LogPreviewFactory implements PreviewFactory {
 				input.close();
 			}
 		} catch (IOException ex) {
-			return new JLabel("Log does not exist.");
+			return null;
 		}
 		if (entries.isEmpty())
-			return new JLabel("Log is empty.");
+			return null;
 		Collections.reverse(entries);
 		final JComboBox le = new JComboBox(entries.toArray());
 		final JTextArea ta = new JTextArea(entries.get(0).getText());

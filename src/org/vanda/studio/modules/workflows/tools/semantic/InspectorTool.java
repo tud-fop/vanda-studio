@@ -151,9 +151,11 @@ public class InspectorTool implements SemanticsToolFactory {
 				JComponent buttons = previewFactory.createButtons(wfe.getApplication());
 				panNorth.removeAll();
 				panNorth.add(therealinspector, BorderLayout.CENTER);
-				panNorth.add(buttons, BorderLayout.EAST);
+				if (buttons != null)
+					panNorth.add(buttons, BorderLayout.EAST);
 				contentPane.add(panNorth, BorderLayout.NORTH);
-				contentPane.add(preview, BorderLayout.CENTER);
+				if (preview != null)
+					contentPane.add(preview, BorderLayout.CENTER);
 			} else
 				contentPane.add(therealinspector, BorderLayout.CENTER);
 			contentPane.validate();
