@@ -14,9 +14,14 @@ PKGDB="$VANDASTUDIO/packages"
 
 TMP="/tmp/vandapkg/$(date +%s)"
 
-if [ -f "$RCPATH" ]; then
-	source "$RCPATH"
+if [ ! -f "$RCPATH" ]; then
+		echo -e "#!/bin/bash\n"                > "$RCPATH"
+		echo    "DATAPATH=$INDIR"             >> "$RCPATH"
+		echo    "OUTPATH=$OUTDIR"             >> "$RCPATH"
+		echo -e "FUNCDIR=$FUNCDIR\n"          >> "$RCPATH"
 fi
+
+source "$RCPATH"
 
 install_pkg () {
 	cd "$1"

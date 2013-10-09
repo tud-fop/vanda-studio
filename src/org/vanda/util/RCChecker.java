@@ -40,11 +40,10 @@ public class RCChecker {
 				PrintWriter out = new PrintWriter(rc);
 				out.println("#!/bin/bash");
 				out.println();
-				out.println("PROGSPATH=/usr/bin");
 				out.println("DATAPATH=" + inPath);
-				out.println("FUNCFILE=" + funcPath);
+				out.println("OUTPATH=" + outPath);
+				out.println("FUNCDIR=" + funcPath);
 				out.println();
-				out.println("source \"$FUNCFILE\"");
 				out.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
