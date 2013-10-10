@@ -30,7 +30,7 @@ public class LogPreviewFactory implements PreviewFactory {
 		try {
 			File file = new File(value);
 			FileInputStream fis = new FileInputStream(file);
-			fis.skip(Math.max(0, file.length() - 10240));
+			fis.skip(Math.max(0, file.length() - 65536));
 			BufferedReader input = new BufferedReader(new InputStreamReader(fis));
 			try {
 				String line = null;
@@ -94,15 +94,15 @@ public class LogPreviewFactory implements PreviewFactory {
 	}
 	
 	private class LogEntry {
-		private String date = null;
+		private String date = "<incomplete>";
 		private int exitCode = -1;
 		private String text = "";
 		
 		public void appendLine(String line) {
 			text += line;
 			text += System.getProperty("line.separator");
-			SimpleDateFormat sdf = new SimpleDateFormat("EE d. MMM HH:mm:ss zzzz yyyy");
-			if (date == null) {
+			String pattern = "[A-Z][a-z] \\d+\\. [A-Z][a-z][a-z] \\d\\d:\\d\\d:\\d\\d [A-Z]* \\d\\d\\d\\d";
+			if (date.equals("<incomplete>") && line.matches(pattern)) {
 				date = line;
 			} else {
 				if (line.startsWith("Skipping: ")) {
