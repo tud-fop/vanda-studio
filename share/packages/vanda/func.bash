@@ -12,6 +12,18 @@ XRSTranslate () {
 	"$VANDA/programs/XRSTranslate" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" --complicated < "$3" > "$4"
 }
 
+# PennToSentenceCorpus
+# Version: 2013-10-10
+# Contact: Tobias.Denkinger@tu-dresden.de
+# Category: Corpus Tools
+# IN tree corpus :: PennTreeCorpus
+# OUT sentence corpus :: SentenceCorpus
+#
+# Reads of the yield of trees in a PennTreeCorpus.
+PennToSentenceCorpus () {
+	"$VANDA/programs/PennToSentenceCorpus" < "$2" > "$3"
+}
+
 # XRSNGrams
 # Version: 2013-03-07
 # Contact: Tobias.Denkinger@tu-dresden.de

@@ -4,7 +4,7 @@ version="2013-10-07"
 binpath="$id"
 
 VANDA="ssh://tdenk@tcs.inf.tu-dresden.de/~buechse/public_git/vanda -b hyperedge"
-VERSION="acbeef4c3969d181733e2dd1f8d3c3ab64b2c18a"
+VERSION="06d3f99841c65db85135d2bfd93449c527ce6437"
 
 install_me () {
 	if [[ ! -d "$1" ]]
@@ -22,4 +22,5 @@ install_me () {
 	ghc -package-db dist/package.conf.inplace --make "programs/XRSTranslate.hs"
 	ghc -package-db dist/package.conf.inplace --make "programs/XRSNGrams.hs"
 	ghc -package-db dist/package.conf.inplace --make "programs/NGrams.hs"
+	ghc -package-db dist/package.conf.inplace --make "programs/PennToSentenceCorpus.hs"
 }
