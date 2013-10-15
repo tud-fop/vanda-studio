@@ -1,0 +1,130 @@
+<root>
+	<toolinterface
+		id="xrstranslate1"
+		name="XRSTranslate"
+		version="2013-01-17"
+		contact="Matthias.Buechse@tu-dresden.de"
+		category="Translation Models::Translation">
+		
+		<description>Tool related to XRSTranslate.</description>
+		
+		<tool
+			type="Shell"
+			id="XRSTranslate"
+			name="XRSTranslate"
+			version="2013-01-17"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="Translation Models::Translation">
+			
+			<description><![CDATA[Generates a Tree Corpus given a GHKM Hypergraph and a Sentence Corpus]]>.</description>
+			
+			<in name="rules" type="GHKMHypergraph" />
+			<in name="sentence corpus" type="SentenceCorpus" />
+			<out name="tree corpus" type="PennTreeCorpus" />
+		</tool>
+	</toolinterface>
+
+	<toolinterface
+		id="penntosentencecorpus1"
+		name="PennToSentenceCorpus"
+		version="2013-10-10"
+		contact="Tobias.Denkinger@tu-dresden.de"
+		category="Corpus Tools">
+		
+		<description>Tools related to PennToTreeCorpus.</description>
+		
+		<tool
+			type="Shell"
+			id="PennToSentenceCorpus"
+			name="PennToSentenceCorpus"
+			version="2013-10-10"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Corpus Tools">
+			
+			<description>Reads of the yield of trees in a PennTreeCorpus.</description>
+			
+			<in name="tree corpus" type="PennTreeCorpus" />
+			<out name="sentence corpus" type="SentenceCorpus" />
+		</tool>
+	</toolinterface>
+
+	<toolinterface
+		id="ngrams1"
+		name="NGrams"
+		version="2013-01-31"
+		contact="Tobias.Denkinger@tu-dresden.de"
+		category="Language Models::Application">
+
+		<description>Tools related to n-gram query.</description>
+
+		<tool
+			type="Shell"
+			id="NGrams"
+			name="NGrams"
+			version="2013-01-31"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Language Models::Application"
+			status="">
+
+			<description><![CDATA[Evaluates the corpus according to the given model]]>.</description>
+
+			<in name="n-gram model" type="ARPA" />
+			<in name="english corpus" type="SentenceCorpus" />
+			<out name="scores" type="Scores" />
+		</tool>
+	</toolinterface>
+
+	<toolinterface
+		id="kenlm1"
+		name="KenLM"
+		version="2013-01-31"
+		contact="Tobias.Denkinger@tu-dresden.de"
+		category="Language Models::Application">
+
+		<description>Tools related to the KenLM n-gram query library.</description>
+
+		<tool
+			type="Shell"
+			id="KenLM"
+			name="KenLM"
+			version="2013-01-31"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Language Models::Application"
+			status="disabled">
+
+			<description><![CDATA[Evaluates the corpus according to the given model]]>.</description>
+
+			<in name="n-gram model" type="ARPA" />
+			<in name="english corpus" type="SentenceCorpus" />
+			<out name="logarithmic scores" type="Scores" />
+		</tool>
+
+	</toolinterface>
+	
+	<toolinterface
+		id="xrsngrams1"
+		name="XRSNGrams"
+		version="2013-03-07"
+		contact="Tobias.Denkinger@tu-dresden.de"
+		category="Intersection">
+
+		<description>Tools related to the intersection of language models and translation models.</description>
+
+		<tool
+			type="Shell"
+			id="XRSNGrams"
+			name="XRSNGrams"
+			version="2013-03-07"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Intersection"
+			status="">
+
+			<description><![CDATA[Intersects a language model in ARPA format with a GHKM hypergraph.]]>.</description>
+
+			<in name="rulesIn" type="GHKMHypergraph" />
+			<in name="ngrams" type="ARPA" />
+			<out name="rulesOut" type="GHKMHypergraph" />
+		</tool>
+
+	</toolinterface>
+</root>
