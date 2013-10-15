@@ -19,6 +19,7 @@ if [ ! -f "$RCPATH" ]; then
 		echo    "DATAPATH=$INDIR"             >> "$RCPATH"
 		echo    "OUTPATH=$OUTDIR"             >> "$RCPATH"
 		echo -e "FUNCDIR=$FUNCDIR\n"          >> "$RCPATH"
+		echo -e "source $FUNCDIR/util.bash\n" >> "$RCPATH"
 fi
 
 source "$RCPATH"
