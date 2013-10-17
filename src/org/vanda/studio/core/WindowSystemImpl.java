@@ -261,6 +261,7 @@ public class WindowSystemImpl implements WindowSystem {
 		// mainWindow.getContentPane().add(statusBar, BorderLayout.SOUTH);
 
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				/*
 				 * for (ToolWindow toolWin : toolWindowManager.getToolWindows())
@@ -301,7 +302,7 @@ public class WindowSystemImpl implements WindowSystem {
 			tools.put(iconToolBars.get(c), new TreeMap<Integer, JButton>());
 			actionToButton.put(c, new HashMap<Action, JButton>());
 		}
-		tools.get(iconToolBars.get(c)).put((Integer) pos, b);
+		tools.get(iconToolBars.get(c)).put(pos, b);
 		actionToButton.get(c).put(a, b);
 		iconToolBars.get(c).removeAll();
 		for (Integer i : tools.get(iconToolBars.get(c)).navigableKeySet()) {
@@ -339,13 +340,13 @@ public class WindowSystemImpl implements WindowSystem {
 					menuBar.add(menu, 1);
 				items.put(menu, new TreeMap<Integer, JMenuItem>());
 			}
-			items.get(menu).put((Integer) pos, item);
+			items.get(menu).put(pos, item);
 			menu.removeAll();
 			for (Integer i : items.get(menu).navigableKeySet()) {
 				menu.insert(items.get(menu).get(i), i);
 			}
 		} else {
-			items.get(fileMenu).put((Integer) pos, item);
+			items.get(fileMenu).put(pos, item);
 			fileMenu.removeAll();
 			for (Integer i : items.get(fileMenu).navigableKeySet()) {
 				fileMenu.insert(items.get(fileMenu).get(i), i);
