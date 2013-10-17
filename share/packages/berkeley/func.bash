@@ -20,7 +20,8 @@ BerkeleyTokenizer () {
 #
 # Berkeley parser using a state-split grammar. Corpus must not contain empty lines.
 BerkeleyParser () {
-	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -nThreads "$(nproc)" -gr "$3" -outputFile "$4"
+#	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -nThreads "$(nproc)" -gr "$3" -outputFile "$4"
+	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -gr "$3" -outputFile "$4"
 }
 
 # Berkeley Parser n-best
@@ -34,7 +35,8 @@ BerkeleyParser () {
 #
 # Computes n best trees for the sentences in the corpus.
 bpnbest () {
-	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -nThreads "$(nproc)" -gr "$4" -kbest "$3" -outputFile "$5"
+#	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -nThreads "$(nproc)" -gr "$4" -kbest "$3" -outputFile "$5"
+	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -gr "$4" -kbest "$3" -outputFile "$5"
 }
 
 # SM6ToText
