@@ -10,7 +10,7 @@ SinkTool () {
 }
 
 # runs a tool
-# run2 <id> <n> <tool> <root> <i1> ... <in> <o1> ... <om>
+# run <id> <n> <tool> <root> <i1> ... <in> <o1> ... <om>
 # <id>    job id
 # <n>     number of input arguments
 # <m>     number of output arguments
@@ -21,7 +21,9 @@ SinkTool () {
 run () {
 	args=("$@")
 	echo "Running: ${args[0]}"
-	mkdir -p "${args[3]}"
+
+	tmpDir="${args[3]}"
+	mkdir -p "$tmpDir"
 	
 	logFile="${args[3]}/log"
 	touch "$logFile"
@@ -45,6 +47,7 @@ run () {
 	if [[ -f "$outOld" ]]; then
 		if [[ "$inNew" -nt "$outOld" ]]; then
 			echo "Running: ${args[0]}" >> "$logFile"
+			find "$tmpDir" ! -path "$tmpDir" ! -iname "log" -delete
 			(
 				set -ex
 				"${@:3}" &>> "$logFile"
@@ -57,6 +60,7 @@ run () {
 		fi
 	else
 		echo "Running: ${args[0]}" >> "$logFile"
+		find "$tmpDir" ! -path "$tmpDir" ! -iname "log" -delete
 		(
 			set -ex
 			"${@:3}" &>> "$logFile"
@@ -76,5 +80,5 @@ run () {
 }
 
 CAT () {
-	cat $@
+	pv $@
 }
