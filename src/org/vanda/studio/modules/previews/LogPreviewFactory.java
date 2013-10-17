@@ -30,7 +30,7 @@ public class LogPreviewFactory implements PreviewFactory {
 		try {
 			File file = new File(value);
 			FileInputStream fis = new FileInputStream(file);
-			fis.skip(Math.max(0, file.length() - 65536));
+			fis.skip(Math.max(0, file.length() - 524288));
 			BufferedReader input = new BufferedReader(new InputStreamReader(fis));
 			try {
 				String line = null;
