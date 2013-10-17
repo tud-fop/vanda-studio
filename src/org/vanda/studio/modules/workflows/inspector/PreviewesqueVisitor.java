@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.workflows.inspector;
 
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
@@ -73,7 +74,8 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 			@Override
 			public JComponent createButtons(final Application app) {
 				final String log = app.findFile(semA.getDFA().getJobSpec(j) + "/log");
-				JPanel pan = new JPanel(new GridLayout(3,1));
+				JPanel pan = new JPanel(new GridBagLayout());
+				GridBagConstraints gbc = new GridBagConstraints();
 				JButton bOpen = new JButton(new AbstractAction("raw log") {
 					private static final long serialVersionUID = 2959913172246062587L;
 
@@ -82,7 +84,7 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 						app.getPreviewFactory(new CompositeType("log")).openEditor(app.findFile(log));
 					}
 				});
-				pan.add(bOpen);
+				pan.add(bOpen, gbc);
 				return pan;
 			}
 		};
@@ -101,7 +103,8 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 
 			@Override
 			public JComponent createButtons(final Application app) {
-				JPanel pan = new JPanel(new GridLayout(3,1));
+				JPanel pan = new JPanel(new GridBagLayout());
+				GridBagConstraints gbc = new GridBagConstraints();
 				JButton bOpen = new JButton(new AbstractAction("edit") {
 					private static final long serialVersionUID = 2959913172246062587L;
 
@@ -110,7 +113,7 @@ public class PreviewesqueVisitor implements SelectionVisitor {
 						app.getPreviewFactory(type).openEditor(app.findFile(value));
 					}
 				});
-				pan.add(bOpen);
+				pan.add(bOpen, gbc);
 				return pan;
 			}
 		};
