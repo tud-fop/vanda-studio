@@ -50,7 +50,8 @@ run () {
 			find "$tmpDir" ! -path "$tmpDir" ! -iname "log" -delete
 			(
 				set -ex
-				"${@:3}" &>> "$logFile"
+				"${@:3}" 3>&1 &>> "$logFile" | while read line; do echo "Progress: $1@$line"; done
+
 			)
 			retVal="$?"
 		else
@@ -63,7 +64,7 @@ run () {
 		find "$tmpDir" ! -path "$tmpDir" ! -iname "log" -delete
 		(
 			set -ex
-			"${@:3}" &>> "$logFile"
+			"${@:3}" 3>&1 &>> "$logFile" | while read line; do echo "Progress: $1@$line"; done
 		)
 		retVal="$?"
 		set +ev
@@ -79,6 +80,8 @@ run () {
 	fi
 }
 
-CAT () {
-	pv $@
+# $1 id of process
+# $2 input file to compare number of lines
+PROGRESS () {
+	pv -s "$(wc -l < "$1")" -l -n 2>&3
 }
