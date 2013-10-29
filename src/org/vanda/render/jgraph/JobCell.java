@@ -12,6 +12,7 @@ import com.mxgraph.model.mxICell;
 
 public class JobCell extends Cell {
 	protected String label;
+	protected int progress = -1;
 	protected SupplementalStyle runVis;
 
 	// final LayoutManager layoutManager;
@@ -30,7 +31,7 @@ public class JobCell extends Cell {
 
 	@Override
 	public String getLabel() {
-		return label;
+		return progress != -1 ? label + "\n(" + progress + "%)" : label;
 	}
 
 	@Override
@@ -79,7 +80,10 @@ public class JobCell extends Cell {
 	}
 
 	public void setProgress(int runProgress) {
-		// TODO implement this
+		if (progress != runProgress) {
+			progress = runProgress;
+			getObservable().notify(new PropertyChangedEvent<Cell>(this));
+		}
 	}
 
 	@Override
