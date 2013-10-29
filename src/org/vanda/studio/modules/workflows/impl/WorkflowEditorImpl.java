@@ -79,14 +79,20 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		@Override
 		public void invoke() {
 			File d = new File(wfe.getApplication().getProperty("outputPath"));
-			if (emptyDirectory(d))
-				JOptionPane.showMessageDialog(wfe.getApplication()
-						.getWindowSystem().getMainWindow(),
-						"Deletion successful.");
-			else
-				JOptionPane.showMessageDialog(wfe.getApplication()
-						.getWindowSystem().getMainWindow(),
-						"Deletion failed.");
+			if (JOptionPane.OK_OPTION == JOptionPane.showOptionDialog(wfe
+					.getApplication().getWindowSystem().getMainWindow(), 
+			        "Do you want to empty " + d.getAbsolutePath() + "?", 
+			        "Empty working directory", 
+			        JOptionPane.OK_CANCEL_OPTION, 
+			        JOptionPane.INFORMATION_MESSAGE, 
+			        null, 
+			        new String[]{"Empty directory!", "No, leave it."},
+			        "default")) {
+				if (!emptyDirectory(d))
+					JOptionPane.showMessageDialog(wfe.getApplication()
+							.getWindowSystem().getMainWindow(),
+							"Deletion failed.");
+			}
 		}
 
 		static public boolean emptyDirectory(File dir) {
