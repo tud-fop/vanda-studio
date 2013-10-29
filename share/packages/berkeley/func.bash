@@ -7,7 +7,7 @@
 #
 # Converts some special characters into tokens, such as ( into -LLB-
 BerkeleyTokenizer () {
-	cat "$2" | java -cp "$BERKELEY_PARSER/berkeleyParser.jar:$BERKELEY_PARSER" Main > "$3"
+	java -cp "$BERKELEY_PARSER/berkeleyParser.jar:$BERKELEY_PARSER" Main < "$2" | PROGRESS "$2" > "$3"
 }
 
 # Berkeley Parser
@@ -20,8 +20,7 @@ BerkeleyTokenizer () {
 #
 # Berkeley parser using a state-split grammar. Corpus must not contain empty lines.
 BerkeleyParser () {
-#	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -nThreads "$(nproc)" -gr "$3" -outputFile "$4"
-	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -gr "$3" -outputFile "$4"
+	java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -gr "$3" < "$2" | PROGRESS "$2" > "$4"
 }
 
 # Berkeley Parser n-best
@@ -35,8 +34,7 @@ BerkeleyParser () {
 #
 # Computes n best trees for the sentences in the corpus.
 bpnbest () {
-#	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -nThreads "$(nproc)" -gr "$4" -kbest "$3" -outputFile "$5"
-	cat "$2" | java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -gr "$4" -kbest "$3" -outputFile "$5"
+	java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -gr "$4" -kbest "$3" -outputFile "$5" < "$2"
 }
 
 # SM6ToText

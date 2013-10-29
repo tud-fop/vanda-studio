@@ -33,6 +33,6 @@ KenLMBinary () {
 #
 # Scores sentences according to the language model.
 KenLMScore () {
-	"$KENLM/bin/query" "$2" < "$3" | grep "Total:" | sed "s/.*Total: //g" | sed "s/ OOV:.*//g" > "$4"
+	"$KENLM/bin/query" "$2" < "$3" | grep "Total:" | sed "s/.*Total: //g" | sed "s/ OOV:.*//g" | PROGRESS $3 > "$4"
 	echo "$3" > "${4}.meta"
 }

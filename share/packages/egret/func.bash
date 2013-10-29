@@ -8,7 +8,7 @@
 #
 # Computes the best tree for every sentence in the corpus.
 egret () {
-	"$EGRET/egret" -lapcfg "-i=$2" "-data=$3" "-n=1" | sed "/^[(]/!d" > "$4"
+	"$EGRET/egret" -lapcfg "-i=$2" "-data=$3" "-n=1" | sed "/^[(]/!d" | PROGRESS "$2" > "$4"
 }
 
 # Egret n-best
