@@ -9,9 +9,15 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
-import org.vanda.execution.model.RunStates.*;
+import org.vanda.execution.model.RunStates.RunEventId;
+import org.vanda.execution.model.RunStates.RunEventListener;
+import org.vanda.execution.model.RunStates.RunStateCancelled;
+import org.vanda.execution.model.RunStates.RunStateDone;
+import org.vanda.execution.model.RunStates.RunStateProgress;
+import org.vanda.execution.model.RunStates.RunStateRunning;
+import org.vanda.execution.model.RunStates.RunTransitions;
 import org.vanda.studio.app.Application;
-import org.vanda.studio.modules.workflows.run.Runs.*;
+import org.vanda.studio.modules.workflows.run.Runs.RunState;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
 import org.vanda.util.RCChecker;
@@ -50,6 +56,7 @@ public class StateRunning extends RunState {
 		rsv.running();
 	}
 	
+	@Override
 	public String getString(Date date) {
 		return "[Running] " + date.toString();
 	}
@@ -163,7 +170,7 @@ public class StateRunning extends RunState {
 				String[] field = line.replaceFirst("Progress: ", "").trim().split("@");
 				try {
 					String id = field[0];
-					int progress = Integer.parseInt(field[1]);
+					int progress = Integer.parseInt(field[1].trim());
 					mo.notify(new RunEventId(new RunStateProgress(progress), id));
 				} catch (NumberFormatException e) {
 					// ignore
