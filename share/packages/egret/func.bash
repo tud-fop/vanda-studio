@@ -22,7 +22,7 @@ egret () {
 #
 # Computes n best trees for the sentences in the corpus.
 egretnbest () {
-	"$EGRET/egret" -lapcfg "-i=$2" "-data=$4" "-n=$3" | sed "/^[(]/!d" | sed "0~${3}G" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' > "$5"
+	"$EGRET/egret" -lapcfg "-i=$2" "-data=$4" "-n=$3" | sed "/^[(]/!d" | sed "0~${3}G" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' | PROGRESSX "$2" $(expr $3 + 1) > "$5"
 }
 
 # Egret n-best forest

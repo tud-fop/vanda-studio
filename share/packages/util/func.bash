@@ -80,8 +80,19 @@ run () {
 	fi
 }
 
-# $1 id of process
-# $2 input file to compare number of lines
+# shows the progress compared to the line number of another file
+#   $1 input file to compare number of lines to
 PROGRESS () {
 	pv -s "$(wc -l < "$1")" -l -n 2>&3
+}
+
+# shows the progress compared to the line number of another file
+# where the newly generated file has a multiple of lines of the
+# other file
+#   $1 input file to compare number of lines to
+#   $2 number of lines per each input line
+PROGRESSX () {
+	lines="$(wc -l < $1)"
+	lines=$(expr $lines \* $2)
+	pv -s "$lines" -l -n 2>&3
 }

@@ -125,6 +125,7 @@ public class JobCell extends Cell {
 	}
 
 	public void setDone() {
+		progress = 100;
 		setRunVis(JGraphRendering.doneStyle);
 	}
 

@@ -34,7 +34,7 @@ BerkeleyParser () {
 #
 # Computes n best trees for the sentences in the corpus.
 bpnbest () {
-	java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -gr "$4" -kbest "$3" -outputFile "$5" < "$2"
+	java -jar "$BERKELEY_PARSER/berkeleyParser.jar" -gr "$4" -kbest "$3" < "$2" | PROGRESSX "$2" $(expr $3 + 1) > "$5"
 }
 
 # SM6ToText
