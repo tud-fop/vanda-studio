@@ -28,7 +28,7 @@ install_pkg () {
 	cd "$1"
 	source "install.bash"
 	mkdir -p "$BINDIR/$binpath"
-	install_me "$BINDIR/$binpath"
+	install_me "$BINDIR/$binpath" "$INDIR"
 	cd "$1"
 	cp func.bash "$FUNCDIR/$id.bash"
 	if [ -f "interface.xml" ]
