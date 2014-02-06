@@ -1,0 +1,47 @@
+<root>
+	<toolinterface
+		id="jobst"
+		name="IBM model 1"
+		version="2014-02-06"
+		contact="Tobias.Denkinger@tu-dresden.de"
+		category="Translation Models">
+
+		<description>Training and translation using IBM model 1.</description>
+
+
+		<tool
+			type="Shell"
+			id="JobstTrain"
+			name="IBM1Train"
+			version="2014-02-06"
+			contact="Matthias.Buechse@tu-dresden.de"
+			category="Translation Models::Training"
+			status="">
+
+			<description>Trains an IBM model 1 using the EM-algorithm.</description>
+
+			<in name="english corpus" type="SentenceCorpus" />
+			<in name="french corpus" type="SentenceCorpus" />
+			<in name="time" type="Integer" />
+			<out name="model" type="JobstModel" />
+		</tool>
+
+
+		<tool
+			type="Shell"
+			id="JobstTranslate"
+			name="IBM1Translate"
+			version="2014-02-06"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Translation Models::Application"
+			status="">
+
+			<description>Translates a sentence corpus using IBM model 1.</description>
+
+			<in name="model" type="JobstModel" />
+			<in name="french corpus" type="SentenceCorpus" />
+			<out name="english corpus" type="SentenceCorpus" />
+		</tool>
+
+	</toolinterface>
+</root>

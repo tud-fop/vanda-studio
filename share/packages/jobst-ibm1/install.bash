@@ -1,4 +1,4 @@
-id="jobst"
+id="jobst-ibm1"
 varname="JOBST"
 version="2013-05-27"
 binpath="$id"
