@@ -14,12 +14,14 @@ PKGDB="$VANDASTUDIO/packages"
 
 TMP="/tmp/vandapkg/$(date +%s)"
 
+mkdir -p "$VANDASTUDIO"
+
 if [ ! -f "$RCPATH" ]; then
 		echo -e "#!/bin/bash\n"                > "$RCPATH"
 		echo    "DATAPATH=$INDIR"             >> "$RCPATH"
 		echo    "OUTPATH=$OUTDIR"             >> "$RCPATH"
 		echo -e "FUNCDIR=$FUNCDIR\n"          >> "$RCPATH"
-		echo -e "source $FUNCDIR/util.bash\n" >> "$RCPATH"
+		echo -e "if [[ -f \"$FUNCDIR/util.bash\" ]]\nthen\n\tsource $FUNCDIR/util.bash\nfi" >> "$RCPATH"
 fi
 
 source "$RCPATH"
