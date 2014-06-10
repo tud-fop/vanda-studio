@@ -455,7 +455,7 @@ public class Dictionary {
 	}
 
 	public Dictionary(String fileName, char separator) throws IOException {
-		this(fileName, separator, 5);
+		this(fileName, separator, 0);
 	}
 
 	/**
