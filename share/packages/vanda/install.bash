@@ -21,6 +21,6 @@ install_me () {
 	ghc -package-db dist/package.conf.inplace --make "programs/XRSToHypergraph.hs"
 	ghc -package-db dist/package.conf.inplace --make "programs/XRSTranslate.hs"
 	ghc -package-db dist/package.conf.inplace --make "programs/XRSNGrams.hs"
-	ghc -package-db dist/package.conf.inplace --make "programs/NGrams.hs"
+#	ghc -package-db dist/package.conf.inplace --make "programs/NGrams.hs"
 	ghc -package-db dist/package.conf.inplace --make "programs/PennToSentenceCorpus.hs"
 }

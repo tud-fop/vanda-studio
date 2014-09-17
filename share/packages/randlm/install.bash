@@ -4,8 +4,8 @@ version="2013-03-05"
 binpath="$id"
 
 install_me () {
-	svn co https://randlm.svn.sourceforge.net/svnroot/randlm randlm
-	cd randlm/trunk
+	svn checkout svn://svn.code.sf.net/p/randlm/code/trunk randlm-code
+	cd randlm-code
 	./autogen.sh
 	mkdir -p "$RANDLMDIR"
 	./configure --prefix="$RANDLMDIR"

@@ -13,8 +13,8 @@ install_me () {
 	cp GIZA++-v2/{GIZA++,plain2snt.out,snt2cooc.out,snt2plain.out,trainGIZA++.sh} mkcls-v2/mkcls "$1/giza/."
 	cd ..
 # install mgiza
-	svn co https://mgizapp.svn.sourceforge.net/svnroot/mgizapp mgizapp
-	cd mgizapp/trunk/mgizapp
+	svn checkout svn://svn.code.sf.net/p/mgizapp/code/trunk mgizapp-code
+	cd mgizapp-code/mgizapp
 	rm -f CMakeCache.txt
 	sed -i "s/set(Boost_USE_STATIC_LIBS        ON)/set(Boost_USE_STATIC_LIBS       OFF)/g" CMakeLists.txt
 	sed -i "s/FIND_PACKAGE( Boost 1.41 COMPONENTS thread)/FIND_PACKAGE(Boost COMPONENTS thread system)/g" CMakeLists.txt
