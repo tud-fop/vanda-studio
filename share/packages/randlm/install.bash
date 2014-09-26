@@ -7,10 +7,8 @@ install_me () {
 	svn checkout svn://svn.code.sf.net/p/randlm/code/trunk randlm-code
 	cd randlm-code
 	./autogen.sh
-	mkdir -p "$RANDLMDIR"
-	./configure --prefix="$RANDLMDIR"
+	./configure --prefix="${1}"
 	make
 	make install
-	cd ../..
-	echo "RANDLM=$RANDLMDIR/bin/" >> ~/.vanda/vandarc
+	echo "RANDLM=${1}/bin/" >> ~/.vanda/vandarc
 }
