@@ -3,13 +3,14 @@ varname="VANDA"
 version="2014-06-10"
 binpath="$id"
 
-VANDA="ssh://tdenk@tcs.inf.tu-dresden.de/~tdenk/public_git/vanda"
+VANDA="tcs.inf.tu-dresden.de/~tdenk/public_git/vanda"
 VERSION="de1e727644262884d4f1a8995bd845ac78b80d1f"
 
 install_me () {
 	if [[ ! -d "$1/.git" ]]
 	then
-		git clone $VANDA "$1"
+		read -p 'Your login on tcs.inf.tu-dresden.de: '
+		git clone "ssh://${REPLY}@${VANDA}" "$1"
 		cd "$1"
 	else
 		cd "$1"
