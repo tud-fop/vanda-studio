@@ -1,6 +1,7 @@
 #include "../include/Words.h"
 
 #include <fstream>
+#include <iostream>
 
 #include <boost/lexical_cast.hpp>
 using namespace boost;
