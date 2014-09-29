@@ -1,7 +1,9 @@
 package org.vanda.studio.modules.previews;
 
+import java.awt.Desktop;
 import java.awt.Font;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -146,7 +148,7 @@ public class MonospacePreviewFactory implements PreviewFactory {
 			@Override
 			public void run() {
 				try {
-					Runtime.getRuntime().exec("xdg-open " + value);
+					Desktop.getDesktop().open(new File(value));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

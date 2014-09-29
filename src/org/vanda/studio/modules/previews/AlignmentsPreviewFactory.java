@@ -2,6 +2,7 @@ package org.vanda.studio.modules.previews;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -258,7 +259,7 @@ public class AlignmentsPreviewFactory implements PreviewFactory {
 			@Override
 			public void run() {
 				try {
-					Runtime.getRuntime().exec("xdg-open " + value);
+					Desktop.getDesktop().open(new File(value));
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}

@@ -1,9 +1,11 @@
 package org.vanda.studio.modules.previews;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -144,7 +146,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 			@Override
 			public void run() {
 				try {
-					Runtime.getRuntime().exec("xdg-open " + value + ".prev");
+					Desktop.getDesktop().open(new File(value + ".prev"));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

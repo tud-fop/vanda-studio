@@ -1,6 +1,8 @@
 package org.vanda.studio.core;
 
+import java.awt.Desktop;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -62,8 +64,7 @@ public final class DefaultPreviewFactory implements PreviewFactory {
 			@Override
 			public void run() {
 				try {
-					System.out.println("xdg-open " + value);
-					Runtime.getRuntime().exec("xdg-open " + value);
+					Desktop.getDesktop().open(new File(value));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

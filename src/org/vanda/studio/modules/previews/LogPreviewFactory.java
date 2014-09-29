@@ -1,6 +1,7 @@
 package org.vanda.studio.modules.previews;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -82,7 +83,7 @@ public class LogPreviewFactory implements PreviewFactory {
 			@Override
 			public void run() {
 				try {
-					Runtime.getRuntime().exec("xdg-open " + value);
+					Desktop.getDesktop().open(new File(value));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

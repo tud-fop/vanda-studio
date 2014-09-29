@@ -1,5 +1,6 @@
 package org.vanda.studio.modules.previews;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -86,7 +87,7 @@ public class ScoresPreviewFactory implements PreviewFactory {
 			@Override
 			public void run() {
 				try {
-					Runtime.getRuntime().exec("xdg-open " + value);
+					Desktop.getDesktop().open(new File(value));
 				} catch (IOException e) {
 					app.sendMessage(new ExceptionMessage(e));
 				}
