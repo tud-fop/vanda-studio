@@ -15,9 +15,7 @@ install_me () {
 	git clone git://github.com/moses-smt/mosesdecoder.git
 	pushd mosesdecoder
 		./bjam "-j$(nproc)" -a symal
-		pushd symal/bin/gcc-*
-			cp release/debug-symbols-on/link-static/threading-multi/symal "$1/."
-		popd
+		cp symal/bin/gcc-*/release/debug-symbols-on/link-static/threading-multi/symal "$1/."
 # install giza2bal.pl
 		cp scripts/training/giza2bal.pl "$1/."
 	popd
