@@ -104,7 +104,7 @@ install () {
 		echo_color "[$j/${#pkgs[@]}] Done."
 		((j+=1))
 	done
-	rm -r "$TMP"
+	rm -rf "$TMP"
 }
 
 list () {
