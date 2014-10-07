@@ -72,3 +72,17 @@ NGrams () {
 	"$VANDA/programs/NGrams" "$2" < "$3" > "$4"
 	echo "$3" > "${4}.meta"
 }
+
+# NGramsTrain
+# Version: 2014-10-07
+# Contact: Tobias.Denkinger@tu-dresden.de
+# Category: language model
+# IN corpus :: SentenceCorpus
+# IN degree :: Integer
+# IN minReliableCount :: Integer
+# OUT model :: ARPA
+#
+# Trains an n-gram model.
+NGramsTrain () {
+	"$VANDA/programs/NGrams" --train -n "$3" -k "$4" < "$2" > "$5"
+}

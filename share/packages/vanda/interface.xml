@@ -72,6 +72,23 @@
 			<in name="corpus" type="SentenceCorpus" />
 			<out name="scores" type="Scores" />
 		</tool>
+		
+		<tool
+			type="Shell"
+			id="NGramsTrain"
+			name="NGramsTrain"
+			version="2014-10-07"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Language Models::Application"
+			status="">
+
+			<description><![CDATA[Trains an n-gram model.]]></description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="degree" type="Integer" />
+			<in name="minReliableCount" type="Integer" />
+			<out name="model" type="ARPA" />
+		</tool>
 	</toolinterface>
 
 	<toolinterface
