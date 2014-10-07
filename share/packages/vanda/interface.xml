@@ -119,11 +119,29 @@
 			category="Intersection"
 			status="">
 
-			<description><![CDATA[Intersects a language model in ARPA format with a GHKM hypergraph.]]>.</description>
+			<description><![CDATA[Intersects a language model in ARPA format with a GHKM hypergraph.]]></description>
 
 			<in name="rulesIn" type="GHKMHypergraph" />
 			<in name="ngrams" type="ARPA" />
 			<out name="rulesOut" type="GHKMHypergraph" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="XRSNGramsTranslate"
+			name="XRSNGramsTranslate"
+			version="2014-10-07"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Translation Models::Translation"
+			status="">
+
+			<description><![CDATA[Translates a SentenceCorpus using a GHKM hypergraph and a language model.]]></description>
+
+			<in name="corpus" type="SentenceCorpus" />
+			<in name="rules" type="GHKMHypergraph" />
+			<in name="ngrams" type="ARPA" />
+			<in name="beam" type="Integer" />
+			<out name="translation" type="PennTreeCorpus" />
 		</tool>
 
 	</toolinterface>
