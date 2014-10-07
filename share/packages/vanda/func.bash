@@ -60,15 +60,15 @@ XRSNGramsTranslate () {
 }
 
 # NGrams
-# Version: 2013-01-31
+# Version: 2014-10-07
 # Contact: Tobias.Denkinger@tu-dresden.de
 # Category: language model
-# IN n-gram model :: ARPA
-# IN english corpus :: SentenceCorpus
+# IN model :: ARPA
+# IN corpus :: SentenceCorpus
 # OUT scores :: Scores
 #
 # Evaluates the corpus according to the given model.
 NGrams () {
-	"$VANDA/programs/NGrams" -l "$2" < "$3" > "$4"
+	"$VANDA/programs/NGrams" "$2" < "$3" > "$4"
 	echo "$3" > "${4}.meta"
 }

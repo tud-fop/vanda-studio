@@ -61,15 +61,15 @@
 			type="Shell"
 			id="NGrams"
 			name="NGrams"
-			version="2013-01-31"
+			version="2014-10-07"
 			contact="Tobias.Denkinger@tu-dresden.de"
 			category="Language Models::Application"
 			status="">
 
 			<description><![CDATA[Evaluates the corpus according to the given model]]>.</description>
 
-			<in name="n-gram model" type="ARPA" />
-			<in name="english corpus" type="SentenceCorpus" />
+			<in name="model" type="ARPA" />
+			<in name="corpus" type="SentenceCorpus" />
 			<out name="scores" type="Scores" />
 		</tool>
 	</toolinterface>
