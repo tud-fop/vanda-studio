@@ -4,7 +4,7 @@ version="2014-06-10"
 binpath="$id"
 
 VANDA="tcs.inf.tu-dresden.de/~tdenk/public_git/vanda"
-VERSION="de1e727644262884d4f1a8995bd845ac78b80d1f"
+VERSION="0ba1876263338c68654ff4e3611b49ca797f3d7b"
 
 install_me () {
 	if [[ ! -d "$1/.git" ]]
@@ -22,6 +22,6 @@ install_me () {
 	ghc -package-db dist/package.conf.inplace --make "programs/XRSToHypergraph.hs"
 	ghc -package-db dist/package.conf.inplace --make "programs/XRSTranslate.hs"
 	ghc -package-db dist/package.conf.inplace --make "programs/XRSNGrams.hs"
-#	ghc -package-db dist/package.conf.inplace --make "programs/NGrams.hs"
+	ghc -package-db dist/package.conf.inplace --make "programs/NGrams.hs"
 	ghc -package-db dist/package.conf.inplace --make "programs/PennToSentenceCorpus.hs"
 }
