@@ -25,7 +25,7 @@ PennToSentenceCorpus () {
 }
 
 # XRSNGrams
-# Version: 2013-03-07
+# Version: 2014-10-07
 # Contact: Tobias.Denkinger@tu-dresden.de
 # Category: intersection
 # IN rulesIn :: GHKMHypergraph
@@ -35,7 +35,7 @@ PennToSentenceCorpus () {
 # Intersects a language model in ARPA format with a GHKM hypergraph.
 XRSNGrams () {
 	"$VANDA/programs/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
-	"$VANDA/programs/XRSNGrams" -f "$1/map.f" -z "$1/zhg" -l "$3"
+	"$VANDA/programs/XRSNGrams" -p "Pruning" -b "100" -e "$1/map.e" -z "$1/zhg" -l "$3"
 	"$VANDA/programs/XRSToHypergraph" b2t -e "$1/map.e" -f "$1/map.f" -z "$1/zhg.new" > "$4"
 }
 
