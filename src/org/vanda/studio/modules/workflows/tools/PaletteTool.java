@@ -142,7 +142,12 @@ public class PaletteTool implements ToolFactory {
 			// an mxGraphComponent that contains all tools of this category
 			List<String> categories = new ArrayList<String>();
 			categories.addAll(catMap.keySet());
-			Collections.sort(categories);
+			Collections.sort(categories, new Comparator<String>() {
+				@Override
+				public int compare(String s1, String s2) {
+					return s1.toLowerCase().compareTo(s2.toLowerCase());
+				}
+			});
 			for (String category : categories) {
 				JXTaskPane categoryPane = new JXTaskPane(category);
 				categoryPane.setAnimated(false);
