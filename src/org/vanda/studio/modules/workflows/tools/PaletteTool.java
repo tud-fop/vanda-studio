@@ -145,8 +145,8 @@ public class PaletteTool implements ToolFactory {
 			Collections.sort(categories);
 			for (String category : categories) {
 				JXTaskPane categoryPane = new JXTaskPane(category);
-				Component graphComp = renderTemplates(catMap
-						.get(category));
+				categoryPane.setAnimated(false);
+				Component graphComp = renderTemplates(catMap.get(category));
 				categoryPane.add(graphComp);
 				categoryPane.setCollapsed(true);
 				taskPaneContainer.add(categoryPane);
