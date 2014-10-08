@@ -4,7 +4,7 @@
 		name="GHKM"
 		version="2013-01-17"
 		contact="Matthias.Buechse@tu-dresden.de"
-		category="Translation Models::Extraction">
+		category="Translation Models::Training">
 
 		<description>Tools related to GHKM rule extraction.</description>
 
@@ -14,9 +14,9 @@
 			name="GHKM"
 			version="2013-01-17"
 			contact="Matthias.Buechse@tu-dresden.de"
-			category="Translation Models::Extraction">
+			category="Translation Models::Training">
 			
-			<description><![CDATA[Extracts GHKM rules from a GIZA alignment, a corpus and a tree corpus]]>.</description>
+			<description>Extracts GHKM rules from a GIZA alignment, a corpus and a tree corpus.</description>
 	
 			<in name="alignments" type="Alignments" />
 			<in name="tree corpus" type="PennTreeCorpus" />

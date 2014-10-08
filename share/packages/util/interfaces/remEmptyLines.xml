@@ -18,10 +18,10 @@
 			
 			<description><![CDATA[Removes empty lines from parallel corpora]]>.</description>
 	
-			<in name="corpus #1" type="t1" />
-			<in name="corpus #2" type="t2" />
-			<out name="corpus #1 without empty lines" type="t1" />
-			<out name="corpus #2 without empty lines" type="t2" />
+			<in name="corpus1" type="t1" />
+			<in name="corpus2" type="t2" />
+			<out name="corpus1 without empty lines" type="t1" />
+			<out name="corpus2 without empty lines" type="t2" />
 		</tool>
 
 		<tool
@@ -34,12 +34,12 @@
 			
 			<description><![CDATA[Removes empty lines from parallel corpora]]>.</description>
 	
-			<in name="corpus #1" type="t1" />
-			<in name="corpus #2" type="t2" />
-			<in name="corpus #3" type="t3" />
-			<out name="corpus #1 without empty lines" type="t1" />
-			<out name="corpus #2 without empty lines" type="t2" />
-			<out name="corpus #3 without empty lines" type="t3" />
+			<in name="corpus1" type="t1" />
+			<in name="corpus2" type="t2" />
+			<in name="corpus3" type="t3" />
+			<out name="corpus1 without empty lines" type="t1" />
+			<out name="corpus2 without empty lines" type="t2" />
+			<out name="corpus3 without empty lines" type="t3" />
 		</tool>
 	</toolinterface>
 </root>

@@ -2,10 +2,10 @@
 # Version: 2012-12-17
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: corpus tools
-# IN corpus #1 :: t1
-# IN corpus #2 :: t2
-# OUT corpus #1 without empty lines :: t1
-# OUT corpus #2 without empty lines :: t2
+# IN corpus1 :: t1
+# IN corpus2 :: t2
+# OUT corpus1 without empty lines :: t1
+# OUT corpus2 without empty lines :: t2
 #
 # Removes empty lines from parallel corpora and alignments.
 remEmptyLines2 () {
@@ -22,12 +22,12 @@ remEmptyLines2 () {
 # Version: 2012-12-17
 # Contact: Matthias.Buechse@tu-dresden.de
 # Category: corpus tools
-# IN corpus #1 :: t1
-# IN corpus #2 :: t2
-# IN corpus #3 :: t3
-# OUT corpus #1 without empty lines :: t1
-# OUT corpus #2 without empty lines :: t2
-# OUT corpus #3 without empty lines :: t3
+# IN corpus1 :: t1
+# IN corpus2 :: t2
+# IN corpus3 :: t3
+# OUT corpus1 without empty lines :: t1
+# OUT corpus2 without empty lines :: t2
+# OUT corpus3 without empty lines :: t3
 #
 # Removes empty lines from parallel corpora and alignments.
 remEmptyLines3 () {

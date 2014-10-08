@@ -1,10 +1,10 @@
 # EMDictionary
-# Version: 2012-05-16
+# Version: 2014-10-08
 # Contact: Matthias.Buechse@tu-dresden.de
-# Category: training
+# Category: Translation Models / Training
+# IN threshold :: Double
 # IN english corpus :: SentenceCorpus
 # IN french corpus :: SentenceCorpus
-# IN threshold :: Double
 # OUT dictionary :: Dictionary
 # OUT em steps :: EMSteps
 #

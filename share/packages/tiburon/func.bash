@@ -1,6 +1,6 @@
 # Tiburon Intersection
-# Version: 2013-03-14
-# Contact: Tobias.Denkinger@mailbox.tu-dresden.de
+# Version: 2014-10-08
+# Contact: Tobias.Denkinger@tu-dresden.de
 # Category: Intersection
 # IN wrtg1 :: RegularTreeGrammar
 # IN wrtg2 :: RegularTreeGrammar
@@ -12,8 +12,8 @@ TiburonIntersect () {
 }
 
 # Tiburon n-best
-# Version: 2013-03-14
-# Contact: Tobias.Denkinger@mailbox.tu-dresden.de
+# Version: 2014-10-08
+# Contact: Tobias.Denkinger@tu-dresden.de
 # Category: Language Models
 # IN wrtg :: RegularTreeGrammar
 # IN n :: Integer
@@ -29,8 +29,8 @@ TiburonNBest () {
 }
 
 # Tiburon n-best yield
-# Version: 2013-03-14
-# Contact: Tobias.Denkinger@mailbox.tu-dresden.de
+# Version: 2014-10-08
+# Contact: Tobias.Denkinger@tu-dresden.de
 # Category: Language Models
 # IN wrtg :: RegularTreeGrammar
 # IN n :: Integer
@@ -46,11 +46,11 @@ TiburonNBestY () {
 }
 
 # Tiburon apply tree transducer
-# Version: 2013-03-15
-# Contact: Tobias.Denkinger@mailbox.tu-dresden.de
+# Version: 2014-10-08
+# Contact: Tobias.Denkinger@tu-dresden.de
 # Category: Language Models
-# IN treesIn :: TiburonTreeCorpus
 # IN transducer :: TreeTransducer
+# IN treesIn :: TiburonTreeCorpus
 # OUT treesOut :: TiburonTreeCorpus
 # OUT scores :: Scores
 #

@@ -26,7 +26,7 @@ ARPA2Binary () {
 }
 
 # IRSTLMScore
-# Version: 2013-06-27
+# Version: 2014-10-08
 # Contact: Tobias.Denkinger@tu-dresden.de
 # Category: language model
 # IN n-grams :: ARPA
@@ -35,6 +35,6 @@ ARPA2Binary () {
 #
 # Scores sentences according to the language model.
 IRSTLMScore () {
-	"$IRSTLM/bin/add-start-end.sh" < "$3" | "$IRSTLM/bin/score-lm" -lm "$2" | PROGRESS "$3" > "$4"
+	"$IRSTLM/bin/add-start-end.sh" < "$3" | "$IRSTLM/bin/score-lm" -lm="$2" | PROGRESS "$3" > "$4"
 	echo "$3" > "${4}.meta"
 }

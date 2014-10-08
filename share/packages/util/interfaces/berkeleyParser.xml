@@ -2,7 +2,7 @@
 	<toolinterface
 		id="berkeleyparser1"
 		name="Berkeley Tools"
-		version="2013-01-16"
+		version="2014-10-08"
 		contact="Matthias.Buechse@tu-dresden.de"
 		category="">
 		
@@ -11,40 +11,54 @@
 		<tool
 			type="Shell"
 			id="BerkeleyParser"
-			name="Berkeley Parser"
-			version="2013-01-16"
+			name="Berkeley parser"
+			version="2014-10-08"
 			contact="Matthias.Buechse@tu-dresden.de"
 			category="Language Models::Parsing">
 			
-			<description><![CDATA[Berkeley parser using a state-split grammar. Corpus must <em>not</em> contain empty lines]]>.</description>
+			<description>Berkeley parser using a state-split grammar. Corpus must not contain empty lines.</description>
 	
+			<in name="grammar" type="BerkeleyGrammar" />
 			<in name="corpus" type="SentenceCorpus" />
-			<in name="grammar" type="BerkeleyGrammar.sm6" />
 			<out name="trees" type="PennTreeCorpus" />
 		</tool>
 		
 		<tool
 			type="Shell"
+			id="BerkeleyTrain"
+			name="Berkeley grammar training"
+			version="2014-10-08"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Language Models::Training">
+			
+			<description>Creates a grammar from a tree corpus.</description>
+	
+			<in name="corpus" type="PennTreeCorpus" />
+			<out name="grammar" type="BerkeleyGrammar" />
+		</tool>
+		
+		<tool
+			type="Shell"
 			id="bpnbest"
-			name="Berkeley Parser n-best"
-			version="2013-01-16"
+			name="Berkeley n-best parser"
+			version="2014-10-08"
 			contact="Matthias.Buechse@tu-dresden.de"
 			category="Language Models::Parsing"
 			status="">
 			
 			<description>Computes n best trees for the sentences in the corpus.</description>
 	
-			<in name="corpus" type="SentenceCorpus" />
+			<in name="grammar" type="BerkeleyGrammar" />
 			<in name="n" type="Integer" />
-			<in name="grammar" type="BerkeleyGrammar.sm6" />
+			<in name="corpus" type="SentenceCorpus" />
 			<out name="trees" type="PennTreeCorpus" />
 		</tool>
 		
 		<tool
 			type="Shell"
 			id="BerkeleyTokenizer"
-			name="Berkeley Tokenizer"
-			version="2013-01-16"
+			name="Berkeley tokenizer"
+			version="2014-10-08"
 			contact="Matthias.Buechse@tu-dresden.de"
 			category="Corpus Tools"
 			status="">
@@ -57,17 +71,17 @@
 	
 		<tool
 			type="Shell"
-			id="sm6ToText"
-			name="SM6ToText"
-			version="2013-06-27"
+			id="BerkeleyToText"
+			name="Berkeley grammar to text"
+			version="2014-10-08"
 			contact="Tobias.Denkinger@tu-dresden.de"
 			category="Language Models::Conversion"
 			status="disabled">
 			
-			<description><![CDATA[Converts binary SM6 to text.]]></description>
+			<description>Converts binary SM6 to text.</description>
 
-			<in name="grammar" type="BerkeleyGrammar.sm6" />
-			<out name="textGrammar" type="TextualSM6" />
+			<in name="grammar" type="BerkeleyGrammar" />
+			<out name="textGrammar" type="TextualBerkeleyGrammar" />
 		</tool>
 	</toolinterface>
 </root>

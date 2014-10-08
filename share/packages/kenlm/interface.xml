@@ -2,8 +2,8 @@
 	<toolinterface
 		id="kenlm1"
 		name="KenLM"
-		version="2013-10-17"
-		contact="tobias.denkinger@tu-dresden.de"
+		version="2014-10-08"
+		contact="Tobias.Denkinger@tu-dresden.de"
 		category="Language Models">
 
 		<description>Tools related to KenLM.</description>
@@ -13,15 +13,15 @@
 			type="Shell"
 			id="KenLMTrain"
 			name="KenLM Train"
-			version="2013-10-17"
-			contact="tobias.denkinger@tu-dresden.de"
-			category="LanguageModel::Extraction"
+			version="2014-10-08"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Language Models::Training"
 			status="">
 
 			<description>Trains a language model.</description>
 
+			<in name="n" type="Integer" />
 			<in name="corpus" type="SentenceCorpus" />
-			<in name="n-gram length" type="Integer" />
 			<out name="n-grams" type="ARPA" />
 		</tool>
 		
@@ -29,9 +29,9 @@
 			type="Shell"
 			id="KenLMScore"
 			name="KenLM Score"
-			version="2013-10-17"
-			contact="tobias.denkinger@tu-dresden.de"
-			category="Language Models::Application"
+			version="2014-10-08"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Language Models::Parsing"
 			status="">
 
 			<description>Scores each sentence of the corpus according to the given language model.</description>

@@ -2,7 +2,7 @@
 	<toolinterface
 		id="emdictionary1"
 		name="EM Dictionary"
-		version="2013-01-17"
+		version="2014-10-08"
 		contact="Matthias.Buechse@tu-dresden.de"
 		category="Translation Models::Training">
 
@@ -12,15 +12,15 @@
 			type="Shell"
 			id="EMDictionary"
 			name="EM Dictionary"
-			version="2013-01-17"
+			version="2014-10-08"
 			contact="Matthias.Buechse@tu-dresden.de"
 			category="Translation Models::Training">
 			
-			<description><![CDATA[Trains a dictionary with a bilingual corpus using the Expectation Maximization algorithm]]>.</description>
+			<description>Trains a dictionary with a bilingual corpus using the Expectation Maximization algorithm.</description>
 	
+			<in name="threshold" type="Double" />
 			<in name="english corpus" type="SentenceCorpus" />
 			<in name="french corpus" type="SentenceCorpus" />
-			<in name="threshold" type="Double" />
 			<out name="dictionary" type="Dictionary" />
 			<out name="em steps" type="EMSteps" />
 		</tool>

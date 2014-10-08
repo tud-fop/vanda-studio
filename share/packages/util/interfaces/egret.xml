@@ -2,8 +2,8 @@
 	<toolinterface
 		id="egret1"
 		name="Egret"
-		version="2013-03-08"
-		contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+		version="2014-10-08"
+		contact="Tobias.Denkinger@tu-dresden.de"
 		category="Language Models::Parsing">
 		
 		<description>Tools related to the Egret Parser.</description>
@@ -11,31 +11,31 @@
 		<tool
 			type="Shell"
 			id="egret"
-			name="Egret"
-			version="2013-03-08"
-			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			name="Egret parser"
+			version="2014-10-08"
+			contact="Tobias.Denkinger@tu-dresden.de"
 			category="Language Models::Parsing">
 			
-			<description><![CDATA[Egret parser. Corpus must <em>not</em> contain empty lines]]>.</description>
+			<description>Egret parser using a state-split grammar. Corpus must not contain empty lines.</description>
 	
+			<in name="grammar" type="la-PCFG" />
 			<in name="corpus" type="SentenceCorpus" />
-			<in name="grammar" type="LAPCFG-Grammar" />
 			<out name="trees" type="PennTreeCorpus" />
 		</tool>
 		
 		<tool
 			type="Shell"
 			id="egretnbest"
-			name="Egret n-best"
-			version="2013-03-08"
-			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			name="Egret n-best trees"
+			version="2014-10-08"
+			contact="Tobias.Denkinger@tu-dresden.de"
 			category="Language Models::Parsing">
 			
 			<description>Computes n best trees for the sentences in the corpus.</description>
 	
-			<in name="corpus" type="SentenceCorpus" />
+			<in name="grammar" type="la-PCFG" />
 			<in name="n" type="Integer" />
-			<in name="grammar" type="LAPCFG-Grammar" />
+			<in name="corpus" type="SentenceCorpus" />
 			<out name="trees" type="PennTreeCorpus" />
 		</tool>
 		
@@ -43,15 +43,15 @@
 			type="Shell"
 			id="egretnbestforest"
 			name="Egret n-best forest"
-			version="2013-03-12"
-			contact="Tobias.Denkinger@mailbox.tu-dresden.de"
+			version="2014-10-08"
+			contact="Tobias.Denkinger@tu-dresden.de"
 			category="Language Models::Parsing">
 			
 			<description>Computes the forest of n best trees for every sentence in the corpus.</description>
 	
-			<in name="corpus" type="SentenceCorpus" />
+			<in name="grammar" type="la-PCFG" />
 			<in name="n" type="Integer" />
-			<in name="grammar" type="LAPCFG-Grammar" />
+			<in name="corpus" type="SentenceCorpus" />
 			<out name="pcfgs" type="PCFGs" />
 		</tool>
 		

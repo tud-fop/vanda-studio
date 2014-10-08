@@ -2,9 +2,9 @@
 	<toolinterface
 		id="giza1"
 		name="GIZA"
-		version="2013-08-16"
+		version="2014-10-08"
 		contact="Tobias.Denkinger@tu-dresden.de"
-		category="Translation Models::Extraction">
+		category="Translation Models::Training">
 
 		<description>Tools related to GIZA alignment extraction.</description>
 
@@ -12,11 +12,11 @@
 			type="Shell"
 			id="GIZA"
 			name="GIZA"
-			version="2013-08-16"
+			version="2014-10-08"
 			contact="Tobias.Denkinger@tu-dresden.de"
-			category="Translation Models::Extraction">
+			category="Translation Models::Training">
 			
-			<description><![CDATA[Extracts GIZA alignments from a parallel sentence corpus]]>.</description>
+			<description>Extracts GIZA alignments from a parallel sentence corpus.</description>
 	
 			<in name="english corpus" type="SentenceCorpus" />
 			<in name="french corpus" type="SentenceCorpus" />

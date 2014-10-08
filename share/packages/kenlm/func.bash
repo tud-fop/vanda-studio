@@ -1,9 +1,9 @@
 # KenLMTrain
-# Version: 2013-10-17
+# Version: 2014-10-08
 # Contact: Tobias.Denkinger@tu-dresden.de
-# Category: language model
+# Category: Language Models / Training
+# IN n :: Integer
 # IN corpus :: SentenceCorpus
-# IN n-gram length :: Integer
 # OUT n-grams :: ARPA
 #
 # Trains an n-gram model.
@@ -12,9 +12,9 @@ KenLMTrain () {
 }
 
 # KenLMBinary
-# Version: 2013-10-17
+# Version: 2014-10-08
 # Contact: Tobias Denkinger@tu-dresden.de
-# Category: language model
+# Category: Conversion
 # IN texual n-grams :: ARPA
 # OUT binary n-grams :: BinARPA
 #
@@ -24,9 +24,9 @@ KenLMBinary () {
 }
 
 # KenLMScore
-# Version: 2013-10-17
+# Version: 2014-10-08
 # Contact: Tobias.Denkinger@tu-dresden.de
-# Category: language model
+# Category: Language Models / Parsing
 # IN n-grams :: ARPA
 # IN corpus :: SentenceCorpus
 # OUT logarithmic scores :: Scores

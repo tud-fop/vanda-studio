@@ -2,7 +2,7 @@
 	<toolinterface
 		id="xrstranslate1"
 		name="XRSTranslate"
-		version="2013-01-17"
+		version="2014-10-08"
 		contact="Matthias.Buechse@tu-dresden.de"
 		category="Translation Models::Translation">
 		
@@ -12,11 +12,11 @@
 			type="Shell"
 			id="XRSTranslate"
 			name="XRSTranslate"
-			version="2013-01-17"
+			version="2014-10-08"
 			contact="Matthias.Buechse@tu-dresden.de"
 			category="Translation Models::Translation">
 			
-			<description><![CDATA[Generates a Tree Corpus given a GHKM Hypergraph and a Sentence Corpus]]>.</description>
+			<description>Generates a Tree Corpus given a GHKM Hypergraph and a Sentence Corpus.</description>
 			
 			<in name="rules" type="GHKMHypergraph" />
 			<in name="sentence corpus" type="SentenceCorpus" />
@@ -27,7 +27,7 @@
 	<toolinterface
 		id="penntosentencecorpus1"
 		name="PennToSentenceCorpus"
-		version="2013-10-10"
+		version="2014-10-08"
 		contact="Tobias.Denkinger@tu-dresden.de"
 		category="Corpus Tools">
 		
@@ -37,7 +37,7 @@
 			type="Shell"
 			id="PennToSentenceCorpus"
 			name="PennToSentenceCorpus"
-			version="2013-10-10"
+			version="2014-10-08"
 			contact="Tobias.Denkinger@tu-dresden.de"
 			category="Corpus Tools">
 			
@@ -51,9 +51,9 @@
 	<toolinterface
 		id="ngrams1"
 		name="NGrams"
-		version="2013-01-31"
+		version="2014-10-08"
 		contact="Tobias.Denkinger@tu-dresden.de"
-		category="Language Models::Application">
+		category="Language Models::Parsing">
 
 		<description>Tools related to n-gram query.</description>
 
@@ -61,12 +61,12 @@
 			type="Shell"
 			id="NGrams"
 			name="NGrams"
-			version="2014-10-07"
+			version="2014-10-08"
 			contact="Tobias.Denkinger@tu-dresden.de"
-			category="Language Models::Application"
+			category="Language Models::Parsing"
 			status="">
 
-			<description><![CDATA[Evaluates the corpus according to the given model]]>.</description>
+			<description>Evaluates the corpus according to the given model.</description>
 
 			<in name="model" type="ARPA" />
 			<in name="corpus" type="SentenceCorpus" />
@@ -77,16 +77,16 @@
 			type="Shell"
 			id="NGramsTrain"
 			name="NGramsTrain"
-			version="2014-10-07"
+			version="2014-10-08"
 			contact="Tobias.Denkinger@tu-dresden.de"
-			category="Language Models::Application"
+			category="Language Models::Training"
 			status="">
 
-			<description><![CDATA[Trains an n-gram model.]]></description>
+			<description>Trains an n-gram model.</description>
 
-			<in name="corpus" type="SentenceCorpus" />
 			<in name="degree" type="Integer" />
 			<in name="minReliableCount" type="Integer" />
+			<in name="corpus" type="SentenceCorpus" />
 			<out name="model" type="ARPA" />
 		</tool>
 	</toolinterface>
@@ -94,9 +94,9 @@
 	<toolinterface
 		id="kenlm1"
 		name="KenLM"
-		version="2013-01-31"
+		version="2014-10-08"
 		contact="Tobias.Denkinger@tu-dresden.de"
-		category="Language Models::Application">
+		category="Language Models::Parsing">
 
 		<description>Tools related to the KenLM n-gram query library.</description>
 
@@ -104,12 +104,12 @@
 			type="Shell"
 			id="KenLM"
 			name="KenLM"
-			version="2013-01-31"
+			version="2014-10-08"
 			contact="Tobias.Denkinger@tu-dresden.de"
-			category="Language Models::Application"
+			category="Language Models::Parsing"
 			status="disabled">
 
-			<description><![CDATA[Evaluates the corpus according to the given model]]>.</description>
+			<description>Evaluates the corpus according to the given model.</description>
 
 			<in name="n-gram model" type="ARPA" />
 			<in name="english corpus" type="SentenceCorpus" />
@@ -121,9 +121,9 @@
 	<toolinterface
 		id="xrsngrams1"
 		name="XRSNGrams"
-		version="2013-03-07"
+		version="2014-10-08"
 		contact="Tobias.Denkinger@tu-dresden.de"
-		category="Intersection">
+		category="Composition">
 
 		<description>Tools related to the intersection of language models and translation models.</description>
 
@@ -131,12 +131,12 @@
 			type="Shell"
 			id="XRSNGrams"
 			name="XRSNGrams"
-			version="2014-10-07"
+			version="2014-10-08"
 			contact="Tobias.Denkinger@tu-dresden.de"
-			category="Intersection"
+			category="Composition"
 			status="">
 
-			<description><![CDATA[Intersects a language model in ARPA format with a GHKM hypergraph.]]></description>
+			<description>Intersects a language model in ARPA format with a GHKM hypergraph.</description>
 
 			<in name="rulesIn" type="GHKMHypergraph" />
 			<in name="ngrams" type="ARPA" />
@@ -147,17 +147,17 @@
 			type="Shell"
 			id="XRSNGramsTranslate"
 			name="XRSNGramsTranslate"
-			version="2014-10-07"
+			version="2014-10-08"
 			contact="Tobias.Denkinger@tu-dresden.de"
 			category="Translation Models::Translation"
 			status="">
 
-			<description><![CDATA[Translates a SentenceCorpus using a GHKM hypergraph and a language model.]]></description>
+			<description>Translates a SentenceCorpus using a GHKM hypergraph and a language model.</description>
 
-			<in name="corpus" type="SentenceCorpus" />
 			<in name="rules" type="GHKMHypergraph" />
 			<in name="ngrams" type="ARPA" />
 			<in name="beam" type="Integer" />
+			<in name="corpus" type="SentenceCorpus" />
 			<out name="translation" type="PennTreeCorpus" />
 		</tool>
 

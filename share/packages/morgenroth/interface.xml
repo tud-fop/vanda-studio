@@ -2,9 +2,9 @@
 	<toolinterface
 		id="morgenroth"
 		name="BLEU Score"
-		version="2013-07-17"
-		contact="tobias.denkinger@tu-dresden.de"
-		category="Translation Models::Evaluation">
+		version="2014-10-08"
+		contact="Tobias.Denkinger@tu-dresden.de"
+		category="Evaluation">
 
 		<description>Tools related to the BLEU score.</description>
 
@@ -13,15 +13,15 @@
 			type="Shell"
 			id="Bleu"
 			name="BLEU Score"
-			version="2013-07-17"
-			contact="tobias.denkinger@tu-dresden.de"
-			category="Translation Models::Evaluation"
+			version="2014-10-08"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Evaluation"
 			status="">
 
 			<description>Calculates the BLEU score of a corpus given (only) ONE reference translation.</description>
 
-			<in name="corpus" type="SentenceCorpus" />
 			<in name="reference" type="SentenceCorpus" />
+			<in name="corpus" type="SentenceCorpus" />
 			<out name="score" type="Double" />
 		</tool>
 		
@@ -29,18 +29,18 @@
 			type="Shell"
 			id="Bleu4"
 			name="BLEU Score"
-			version="2013-10-08"
-			contact="tobias.denkinger@tu-dresden.de"
-			category="Translation Models::Evaluation"
+			version="2014-10-08"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Evaluation"
 			status="">
 
 			<description>Calculates the BLEU score of a corpus given (only) FOUR reference translation.</description>
 
-			<in name="corpus" type="SentenceCorpus" />
 			<in name="reference1" type="SentenceCorpus" />
 			<in name="reference2" type="SentenceCorpus" />
 			<in name="reference3" type="SentenceCorpus" />
 			<in name="reference4" type="SentenceCorpus" />
+			<in name="corpus" type="SentenceCorpus" />
 			<out name="score" type="Double" />
 		</tool>
 	</toolinterface>
