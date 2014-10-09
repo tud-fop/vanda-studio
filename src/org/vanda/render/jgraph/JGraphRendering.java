@@ -86,7 +86,7 @@ public class JGraphRendering {
 	protected static class DoneStyle extends DefaultSupplementalStyle {
 		@Override
 		public void addStyle(Map<String, Object> style) {
-			style.put(mxConstants.STYLE_FILLCOLOR, "#00D01B");
+			style.put(mxConstants.STYLE_FILLCOLOR, "#55DD55");
 		}
 
 		@Override
@@ -98,7 +98,7 @@ public class JGraphRendering {
 	protected static class ErroneousStyle extends DefaultSupplementalStyle {
 		@Override
 		public void addStyle(Map<String, Object> style) {
-			style.put(mxConstants.STYLE_STROKECOLOR, "#FF0000");
+			style.put(mxConstants.STYLE_STROKECOLOR, "#DD5555");
 			style.put(mxConstants.STYLE_STROKEWIDTH, "3");
 		}
 
