@@ -181,8 +181,8 @@ extract_subfile () {
 	sed -n $l1,$l2'p' "$1" > "$3"
 }
 
-makepkg () {
-	echo_color "[1/2] Checking folder..."
+make_package () {
+	echo -n "[$2/$3] Checking folder... "
 	declare -i e=0
 	path="$(dirname $1)"
 	name="${1##*/}"
@@ -224,13 +224,13 @@ makepkg () {
 		e+=1
 	}
 	if [[ 1 -gt $e ]]; then
-		echo_color "[1/2] Success."
-		echo_color "[2/2] Packing archive..."
+		echo "Success."
+		echo -n "[$2/$3] Packing archive... "
 		tar czf "${name}.tar.gz" -C "${path}" "${name}"
-		echo_color "[2/2] Done."
+		echo "Done."
 		return 0
 	else
-		echo_color "[1/2] Failed. Aborting."
+		echo "Failed. Aborting."
 		return $e
 	fi
 }
@@ -242,6 +242,15 @@ usage () {
 	echo " ./vandapkg.bash makepkg <pkgdir>   # build a package from a directory"
 	echo " ./vandapkg.bash list               # shows a list of all installed packages"
 	echo " ./vandapkg.bash list-interfaces    # shows a list of all installed interfaces"
+}
+
+makepkg () {
+	declare -i i=1
+	for f in "$@"; do
+		echo_color "[$i/$#] Packing $f..."
+		make_package "$f" "$i" "$#"
+		((++i))
+	done
 }
 
 case "$1" in
