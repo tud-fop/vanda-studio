@@ -113,6 +113,7 @@ install () {
 		echo_color "[$j/${#pkgs[@]}] Installing \"$name\"..."
 		install_pkg "$TMP/${pkgs[$i]}/$name"
 		echo_color "[$j/${#pkgs[@]}] Done."
+		rm -rf "$TMP/${pkgs[$i]}"
 		((j+=1))
 	done
 	rm -rf "$TMP"
