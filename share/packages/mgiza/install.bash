@@ -26,7 +26,7 @@ install_me () {
 	cp "merge_alignment.py" "$1/."
 	chmod +x "$1/merge_alignment.py"
 # install symal
-	git clone git://github.com/moses-smt/mosesdecoder.git
+	git clone --depth 1 git://github.com/moses-smt/mosesdecoder.git
 	pushd mosesdecoder
 		./bjam "-j$(nproc)" -a symal
 		cp symal/bin/gcc-*/release/debug-symbols-on/link-static/threading-multi/symal "$1/."
