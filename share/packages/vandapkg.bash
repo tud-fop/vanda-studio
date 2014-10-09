@@ -46,6 +46,8 @@ install_pkg () {
 install () {
 # filter packages that are not existing
 	declare -i i=0
+	declare -i interfaces=0
+	
 	for pkg in "$@"; do
 		if [ -f "$pkg" ]; then
 			if [[ "$pkg" == *.tar.gz ]]; then
@@ -54,14 +56,21 @@ install () {
 			elif [[ "$pkg" == *.xml ]]; then
 				echo_color "[-/-] Installing \"$pkg\"..."
 				cp "$pkg" "$IFACEDIR/."
+				((++interfaces))
 				echo_color "[-/-] Done."
 			fi
 		else
 			echo_color "The file $pkg does not exist, skipping."
 		fi
 	done
-
-	[ 0 == ${#pkgs[@]} ] && return 1
+	
+	if [ 0 == ${#pkgs[@]} ]; then
+		if [ 0 == ${interfaces} ]; then
+			return 1
+		else
+			return 0
+		fi
+	fi
 
 # configure packages
 	declare -i j=1
@@ -110,9 +119,15 @@ install () {
 }
 
 list () {
-	for f in $(ls $PKGDB); do
+	for f in $(ls "$PKGDB"); do
 		source "$PKGDB/$f"
 		echo "$f [$version]"
+	done
+}
+
+list-interfaces () {
+	for f in $(ls "$IFACEDIR"); do
+		echo "${f%.xml} [$(grep 'version=' "$IFACEDIR/$f" | sed 's/^.*version=\"\(.*\)\"/\1/g' | sort -r | head -n 1)]"
 	done
 }
 
@@ -133,6 +148,21 @@ remove () {
 			echo_color "[$i/$#] Removed \"$pkg\"."
 		else
 			echo_color "[$i/$#] The package \"$pkg\" is not installed, skipping."
+		fi
+		i+=1
+	done
+}
+
+remove-iface () {
+	declare -i i=1
+	echo "Removing $@."
+	for iface in "$@"; do
+		file="${IFACEDIR}/${iface}.xml"
+		if [ -f "$file" ]; then
+			rm "$file"
+			echo_color "[$i/$#] Removed \"$iface\"."
+		else
+			echo_color "[$i/$#] The interface \"$iface\" is not installed, skipping."
 		fi
 		i+=1
 	done
@@ -208,10 +238,11 @@ usage () {
 	echo " ./vandapkg.bash remove <pkgnames>  # removes packages"
 	echo " ./vandapkg.bash makepkg <pkgdir>   # build a package from a directory"
 	echo " ./vandapkg.bash list               # shows a list of all installed packages"
+	echo " ./vandapkg.bash list-interfaces    # shows a list of all installed interfaces"
 }
 
 case "$1" in
-	install|remove|makepkg)
+	install|remove|remove-iface|makepkg)
 		if [[ -n "$2" ]]; then
 			"${@:1}"
 		else
@@ -220,6 +251,8 @@ case "$1" in
 	;;
 	list)
 		list ;;
+	list-interfaces)
+		list-interfaces ;;
 	*)
 		usage ;;
 esac
