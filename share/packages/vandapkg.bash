@@ -183,6 +183,8 @@ extract_subfile () {
 makepkg () {
 	echo_color "[1/2] Checking folder..."
 	declare -i e=0
+	path="$(dirname $1)"
+	name="${1##*/}"
 	if [ ! -d "$1" ]; then
 		echo "\"$1\" is not a directory."
 		return 1
@@ -212,7 +214,7 @@ makepkg () {
 		echo "The variable \"binpath\" is not set."
 		e+=1
 	fi
-	if [ "$id" != "${1%/}" ]; then
+	if [ "$id" != "$name" ]; then
 		echo "The folder name does not match the package name."
 		e+=1
 	fi
@@ -223,7 +225,7 @@ makepkg () {
 	if [[ 1 -gt $e ]]; then
 		echo_color "[1/2] Success."
 		echo_color "[2/2] Packing archive..."
-		tar czf "${1%/}.tar.gz" "$1"
+		tar czf "${name}.tar.gz" -C "${path}" "${name}"
 		echo_color "[2/2] Done."
 		return 0
 	else
