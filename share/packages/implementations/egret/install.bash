@@ -12,6 +12,6 @@ install_me () {
 	g++ Egret/src/*.cpp -O2 -o egret
 	cp egret "$1"
 	mkdir -p "$2/egret_grammars"
-	mv -t "$2/egret_grammars" "eng_grammar" "chn_grammar"
+	mv -n -t "$2/egret_grammars" "eng_grammar" "chn_grammar"
 	cd ..
 }
