@@ -18,7 +18,7 @@
 			
 			<description>Egret parser using a state-split grammar. Corpus must not contain empty lines.</description>
 	
-			<in name="grammar" type="la-PCFG" />
+			<in name="grammar" type="EgretGrammar" />
 			<in name="corpus" type="SentenceCorpus" />
 			<out name="trees" type="PennTreeCorpus" />
 		</tool>
@@ -33,7 +33,7 @@
 			
 			<description>Computes n best trees for the sentences in the corpus.</description>
 	
-			<in name="grammar" type="la-PCFG" />
+			<in name="grammar" type="EgretGrammar" />
 			<in name="n" type="Integer" />
 			<in name="corpus" type="SentenceCorpus" />
 			<out name="trees" type="PennTreeCorpus" />
@@ -49,7 +49,7 @@
 			
 			<description>Computes the forest of n best trees for every sentence in the corpus.</description>
 	
-			<in name="grammar" type="la-PCFG" />
+			<in name="grammar" type="EgretGrammar" />
 			<in name="n" type="Integer" />
 			<in name="corpus" type="SentenceCorpus" />
 			<out name="pcfgs" type="PCFGs" />

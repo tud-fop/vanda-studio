@@ -2,7 +2,7 @@
 # Version: 2014-10-08
 # Contact: Tobias.Denkinger@tu-dresden.de
 # Category: Language Models / Parsing
-# IN grammar :: la-PCFG
+# IN grammar :: EgretGrammar
 # IN corpus :: SentenceCorpus
 # OUT trees :: PennTreeCorpus
 #
@@ -15,7 +15,7 @@ egret () {
 # Version: 2014-10-08
 # Contact: Tobias.Denkinger@tu-dresden.de
 # Category: Language Models / Parsing
-# IN grammar :: la-PCFG
+# IN grammar :: EgretGrammar
 # IN n :: Integer
 # IN corpus :: SentenceCorpus
 # OUT trees :: PennTreeCorpus
@@ -29,7 +29,7 @@ egretnbest () {
 # Version: 2014-10-08
 # Contact: Tobias.Denkinger@tu-dresden.de
 # Category: Language Models / Parsing
-# IN grammar :: la-PCFG
+# IN grammar :: EgretGrammar
 # IN n :: Integer
 # IN corpus :: SentenceCorpus
 # OUT pcfgs :: PCFGs
