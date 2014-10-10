@@ -1,9 +1,0 @@
-#!/bin/bash
-
-# target directories
-GIZADIR="$HOME/.vanda/bin/giza"
-IRSTLMDIR="$HOME/.vanda/bin/irstlm"
-RANDLMDIR="$HOME/.vanda/bin/randlm"
-
-# source directories
-VANDADIR="ssh://tdenk@tcs.inf.tu-dresden.de/~buechse/public_git/vanda -b hyperedge"
