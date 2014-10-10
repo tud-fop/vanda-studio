@@ -8,7 +8,7 @@
 #
 # Trains an n-gram model.
 KenLMTrain () {
-	"$KENLM/bin/lmplz" -o "$3" < "$2" > "$4"
+	"$KENLM/bin/lmplz" -o "$2" < "$3" > "$4"
 }
 
 # KenLMBinary
