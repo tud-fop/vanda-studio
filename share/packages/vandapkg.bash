@@ -246,7 +246,7 @@ usage () {
 
 makepkg () {
 	declare -i i=1
-	for f in "$@"; do
+	for f in "${@%/}"; do
 		echo_color "[$i/$#] Packing $f..."
 		make_package "$f" "$i" "$#"
 		((++i))
