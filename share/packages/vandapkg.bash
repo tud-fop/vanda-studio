@@ -226,7 +226,7 @@ make_package () {
 	if [[ 1 -gt $e ]]; then
 		echo "Success."
 		echo -n "[$2/$3] Packing archive... "
-		tar czf "${name}.tar.gz" -C "${path}" "${name}"
+		tar czfh "${name}.tar.gz" -C "${path}" "${name}"
 		echo "Done."
 		return 0
 	else
