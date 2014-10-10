@@ -33,7 +33,7 @@ public final class LiteralAdapter implements ElementAdapter, ElementListener<Lit
 
 	@Override
 	public String getCategory() {
-		return "basics";
+		return "Basics";
 	}
 
 	@Override

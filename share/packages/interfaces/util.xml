@@ -4,7 +4,7 @@
 		name="Sink"
 		version="2013-01-16"
 		contact="Matthias.Buechse@tu-dresden.de"
-		category="basics">
+		category="Basics">
 		
 		<description>Contains basic tools.</description>
 		
@@ -14,9 +14,9 @@
 			name="Sink"
 			version="2013-01-16"
 			contact="Matthias.Buechse@tu-dresden.de"
-			category="basics">
+			category="Basics">
 			
-			<description><![CDATA[Sink tool]]>.</description>
+			<description>Sink tool.</description>
 			
 			<in name="in" type="t0" />
 		</tool>
