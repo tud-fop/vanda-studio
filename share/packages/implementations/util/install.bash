@@ -8,6 +8,5 @@ install_me () {
 #	if [ ! -f $RCPATH ]; then
 #		echo -e "source $FUNCDIR/util.bash\n" >> "$RCPATH"
 #	fi
-	cp interfaces/* "$IFACEDIR/."
 	cp -r examples/* "$INDIR/."
 }
