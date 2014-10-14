@@ -4,7 +4,7 @@ version="2014-10-09"
 binpath="$id"
 
 download () {
-	wget "http://berkeleyparser.googlecode.com/files/berkeleyParser.jar"
+	wget -N "http://berkeleyparser.googlecode.com/files/berkeleyParser.jar"
 	mkdir -p "berkeley_grammars"
 	wget -P "berkeley_grammars" -nc "http://berkeleyparser.googlecode.com/files/eng_sm6.gr"
 	wget -P "berkeley_grammars" -nc "http://berkeleyparser.googlecode.com/files/bul_sm5.gr"

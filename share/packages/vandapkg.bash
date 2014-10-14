@@ -27,20 +27,22 @@ fi
 source "$RCPATH"
 
 install_pkg () {
-	cd "$1"
-	source "install.bash"
-	mkdir -p "$BINDIR/$binpath"
-	install_me "$BINDIR/$binpath" "$INDIR"
-	cd "$1"
-	cp func.bash "$FUNCDIR/$id.bash"
-	if [ ! -f "$PKGDB/$id" ]
-	then
-		echo "$varname=$BINDIR/$binpath" >> "$RCPATH"
-	fi
-	echo "id=\"$id\"" > "$PKGDB/$id"
-	echo "varname=\"$varname\"" >> "$PKGDB/$id"
-	echo "version=\"$version\"" >> "$PKGDB/$id"
-	echo "binpath=\"$binpath\"" >> "$PKGDB/$id"
+	(
+		cd "$1"
+		source "install.bash"
+		mkdir -p "$BINDIR/$binpath"
+		install_me "$BINDIR/$binpath" "$INDIR"
+		cd "$1"
+		cp func.bash "$FUNCDIR/$id.bash"
+		if [ ! -f "$PKGDB/$id" ]
+		then
+			echo "$varname=$BINDIR/$binpath" >> "$RCPATH"
+		fi
+		echo "id=\"$id\"" > "$PKGDB/$id"
+		echo "varname=\"$varname\"" >> "$PKGDB/$id"
+		echo "version=\"$version\"" >> "$PKGDB/$id"
+		echo "binpath=\"$binpath\"" >> "$PKGDB/$id"
+	)
 }
 
 install () {
@@ -198,48 +200,50 @@ make_package () {
 		echo "\"$1/install.bash\" does not exist."
 		return 1
 	fi
-	source "$1/install.bash"
-	if [ -z "$id" ]; then
-		echo "The variable \"id\" is not set."
-		e+=1
-	fi
-	if [ -z "$varname" ]; then
-		echo "The variable \"varname\" is not set."
-		e+=1
-	fi
-	if [ -z "$version" ]; then
-		echo "The variable \"version\" is not set."
-		e+=1
-	fi
-	if [ -z "$binpath" ]; then
-		echo "The variable \"binpath\" is not set."
-		e+=1
-	fi
-	if [ "$id" != "$name" ]; then
-		echo "The folder name does not match the package name."
-		e+=1
-	fi
-	declare -F install_me > /dev/null || {
-		echo "The function \"install_me\" does not exist."
-		e+=1
-	}
-	if [[ 1 -gt $e ]]; then
-		echo "Success."
-		if declare -f "download" > /dev/null; then
-			echo -n "[$2/$3] Downloading files... "
-			pushd "${path}/${name}" &> /dev/null
-			download &> /dev/null
-			popd &> /dev/null
-			echo "Done."
+	(
+		source "$1/install.bash"
+		if [ -z "$id" ]; then
+			echo "The variable \"id\" is not set."
+			e+=1
 		fi
-		echo -n "[$2/$3] Packing archive... "
-		tar czfh "${name}.tar.gz" -C "${path}" "${name}"
-		echo "Done."
-		return 0
-	else
-		echo "Failed. Aborting."
-		return $e
-	fi
+		if [ -z "$varname" ]; then
+			echo "The variable \"varname\" is not set."
+			e+=1
+		fi
+		if [ -z "$version" ]; then
+			echo "The variable \"version\" is not set."
+			e+=1
+		fi
+		if [ -z "$binpath" ]; then
+			echo "The variable \"binpath\" is not set."
+			e+=1
+		fi
+		if [ "$id" != "$name" ]; then
+			echo "The folder name does not match the package name."
+			e+=1
+		fi
+		declare -F install_me > /dev/null || {
+			echo "The function \"install_me\" does not exist."
+			e+=1
+		}
+		if [[ 1 -gt $e ]]; then
+			echo "Success."
+			if declare -f "download" > /dev/null; then
+				echo -n "[$2/$3] Downloading files... "
+				pushd "${path}/${name}" &> /dev/null
+				download &> /dev/null
+				popd &> /dev/null
+				echo "Done."
+			fi
+			echo -n "[$2/$3] Packing archive... "
+			tar czfh "${name}.tar.gz" -C "${path}" "${name}"
+			echo "Done."
+			return 0
+		else
+			echo "Failed. Aborting."
+			return $e
+		fi
+	)
 }
 
 usage () {
