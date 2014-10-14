@@ -3,8 +3,11 @@ varname="EGRET"
 version="2013-03-08"
 binpath="$id"
 
-install_me () {
+download () {
 	wget http://egret-parser.googlecode.com/files/Egret.zip
+}
+
+install_me () {
 	unzip Egret.zip
 	cd Egret
 	sed -i "2 i #include <cstdlib>" Egret/src/Tree.cpp

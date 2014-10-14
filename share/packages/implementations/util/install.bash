@@ -5,8 +5,5 @@ binpath="$id"
 
 install_me () {
 	mkdir -p "$VANDASTUDIO" "$BINDIR" "$FUNCDIR" "$IFACEDIR" "$OUTDIR" "$INDIR" "$PKGDB"
-#	if [ ! -f $RCPATH ]; then
-#		echo -e "source $FUNCDIR/util.bash\n" >> "$RCPATH"
-#	fi
 	cp -r examples/* "$INDIR/."
 }

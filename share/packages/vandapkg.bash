@@ -225,6 +225,13 @@ make_package () {
 	}
 	if [[ 1 -gt $e ]]; then
 		echo "Success."
+		if declare -f "download" > /dev/null; then
+			echo -n "[$2/$3] Downloading files... "
+			pushd "${path}/${name}" &> /dev/null
+			download &> /dev/null
+			popd &> /dev/null
+			echo "Done."
+		fi
 		echo -n "[$2/$3] Packing archive... "
 		tar czfh "${name}.tar.gz" -C "${path}" "${name}"
 		echo "Done."
