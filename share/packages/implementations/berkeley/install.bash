@@ -16,7 +16,7 @@ download () {
 
 install_me () {
 	javac -cp "berkeleyParser.jar:src" -d "src" "src/Main.java"
-	cp "berleleyParser.jar" "$1/."
+	cp "berkeleyParser.jar" "$1/."
 	cp "src/Main.class" "$1/."
-	cp "berkeley_grammars" "$2/."
+	cp --recursive "berkeley_grammars" "$2/."
 }
