@@ -2,22 +2,21 @@ package org.vanda.studio.modules.previews;
 
 import java.awt.Component;
 import java.awt.Desktop;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JList;
 import javax.swing.JScrollPane;
 
 import org.vanda.studio.app.Application;
@@ -25,66 +24,60 @@ import org.vanda.studio.app.PreviewFactory;
 
 public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 
-	public class BerkeleyGrammarPreview extends JPanel {
+	private class InsetListCellRenderer extends DefaultListCellRenderer {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -1809316485715057696L;
+
+		@Override
+		public Component getListCellRendererComponent(JList list, Object value,
+				int index, boolean isSelected, boolean cellHasFocus) {
+			JLabel cell = (JLabel) super.getListCellRendererComponent(list,
+					value, index, isSelected, cellHasFocus);
+			cell.setBorder(BorderFactory.createEmptyBorder(2, 10, 2, 10));
+			return cell;
+		}
+	}
+
+	public class BerkeleyGrammarPreview extends JList {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private GridBagConstraints gbc;
+		private DefaultListModel model;
 		private Scanner fs;
 		private JButton bMore;
 		private static final int SIZE = 20;
-		private int columns;
+		private static final String MORE = "[show more rules]";
 
 		public BerkeleyGrammarPreview(String value, String postfix) {
-			this(value, postfix, 5);
-		}
-		
-		public BerkeleyGrammarPreview(String value, String postfix, int cols) {
 			super();
-			columns = cols;
-			setLayout(new GridBagLayout());
-			gbc = new GridBagConstraints();
-			gbc.anchor = GridBagConstraints.WEST;
-			gbc.weightx = 1;
-			gbc.weighty = 0;
-			gbc.gridx = 0;
-			gbc.gridy = 0;
-			try {
-				fs = new Scanner(new FileInputStream(app.findFile(value + postfix)));
-				bMore = new JButton(new AbstractAction("more") {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
+			setCellRenderer(new InsetListCellRenderer());
+			model = new DefaultListModel();
+			setLayoutOrientation(JList.HORIZONTAL_WRAP);
+			setVisibleRowCount(-1);
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent evt) {
+					if (evt.getClickCount() == 2
+							&& model.get(locationToIndex(evt.getPoint())) == MORE)
 						more();
-
-					}
-				});
+				}
+			});
+			try {
+				fs = new Scanner(new FileInputStream(app.findFile(value
+						+ postfix)));
 				more();
 			} catch (FileNotFoundException e) {
 				add(new JLabel(value + postfix + " does not exist."));
 			}
 		}
 
-		@Override
-		public Component add(Component c) {
-			super.add(c, gbc);
-			if (gbc.gridx == columns - 1) {
-				gbc.gridx = 0;
-				gbc.gridy++;
-			} else {
-				gbc.gridx++;
-			}
-			return c;
-		}
-
 		public void more() {
 			if (fs == null)
 				return;
-			remove(bMore);
-			List<String> lst = new ArrayList<String>();
+			model.removeElement(MORE);
 			String[] l;
 			int i = 0;
 			while (i < SIZE & fs.hasNextLine()) {
@@ -99,7 +92,9 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 									+ " &middot; 10 <sup>" + s.split("E")[1]
 									+ "</sup>]";
 						else
-							txt += "  [" + (s.length() > 7 ? s.substring(0,8) : s) + "]";
+							txt += "  ["
+									+ (s.length() > 7 ? s.substring(0, 8) : s)
+									+ "]";
 
 					} else {
 						txt += s.replace("^", "<sup>").replace("_",
@@ -108,15 +103,12 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 					}
 				}
 				txt += "</html>";
-				lst.add(txt);
+				model.addElement(txt);
 				i++;
 			}
-
-			for (String s : lst) {
-				add(new JLabel(s));
-			}
-			super.add(bMore, gbc);
-			revalidate();
+			if (fs.hasNext())
+				model.addElement(MORE);
+			setModel(model);
 		}
 
 		@Override
@@ -127,7 +119,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 
 	private String postfix;
 	private Application app;
-	
+
 	public BerkeleyGrammarPreviewFactory(Application app, String postfix) {
 		super();
 		this.app = app;
@@ -146,7 +138,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 			@Override
 			public void run() {
 				try {
-					Desktop.getDesktop().open(new File(value + ".prev"));
+					Desktop.getDesktop().open(new File(value + postfix));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -159,7 +151,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 
 	@Override
 	public JComponent createSmallPreview(String value) {
-		return new JScrollPane(new BerkeleyGrammarPreview(value, postfix, 1));
+		return new JScrollPane(new BerkeleyGrammarPreview(value, postfix));
 	}
 
 }
