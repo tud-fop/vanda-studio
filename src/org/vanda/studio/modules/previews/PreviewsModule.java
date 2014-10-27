@@ -15,8 +15,8 @@ public class PreviewsModule implements Module {
 	public Object createInstance(Application app) {
 		app.registerPreviewFactory(new CompositeType("PennTreeCorpus"),
 				new BerkeleyTreePreviewFactory(app));
-		app.registerPreviewFactory(new CompositeType("BerkeleyGrammar.sm6"),
-				new BerkeleyGrammarPreviewFactory(app, ".prev"));
+		app.registerPreviewFactory(new CompositeType("BerkeleyGrammar"),
+				new BerkeleyGrammarPreviewFactory(app, ".prev.grammar"));
 		app.registerPreviewFactory(new CompositeType("LAPCFG-Grammar"),
 				new BerkeleyGrammarPreviewFactory(app, "/level1.grammar"));
 		app.registerPreviewFactory(new CompositeType("EMSteps"),
