@@ -184,60 +184,61 @@ extract_subfile () {
 }
 
 make_package () {
-	echo -n "[$2/$3] Checking folder... "
+	echo -n "[$2/$3] Checking folder... " | tee -a "makepkg.log"
 	declare -i e=0
 	path="$(dirname $1)"
 	name="${1##*/}"
 	if [ ! -d "$1" ]; then
-		echo "\"$1\" is not a directory."
+		echo "\"$1\" is not a directory." | tee -a "makepkg.log"
 		return 1
 	fi
 	if [ ! -f "$1/func.bash" ]; then
-		echo "\"$1/func.bash\" does not exist."
+		echo "\"$1/func.bash\" does not exist." | tee -a "makepkg.log"
 		e+=1
 	fi
 	if [ ! -f "$1/install.bash" ]; then
-		echo "\"$1/install.bash\" does not exist."
+		echo "\"$1/install.bash\" does not exist." | tee -a "makepkg.log"
 		return 1
 	fi
 	(
 		source "$1/install.bash"
 		if [ -z "$id" ]; then
-			echo "The variable \"id\" is not set."
+			echo "The variable \"id\" is not set." | tee -a "makepkg.log"
 			e+=1
 		fi
 		if [ -z "$varname" ]; then
-			echo "The variable \"varname\" is not set."
+			echo "The variable \"varname\" is not set." | tee -a "makepkg.log"
 			e+=1
 		fi
 		if [ -z "$version" ]; then
-			echo "The variable \"version\" is not set."
+			echo "The variable \"version\" is not set." | tee -a "makepkg.log"
 			e+=1
 		fi
 		if [ -z "$binpath" ]; then
-			echo "The variable \"binpath\" is not set."
+			echo "The variable \"binpath\" is not set." | tee -a "makepkg.log"
 			e+=1
 		fi
 		if [ "$id" != "$name" ]; then
-			echo "The folder name does not match the package name."
+			echo "The folder name does not match the package name." | tee -a "makepkg.log"
 			e+=1
 		fi
 		declare -F install_me > /dev/null || {
-			echo "The function \"install_me\" does not exist."
+			echo "The function \"install_me\" does not exist." | tee -a "makepkg.log"
 			e+=1
 		}
 		if [[ 1 -gt $e ]]; then
 			echo "Success."
 			if declare -f "download" > /dev/null; then
-				echo -n "[$2/$3] Downloading files... "
-				pushd "${path}/${name}" &> /dev/null
-				download &> /dev/null
-				popd &> /dev/null
-				echo "Done."
+				echo -n "[$2/$3] Downloading files... " | tee -a "makepkg.log"
+				( pushd "${path}/${name}"
+					set -x
+					download
+					popd ) &> "makepkg.log"
+				echo "Done." | tee -a "makepkg.log"
 			fi
-			echo -n "[$2/$3] Packing archive... "
+			echo -n "[$2/$3] Packing archive... " | tee -a "makepkg.log"
 			tar czfh "${name}.tar.gz" -C "${path}" "${name}"
-			echo "Done."
+			echo "Done." | tee -a "makepkg.log"
 			return 0
 		else
 			echo "Failed. Aborting."
@@ -257,8 +258,9 @@ usage () {
 
 makepkg () {
 	declare -i i=1
+	echo "Called with: $@" > "makepkg.log"
 	for f in "${@%/}"; do
-		echo_color "[$i/$#] Packing $f..."
+		echo_color "[$i/$#] Packing $f..." | tee -a "makepkg.log"
 		make_package "$f" "$i" "$#"
 		((++i))
 	done
