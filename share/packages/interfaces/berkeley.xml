@@ -76,7 +76,7 @@
 			version="2014-10-08"
 			contact="Tobias.Denkinger@tu-dresden.de"
 			category="Language Models::Conversion"
-			status="disabled">
+			status="">
 			
 			<description>Converts binary SM6 to text.</description>
 

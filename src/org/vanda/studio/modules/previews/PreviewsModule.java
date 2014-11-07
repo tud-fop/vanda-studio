@@ -17,6 +17,8 @@ public class PreviewsModule implements Module {
 				new BerkeleyTreePreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("BerkeleyGrammar"),
 				new BerkeleyGrammarPreviewFactory(app, ".prev.grammar"));
+		app.registerPreviewFactory(new CompositeType("TextualBerkeleyGrammar"),
+				new BerkeleyGrammarPreviewFactory(app, ".grammar"));
 		app.registerPreviewFactory(new CompositeType("LAPCFG-Grammar"),
 				new BerkeleyGrammarPreviewFactory(app, "/level1.grammar"));
 		app.registerPreviewFactory(new CompositeType("EMSteps"),
