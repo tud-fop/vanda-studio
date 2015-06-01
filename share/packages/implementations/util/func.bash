@@ -1,6 +1,6 @@
 # Sink
-# Version: 2013-01-16
-# Contact: Matthias.Buechse@tu-dresden.de
+# Version: 2015-06-01
+# Contact: Tobias.Denkinger@tu-dresden.de
 # Category: basics
 # IN in :: t0
 #
