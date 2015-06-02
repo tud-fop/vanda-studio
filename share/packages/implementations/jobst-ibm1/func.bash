@@ -7,23 +7,17 @@
 # OUT model :: JobstModel
 JobstTrain () {
 	rm -rf "$1/*"
-	i1new="$1/corpus.en"
-	i2new="$1/corpus.fr"
-	if [[ ! -f "$i1new" ]]; then
-		ln -frsv "$2" "$i1new"
-	fi
-	if [[ ! -f "$i2new" ]]; then
-		ln -frsv "$3" "$i2new"
-	fi
-	(sleep "$4" && echo "\n") | "$JOBST/translate" "$1/corpus" en fr train
+	ln -frsv "$2" "$1/corpus.en"
+	ln -frsv "$3" "$1/corpus.fr"
+	(sleep "$4" && echo)  \
+		| "$JOBST/translate" "$1/corpus" en fr train  \
+		| grep -v '\. loop$'  # filter out tons of useless messages
 	mv "$1/corpus_fr_en.bigram" "${5}_fr_en.bigram"
 	mv "$1/corpus_fr_en.length" "${5}_fr_en.length"
 	mv "$1/corpus_fr_en.dictionary" "${5}_fr_en.dictionary"
 	mv "$1/corpus_en.words" "${5}_en.words"
 	mv "$1/corpus_fr.words" "${5}_fr.words"
 	touch "$5"
-	unlink "$i1new"
-	unlink "$i2new"
 	# echo -e "$3\n$2\n" > "${4}.meta"
 }
 
