@@ -1,14 +1,15 @@
 id="mgiza"
 varname="MGIZA"
-version="2014-10-06"
+version="2015-06-02"
 binpath="$id"
 
 download () {
-	wget -O - "http://giza-pp.googlecode.com/files/giza-pp-v1.0.7.tar.gz" | tar xz
-	svn checkout "svn://svn.code.sf.net/p/mgizapp/code/trunk" "mgizapp-code"
+	for repository in giza-pp mgiza mosesdecoder
+	do
+		rm -rf "${repository}"
+		git clone --depth 1 "git://github.com/moses-smt/${repository}.git"
+	done
 	wget "http://www.cs.cmu.edu/~qing/release/merge_alignment.py"
-	rm -rf "mosesdecoder"
-	git clone --depth 1 "git://github.com/moses-smt/mosesdecoder.git"
 }
 
 install_me () {
@@ -18,7 +19,7 @@ install_me () {
 		cp GIZA++-v2/{plain2snt.out,snt2cooc.out} mkcls-v2/mkcls "$1/."
 	popd
 # install mgiza
-	pushd mgizapp-code/mgizapp
+	pushd mgiza/mgizapp
 		rm -f CMakeCache.txt
 		sed -i "s/set(Boost_USE_STATIC_LIBS        ON)/set(Boost_USE_STATIC_LIBS       OFF)/g" CMakeLists.txt
 		sed -i "s/FIND_PACKAGE( Boost 1.41 COMPONENTS thread)/FIND_PACKAGE(Boost COMPONENTS thread system)/g" CMakeLists.txt
