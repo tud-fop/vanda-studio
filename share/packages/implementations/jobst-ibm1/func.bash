@@ -1,5 +1,5 @@
 # JobstTrain
-# Version: 2014-02-06
+# Version: 2015-06-02
 # Contact: Tobias.Denkinger@tu-dresden.de
 # IN english corpus :: SentenceCorpus
 # IN french corpus :: SentenceCorpus
@@ -10,10 +10,10 @@ JobstTrain () {
 	i1new="$1/corpus.en"
 	i2new="$1/corpus.fr"
 	if [[ ! -f "$i1new" ]]; then
-		ln -svf "$2" "$i1new"
+		ln -frsv "$2" "$i1new"
 	fi
 	if [[ ! -f "$i2new" ]]; then
-		ln -svf "$3" "$i2new"
+		ln -frsv "$3" "$i2new"
 	fi
 	(sleep "$4" && echo "\n") | "$JOBST/translate" "$1/corpus" en fr train
 	mv "$1/corpus_fr_en.bigram" "${5}_fr_en.bigram"

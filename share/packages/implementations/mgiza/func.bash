@@ -1,5 +1,5 @@
 # GIZA
-# Version: 2015-06-01
+# Version: 2015-06-02
 # Contact: Tobias.Denkinger@tu-dresden.de
 # Category: alignments
 # IN english corpus :: SentenceCorpus
@@ -13,8 +13,8 @@ GIZA () {
 	## (1) prepare data
 	mkdir -p "$1"
 
-	ln -s "$2" "$1/en"
-	ln -s "$3" "$1/fr"
+	ln -frsv "$2" "$1/en"
+	ln -frsv "$3" "$1/fr"
 
 	"$MGIZA/mkcls" -c50 -n2 "-p$1/en" "-V$1/en.vcb.classes" opt
 	"$MGIZA/mkcls" -c50 -n2 "-p$1/fr" "-V$1/fr.vcb.classes" opt
