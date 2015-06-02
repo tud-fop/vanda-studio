@@ -21,8 +21,6 @@ install_me () {
 # install mgiza
 	pushd mgiza/mgizapp
 		rm -f CMakeCache.txt
-		sed -i "s/set(Boost_USE_STATIC_LIBS        ON)/set(Boost_USE_STATIC_LIBS       OFF)/g" CMakeLists.txt
-		sed -i "s/FIND_PACKAGE( Boost 1.41 COMPONENTS thread)/FIND_PACKAGE(Boost COMPONENTS thread system)/g" CMakeLists.txt
 		cmake .
 		make mgiza
 		cp bin/mgiza "$1/."
