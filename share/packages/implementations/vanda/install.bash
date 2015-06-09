@@ -1,22 +1,20 @@
 id="vanda"
 varname="VANDA"
-version="2014-06-10"
+version="2015-04-30"
 binpath="$id"
 
-VANDA="tcs.inf.tu-dresden.de/~tdenk/public_git/vanda"
-VERSION="0ba1876263338c68654ff4e3611b49ca797f3d7b"
+VANDA="git@gitlab.tcs.inf.tu-dresden.de:vanda/vanda.git"
 
 install_me () {
 	if [[ ! -d "$1/.git" ]]
 	then
-		read -p 'Your login on tcs.inf.tu-dresden.de: '
-		git clone "ssh://${REPLY}@${VANDA}" "$1"
+		git clone "${VANDA}" "$1"
 		cd "$1"
 	else
 		cd "$1"
-		git fetch origin master
+		git pull origin master
 	fi
-	git checkout "$VERSION"
+	cabal install -p --only-dependencies
 	runhaskell "tools/Setup.hs" configure --user
 	runhaskell "tools/Setup.hs" build
 	ghc -package-db dist/package.conf.inplace --make "programs/XRSToHypergraph.hs"
