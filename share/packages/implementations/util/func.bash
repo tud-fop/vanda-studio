@@ -1,6 +1,6 @@
 # Sink
-# Version: 2013-01-16
-# Contact: Matthias.Buechse@tu-dresden.de
+# Version: 2015-06-01
+# Contact: Tobias.Denkinger@tu-dresden.de
 # Category: basics
 # IN in :: t0
 #
@@ -49,9 +49,8 @@ run () {
 			echo "Running: ${args[0]}" >> "$logFile"
 			find "$tmpDir" ! -path "$tmpDir" ! -iname "log" -delete
 			(
-				set -ex
+				set -ex -o pipefail
 				"${@:3}" 3>&1 &>> "$logFile" | while read line; do echo "Progress: $1@$line"; done
-
 			)
 			retVal="$?"
 		else
@@ -63,11 +62,10 @@ run () {
 		echo "Running: ${args[0]}" >> "$logFile"
 		find "$tmpDir" ! -path "$tmpDir" ! -iname "log" -delete
 		(
-			set -ex
+			set -ex -o pipefail
 			"${@:3}" 3>&1 &>> "$logFile" | while read line; do echo "Progress: $1@$line"; done
 		)
 		retVal="$?"
-		set +ev
 	fi
 	echo "Returned: $retVal" >> "$logFile"
 
