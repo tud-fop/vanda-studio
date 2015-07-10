@@ -86,3 +86,39 @@ NGrams () {
 NGramsTrain () {
 	"$VANDA/programs/NGrams" --train -n "$2" -k "$3" < "$4" > "$5"
 }
+
+# NegraToLCFRS
+# Version: 2015-07-09
+# Contact: sebastian.mielke@tu-dresden.de
+# Category: Language Model
+# IN corpus :: NegraCorpus
+# OUT plcfrs :: PLCFRS
+#
+# Extract a probabilistic LCFRS from a corpus (NEGRA export format)
+NegraToLCFRS () {
+	"$VANDA/programs/NegraToLCFRS" -n "$2" -o "$3"
+}
+
+# BinarizeLCFRSNaively
+# Version: 2015-07-09
+# Contact: sebastian.mielke@tu-dresden.de
+# Category: Language Model
+# IN plcfrs :: PLCFRS
+# OUT binarizedplcfrs :: PLCFRS
+#
+# Binarizes a probabilistic LCFRS naively
+BinarizeLCFRSNaively () {
+	"$VANDA/programs/BinarizeLCFRS" naive -i "$2" -o "$3"
+}
+
+# BinarizeLCFRSLowMaxFo
+# Version: 2015-07-09
+# Contact: sebastian.mielke@tu-dresden.de
+# Category: Language Model
+# IN plcfrs :: PLCFRS
+# OUT binarizedplcfrs :: PLCFRS
+#
+# Binarizes a probabilistic LCFRS optimally (lowest maximal fanout)
+BinarizeLCFRSLowMaxFo () {
+	"$VANDA/programs/BinarizeLCFRS" lowmaxfo -i "$2" -o "$3"
+}

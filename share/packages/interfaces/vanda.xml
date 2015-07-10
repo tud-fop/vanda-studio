@@ -162,4 +162,60 @@
 		</tool>
 
 	</toolinterface>
+
+	<toolinterface
+		id="lcfrs"
+		name="LCFRS"
+		version="2015-07-09"
+		contact="sebastian.mielke@tu-dresden.de"
+		category="Language Models::Training">
+
+		<description>Tools related to probabilistic linear context-free rewriting systems (LCFRS).</description>
+
+		<tool
+			type="Shell"
+			id="NegraToLCFRS"
+			name="NegraToLCFRS"
+			version="2015-07-09"
+			contact="sebastian.mielke@tu-dresden.de"
+			category="Language Models::Training"
+			status="">
+
+			<description>Extracts a probabilistic LCFRS from a corpus (NEGRA export format).</description>
+
+			<in name="corpus" type="NegraCorpus" />
+			<out name="plcfrs" type="PLCFRS" />
+		</tool>
+		
+		<tool
+			type="Shell"
+			id="BinarizeLCFRSNaively"
+			name="BinarizeLCFRSNaively"
+			version="2015-07-09"
+			contact="sebastian.mielke@tu-dresden.de"
+			category="Language Models::Training"
+			status="">
+
+			<description>Binarizes a probabilistic LCFRS naively.</description>
+
+			<in name="plcfrs" type="PLCFRS" />
+			<out name="binarizedplcfrs" type="PLCFRS" />
+		</tool>
+		
+		<tool
+			type="Shell"
+			id="BinarizeLCFRSLowMaxFo"
+			name="BinarizeLCFRSLowMaxFo"
+			version="2015-07-09"
+			contact="sebastian.mielke@tu-dresden.de"
+			category="Language Models::Training"
+			status="">
+
+			<description>Binarizes a probabilistic LCFRS optimally (lowest maximal fanout).</description>
+
+			<in name="plcfrs" type="PLCFRS" />
+			<out name="binarizedplcfrs" type="PLCFRS" />
+		</tool>
+		
+	</toolinterface>
 </root>
