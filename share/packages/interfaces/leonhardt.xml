@@ -43,6 +43,7 @@
 
 			<in name="corpus" type="SentenceCorpus" />
 			<out name="hmm" type="HiddenMarkovModel" />
+			<out name="wordmap" type="Wordmap" />
 		</tool>
 
 
@@ -137,6 +138,7 @@
 
 			<in name="corpus" type="SentenceCorpus" />
 			<out name="hmm" type="HiddenMarkovModel" />
+			<out name="wordmap" type="Wordmap" />
 		</tool>
 
 
@@ -168,8 +170,9 @@
 			
 			<description>Parses a corpus with a Hidden-Markov-Model.</description>
 
-			<in name="corpus" type="SentenceCorpus" />
 			<in name="hmm" type="HiddenMarkovModel" />
+			<in name="wordmap" type="Wordmap" />
+			<in name="corpus" type="SentenceCorpus" />
 			<out name="scores" type="Scores" />
 		</tool>
 
