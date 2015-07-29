@@ -25,6 +25,7 @@ import org.vanda.util.Observer;
 public class MonospacePreviewFactory implements PreviewFactory {
 	private final List<WeakReference<Preview>> previews;
 	private final Application app;
+	private final String postfix;
 	private Observer<Application> uiModeObserver;
 
 	private interface FontSizeSelector {
@@ -92,7 +93,7 @@ public class MonospacePreviewFactory implements PreviewFactory {
 		private void updateSizes() {
 			setFont(fontSizeSelector.setFontSize(getFont()));
 		}
-
+		
 		public MonospacePreview(String value) {
 			setContentType("text/plain; charset=utf-8");
 			setFont(new Font("Unifont", getFont().getStyle(), getFont().getSize()));
@@ -126,9 +127,14 @@ public class MonospacePreviewFactory implements PreviewFactory {
 		}
 
 	}
-	
+
 	public MonospacePreviewFactory(Application app) {
+		this(app, "");
+	}
+		
+	public MonospacePreviewFactory(Application app, String postfix) {
 		this.app = app;
+		this.postfix = postfix;
 		this.previews = new ArrayList<WeakReference<Preview>>();
 		uiModeObserver = new Previews.UIObserver(previews);
 		app.getUIModeObservable().addObserver(uiModeObserver);
@@ -136,7 +142,7 @@ public class MonospacePreviewFactory implements PreviewFactory {
 
 	@Override
 	public JComponent createPreview(String value) {
-		MonospacePreview mp = new MonospacePreview(value);
+		MonospacePreview mp = new MonospacePreview(value + postfix);
 		previews.add(new WeakReference<Preview>(mp));
 		return new JScrollPane(mp);
 	}
