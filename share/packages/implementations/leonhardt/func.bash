@@ -63,9 +63,6 @@ HMM_State-Splitting_less_seed () {
 	java -Xmx2048m -jar "$STATE_SPLITTING/HMM-SS.jar" -statesplitting -input "$2" -output "$4" "$5" -s "$3"
 }
 
-
-
-
 # Hidden-Markov-Model normal training
 # Version: 2012-06-02
 # Contact: christof.leonhardt@mailbox.tu-dresden.de
@@ -99,7 +96,6 @@ HMM_Normal_seed () {
 	java -Xmx2048m -jar "$STATE_SPLITTING/HMM-SS.jar" -normal -input "$2" -output "$7" "$8" -c "$3" -n "$4" -s "$6" -a "$5"
 }
 
-
 # Hidden-Markov-Model normal training
 # Version: 2012-06-02
 # Contact: christof.leonhardt@mailbox.tu-dresden.de
@@ -127,21 +123,19 @@ HMM_Normal_less_seed () {
 	java -Xmx2048m -jar "$STATE_SPLITTING/HMM-SS.jar" -normal -input "$2" -output "$4" "$5" -s "$3"
 }
 
-
-
 # Hidden-Markov-Model parsing
 # Version: 2012-06-02
 # Contact: christof.leonhardt@mailbox.tu-dresden.de
 # Category: training
-# IN corpus :: SentenceCorpus
 # IN hmm :: HiddenMarkovModel
 # IN wordmap :: Wordmap
+# IN corpus :: SentenceCorpus
 # OUT scores :: Scores
 #
 # Parses a Hidden-Markov-Model
 HMM_Parse () {
-	java -Xmx2048m -jar "$STATE_SPLITTING/HMM-SS.jar" -parse -input "$3" "$4" < "$2" | PROGRESS "$2" > "$5"
-	echo "$2" > "${5}.meta"
+	java -Xmx2048m -jar "$STATE_SPLITTING/HMM-SS.jar" -parse -input "$2" "$3" < "$4" | PROGRESS "$4" > "$5"
+	echo "$4" > "${5}.meta"
 }
 
 # Perplexity Calculating
