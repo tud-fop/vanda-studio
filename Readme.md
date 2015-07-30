@@ -45,7 +45,7 @@ Alternativ sollen eines Tages stabile Versionen der Toolpakete zum Download ange
 | leonhardt | leonhardt | HMM mit State-Splitting | ``javac``, ``jar`` | ``java`` ||
 | morgenroth | morgenroth | BLEU-Score | ``ghc`` |||
 | remEmptyLines | remEmptyLines | remove empty lines from parallel corpora | ``ghc`` |||
-| rparse | rparse | employ the rparse-Parser for LCFRS | ``git``, ``and``, ``javac`` | ``sed``, ``java`` ||
+| rparse | rparse | employ the rparse-Parser for LCFRS | ``git``, ``ant``, ``javac`` | ``sed``, ``java`` ||
 | stanford-postagger | stanford-postagger | Stanford Log-linear Part-Of-Speech Tagger | ``unzip`` | ``java`` ||
 | tiburon | tiburon | Werkzeuge für Baumautomaten | ``tiburon.jar`` | ``java`` ||
 | vanda | vanda | Werkzeuge aus der Haskell-Bibliothek | ``git``, ``runhaskell``, ``ghc`` |||
