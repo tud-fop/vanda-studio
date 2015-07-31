@@ -1,0 +1,26 @@
+<root>
+	<toolinterface
+		id="stanford-postagger1"
+		name="stanford postagger"
+		version="2015-06-30"
+		contact="Tobias.Denkinger@tu-dresden.de"
+		category="">
+		
+		<description>Tools related to rparse.</description>
+		
+		<tool
+			type="Shell"
+			id="StanfordTagger"
+			name="Stanford POS-tagger"
+			version="2015-06-29"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Language Models::Tagging">
+			
+			<description>Stanford POS-tagger. Corpus must not contain empty lines.</description>
+	
+			<in name="tagger" type="StPOStagger" />
+			<in name="corpus" type="SentenceCorpus" />
+			<out name="taggedCorpus" type="TaggedCorpus" />
+		</tool>
+	</toolinterface>
+</root>

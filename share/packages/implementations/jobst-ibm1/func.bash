@@ -28,5 +28,5 @@ JobstTrain () {
 # IN french corpus :: SentenceCorpus
 # OUT english corpus :: SentenceCorpus
 JobstTranslate () {
-	"$JOBST/translate" "$2" en fr decode < "$3" > "$4"
+	"$JOBST/translate" "$2" en fr decode < "$3" | sed '1d; n; d' > "$4"
 }

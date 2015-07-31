@@ -1,0 +1,40 @@
+<root>
+	<toolinterface
+		id="rparse1"
+		name="rparse tools"
+		version="2015-07-29"
+		contact="Tobias.Denkinger@tu-dresden.de"
+		category="">
+		
+		<description>Tools related to rparse.</description>
+		
+		<tool
+			type="Shell"
+			id="rparseParser"
+			name="rparse parser"
+			version="2015-07-29"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Language Models::Parsing">
+			
+			<description>rparse parser. Corpus must not contain empty lines.</description>
+	
+			<in name="grammar" type="RparseLCFRS" />
+			<in name="corpus" type="TaggedCorpus" />
+			<out name="trees" type="NeGraCorpus" />
+		</tool>
+		
+		<tool
+			type="Shell"
+			id="rparseTrain"
+			name="rparse training"
+			version="2015-06-29"
+			contact="Tobias.Denkinger@tu-dresden.de"
+			category="Language Models::Training">
+			
+			<description>Creates an LCFRS from a NeGra corpus.</description>
+	
+			<in name="corpus" type="NeGraCorpus" />
+			<out name="grammar" type="RparseLCFRS" />
+		</tool>
+	</toolinterface>
+</root>

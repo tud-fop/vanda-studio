@@ -32,6 +32,8 @@ public class PreviewsModule implements Module {
 		// app.registerPreviewFactory(new CompositeType("Execution"),
 		// new WorkflowExecutionPreview(app, profile);
 		app.registerPreviewFactory(null, new MonospacePreviewFactory(app));
+		app.registerPreviewFactory(new CompositeType("StPOStagger"),
+				new MonospacePreviewFactory(app, ".props"));
 		return null;
 	}
 
