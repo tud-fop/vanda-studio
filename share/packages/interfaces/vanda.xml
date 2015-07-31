@@ -174,8 +174,8 @@
 
 		<tool
 			type="Shell"
-			id="NegraToLCFRS"
-			name="NegraToLCFRS"
+			id="ExtractPLCFRS"
+			name="ExtractPLCFRS"
 			version="2015-07-09"
 			contact="sebastian.mielke@tu-dresden.de"
 			category="Language Models::Training"
@@ -183,7 +183,7 @@
 
 			<description>Extracts a probabilistic LCFRS from a corpus (NEGRA export format).</description>
 
-			<in name="corpus" type="NegraCorpus" />
+			<in name="corpus" type="NeGraCorpus" />
 			<out name="plcfrs" type="PLCFRS" />
 		</tool>
 		
@@ -201,7 +201,7 @@
 			<in name="plcfrs" type="PLCFRS" />
 			<out name="binarizedplcfrs" type="PLCFRS" />
 		</tool>
-		
+
 		<tool
 			type="Shell"
 			id="BinarizeLCFRSLowMaxFo"
@@ -213,6 +213,37 @@
 
 			<description>Binarizes a probabilistic LCFRS optimally (lowest maximal fanout).</description>
 
+			<in name="plcfrs" type="PLCFRS" />
+			<out name="binarizedplcfrs" type="PLCFRS" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="BinarizeLCFRSHybrid"
+			name="BinarizeLCFRSHybrid"
+			version="2015-07-31"
+			contact="sebastian.mielke@tu-dresden.de"
+			category="Language Models::Training"
+			status="">
+
+			<description>Binarize rules up to rank 5 optimally and the rest naively.</description>
+
+			<in name="plcfrs" type="PLCFRS" />
+			<out name="binarizedplcfrs" type="PLCFRS" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="BinarizeLCFRSHybrid2"
+			name="BinarizeLCFRSHybrid"
+			version="2015-07-31"
+			contact="sebastian.mielke@tu-dresden.de"
+			category="Language Models::Training"
+			status="">
+
+			<description>Binarize rules up to rank "bound" optimally and the rest naively.</description>
+
+			<in name="bound" type="Integer" />
 			<in name="plcfrs" type="PLCFRS" />
 			<out name="binarizedplcfrs" type="PLCFRS" />
 		</tool>

@@ -35,7 +35,7 @@ PennToSentenceCorpus () {
 # Intersects a language model in ARPA format with a GHKM hypergraph.
 XRSNGrams () {
 	"$VANDA/programs/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
-	"$VANDA/programs/XRSNGrams" -p "Pruning" -b "100" -e "$1/map.e" -z "$1/zhg" -l "$3"
+	"$VANDA/dist/build/Vanda/Vanda" xrsngrams product --no-backoff "$1/zhg" "$1/map.e" "$1/map.f" "$3"
 	"$VANDA/programs/XRSToHypergraph" b2t -e "$1/map.e" -f "$1/map.f" -z "$1/zhg.new" > "$4"
 }
 
@@ -53,9 +53,9 @@ XRSNGrams () {
 XRSNGramsTranslate () {
 	"$VANDA/programs/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
 	if [ "$4" -eq "0" ]; then
-		"$VANDA/programs/XRSNGrams" -t "NoBackoff" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" -l "$3" < "$5" > "$6"
+		"$VANDA/dist/build/Vanda/Vanda" xrsngrams translate --no-backoff "$1/zhg" "$1/map.e" "$1/map.f" "$3" < "$5" > "$6"
 	else
-		"$VANDA/programs/XRSNGrams" -t "Pruning" -b "$4" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" -l "$3" < "$5" > "$6"
+		"$VANDA/dist/build/Vanda/Vanda" xrsngrams translate --prune="$4" "$1/zhg" "$1/map.e" "$1/map.f" "$3" < "$5" > "$6"
 	fi
 }
 
@@ -69,7 +69,7 @@ XRSNGramsTranslate () {
 #
 # Evaluates the corpus according to the given model.
 NGrams () {
-	"$VANDA/programs/NGrams" "$2" < "$3" > "$4"
+	"$VANDA/dist/build/Vanda/Vanda" ngrams evaluate "$2" < "$3" > "$4"
 	echo "$3" > "${4}.meta"
 }
 
@@ -84,19 +84,19 @@ NGrams () {
 #
 # Trains an n-gram model.
 NGramsTrain () {
-	"$VANDA/programs/NGrams" --train -n "$2" -k "$3" < "$4" > "$5"
+	"$VANDA/dist/build/Vanda/Vanda" ngrams train --bound="$3" --degree="$2" < "$4" > "$5"
 }
 
-# NegraToLCFRS
+# ExtragtPLCFRS
 # Version: 2015-07-09
 # Contact: sebastian.mielke@tu-dresden.de
 # Category: Language Model
-# IN corpus :: NegraCorpus
+# IN corpus :: NeGraCorpus
 # OUT plcfrs :: PLCFRS
 #
 # Extract a probabilistic LCFRS from a corpus (NEGRA export format)
-NegraToLCFRS () {
-	"$VANDA/programs/NegraToLCFRS" -n "$2" -o "$3"
+ExtractPLCFRS () {
+  iconv "--from-code=$(file --brief --mime-encoding "$2")" "--to-code=utf-8" "$2" | "$VANDA/dist/build/Vanda/Vanda" lcfrs extract "$3"
 }
 
 # BinarizeLCFRSNaively
@@ -108,7 +108,7 @@ NegraToLCFRS () {
 #
 # Binarizes a probabilistic LCFRS naively
 BinarizeLCFRSNaively () {
-	"$VANDA/programs/BinarizeLCFRS" naive -i "$2" -o "$3"
+	"$VANDA/dist/build/Vanda/Vanda" lcfrs binarize --naive "$2" "$3"
 }
 
 # BinarizeLCFRSLowMaxFo
@@ -120,5 +120,30 @@ BinarizeLCFRSNaively () {
 #
 # Binarizes a probabilistic LCFRS optimally (lowest maximal fanout)
 BinarizeLCFRSLowMaxFo () {
-	"$VANDA/programs/BinarizeLCFRS" lowmaxfo -i "$2" -o "$3"
+	"$VANDA/dist/build/Vanda/Vanda" lcfrs binarize --optimal "$2" "$3"
+}
+
+# BinarizeLCFRSHybrid
+# Version: 2015-07-31
+# Contact: sebastian.mielke@tu-dresden.de
+# Category: Language Model
+# IN plcfrs :: PLCFRS
+# OUT binarizedplcfrs :: PLCFRS
+#
+# Binarize rules up to rank 5 optimally and the rest naively.
+BinarizeLCFRSHybrid () {
+	"$VANDA/dist/build/Vanda/Vanda" lcfrs binarize --hybrid=5 "$2" "$3"
+}
+
+# BinarizeLCFRSHybrid
+# Version: 2015-07-31
+# Contact: sebastian.mielke@tu-dresden.de
+# Category: Language Model
+# IN bound :: Integer
+# IN plcfrs :: PLCFRS
+# OUT binarizedplcfrs :: PLCFRS
+#
+# Binarize rules up to rank "bound" optimally and the rest naively.
+BinarizeLCFRSHybrid2 () {
+	"$VANDA/dist/build/Vanda/Vanda" lcfrs binarize --hybrid="$2" "$3" "$4"
 }
