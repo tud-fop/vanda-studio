@@ -545,7 +545,7 @@ public class NegraTreePreviewFactory implements PreviewFactory {
 	}
 
 	public JComponent createPreview(String value) {
-    String name = valuesubstring(0, str.lastIndexOf('.')) + postfix
+    String name = value.substring(0, value.lastIndexOf('.')) + postfix;
 		if ((new File(name)).exists())
 			return new BerkeleyTreePreview(name);
     else
