@@ -138,7 +138,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 			@Override
 			public void run() {
 				try {
-					Desktop.getDesktop().open(new File(value + postfix));
+					Desktop.getDesktop().open(new File(app.findFile(value + postfix)));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
