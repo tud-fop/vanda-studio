@@ -249,4 +249,94 @@
 		</tool>
 		
 	</toolinterface>
+
+	<toolinterface
+		id="Vanda-pcfg"
+		name="Vanda-pcfg"
+		version="2015-10-06"
+		contact="Toni.Dietze@tu-dresden.de"
+		category="Language Models::Parsing">
+
+		<description>Tools from vanda for pcfg.</description>
+
+		<tool
+			type="Shell"
+			id="Vanda-pcfg-extract"
+			name="pcfg read-off"
+			version="2015-10-06"
+			contact="Toni.Dietze@tu-dresden.de"
+			category="Language Models::Training"
+			status="">
+
+			<description>Extract a pcfg from treebank.</description>
+
+			<in name="trees" type="PennTreeCorpus" />
+			<out name="pcfg" type="VandaBinaryPCFG" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="Vanda-pcfg-train"
+			name="pcfg train"
+			version="2015-10-06"
+			contact="Toni.Dietze@tu-dresden.de"
+			category="Language Models::Training"
+			status="">
+
+			<description>Estimate the rule probabilities of a pcfg with unsupervised training.</description>
+
+			<in name="pcfg-in" type="VandaBinaryPCFG" />
+			<in name="sentences" type="SentenceCorpus" />
+			<in name="em-iterations" type="Integer" />
+			<out name="pcfg-out" type="VandaBinaryPCFG" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="Vanda-pcfg-bests"
+			name="pcfg n-best"
+			version="2015-10-06"
+			contact="Toni.Dietze@tu-dresden.de"
+			category="Language Models::Generation"
+			status="">
+
+			<description>Find the most probable parse trees of a pcfg.</description>
+
+			<in name="pcfg" type="VandaBinaryPCFG" />
+			<in name="count" type="Integer" />
+			<out name="trees" type="PennTreeCorpus" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="Vanda-pcfg-intersect"
+			name="pcfg intersect"
+			version="2015-10-06"
+			contact="Toni.Dietze@tu-dresden.de"
+			category="Language Models::Parsing"
+			status="">
+
+			<description>Intersect a pcfg with a sentence resulting in a pcfg that allows exactly those derivations that produce the given sentence.</description>
+
+			<in name="pcfg-in" type="VandaBinaryPCFG" />
+			<in name="sentence" type="SingleSentence" />
+			<out name="pcfg-out" type="VandaBinaryPCFG" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="Vanda-pcfg-convert-bin-to-text"
+			name="pcfg to text"
+			version="2015-10-06"
+			contact="Toni.Dietze@tu-dresden.de"
+			category="Language Models::Conversion"
+			status="">
+
+			<description>Convert a binary representation of a pcfg into human readable text.</description>
+
+			<in name="pcfg-in" type="VandaBinaryPCFG" />
+			<out name="pcfg-out" type="TextualBerkeleyGrammar" />
+		</tool>
+
+	</toolinterface>
 </root>

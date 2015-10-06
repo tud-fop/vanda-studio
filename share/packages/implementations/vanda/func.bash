@@ -147,3 +147,68 @@ BinarizeLCFRSHybrid () {
 BinarizeLCFRSHybrid2 () {
 	"$VANDA/dist/build/Vanda/Vanda" lcfrs binarize --hybrid="$2" "$3" "$4"
 }
+
+# Vanda-pcfg-extract
+# Version: 2015-10-06
+# Contact: Toni.Dietze@tu-dresden.de
+# Category: Language Models::Training
+# IN trees :: PennTreeCorpus
+# OUT pcfg :: VandaBinaryPCFG
+#
+# Extract a pcfg from treebank.
+Vanda-pcfg-extract () {
+	"${VANDA}/dist/build/Vanda/Vanda" pcfg extract --bout "$3" "$2"
+}
+
+# Vanda-pcfg-train
+# Version: 2015-10-06
+# Contact: Toni.Dietze@tu-dresden.de
+# Category: Language Models::Training
+# IN pcfg-in :: VandaBinaryPCFG
+# IN sentences :: SentenceCorpus
+# IN em-iterations :: Integer
+# OUT pcfg-out :: VandaBinaryPCFG
+#
+# Estimate the rule probabilities of a pcfg with unsupervised training.
+Vanda-pcfg-train () {
+	"${VANDA}/dist/build/Vanda/Vanda" pcfg train --bin --bout "$2" "$5" "$3" "$4"
+}
+
+# Vanda-pcfg-n-best
+# Version: 2015-10-06
+# Contact: Toni.Dietze@tu-dresden.de
+# Category: Language Models::Generation
+# IN pcfg :: VandaBinaryPCFG
+# IN count :: Integer
+# OUT trees :: PennTreeCorpus
+#
+# Find the most probable parse trees of a pcfg.
+Vanda-pcfg-bests () {
+	"${VANDA}/dist/build/Vanda/Vanda" pcfg bests --bin "$2" "$3" > "$4"
+}
+
+# Vanda-pcfg-intersect
+# Version: 2015-10-06
+# Contact: Toni.Dietze@tu-dresden.de
+# Category: Language Models::Parsing
+# IN pcfg-in :: VandaBinaryPCFG
+# IN sentence :: SingleSentence
+# OUT pcfg-out :: VandaBinaryPCFG
+#
+# Intersect a pcfg with a sentence resulting in a pcfg that allows exactly those derivations that produce the given sentence.
+Vanda-pcfg-intersect () {
+	"${VANDA}/dist/build/Vanda/Vanda" pcfg intersect --bin --bout "$2" "$4" "$(cat "$3")"
+}
+
+# Vanda-pcfg-convert-bin-to-text
+# Version: 2015-10-06
+# Contact: Toni.Dietze@tu-dresden.de
+# Category: Language Models::Conversion
+# IN pcfg-in :: VandaBinaryPCFG
+# OUT pcfg-out :: TextualBerkeleyGrammar
+#
+# Convert a binary representation of a pcfg into human readable text.
+Vanda-pcfg-convert-bin-to-text () {
+	"${VANDA}/dist/build/Vanda/Vanda" pcfg convert --bin "$2" "$3"
+	mv "$3"{,.grammar}
+}
