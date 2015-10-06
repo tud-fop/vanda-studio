@@ -3,7 +3,7 @@ varname="VANDA"
 version="2015-07-31"
 binpath="$id"
 
-VANDA="https://gitlab.tcs.inf.tu-dresden.de/vanda/vanda-studio.git"
+VANDA="https://gitlab.tcs.inf.tu-dresden.de/vanda/vanda.git"
 
 install_me () {
 	if [[ ! -d "$1/.git" ]]
