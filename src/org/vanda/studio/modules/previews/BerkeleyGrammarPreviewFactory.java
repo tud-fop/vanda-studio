@@ -80,11 +80,12 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 			model.removeElement(MORE);
 			String[] l;
 			int i = 0;
-			while (i < SIZE & fs.hasNextLine()) {
-				if (fs.nextLine().isEmpty())
+			while (i < SIZE && fs.hasNextLine()) {
+				String line = fs.nextLine();
+				if (line.isEmpty())
 					continue;
 				String txt = "<html>";
-				l = fs.nextLine().split(" ");
+				l = line.split(" ");
 				for (String s : l) {
 					if (s.equals("->"))
 						txt += " &#10230; ";
