@@ -81,6 +81,8 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 			String[] l;
 			int i = 0;
 			while (i < SIZE & fs.hasNextLine()) {
+				if (fs.nextLine().isEmpty())
+					continue;
 				String txt = "<html>";
 				l = fs.nextLine().split(" ");
 				for (String s : l) {
