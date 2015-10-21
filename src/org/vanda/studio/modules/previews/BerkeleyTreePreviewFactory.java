@@ -270,7 +270,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			if (tree != null)
-				width = drawTree(g2, 0, 2, tree);
+				width = drawTree(g2, 0, 0, 2, tree);
 		}
 
 		@Override
@@ -299,23 +299,24 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 		 *            subtree to draw
 		 * @return new right edge of latest drawn tree
 		 */
-		public int drawTree(Graphics2D g, int level, int seedX, Tree t) {
+		public int drawTree(Graphics2D g, int level, int longestAbove, int seedX, Tree t) {
 			int currentX = seedX;
-			int width = g.getFontMetrics().stringWidth(t.label);
+			int actualWidth = g.getFontMetrics().stringWidth(t.label);
+			int reservedWidth = Math.max(actualWidth, longestAbove);
 			int xMid;
 			if (t.children.length == 0) {
 				g.setColor(Color.BLUE);
-				g.drawString(t.label, currentX + DX, 2 + FONT_SIZE + level
+				g.drawString(t.label, currentX + DX + (reservedWidth - actualWidth) / 2, 2 + FONT_SIZE + level
 						* (DY + FONT_SIZE));
 				g.setColor(Color.BLACK);
 
-				xMid = currentX + DX + width / 2;
+				xMid = currentX + DX + reservedWidth / 2;
 				seeds.put(t, xMid);
-				currentX += DX + width;
+				currentX += DX + reservedWidth;
 			} else {
 				// draw the subtrees
 				for (Tree t1 : t.children)
-					currentX = drawTree(g, level + 1, currentX, t1);
+					currentX = drawTree(g, level + 1, reservedWidth, currentX, t1);
 
 				// determine x value of the nodes center
 				xMid = (seeds.get(t.children[0]) + seeds
@@ -323,7 +324,7 @@ public class BerkeleyTreePreviewFactory implements PreviewFactory {
 				seeds.put(t, xMid);
 
 				// draw the node
-				g.drawString(t.label, xMid - width / 2, 2 + FONT_SIZE + level
+				g.drawString(t.label, xMid - actualWidth / 2, 2 + FONT_SIZE + level
 						* (DY + FONT_SIZE));
 
 				// draw the branches
