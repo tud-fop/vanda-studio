@@ -83,7 +83,6 @@ public final class InspectorialVisitor implements SelectionVisitor {
 		sb.append("</td><td>&nbsp;</td><th align=left>Contact</th><td>");
 		sb.append(j.getElement().getContact());
 		sb.append("</td></tr>");
-		// sb.append("<tr><th align=center colspan=2>Inputs</th><td></td><th align=center colspan=2>Outputs</th></tr>");
 		sb.append("<tr><th valign=top align=left>Inputs</th><td valign=top><table><tr><th align=left>Identifier</th><th align=left>Type</th></tr>");
 		for (Port p : j.getInputPorts()) {
 			sb.append("<tr><td>");
@@ -100,69 +99,13 @@ public final class InspectorialVisitor implements SelectionVisitor {
 			sb.append(p.getType());
 			sb.append("</td></tr>");
 		}
-		/*
-		ListIterator<Port> ips = j.getInputPorts().listIterator();
-		ListIterator<Port> ops = j.getOutputPorts().listIterator();
-		while (ips.hasNext() || ops.hasNext()) {
-			Port ip = ips.hasNext() ? ips.next() : null;
-			Port op = ops.hasNext() ? ops.next() : null;
-			sb.append("<tr>");
-			sb.append("<td>");
-			if (ip != null)
-				sb.append(ip.getIdentifier().toLowerCase(Locale.ENGLISH));
-			sb.append("</td>");
-			sb.append("<td>");
-			if (ip != null)
-				sb.append(ip.getType());
-			sb.append("</td>");
-			// sb.append("</tr><tr>");
-			sb.append("<td>");
-			if (op != null)
-				sb.append(op.getIdentifier().toLowerCase(Locale.ENGLISH));
-			sb.append("</td>");
-			sb.append("<td>");
-			if (op != null)
-				sb.append(op.getType());
-			sb.append("</td>");
-			sb.append("</tr>");
-		}*/
 		sb.append("</table></td></tr>");
-		sb.append("</table></html>");
-		/*
-		sb.append("<html><h1>");
-		sb.append(j.getElement().getName());
-		sb.append("</h1><dl><dt>Contact</dt><dd>");
-		sb.append(j.getElement().getContact());
-		sb.append("</dd><dt>Category</dt><dd>");
-		sb.append(j.getElement().getCategory());
-		sb.append("</dd></dl>");
-		sb.append("<h2>Ports</h2><table width=\"400px\"><tr>"
-				+ "<th>Input Ports</th>");
-		sb.append("<th>Output Ports</th></tr>");
-		sb.append("<tr><td><ul>");
-		for (Port p : j.getInputPorts()) {
-			sb.append("<li>");
-			sb.append(p.getIdentifier().toLowerCase(Locale.ENGLISH));
-			sb.append("<br>&nbsp; :: ");
-			sb.append(p.getType());
-			sb.append("</li>");
-		}
-		sb.append("</ul></td><td><ul>");
-		for (Port p : j.getOutputPorts()) {
-			sb.append("<li>");
-			sb.append(p.getIdentifier().toLowerCase(Locale.ENGLISH));
-			sb.append("<br>&nbsp; :: ");
-			sb.append(p.getType());
-			sb.append("</li>");
-		}
-		sb.append("</ul></td></tr></table>");
-		sb.append("<h2>Description</h2>");
-		// sb.append("<p>");
+		sb.append("</table>");
+		sb.append("<table><tr><th align=left>Description</th></tr>");
+		sb.append("<tr><td>");
 		sb.append(j.getElement().getDescription());
-		sb.append("<p>");
-		// j.visit(this);
-		sb.append("</html>");
-		*/
+		sb.append("</td></tr>");
+		sb.append("</table></html>");
 	}
 
 	public String getInspection() {
