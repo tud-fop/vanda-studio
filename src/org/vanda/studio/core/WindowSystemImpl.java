@@ -117,7 +117,6 @@ public class WindowSystemImpl implements WindowSystem {
 		mainWindow.setSize(800, 600);
 		mainWindow.setLocation(100, 100);
 		mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		mainWindow.getContentPane().setLayout(new BorderLayout());
 		mainWindow.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
@@ -127,11 +126,8 @@ public class WindowSystemImpl implements WindowSystem {
 
 		// Create a simple JMenuBar
 		menuBar = new JMenuBar();
-		FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
-		fl.setHgap(1);
-		fl.setVgap(1);
-		iconToolBar = new JPanel(fl);
-		iconToolBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		
+		// Menu > Studio/File
 		fileMenu = new JMenu("Studio");
 		items = new HashMap<JMenu, TreeMap<Integer, JMenuItem>>();
 		items.put(fileMenu, new TreeMap<Integer, JMenuItem>());
@@ -143,11 +139,11 @@ public class WindowSystemImpl implements WindowSystem {
 				WindowSystemImpl.this.app.shutdown();
 			}
 		});
-
 		items.get(fileMenu).put(3, exitMenuItem);
 		addSeparator();
 		menuBar.add(fileMenu);
 
+		// Menu > UI Mode
 		final JMenu optionsMenu = new JMenu("UI Mode");
 		modeGroup = new ButtonGroup();
 		modeMenuItems = new HashMap<UIMode, JRadioButtonMenuItem>();
@@ -174,7 +170,15 @@ public class WindowSystemImpl implements WindowSystem {
 		};
 		app.getUIModeObservable().addObserver(uiModeObserver);
 		menuBar.add(optionsMenu);
-
+		
+		// Create toolbar
+		FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
+		fl.setHgap(1);
+		fl.setVgap(1);
+		iconToolBar = new JPanel(fl);
+		iconToolBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		
+		// Initialize all bookkeeping
 		windowMenus = new HashMap<JComponent, JMenu>();
 		windowTools = new HashMap<JComponent, List<JComponent>>();
 		iconToolBars = new HashMap<JComponent, JPanel>();
@@ -184,42 +188,19 @@ public class WindowSystemImpl implements WindowSystem {
 		actionToButton.put(null, new HashMap<Action, JButton>());
 		frames = new HashMap<JComponent, JInternalFrame>();
 
-		mainWindow.setJMenuBar(menuBar);
-
-		// Creates the library pane that contains the tabs with the palettes
+		// Create the central tabbed pane containing the graph...
 		contentPane = new LayoutTabbedPane();
-		// toolPane = new JTabbedPane();
-
-		// toolPanel = new JPanel(new BorderLayout());
-		// toolPanel.add(new JPanel(), BorderLayout.CENTER);
-		// toolPanel.add(toolPane, BorderLayout.SOUTH);
-
-		/*
-		 * JPanel pp = new JPanel(); pp.setOpaque(false);
-		 * 
-		 * JSplitPane inner2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, pp,
-		 * toolPane); inner2.setOpaque(false);
-		 * inner2.setOneTouchExpandable(true); inner2.setDividerLocation(0.7);
-		 * inner2.setResizeWeight(0.7); inner2.setDividerSize(6);
-		 * inner2.setBorder(null);
-		 */
-
-		mainPane = new JLayeredPane();
-		mainPane.setLayout(new LayerLayout());
-		// contentPane.setBounds(0, 0, 500, 500);
-		// inner2.setBounds(0, 300, 500, 500);
-		mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
-		// inner.add(inner2, new Integer(1));
-		// mainPane.setBorder(BorderFactory.createTitledBorder(
-		// "Move the Mouse to Move Duke"));
-
 		contentPane.addChangeListener(new ChangeListener() {
 
+			/* Switching tabs should change things other than just the contentPane itself:
+			 * the menu, the iconToolBar and the tool windows!
+			 */
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				// FIXME do not change tool windows when there is merely a
-				// new title for a content window
+				// Rebuild menu
+				// FIXME do not change tool windows when there is merely a new title for a content window
 				Component c = contentPane.getSelectedComponent();
+				if(c!=null)System.out.println(c.toString());else System.out.println("null!");
 				JMenu menu = windowMenus.get(c);
 				if (menuBar.getMenu(1) != menu) {
 					if (menuBar.getMenu(1) != optionsMenu) {
@@ -229,16 +210,18 @@ public class WindowSystemImpl implements WindowSystem {
 						menuBar.add(menu, 1);
 					}
 				}
+				menuBar.revalidate();
+				menuBar.repaint();
 
+				// Rebuild icon toolbar
 				iconToolBar.removeAll();
 				iconToolBar.add(iconToolBars.get(null));
 				if (iconToolBars.get(c) != null && c != null)
 					iconToolBar.add(iconToolBars.get(c));
 				iconToolBar.revalidate();
 				iconToolBar.repaint();
-
-				menuBar.revalidate();
-				menuBar.repaint();
+				
+				// Rebuild all tool windows 
 				mainPane.removeAll();
 				mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
 				List<JComponent> tcs = windowTools.get(null);
@@ -255,19 +238,21 @@ public class WindowSystemImpl implements WindowSystem {
 
 		});
 
-		// Puts everything together
+		// ... and add it to the main pane
+		mainPane = new JLayeredPane();
+		mainPane.setLayout(new LayerLayout());
+		mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
+
+		// Add bars and panes to the window
+		mainWindow.setJMenuBar(menuBar);
+		mainWindow.getContentPane().setLayout(new BorderLayout());
 		mainWindow.getContentPane().add(mainPane, BorderLayout.CENTER);
 		mainWindow.getContentPane().add(iconToolBar, BorderLayout.NORTH);
-		// mainWindow.getContentPane().add(statusBar, BorderLayout.SOUTH);
-
+		
+		// Show window (from UI thread)
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				/*
-				 * for (ToolWindow toolWin : toolWindowManager.getToolWindows())
-				 * { toolWin.setAvailable(true); toolWin.setActive(true); }
-				 */
-
 				mainWindow.setVisible(true);
 			}
 		});
