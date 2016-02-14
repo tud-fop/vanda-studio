@@ -64,26 +64,29 @@ public class WindowSystemImpl implements WindowSystem {
 	protected final JFrame mainWindow;
 	protected JLayeredPane mainPane;
 	protected JTabbedPane contentPane;
-	// protected JTabbedPane toolPane;
 	protected JMenuBar menuBar;
 	protected JPanel iconToolBar;
 	protected JMenu fileMenu;
 	protected HashMap<UIMode, JRadioButtonMenuItem> modeMenuItems;
 	protected HashMap<JComponent, JMenu> windowMenus;
 	protected HashMap<JComponent, JPanel> iconToolBars;
+	/**
+	 * Maps a window to a list of its tool panes
+	 * Note: the key `null` maps to tool panes that should be shown for every window
+	 */
 	protected HashMap<JComponent, List<JComponent>> windowTools;
-	protected ButtonGroup modeGroup;
+	/**
+	 * Maps tool window panes to the internal frames that are created for holding them
+	 */
 	protected HashMap<JComponent, JInternalFrame> frames;
+	
+	protected ButtonGroup modeGroup;
 
 	/**
 	 * stores TreeMap from indices to MenuItems for each menu the natural
 	 * ordering of keys is exploited to order the menu items
 	 */
 	protected HashMap<JMenu, TreeMap<Integer, JMenuItem>> items;
-
-	/**
-	 * 
-	 */
 	protected HashMap<JPanel, TreeMap<Integer, JButton>> tools;
 	protected HashMap<JComponent, HashMap<Action, JButton>> actionToButton;
 	private Observer<Application> shutdownObserver;
@@ -100,7 +103,7 @@ public class WindowSystemImpl implements WindowSystem {
 	}
 
 	/**
-	 * @param a
+	 * @param app
 	 *            Vanda Composer Application root object
 	 */
 	public WindowSystemImpl(Application app) {
@@ -200,7 +203,6 @@ public class WindowSystemImpl implements WindowSystem {
 				// Rebuild menu
 				// FIXME do not change tool windows when there is merely a new title for a content window
 				Component c = contentPane.getSelectedComponent();
-				if(c!=null)System.out.println(c.toString());else System.out.println("null!");
 				JMenu menu = windowMenus.get(c);
 				if (menuBar.getMenu(1) != menu) {
 					if (menuBar.getMenu(1) != optionsMenu) {
@@ -258,8 +260,11 @@ public class WindowSystemImpl implements WindowSystem {
 		});
 	}
 
+	/**
+	 * Add a new action w/ hotkey to the menu and the icon toolbar
+	 */
 	@Override
-	public void addAction(JComponent c, final Action a, String imageName, KeyStroke keyStroke, int pos) {
+	public void addAction(JComponent menuParent, final Action a, String imageName, KeyStroke keyStroke, int pos) {
 		URL url = ClassLoader.getSystemClassLoader().getResource(imageName + ".png");
 		JButton b = new JButton();
 		b.addActionListener(new ActionListener() {
@@ -279,33 +284,41 @@ public class WindowSystemImpl implements WindowSystem {
 			app.sendMessage(new ExceptionMessage(e1));
 			b.setText(a.getName());
 		}
-		if (!iconToolBars.containsKey(c)) {
+		if (!iconToolBars.containsKey(menuParent)) {
 			FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
 			fl.setVgap(1);
-			iconToolBars.put(c, new JPanel(fl));
-			iconToolBars.get(c).setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-			tools.put(iconToolBars.get(c), new TreeMap<Integer, JButton>());
-			actionToButton.put(c, new HashMap<Action, JButton>());
+			iconToolBars.put(menuParent, new JPanel(fl));
+			iconToolBars.get(menuParent).setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+			tools.put(iconToolBars.get(menuParent), new TreeMap<Integer, JButton>());
+			actionToButton.put(menuParent, new HashMap<Action, JButton>());
 		}
-		tools.get(iconToolBars.get(c)).put(pos, b);
-		actionToButton.get(c).put(a, b);
-		iconToolBars.get(c).removeAll();
-		for (Integer i : tools.get(iconToolBars.get(c)).navigableKeySet()) {
-			iconToolBars.get(c).add(tools.get(iconToolBars.get(c)).get(i));
+		tools.get(iconToolBars.get(menuParent)).put(pos, b);
+		actionToButton.get(menuParent).put(a, b);
+		iconToolBars.get(menuParent).removeAll();
+		for (Integer i : tools.get(iconToolBars.get(menuParent)).navigableKeySet()) {
+			iconToolBars.get(menuParent).add(tools.get(iconToolBars.get(menuParent)).get(i));
 		}
-		if (c == null)
+		if (menuParent == null)
 			for (ChangeListener cl : contentPane.getChangeListeners())
 				cl.stateChanged(new ChangeEvent(contentPane));
-		addAction(c, a, keyStroke, pos);
+		
+		// also add it to the menu!
+		addAction(menuParent, a, keyStroke, pos);
 	}
 
+	/**
+	 * Add a new action w/ hotkey to the menu in position 0
+	 */
 	@Override
-	public void addAction(JComponent c, final Action a, KeyStroke keyStroke) {
-		addAction(c, a, keyStroke, 0);
+	public void addAction(JComponent menuParent, final Action a, KeyStroke keyStroke) {
+		addAction(menuParent, a, keyStroke, 0);
 	}
 
+	/**
+	 * Add a new action w/ hotkey to the menu
+	 */
 	@Override
-	public void addAction(JComponent c, final Action a, KeyStroke keyStroke, int pos) {
+	public void addAction(JComponent menuParent, final Action a, KeyStroke keyStroke, int pos) {
 		JMenuItem item = new JMenuItem(a.getName());
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -316,12 +329,12 @@ public class WindowSystemImpl implements WindowSystem {
 		if (keyStroke != null) {
 			item.setAccelerator(keyStroke);
 		}
-		if (c != null) {
-			JMenu menu = windowMenus.get(c);
+		if (menuParent != null) {
+			JMenu menu = windowMenus.get(menuParent);
 			if (menu == null) {
-				menu = new JMenu(c.getName());
-				windowMenus.put(c, menu);
-				if (contentPane.getSelectedComponent() == c)
+				menu = new JMenu(menuParent.getName());
+				windowMenus.put(menuParent, menu);
+				if (contentPane.getSelectedComponent() == menuParent)
 					menuBar.add(menu, 1);
 				items.put(menu, new TreeMap<Integer, JMenuItem>());
 			}
@@ -340,6 +353,9 @@ public class WindowSystemImpl implements WindowSystem {
 	}
 
 	/**
+	 * Adds a new tab
+	 * @param c the root component in the new tab
+	 * @param a action to be performed when closing the tab (`null` just closes the tab)
 	 */
 	@Override
 	public void addContentWindow(Icon i, JComponent c, Action a) {
@@ -365,16 +381,26 @@ public class WindowSystemImpl implements WindowSystem {
 	}
 
 	/**
+	 * FIXME line 2 doesn't make any sense.
+	 * FIXME this method is only called from the Ctrl+W menu option (`CloseWorkflowAction`),
+	 *       but not from closing the tab (since `null` is given
+	 *       instead of a proper action that could call this method)
+	 * What the hell.
 	 */
 	@Override
-	public void addSeparator() {
-		fileMenu.insertSeparator(0);
+	public void removeContentWindow(JComponent c) {
+		contentPane.remove(c);
+		windowTools.remove(frames.get(c));
 	}
 
 	/**
+	 * Adds a new `ToolFrame` to the `mainPane` (and the `windowTools` and `frames` structures)
+	 * @param window window to which to add the new tool window
+	 * @param c the tool window component to add
+	 * @param layout the layout the new `ToolFrame` is supposed to have
 	 */
 	@Override
-	public void addToolWindow(JComponent window, Icon i, JComponent c, LayoutSelector layout) {
+	public void addToolWindow(JComponent window, JComponent c, LayoutSelector layout) {
 		List<JComponent> tcs = windowTools.get(window);
 		if (tcs == null) {
 			tcs = new ArrayList<JComponent>();
@@ -391,11 +417,42 @@ public class WindowSystemImpl implements WindowSystem {
 		}
 	}
 
+	/**
+	 * Removes window from the `mainPane` (and the `windowTools` structure, but not the `frames` structure)
+	 */
+	@Override
+	public void removeToolWindow(JComponent window, JComponent c) {
+		List<JComponent> tcs = windowTools.get(window);
+		if (tcs != null) {
+			tcs.remove(c);
+		}
+		if (contentPane.getSelectedComponent() == window)
+			mainPane.remove(frames.get(c));
+	}
+	
+	/**
+	 * Adds a separator to the file menu at position 0
+	 * TODO useless?
+	 */
+	@Override
+	public void addSeparator() {
+		fileMenu.insertSeparator(0);
+	}
+
+	/**
+	 * Traverses the menus of the main window (`null`) to find an entry w/ the given action and enables it.
+	 * Uses `windowMenus` and `actionToButton`.
+	 */
 	@Override
 	public void disableAction(Action a) {
 		disableAction(null, a);
 	}
+	
 
+	/**
+	 * Traverses the menus of the given window to find an entry w/ the given action and enables it.
+	 * Uses `windowMenus` and `actionToButton`.
+	 */
 	@Override
 	public void disableAction(JComponent window, Action a) {
 		JMenu menu = windowMenus.get(window);
@@ -414,11 +471,21 @@ public class WindowSystemImpl implements WindowSystem {
 		}
 	}
 
+	
+	/**
+	 * Traverses the menus of the main window (`null`) to find an entry w/ the given action and enables it.
+	 * Uses `windowMenus` and `actionToButton`.
+	 */
 	@Override
 	public void enableAction(Action a) {
 		enableAction(null, a);
 	}
 
+	
+	/**
+	 * Traverses the menus of the given window to find an entry w/ the given action and enables it.
+	 * Uses `windowMenus` and `actionToButton`.
+	 */
 	@Override
 	public void enableAction(JComponent window, Action a) {
 		JMenu menu = windowMenus.get(window);
@@ -437,6 +504,10 @@ public class WindowSystemImpl implements WindowSystem {
 		}
 	}
 
+	
+	/**
+	 * TODO this is literally a no-op, delete?
+	 */
 	@Override
 	public void focusToolWindow(JComponent c) {
 		try {
@@ -448,36 +519,22 @@ public class WindowSystemImpl implements WindowSystem {
 		}
 	}
 
+	
+	/**
+	 * Selects component `c` and notifies contentPane's ChangeListeners
+	 */
 	@Override
 	public void focusContentWindow(JComponent c) {
 		contentPane.setSelectedComponent(c);
 		for (ChangeListener cl : contentPane.getChangeListeners())
 			cl.stateChanged(new ChangeEvent(contentPane));
 	}
+	
 
 	@Override
 	public JFrame getMainWindow() {
 		return mainWindow;
 	}
 
-	/**
-	 */
-	@Override
-	public void removeContentWindow(JComponent c) {
-		contentPane.remove(c);
-		windowTools.remove(frames.get(c));
-	}
-
-	/**
-	 */
-	@Override
-	public void removeToolWindow(JComponent window, JComponent c) {
-		List<JComponent> tcs = windowTools.get(window);
-		if (tcs != null) {
-			tcs.remove(c);
-		}
-		if (contentPane.getSelectedComponent() == window)
-			mainPane.remove(frames.get(c));
-	}
-
+	
 }

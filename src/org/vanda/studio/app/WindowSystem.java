@@ -112,7 +112,7 @@ public interface WindowSystem {
 	
 	/**
 	 */
-	void addToolWindow(JComponent window, Icon i, JComponent c, LayoutSelector layout);
+	void addToolWindow(JComponent window, JComponent c, LayoutSelector layout);
 	
 	/**
 	 */

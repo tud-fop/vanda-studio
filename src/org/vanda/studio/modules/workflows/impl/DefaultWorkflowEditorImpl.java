@@ -74,7 +74,7 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 
 	@Override
 	public void addToolWindow(JComponent c, LayoutSelector layout) {
-		app.getWindowSystem().addToolWindow(component, null, c, layout);
+		app.getWindowSystem().addToolWindow(component, c, layout);
 	}
 
 	@Override
