@@ -11,6 +11,7 @@ import org.vanda.studio.app.LayoutAssortment;
 import org.vanda.studio.app.LayoutSelector;
 
 @SuppressWarnings("serial")
+public // TODO this was not present in the original code layout, but since be will remove tool frames in their current form anyway...
 class ToolFrame extends JInternalFrame implements LayoutSelector {
 	private final LayoutSelector layout;
 

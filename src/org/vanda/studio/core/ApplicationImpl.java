@@ -54,7 +54,7 @@ public final class ApplicationImpl implements Application {
 	protected final CompositeRepository<Tool> toolRepository;
 	protected final RootDataSource rootDataSource;
 	protected final MultiplexObserver<Application> shutdownObservable;
-	protected final WindowSystemImpl windowSystem;
+	protected final WindowSystem windowSystem;
 	protected final HashSet<Type> types;
 	// protected final Observer<ToolInterface> tiObserver;
 	protected final Observer<Tool> typeObserver;
@@ -79,7 +79,7 @@ public final class ApplicationImpl implements Application {
 		rootDataSource = new RootDataSource(new HashMap<String, DataSource>());
 		shutdownObservable = new MultiplexObserver<Application>();
 		if (gui)
-			windowSystem = new WindowSystemImpl(this);
+			windowSystem = new WindowSystem(this);
 		else
 			windowSystem = null;
 		types = new HashSet<Type>();
