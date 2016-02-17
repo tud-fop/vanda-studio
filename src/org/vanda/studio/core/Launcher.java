@@ -12,30 +12,14 @@ import org.vanda.studio.app.Module;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.RCChecker;
 
+/**
+ * Creates lots of `Module`s, connects them to a new `ModuleManager`
+ * that is then registered with the `Application`. 
+ */
 public final class Launcher implements Runnable {
-
-	private Launcher() {
-		// utility class
-	}
 
 	@Override
 	public void run() {
-		try {
-			// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-			// UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-			// UIManager.setLookAndFeel("com.seaglasslookandfeel.SeaGlassLookAndFeel");
-			/*
-			 * for (UIManager.LookAndFeelInfo info : UIManager
-			 * .getInstalledLookAndFeels()) {
-			 * System.out.println(info.getName()); if
-			 * ("Nimbus".equals(info.getName())) {
-			 * UIManager.setLookAndFeel(info.getClassName()); break; } }
-			 */
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-
 		Application app = new Application();
 		Module[] ms = {
 				new org.vanda.studio.modules.messages.MessageModule(),
@@ -43,7 +27,6 @@ public final class Launcher implements Runnable {
 				new org.vanda.studio.modules.previews.PreviewsModule(),
 				new org.vanda.studio.modules.workflows.WorkflowModule(),
 				new org.vanda.studio.modules.datasources.DataSourceModule() };
-		// app.registerPreviewFactory(null, new DefaultPreviewFactory(app));
 
 		ModuleManager moduleManager = new ModuleManager(app);
 		moduleManager.loadModules();
@@ -53,7 +36,6 @@ public final class Launcher implements Runnable {
 		app.setModuleManager(moduleManager);
 		
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(app));
-		// throw new NullPointerException("brain is null");
 	}
 
 	/**
@@ -76,89 +58,19 @@ public final class Launcher implements Runnable {
 	}
 
 	/**
-	 * executes a workflow without loading the GUI
+	 * executes a workflow without loading the GUI // TODO or rather it should do so...
 	 * 
 	 * @param fileName
 	 *            workflow to be executed
 	 */
 	public static void runWorkflow(String fileName) {
-		/** SCHROTT: Wieso copy&paste aus dem Profiles-Modul?
-		Application app = new ApplicationImpl(false);
-
-		// only load AlgorithmsModule, nothing else is needed
-		ModuleManager moduleManager = new ModuleManager(app);
-		moduleManager.loadModules();
-		moduleManager
-				.loadModule(new org.vanda.studio.modules.algorithms.AlgorithmsModule());
-		moduleManager.initModules();
-
-		Profiles profiles = new ProfilesImpl();
-		SimpleRepository<FragmentCompiler> compilers = new SimpleRepository<FragmentCompiler>(
-				null);
-		compilers.addItem(new HaskellCompiler());
-		compilers.addItem(new ShellCompiler());
-		profiles.getFragmentCompilerMetaRepository().addRepository(compilers);
-
-		SimpleRepository<FragmentLinker> linkers = new SimpleRepository<FragmentLinker>(
-				null);
-		linkers.addItem(new IdentityLinker());
-		linkers.addItem(new HaskellLinker());
-		profiles.getFragmentLinkerMetaRepository().addRepository(linkers);
-		Profile profile = new ProfileImpl(app, profiles);
-
-		try {
-			MutableWorkflow hwf = Serialization.load(app, fileName);
-			for (ToolFactory tf : app.getToolFactoryMetaRepository()
-					.getRepository().getItems())
-				tf.instantiate(null, new Model(hwf));
-			ImmutableWorkflow iwf = hwf.freeze();
-			iwf.typeCheck();
-			Fragment frag = profile.generate(iwf);
-			Process process = Runtime.getRuntime().exec(
-					RCChecker.getOutPath() + "/"
-							+ Fragment.normalize(frag.name), null, null);
-			InputStream stdin = process.getInputStream();
-			StreamGobbler sgIn = new StreamGobbler(stdin);
-			sgIn.start();
-			InputStream stderr = process.getErrorStream();
-			StreamGobbler sgErr = new StreamGobbler(stderr);
-			sgErr.start();
-			process.waitFor();
-			stdin.close();
-			stderr.close();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-	private static class StreamGobbler extends Thread {
-		private final InputStream is;
-
-		public StreamGobbler(InputStream is) {
-			this.is = is;
-		}
-
-		public void run() {
-			InputStreamReader isr = new InputStreamReader(is);
-			BufferedReader br = new BufferedReader(isr);
-			String line = null;
-			try {
-				while ((line = br.readLine()) != null) {
-					System.out.println(line);
-				}
-			} catch (IOException e) {
-				// ignore
-			}
-		}
+		// TODO there was some copypasted code here... but it was all commented out
+		//      so... maybe implement this? or remove the method altogether?
 	}
 
-		
-		**/
-	}
-
+	/**
+	 * Basically calls: Application.sendMessage(new ExceptionMessage(e))
+	 */
 	public static class ExceptionHandler implements
 			Thread.UncaughtExceptionHandler {
 		private final Application app;
