@@ -36,7 +36,7 @@ public final class Launcher implements Runnable {
 			ex.printStackTrace();
 		}
 
-		ApplicationImpl app = new ApplicationImpl();
+		Application app = new Application();
 		Module[] ms = {
 				new org.vanda.studio.modules.messages.MessageModule(),
 				new org.vanda.studio.modules.tools.ToolsModule(),
