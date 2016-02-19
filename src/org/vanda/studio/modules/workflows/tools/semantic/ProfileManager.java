@@ -46,7 +46,7 @@ public final class ProfileManager {
 			public void invoke() {
 
 			}
-		}, null);
+		}, null, 0);
 		app.getWindowSystem().addContentWindow(null, contentPane,
 				new CloseAction());
 

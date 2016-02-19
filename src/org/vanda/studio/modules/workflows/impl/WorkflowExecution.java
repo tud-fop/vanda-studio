@@ -85,11 +85,11 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 		}
 
 		public void disable() {
-			app.getWindowSystem().disableAction(component, this);
+			app.getWindowSystem().disableAction(graphComponent, this);
 		}
 
 		public void enable() {
-			app.getWindowSystem().enableAction(component, this);
+			app.getWindowSystem().enableAction(graphComponent, this);
 		}
 	}
 
@@ -111,7 +111,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 				run.getObservable().addObserver(WorkflowExecution.this);
 				run.running();
 				cancel.enable();
-				app.getWindowSystem().disableAction(component, this);
+				app.getWindowSystem().disableAction(graphComponent, this);
 			} 
 		}
 	}
@@ -137,12 +137,12 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 		cancel = new CancelAction();
 
 		// setup component design
-		component = (mxGraphComponent) pm.getVisualization().getGraphComponent();
-		component = new MyMxGraphComponent(pm.getVisualization().getGraph());
-		component.setConnectable(false);
-		component.setDragEnabled(false);
+		graphComponent = (mxGraphComponent) pm.getVisualization().getGraphComponent();
+		graphComponent = new MyMxGraphComponent(pm.getVisualization().getGraph());
+		graphComponent.setConnectable(false);
+		graphComponent.setDragEnabled(false);
 		configureComponent();
-		component.setName(phd.fst.getName() + "Execution");
+		graphComponent.setName(phd.fst.getName() + "Execution");
 
 		setupOutline();
 
@@ -154,18 +154,21 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 		semanticsToolInstance = semanticsTool.instantiate(this);
 
 		// add Menu-Actions
-		addAction(new RunAction(), "player-time", KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK), 0);
-		addAction(cancel, "process-stop", KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK), 1);
-		cancel.disable();
-		addAction(new ResetZoomAction(), KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK), 3);
-		addAction(new CloseWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK), 2);
+		addAction(new CloseWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK), 0);
+		addSeparator(1);
+		addAction(new RunAction(), "player-time", KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_MASK), 2);
+		addAction(cancel, "process-stop", KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK), 3);
+		addSeparator(4);
+		addAction(new ResetZoomAction(), KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK), 5);
 
+		cancel.disable();
+		
 		// addComponent
-		app.getWindowSystem().addContentWindow(null, component, null);
+		app.getWindowSystem().addContentWindow(null, graphComponent, null);
 				
 		// focus window
-		app.getWindowSystem().focusContentWindow(component);
-		component.requestFocusInWindow();
+		app.getWindowSystem().focusContentWindow(graphComponent);
+		graphComponent.requestFocusInWindow();
 		// init outline painting
 		outline.updateScaleAndTranslate();
 
@@ -181,7 +184,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 	}
 
 	public JComponent getComponent() {
-		return component;
+		return graphComponent;
 	}
 
 	@Override

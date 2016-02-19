@@ -86,7 +86,7 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 	public Object instantiate(WorkflowEditor wfe) {
 		Action a = new ExportWorkflowToPDFAction(wfe);
 		wfe.addAction(a, "application-pdf",
-				KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_MASK),7);
+				KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_MASK),20);
 		return a;
 	}
 }

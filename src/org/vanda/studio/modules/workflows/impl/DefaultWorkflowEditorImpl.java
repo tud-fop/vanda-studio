@@ -48,7 +48,7 @@ import com.mxgraph.view.mxGraphView;
  */
 public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListener<MutableWorkflow> {
 	protected final Application app;
-	protected mxGraphComponent component;
+	protected mxGraphComponent graphComponent;
 	protected final Database database;
 	protected mxGraphOutline outline;
 	protected SemanticAnalysis semA;
@@ -63,20 +63,30 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	}
 	
 	@Override
-	public void addAction(Action a, KeyStroke keyStroke) {
-		addAction(a, keyStroke, 0);
+	public void addAction(Action a, KeyStroke keyStroke, int pos) {
+		app.getWindowSystem().addAction(graphComponent, a, keyStroke, pos);
+	}
+
+	@Override
+	public void addAction(Action a, String imageName, KeyStroke keyStroke, int pos) {
+		app.getWindowSystem().addAction(graphComponent, a, imageName, keyStroke, pos);
+	}
+
+	@Override
+	public void addSeparator(int pos) {
+		app.getWindowSystem().addSeparator(graphComponent, pos);
 	}
 	
 	@Override
-	public void addAction(Action a, KeyStroke keyStroke, int pos) {
-		app.getWindowSystem().addAction(component, a, keyStroke, pos);
+	public void addToolWindow(JComponent c, LayoutSelector layout) {
+		app.getWindowSystem().addToolWindow(graphComponent, c, layout);
 	}
 
 	@Override
-	public void addToolWindow(JComponent c, LayoutSelector layout) {
-		app.getWindowSystem().addToolWindow(component, c, layout);
+	public void addToolBarPanel(JComponent c, int pos) {
+		app.getWindowSystem().addToolBarPanel(graphComponent, c, pos);
 	}
-
+	
 	@Override
 	public void childAdded(MutableWorkflow mwf, Job j) {
 	}
@@ -99,12 +109,12 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 
 	@Override
 	public void enableAction(Action a) {
-		app.getWindowSystem().enableAction(component, a);
+		app.getWindowSystem().enableAction(graphComponent, a);
 	}
 	
 	@Override
 	public void disableAction(Action a) {
-		app.getWindowSystem().disableAction(component, a);
+		app.getWindowSystem().disableAction(graphComponent, a);
 	}
 	
 	@Override
@@ -140,14 +150,14 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	@Override
 	public void propertyChanged(MutableWorkflow mwf) {
 		if (mwf == view.getWorkflow()) {
-			component.setName(mwf.getName());
-			app.getWindowSystem().addContentWindow(null, component, null);
+			graphComponent.setName(mwf.getName());
+			app.getWindowSystem().addContentWindow(null, graphComponent, null);
 		}
 	}
 
 	@Override
 	public void removeToolWindow(JComponent c) {
-		app.getWindowSystem().removeToolWindow(component, c);
+		app.getWindowSystem().removeToolWindow(graphComponent, c);
 	}
 
 	@Override
@@ -180,13 +190,13 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 
 		@Override
 		public void invoke() {
-			component.zoomActual();
+			graphComponent.zoomActual();
 		}
 	}
 
 	public void close() {
 		// remove tab
-		app.getWindowSystem().removeContentWindow(component);
+		app.getWindowSystem().removeContentWindow(graphComponent);
 	}
 
 	/**
@@ -436,21 +446,21 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	}
 
 	protected void configureComponent() {
-		component.setDragEnabled(false);
-		component.getGraphControl().addMouseWheelListener(new MouseZoomAdapter(app, component));
-		component.setPanning(true);
-		component.setPageVisible(false);
-		component.setVerticalPageCount(0);
-		component.setHorizontalPageCount(0);
-		component.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		component.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		graphComponent.setDragEnabled(false);
+		graphComponent.getGraphControl().addMouseWheelListener(new MouseZoomAdapter(app, graphComponent));
+		graphComponent.setPanning(true);
+		graphComponent.setPageVisible(false);
+		graphComponent.setVerticalPageCount(0);
+		graphComponent.setHorizontalPageCount(0);
+		graphComponent.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		graphComponent.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		appObserver = new Observer<Application>() {
 			@Override
 			public void notify(Application a) {
 				if (a.getUIMode().isLargeContent())
-					component.zoomTo(1.5, false);
+					graphComponent.zoomTo(1.5, false);
 				else
-					component.zoomActual();
+					graphComponent.zoomActual();
 			}
 		};
 		app.getUIModeObservable().addObserver(appObserver);
@@ -460,17 +470,12 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	}
 
 	protected void setupOutline() {
-		outline = new mxGraphOutline(component);
+		outline = new mxGraphOutline(graphComponent);
 		outline.setPreferredSize(new Dimension(250, 250));
 		outline.setName("Map");
 		// outline.setFitPage(true);
 		// addToolWindow(outline, WindowSystem.SOUTHEAST);
 		addToolWindow(outline, WindowSystem.NORTHEAST);
-	}
-
-	@Override
-	public void addAction(Action a, String imageName, KeyStroke keyStroke, int pos) {
-		app.getWindowSystem().addAction(component, a, imageName, keyStroke, pos);
 	}
 
 }

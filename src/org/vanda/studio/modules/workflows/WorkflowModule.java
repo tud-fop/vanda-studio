@@ -110,7 +110,7 @@ public class WorkflowModule implements Module {
 			toolFactories.add(new AssignmentSwitchToolFactory());
 
 			app.getWindowSystem()
-					.addAction(null, new OpenManagerAction(), null);
+					.addAction(null, new OpenManagerAction(), null, 4);
 			app.getWindowSystem().addAction(null, new OpenWorkflowAction(),
 					"document-open",
 					KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_MASK),1);

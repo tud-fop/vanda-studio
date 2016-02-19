@@ -1,6 +1,8 @@
 package org.vanda.studio.modules.workflows.tools;
 
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -136,42 +138,28 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 
 		public EditAssignmentTool(WorkflowEditor wfe) {
 			// Panel and basic Layout
-			pan = new JPanel() {
-				private static final long serialVersionUID = -5904333485102276761L;
-
-				@Override
-				public Dimension getPreferredSize() {
-					Dimension d = super.getPreferredSize();
-					d.width = 250;
-					return d;
-				}
-			};
-			GroupLayout layout = new GroupLayout(pan);
+			pan = new JPanel();
+			
+			FlowLayout layout = new FlowLayout();
+			layout.setVgap(0);
+			
 			pan.setLayout(layout);
-			layout.setAutoCreateContainerGaps(true);
-			layout.setAutoCreateGaps(true);
+			pan.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 			pan.setName("Assignment");
+			
 			final Database db = wfe.getDatabase();
 
 			// Buttons & Textfield
 			PreviousAssignmentAction prev = new PreviousAssignmentAction(db);
-			wfe.addAction(prev, KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.ALT_MASK), 5);
+			wfe.addAction(prev, KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.ALT_MASK), 40);
 			prevButton = createNavigationButton(prev, "arrow-left", wfe.getApplication());
 
 			NextAssignmentAction next = new NextAssignmentAction(db);
-			wfe.addAction(next, KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.ALT_MASK), 6);
+			wfe.addAction(next, KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.ALT_MASK), 50);
 			nextButton = createNavigationButton(next, "arrow-right", wfe.getApplication());
 
-			aName = new JTextField() {
-				private static final long serialVersionUID = 3301633459959703449L;
-
-				@Override
-				public Dimension getPreferredSize() {
-					Dimension d = super.getPreferredSize();
-					d.height = nextButton.getSize().height;
-					return d;
-				}
-			};
+			aName = new JTextField();
+			aName.setPreferredSize(new Dimension(200, nextButton.getPreferredSize().height));
 			aName.addFocusListener(new FocusAdapter() {
 				@Override
 				public void focusLost(FocusEvent arg0) {
@@ -212,16 +200,13 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 			};
 			db.getObservable().addObserver(databaseObserver);
 
-			SequentialGroup horizontal = layout.createSequentialGroup().addComponent(prevButton).addComponent(aName)
-					.addComponent(label).addComponent(nextButton);
-			ParallelGroup vertical = layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(prevButton)
-					.addComponent(aName).addComponent(label).addComponent(nextButton);
-
-			layout.setHorizontalGroup(horizontal);
-			layout.setVerticalGroup(vertical);
-
+			pan.add(prevButton);
+			pan.add(aName);
+			pan.add(label);
+			pan.add(nextButton);
+			
 			// add Tool Component
-			wfe.addToolWindow(getComponent(), WindowSystem.EAST);
+			wfe.addToolBarPanel(getComponent(), Integer.MAX_VALUE);
 
 		}
 

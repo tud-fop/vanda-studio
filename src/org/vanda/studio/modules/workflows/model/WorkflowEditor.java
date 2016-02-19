@@ -13,10 +13,12 @@ import org.vanda.workflows.hyper.SyntaxAnalysis;
 
 
 public interface WorkflowEditor {
-	void addAction(Action a, KeyStroke keyStroke);
 	void addAction(Action a, KeyStroke keyStroke, int pos);
+	void addAction(Action a, String imageName, KeyStroke keyStroke, int pos);
+	void addSeparator(int pos);
 	void addToolWindow(JComponent c, LayoutSelector layout);
 	void focusToolWindow(JComponent c);
+	void addToolBarPanel(JComponent c, int pos);
 	Application getApplication();
 	Database getDatabase();
 
@@ -25,7 +27,6 @@ public interface WorkflowEditor {
 	View getView();
 	SyntaxAnalysis getSyntaxAnalysis();
 	SemanticAnalysis getSemanticAnalysis();
-	void addAction(Action a, String imageName, KeyStroke keyStroke, int pos);
 	void enableAction(Action a);
 	void disableAction(Action a);
 }

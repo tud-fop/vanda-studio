@@ -103,7 +103,7 @@ public class RunTool implements SemanticsToolFactory {
 			this.synA = synA;
 			this.semA = semA;
 			app = wfe.getApplication();
-			wfe.addAction(new RunAction(), "system-run", KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_MASK), 4);
+			wfe.addAction(new RunAction(), "system-run", KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_MASK), 90);
 		}
 
 		// TODO: probably obsolete, remove after some testing

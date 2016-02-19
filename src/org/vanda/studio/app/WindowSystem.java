@@ -37,6 +37,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -46,6 +47,7 @@ import javax.swing.event.ChangeListener;
 import org.vanda.studio.core.ButtonTabComponent;
 import org.vanda.studio.core.LayerLayout;
 import org.vanda.studio.core.ToolFrame;
+import org.vanda.studio.modules.workflows.tools.AssignmentSwitchToolFactory;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
@@ -145,11 +147,12 @@ public class WindowSystem {
 	protected ButtonGroup modeGroup;
 
 	/**
-	 * stores TreeMap from indices to MenuItems for each menu the natural
-	 * ordering of keys is exploited to order the menu items
+	 * stores TreeMap from indices to MenuItems for each menu
+	 * the natural ordering of keys is exploited to order the menu items
+	 * The JMenuItem `null` will result in a separator!
 	 */
 	protected HashMap<JMenu, TreeMap<Integer, JMenuItem>> items;
-	protected HashMap<JPanel, TreeMap<Integer, JButton>> tools;
+	protected HashMap<JPanel, TreeMap<Integer, JComponent>> tools;
 	protected HashMap<JComponent, HashMap<Action, JButton>> actionToButton;
 	private Observer<Application> shutdownObserver;
 	private Observer<Application> uiModeObserver;
@@ -204,8 +207,13 @@ public class WindowSystem {
 				WindowSystem.this.app.shutdown();
 			}
 		});
-		items.get(fileMenu).put(3, exitMenuItem);
-		addSeparator();
+		// 0 -> New
+		// 1 -> Open
+		items.get(fileMenu).put(2, null);
+		// 3 -> Edit Data Sources
+		// 4 -> Fragment Profile Manager
+		items.get(fileMenu).put(5, null);
+		items.get(fileMenu).put(6, exitMenuItem);
 		menuBar.add(fileMenu);
 
 		// Menu > UI Mode
@@ -247,8 +255,8 @@ public class WindowSystem {
 		windowMenus = new HashMap<JComponent, JMenu>();
 		windowTools = new HashMap<JComponent, List<JComponent>>();
 		iconToolBars = new HashMap<JComponent, JPanel>();
-		tools = new HashMap<JPanel, TreeMap<Integer, JButton>>();
-		tools.put(null, new TreeMap<Integer, JButton>());
+		tools = new HashMap<JPanel, TreeMap<Integer, JComponent>>();
+		tools.put(null, new TreeMap<Integer, JComponent>());
 		actionToButton = new HashMap<JComponent, HashMap<Action, JButton>>();
 		actionToButton.put(null, new HashMap<Action, JButton>());
 		frames = new HashMap<JComponent, JInternalFrame>();
@@ -307,6 +315,7 @@ public class WindowSystem {
 		mainPane.setLayout(new LayerLayout());
 		mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
 
+		
 		// Add bars and panes to the window
 		mainWindow.setJMenuBar(menuBar);
 		mainWindow.getContentPane().setLayout(new BorderLayout());
@@ -323,10 +332,46 @@ public class WindowSystem {
 	}
 
 	/**
+	 * Adds a panel to the toolbar.
+	 * @param associatedParent the parent to which the new panel "belongs"
+	 * @param panel the panel to add
+	 * @param pos the position in the toolbar
+	 */
+	public void addToolBarPanel(JComponent associatedParent, JComponent panel, int pos) {
+		if (!iconToolBars.containsKey(associatedParent)) {
+			FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
+			fl.setVgap(1);
+			iconToolBars.put(associatedParent, new JPanel(fl));
+			iconToolBars.get(associatedParent).setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+			tools.put(iconToolBars.get(associatedParent), new TreeMap<Integer, JComponent>());
+			actionToButton.put(associatedParent, new HashMap<Action, JButton>());
+		}
+		
+		// Check if we are adding a separator in front of the start or another separator
+		if(panel instanceof JSeparator &&
+			(tools.get(iconToolBars.get(associatedParent)).isEmpty()
+				|| tools.get(iconToolBars.get(associatedParent)).lastEntry().getValue() instanceof JSeparator)
+		)
+			return;
+		
+		tools.get(iconToolBars.get(associatedParent)).put(pos, panel);
+		iconToolBars.get(associatedParent).removeAll();
+		for (Integer i : tools.get(iconToolBars.get(associatedParent)).navigableKeySet()) {
+			iconToolBars.get(associatedParent).add(tools.get(iconToolBars.get(associatedParent)).get(i));
+		}
+		if (associatedParent == null)
+			for (ChangeListener cl : contentPane.getChangeListeners())
+				cl.stateChanged(new ChangeEvent(contentPane));
+	}
+	
+	/**
 	 * Add a new action w/ hotkey to the menu and the icon toolbar of a given window.
 	 * Call this method *before* adding that window as a content window!
+	 * @param associatedParent
+	 * 				is `null` for universally applicable actions,
+	 * 				otherwise the `MyMxGraphComponent` of the `DefaultWorkflowEditorImpl` 
 	 */
-	public void addAction(JComponent menuParentWindow, final Action a, String imageName, KeyStroke keyStroke, int pos) {
+	public void addAction(JComponent associatedParent, final Action a, String imageName, KeyStroke keyStroke, int pos) {
 		URL url = ClassLoader.getSystemClassLoader().getResource(imageName + ".png");
 		JButton b = new JButton();
 		b.addActionListener(new ActionListener() {
@@ -346,41 +391,22 @@ public class WindowSystem {
 			app.sendMessage(new ExceptionMessage(e1));
 			b.setText(a.getName());
 		}
-		if (!iconToolBars.containsKey(menuParentWindow)) {
-			FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
-			fl.setVgap(1);
-			iconToolBars.put(menuParentWindow, new JPanel(fl));
-			iconToolBars.get(menuParentWindow).setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-			tools.put(iconToolBars.get(menuParentWindow), new TreeMap<Integer, JButton>());
-			actionToButton.put(menuParentWindow, new HashMap<Action, JButton>());
-		}
-		tools.get(iconToolBars.get(menuParentWindow)).put(pos, b);
-		actionToButton.get(menuParentWindow).put(a, b);
-		iconToolBars.get(menuParentWindow).removeAll();
-		for (Integer i : tools.get(iconToolBars.get(menuParentWindow)).navigableKeySet()) {
-			iconToolBars.get(menuParentWindow).add(tools.get(iconToolBars.get(menuParentWindow)).get(i));
-		}
-		if (menuParentWindow == null)
-			for (ChangeListener cl : contentPane.getChangeListeners())
-				cl.stateChanged(new ChangeEvent(contentPane));
+		
+		addToolBarPanel(associatedParent, b, pos);
+		actionToButton.get(associatedParent).put(a, b);
 		
 		// also add it to the menu!
-		addAction(menuParentWindow, a, keyStroke, pos);
-	}
-
-	/**
-	 * Add a new action w/ hotkey to the menu of a given window in position 0.
-	 * Call this method *before* adding that window as a content window!
-	 */
-	public void addAction(JComponent menuParentWindow, final Action a, KeyStroke keyStroke) {
-		addAction(menuParentWindow, a, keyStroke, 0);
+		addAction(associatedParent, a, keyStroke, pos);
 	}
 
 	/**
 	 * Add a new action w/ hotkey to the menu of a given window.
 	 * Call this method *before* adding that window as a content window!
+	 * @param associatedParent
+	 * 				is `null` for universally applicable actions,
+	 * 				otherwise the `MyMxGraphComponent` of the `DefaultWorkflowEditorImpl` 
 	 */
-	public void addAction(JComponent menuParentWindow, final Action a, KeyStroke keyStroke, int pos) {
+	public void addAction(JComponent associatedParent, final Action a, KeyStroke keyStroke, int pos) {
 		JMenuItem item = new JMenuItem(a.getName());
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -391,29 +417,57 @@ public class WindowSystem {
 		if (keyStroke != null) {
 			item.setAccelerator(keyStroke);
 		}
-		if (menuParentWindow != null) {
-			JMenu menu = windowMenus.get(menuParentWindow);
+		if (associatedParent != null) {
+			JMenu menu = windowMenus.get(associatedParent);
 			if (menu == null) {
-				menu = new JMenu(menuParentWindow.getName());
-				windowMenus.put(menuParentWindow, menu);
-				if (contentPane.getSelectedComponent() == menuParentWindow)
+				menu = new JMenu(associatedParent.getName());
+				windowMenus.put(associatedParent, menu);
+				if (contentPane.getSelectedComponent() == associatedParent)
 					menuBar.add(menu, 1);
 				items.put(menu, new TreeMap<Integer, JMenuItem>());
 			}
 			items.get(menu).put(pos, item);
 			menu.removeAll();
 			for (Integer i : items.get(menu).navigableKeySet()) {
-				menu.insert(items.get(menu).get(i), i);
+				JMenuItem itemToAdd = items.get(menu).get(i); 
+				if (itemToAdd != null)
+					menu.insert(itemToAdd, i);
+				else
+					menu.insertSeparator(i);
 			}
-		} else {
+		} else { // parent `null` -> FileMenu
 			items.get(fileMenu).put(pos, item);
 			fileMenu.removeAll();
 			for (Integer i : items.get(fileMenu).navigableKeySet()) {
-				fileMenu.insert(items.get(fileMenu).get(i), i);
+				JMenuItem itemToAdd = items.get(fileMenu).get(i); 
+				if (itemToAdd != null)
+					fileMenu.insert(itemToAdd, i);
+				else
+					fileMenu.insertSeparator(i);
 			}
 		}
 	}
 
+	/**
+	 * Adds a separator in the menu at the given position
+	 */
+	public void addSeparator(JComponent associatedParent, int pos) {
+		// Add it to the menu
+		JComponent key = associatedParent == null ? fileMenu : associatedParent;
+		JMenu menu = windowMenus.get(associatedParent);
+		if (menu == null) {
+			menu = new JMenu(associatedParent.getName());
+			windowMenus.put(associatedParent, menu);
+			if (contentPane.getSelectedComponent() == associatedParent)
+				menuBar.add(menu, 1);
+			items.put(menu, new TreeMap<Integer, JMenuItem>());
+		}
+		items.get(menu).put(pos, null);
+		
+		// Also insert a spacer in the toolbar
+		addToolBarPanel(associatedParent, new JSeparator(), pos);
+	}
+	
 	/**
 	 * Adds a new tab
 	 * @param c the root component in the new tab
@@ -488,14 +542,6 @@ public class WindowSystem {
 		if (contentPane.getSelectedComponent() == window)
 			mainPane.remove(frames.get(c));
 	}
-	
-	/**
-	 * Adds a separator to the file menu at position 0
-	 * TODO useless?
-	 */
-	public void addSeparator() {
-		fileMenu.insertSeparator(0);
-	}
 
 	/**
 	 * Traverses the menus of the main window (`null`) to find an entry w/ the given action and enables it.
@@ -504,7 +550,6 @@ public class WindowSystem {
 	public void disableAction(Action a) {
 		disableAction(null, a);
 	}
-	
 
 	/**
 	 * Traverses the menus of the given window to find an entry w/ the given action and enables it.
@@ -526,7 +571,6 @@ public class WindowSystem {
 				b.setEnabled(false);
 		}
 	}
-
 	
 	/**
 	 * Traverses the menus of the main window (`null`) to find an entry w/ the given action and enables it.
@@ -535,7 +579,6 @@ public class WindowSystem {
 	public void enableAction(Action a) {
 		enableAction(null, a);
 	}
-
 	
 	/**
 	 * Traverses the menus of the given window to find an entry w/ the given action and enables it.
@@ -558,7 +601,6 @@ public class WindowSystem {
 		}
 	}
 
-	
 	/**
 	 * TODO this is literally a no-op, delete?
 	 */
@@ -571,7 +613,6 @@ public class WindowSystem {
 			// window is not focused, and we ignore the request
 		}
 	}
-
 	
 	/**
 	 * Selects component `c` and notifies contentPane's ChangeListeners

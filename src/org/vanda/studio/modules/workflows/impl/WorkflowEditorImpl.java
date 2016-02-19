@@ -143,18 +143,18 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 
 		semA = new SemanticAnalysis(synA, database);
 
-		component = new MyMxGraphComponent(presentationModel.getVisualization()
+		graphComponent = new MyMxGraphComponent(presentationModel.getVisualization()
 				.getGraph());
-		new mxDropTargetListener(presentationModel, component);
+		new mxDropTargetListener(presentationModel, graphComponent);
 		configureComponent();
-		component.getGraphControl().addMouseListener(new EditMouseAdapter());
-		component.addKeyListener(new DelKeyListener());
+		graphComponent.getGraphControl().addMouseListener(new EditMouseAdapter());
+		graphComponent.addKeyListener(new DelKeyListener());
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				component.getVerticalScrollBar()
+				graphComponent.getVerticalScrollBar()
 						.setValue(
-								(int) (component.getVerticalScrollBar()
+								(int) (graphComponent.getVerticalScrollBar()
 										.getMaximum() * 0.35));
 			}
 		});
@@ -167,22 +167,35 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		// mainpane.setDividerSize(6);
 		// mainpane.setBorder(null);
 		// mainpane.setDividerLocation(0.7);
-		component.setName(view.getWorkflow().getName());
-		app.getWindowSystem().addContentWindow(null, component, null);
+		graphComponent.setName(view.getWorkflow().getName());
+		app.getWindowSystem().addContentWindow(null, graphComponent, null);
 
 		tools = new ArrayList<Object>();
-		for (ToolFactory tf : toolFactories)
+		for (ToolFactory tf : toolFactories) {
 			tools.add(tf.instantiate(this));
+		}
 
-		addAction(new CheckWorkflowAction(this), "document-preview",
-				KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK), 2);
-		addAction(new ClearWorkflowDirectoryAction(this), "run-build-clean",
-				KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK), 3);
-		addAction(new ResetZoomAction(),
-				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK), 8);
+		// The comments are all added in different files :(
+		// Still, here is the one list:
+		// 00 -> Save
 		addAction(new CloseWorkflowAction(),
-				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK), 1);
-
+				KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK), 10);
+		// 20 -> Export to PDF
+		addSeparator(30);
+		// 40 -> Previous assignment
+		// 50 -> Next assignment
+		addSeparator(60);
+		addAction(new CheckWorkflowAction(this), "document-preview",
+				KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK), 70);
+		addAction(new ClearWorkflowDirectoryAction(this), "run-build-clean",
+				KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK), 80);
+		// 90 -> Run
+		addSeparator(100);
+		addAction(new ResetZoomAction(),
+				KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK), 110);
+		// 120 -> (Seperator has to be added after the...)
+		// 130 -> Open assignment table
+		
 		setupOutline();
 
 		// send some initial event ("updated" will be sent)
@@ -190,8 +203,8 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		view.getWorkflow().endUpdate();
 
 		// focus window
-		app.getWindowSystem().focusContentWindow(component);
-		component.requestFocusInWindow();
+		app.getWindowSystem().focusContentWindow(graphComponent);
+		graphComponent.requestFocusInWindow();
 		// init outline painting
 		outline.updateScaleAndTranslate();
 	}
@@ -247,8 +260,8 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		public void mouseClicked(MouseEvent e) {
 			if (e.getButton() == 1 && e.getClickCount() == 2) {
 				// double click using left mouse button
-				Object cell = component.getCellAt(e.getX(), e.getY());
-				Object value = component.getGraph().getModel().getValue(cell);
+				Object cell = graphComponent.getCellAt(e.getX(), e.getY());
+				Object value = graphComponent.getGraph().getModel().getValue(cell);
 
 				if (value instanceof HasActions) {
 					Action def = Util.getDefaultAction((HasActions) value);
@@ -257,8 +270,8 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 				}
 			} else if (e.getButton() == 3) {
 				// show context menu when right clicking a node or an edge
-				Object cell = component.getCellAt(e.getX(), e.getY());
-				final Object value = component.getGraph().getModel()
+				Object cell = graphComponent.getCellAt(e.getX(), e.getY());
+				final Object value = graphComponent.getGraph().getModel()
 						.getValue(cell);
 
 				if (value != null)
