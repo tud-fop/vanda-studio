@@ -59,6 +59,7 @@ import org.vanda.util.Observer;
  */
 public class WindowSystem {
 	
+	///*
 	public static final LayoutSelector CENTER = new LayoutSelector() {
 		@Override
 		public <L> L selectLayout(LayoutAssortment<L> la) {
@@ -121,6 +122,7 @@ public class WindowSystem {
 			return la.getNorthEast();
 		}
 	};
+	//*/
 	
 	private static int ICON_SIZE = 24;
 
@@ -152,6 +154,9 @@ public class WindowSystem {
 	 * The JMenuItem `null` will result in a separator!
 	 */
 	protected HashMap<JMenu, TreeMap<Integer, JMenuItem>> items;
+	/**
+	 * for the toolbar
+	 */
 	protected HashMap<JPanel, TreeMap<Integer, JComponent>> tools;
 	protected HashMap<JComponent, HashMap<Action, JButton>> actionToButton;
 	private Observer<Application> shutdownObserver;
@@ -333,6 +338,7 @@ public class WindowSystem {
 
 	/**
 	 * Adds a panel to the toolbar.
+	 * Will not add a JSeparator at the start or after another JSeparator.
 	 * @param associatedParent the parent to which the new panel "belongs"
 	 * @param panel the panel to add
 	 * @param pos the position in the toolbar
@@ -449,7 +455,9 @@ public class WindowSystem {
 	}
 
 	/**
-	 * Adds a separator in the menu at the given position
+	 * Adds a separator in the menu and the toolbar at the given position,
+	 * while making sure that separators never follow each other in the toolbar
+	 * or come at the start of the toolbar.
 	 */
 	public void addSeparator(JComponent associatedParent, int pos) {
 		// Add it to the menu
@@ -507,24 +515,24 @@ public class WindowSystem {
 		contentPane.remove(c);
 		windowTools.remove(frames.get(c));
 	}
-
+	
 	/**
 	 * Adds a new `ToolFrame` to the `mainPane` (and the `windowTools` and `frames` structures)
-	 * @param window window to which to add the new tool window
+	 * @param associatedParent parent with which to associate the new tool window
 	 * @param c the tool window component to add
 	 * @param layout the layout the new `ToolFrame` is supposed to have
 	 */
-	public void addToolWindow(JComponent window, JComponent c, LayoutSelector layout) {
-		List<JComponent> tcs = windowTools.get(window);
+	public void addToolWindow(JComponent associatedParent, JComponent c, LayoutSelector layout) {
+		List<JComponent> tcs = windowTools.get(associatedParent);
 		if (tcs == null) {
 			tcs = new ArrayList<JComponent>();
-			windowTools.put(window, tcs);
+			windowTools.put(associatedParent, tcs);
 		}
 		if (!tcs.contains(c)) {
 			tcs.add(c);
 			ToolFrame f = new ToolFrame(c, layout);
 			frames.put(c, f);
-			if (contentPane.getSelectedComponent() == window) {
+			if (contentPane.getSelectedComponent() == associatedParent) {
 				frames.put(c, f);
 				mainPane.add(f, JLayeredPane.PALETTE_LAYER);
 			}
@@ -534,15 +542,25 @@ public class WindowSystem {
 	/**
 	 * Removes window from the `mainPane` (and the `windowTools` structure, but not the `frames` structure)
 	 */
-	public void removeToolWindow(JComponent window, JComponent c) {
-		List<JComponent> tcs = windowTools.get(window);
+	public void removeToolWindow(JComponent associatedParent, JComponent c) {
+		List<JComponent> tcs = windowTools.get(associatedParent);
 		if (tcs != null) {
 			tcs.remove(c);
 		}
-		if (contentPane.getSelectedComponent() == window)
+		if (contentPane.getSelectedComponent() == associatedParent)
 			mainPane.remove(frames.get(c));
 	}
 
+	/**
+	 * 
+	 * @param associatedParent parent with which to associate the new tool window
+	 * @param c the tool window component to add
+	 * @param 
+	 */
+	public void addSideSplit(JComponent associatedParent, JComponent c, Dimension d) {
+		
+	}
+	
 	/**
 	 * Traverses the menus of the main window (`null`) to find an entry w/ the given action and enables it.
 	 * Uses `windowMenus` and `actionToButton`.

@@ -470,12 +470,16 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	}
 
 	protected void setupOutline() {
+		// We will not need it anymore, hopefully.
+		// TODO go ahead and remove this
+		/*
 		outline = new mxGraphOutline(graphComponent);
 		outline.setPreferredSize(new Dimension(250, 250));
 		outline.setName("Map");
 		// outline.setFitPage(true);
 		// addToolWindow(outline, WindowSystem.SOUTHEAST);
 		addToolWindow(outline, WindowSystem.NORTHEAST);
+		*/
 	}
 
 }
