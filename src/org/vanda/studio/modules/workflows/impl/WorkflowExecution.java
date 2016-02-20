@@ -144,7 +144,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 		configureComponent();
 		graphComponent.setName(phd.fst.getName() + "Execution");
 
-		setupOutline();
+		//setupOutline();
 
 		// add inspector
 		ElementEditorFactories eefs = new ElementEditorFactories();
@@ -170,7 +170,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 		app.getWindowSystem().focusContentWindow(graphComponent);
 		graphComponent.requestFocusInWindow();
 		// init outline painting
-		outline.updateScaleAndTranslate();
+		//outline.updateScaleAndTranslate();
 
 	}
 

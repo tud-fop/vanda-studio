@@ -38,6 +38,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -59,70 +60,7 @@ import org.vanda.util.Observer;
  */
 public class WindowSystem {
 	
-	///*
-	public static final LayoutSelector CENTER = new LayoutSelector() {
-		@Override
-		public <L> L selectLayout(LayoutAssortment<L> la) {
-			return la.getCenter();
-		}
-	};
-	
-	public static final LayoutSelector NORTH = new LayoutSelector() {
-		@Override
-		public <L> L selectLayout(LayoutAssortment<L> la) {
-			return la.getNorth();
-		}
-	};
-
-	public static final LayoutSelector NORTHWEST = new LayoutSelector() {
-		@Override
-		public <L> L selectLayout(LayoutAssortment<L> la) {
-			return la.getNorthWest();
-		}
-	};
-
-	public static final LayoutSelector WEST = new LayoutSelector() {
-		@Override
-		public <L> L selectLayout(LayoutAssortment<L> la) {
-			return la.getWest();
-		}
-	};
-
-	public static final LayoutSelector SOUTHWEST = new LayoutSelector() {
-		@Override
-		public <L> L selectLayout(LayoutAssortment<L> la) {
-			return la.getSouthWest();
-		}
-	};
-
-	public static final LayoutSelector SOUTH = new LayoutSelector() {
-		@Override
-		public <L> L selectLayout(LayoutAssortment<L> la) {
-			return la.getSouth();
-		}
-	};
-
-	public static final LayoutSelector SOUTHEAST = new LayoutSelector() {
-		@Override
-		public <L> L selectLayout(LayoutAssortment<L> la) {
-			return la.getSouthEast();
-		}
-	};
-
-	public static final LayoutSelector EAST = new LayoutSelector() {
-		@Override
-		public <L> L selectLayout(LayoutAssortment<L> la) {
-			return la.getEast();
-		}
-	};
-
-	public static final LayoutSelector NORTHEAST = new LayoutSelector() {
-		@Override
-		public <L> L selectLayout(LayoutAssortment<L> la) {
-			return la.getNorthEast();
-		}
-	};
-	//*/
+	public enum Side {NORTH, EAST, SOUTH, WEST};
 	
 	private static int ICON_SIZE = 24;
 
@@ -144,6 +82,7 @@ public class WindowSystem {
 	/**
 	 * Maps tool window panes to the internal frames that are created for holding them
 	 */
+	@Deprecated
 	protected HashMap<JComponent, JInternalFrame> frames;
 	
 	protected ButtonGroup modeGroup;
@@ -277,8 +216,8 @@ public class WindowSystem {
 			public void stateChanged(ChangeEvent e) {
 				// Rebuild menu
 				// FIXME do not change tool windows when there is merely a new title for a content window
-				Component c = contentPane.getSelectedComponent();
-				JMenu menu = windowMenus.get(c);
+				Component parent = contentPane.getSelectedComponent();
+				JMenu menu = windowMenus.get(parent);
 				if (menuBar.getMenu(1) != menu) {
 					if (menuBar.getMenu(1) != optionsMenu) {
 						menuBar.remove(1);
@@ -293,23 +232,39 @@ public class WindowSystem {
 				// Rebuild icon toolbar
 				iconToolBar.removeAll();
 				iconToolBar.add(iconToolBars.get(null));
-				if (iconToolBars.get(c) != null && c != null)
-					iconToolBar.add(iconToolBars.get(c));
+				if (iconToolBars.get(parent) != null && parent != null)
+					iconToolBar.add(iconToolBars.get(parent));
 				iconToolBar.revalidate();
 				iconToolBar.repaint();
 				
 				// Rebuild all tool windows 
 				mainPane.removeAll();
-				mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
+				
+				//mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
+				
+				/*
 				List<JComponent> tcs = windowTools.get(null);
 				if (tcs != null) {
 					for (JComponent tc : tcs)
 						mainPane.add(frames.get(tc), JLayeredPane.PALETTE_LAYER);
 				}
-				tcs = windowTools.get(c);
+				tcs = windowTools.get(parent);
 				if (tcs != null) {
 					for (JComponent tc : tcs)
 						mainPane.add(frames.get(tc), JLayeredPane.PALETTE_LAYER);
+				}
+				*/
+				
+				// Build all side splits
+				if(windowTools.get(parent) != null && !windowTools.get(parent).isEmpty()) {
+					JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
+							contentPane, windowTools.get(parent).get(0));
+
+					splitPane.setBounds(0, 0, 600, 200);
+
+					mainPane.add(splitPane, JLayeredPane.DEFAULT_LAYER);
+				} else {
+					mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
 				}
 			}
 
@@ -522,6 +477,7 @@ public class WindowSystem {
 	 * @param c the tool window component to add
 	 * @param layout the layout the new `ToolFrame` is supposed to have
 	 */
+	@Deprecated
 	public void addToolWindow(JComponent associatedParent, JComponent c, LayoutSelector layout) {
 		List<JComponent> tcs = windowTools.get(associatedParent);
 		if (tcs == null) {
@@ -542,6 +498,7 @@ public class WindowSystem {
 	/**
 	 * Removes window from the `mainPane` (and the `windowTools` structure, but not the `frames` structure)
 	 */
+	@Deprecated
 	public void removeToolWindow(JComponent associatedParent, JComponent c) {
 		List<JComponent> tcs = windowTools.get(associatedParent);
 		if (tcs != null) {
@@ -555,9 +512,27 @@ public class WindowSystem {
 	 * 
 	 * @param associatedParent parent with which to associate the new tool window
 	 * @param c the tool window component to add
-	 * @param 
+	 * @param side the side at which the inserted pane should be
+	 * @param size its initial width/height in pixels
 	 */
-	public void addSideSplit(JComponent associatedParent, JComponent c, Dimension d) {
+	public void addSideSplit(JComponent associatedParent, JComponent c, Side side, int size) {
+		System.out.println(c.toString());
+		
+		if (side != Side.EAST)
+			return;
+		
+		List<JComponent> tcs = windowTools.get(associatedParent);
+		if (tcs == null) {
+			tcs = new ArrayList<JComponent>();
+			windowTools.put(associatedParent, tcs);
+		}
+		if (!tcs.contains(c)) {
+			tcs.add(c);
+		}
+	}
+	
+	// TODO
+	public void removeSideSplit(JComponent associatedParent, JComponent c) {
 		
 	}
 	

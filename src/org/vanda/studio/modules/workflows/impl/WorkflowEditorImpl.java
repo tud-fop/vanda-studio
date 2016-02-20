@@ -1,5 +1,6 @@
 package org.vanda.studio.modules.workflows.impl;
 
+import java.awt.BorderLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -196,7 +197,7 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		// 120 -> (Seperator has to be added after the...)
 		// 130 -> Open assignment table
 		
-		setupOutline();
+		//setupOutline();
 
 		// send some initial event ("updated" will be sent)
 		view.getWorkflow().beginUpdate();
@@ -206,7 +207,7 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		app.getWindowSystem().focusContentWindow(graphComponent);
 		graphComponent.requestFocusInWindow();
 		// init outline painting
-		outline.updateScaleAndTranslate();
+		//outline.updateScaleAndTranslate();
 	}
 
 	static {
@@ -322,7 +323,7 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 				removeToolWindow(palette);
 			palette = c;
 			if (palette != null)
-				addToolWindow(palette, WindowSystem.SOUTHWEST);
+				addSideSplit(palette, WindowSystem.Side.EAST, 300);
 			// mainpane.setRightComponent(c);
 		}
 	}

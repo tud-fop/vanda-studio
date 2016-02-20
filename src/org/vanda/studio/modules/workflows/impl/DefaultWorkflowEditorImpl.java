@@ -50,7 +50,7 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	protected final Application app;
 	protected mxGraphComponent graphComponent;
 	protected final Database database;
-	protected mxGraphOutline outline;
+	//protected mxGraphOutline outline;
 	protected SemanticAnalysis semA;
 	protected SyntaxAnalysis synA;
 	protected final View view;
@@ -77,9 +77,31 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		app.getWindowSystem().addSeparator(graphComponent, pos);
 	}
 	
+	// TODO remove the three following toolwindow-things
+	
 	@Override
 	public void addToolWindow(JComponent c, LayoutSelector layout) {
 		app.getWindowSystem().addToolWindow(graphComponent, c, layout);
+	}
+
+	@Override
+	public void removeToolWindow(JComponent c) {
+		app.getWindowSystem().removeToolWindow(graphComponent, c);
+	}
+
+	@Override
+	public void focusToolWindow(JComponent c) {
+		app.getWindowSystem().focusToolWindow(c);
+	}
+	
+	@Override
+	public void addSideSplit(JComponent c, WindowSystem.Side side, int size) {
+		app.getWindowSystem().addSideSplit(graphComponent, c, side, size);
+	}
+
+	@Override
+	public void removeSideSplit(JComponent c) {
+		app.getWindowSystem().removeSideSplit(graphComponent, c);
 	}
 
 	@Override
@@ -118,11 +140,6 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	}
 	
 	@Override
-	public void focusToolWindow(JComponent c) {
-		app.getWindowSystem().focusToolWindow(c);
-	}
-
-	@Override
 	public Application getApplication() {
 		return app;
 	}
@@ -153,11 +170,6 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 			graphComponent.setName(mwf.getName());
 			app.getWindowSystem().addContentWindow(null, graphComponent, null);
 		}
-	}
-
-	@Override
-	public void removeToolWindow(JComponent c) {
-		app.getWindowSystem().removeToolWindow(graphComponent, c);
 	}
 
 	@Override
@@ -468,18 +480,18 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		appObserver.notify(app);
 		
 	}
-
+	
+	// We will not need it anymore, hopefully.
+	// TODO go ahead and remove this
+	/*
 	protected void setupOutline() {
-		// We will not need it anymore, hopefully.
-		// TODO go ahead and remove this
-		/*
+		
 		outline = new mxGraphOutline(graphComponent);
 		outline.setPreferredSize(new Dimension(250, 250));
 		outline.setName("Map");
 		// outline.setFitPage(true);
 		// addToolWindow(outline, WindowSystem.SOUTHEAST);
 		addToolWindow(outline, WindowSystem.NORTHEAST);
-		*/
 	}
-
+	*/
 }
