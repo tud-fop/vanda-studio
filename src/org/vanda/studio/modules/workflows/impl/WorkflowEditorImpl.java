@@ -320,7 +320,7 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 	public void setPalette(JComponent c) {
 		if (palette != c) {
 			if (palette != null)
-				removeToolWindow(palette);
+				removeSideSplit(palette);
 			palette = c;
 			if (palette != null)
 				addSideSplit(palette, WindowSystem.Side.EAST, 300);

@@ -80,23 +80,8 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	// TODO remove the three following toolwindow-things
 	
 	@Override
-	public void addToolWindow(JComponent c, LayoutSelector layout) {
-		app.getWindowSystem().addToolWindow(graphComponent, c, layout);
-	}
-
-	@Override
-	public void removeToolWindow(JComponent c) {
-		app.getWindowSystem().removeToolWindow(graphComponent, c);
-	}
-
-	@Override
-	public void focusToolWindow(JComponent c) {
-		app.getWindowSystem().focusToolWindow(c);
-	}
-	
-	@Override
 	public void addSideSplit(JComponent c, WindowSystem.Side side, int size) {
-		app.getWindowSystem().addSideSplit(graphComponent, c, side, size);
+		app.getWindowSystem().addSideSplit(graphComponent, new WindowSystem.SideSplitPane(c, side, size));
 	}
 
 	@Override

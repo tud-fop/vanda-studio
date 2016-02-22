@@ -19,9 +19,6 @@ public interface WorkflowEditor {
 	void addAction(Action a, KeyStroke keyStroke, int pos);
 	void addAction(Action a, String imageName, KeyStroke keyStroke, int pos);
 	void addSeparator(int pos);
-	void addToolWindow(JComponent c, LayoutSelector layout);
-	void removeToolWindow(JComponent c);
-	void focusToolWindow(JComponent c);
 	void addSideSplit(JComponent c, WindowSystem.Side side, int size);
 	void removeSideSplit(JComponent c);
 	void addToolBarPanel(JComponent c, int pos);

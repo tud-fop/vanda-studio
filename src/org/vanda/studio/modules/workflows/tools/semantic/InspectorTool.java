@@ -71,6 +71,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			contentPane.setName("Inspector");
 			panNorth = new JPanel(new BorderLayout());
 			editor = null;
+			
 			this.wfe.addSideSplit(contentPane, WindowSystem.Side.SOUTH, 400);
 
 			final ViewListener<View> listener = new ViewListener<View>() {
@@ -119,7 +120,6 @@ public class InspectorTool implements SemanticsToolFactory {
 			};
 			semA.getObservable().addObserver(semanticObserver);
 
-			this.wfe.focusToolWindow(contentPane);
 			update();
 		}
 

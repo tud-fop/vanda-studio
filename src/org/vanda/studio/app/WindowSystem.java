@@ -75,15 +75,14 @@ public class WindowSystem {
 	protected HashMap<JComponent, JMenu> windowMenus;
 	protected HashMap<JComponent, JPanel> iconToolBars;
 	/**
-	 * Maps a window to a list of its tool panes
+	 * Maps a window to a list of its tool pane components
 	 * Note: the key `null` maps to tool panes that should be shown for every window
 	 */
 	protected HashMap<JComponent, List<JComponent>> windowTools;
 	/**
-	 * Maps tool window panes to the internal frames that are created for holding them
+	 * Maps tool window panes to the (positioned and sized) sidesplits that are created for holding them
 	 */
-	@Deprecated
-	protected HashMap<JComponent, JInternalFrame> frames;
+	protected HashMap<JComponent, SideSplitPane> frames;
 	
 	protected ButtonGroup modeGroup;
 
@@ -101,6 +100,25 @@ public class WindowSystem {
 	private Observer<Application> shutdownObserver;
 	private Observer<Application> uiModeObserver;
 
+	/**
+	 * Simple struct to store all side-panes with their position and size
+	 */
+	public static class SideSplitPane {
+		public JComponent component;
+
+		/** the side at which the inserted pane should be */
+		public Side side;
+		
+		/** its initial width/height in pixels */
+		public int size;
+		
+		public SideSplitPane(JComponent c, Side sd, int sz) {
+			component = c;
+			side = sd;
+			size = sz;
+		}
+	}
+	
 	@SuppressWarnings("serial")
 	private static class LayoutTabbedPane extends JTabbedPane implements LayoutSelector {
 
@@ -203,7 +221,7 @@ public class WindowSystem {
 		tools.put(null, new TreeMap<Integer, JComponent>());
 		actionToButton = new HashMap<JComponent, HashMap<Action, JButton>>();
 		actionToButton.put(null, new HashMap<Action, JButton>());
-		frames = new HashMap<JComponent, JInternalFrame>();
+		frames = new HashMap<JComponent, SideSplitPane>();
 
 		// Create the central tabbed pane containing the graph...
 		contentPane = new LayoutTabbedPane();
@@ -239,33 +257,43 @@ public class WindowSystem {
 				
 				// Rebuild all tool windows 
 				mainPane.removeAll();
-				
-				//mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
-				
-				/*
-				List<JComponent> tcs = windowTools.get(null);
-				if (tcs != null) {
-					for (JComponent tc : tcs)
-						mainPane.add(frames.get(tc), JLayeredPane.PALETTE_LAYER);
-				}
-				tcs = windowTools.get(parent);
-				if (tcs != null) {
-					for (JComponent tc : tcs)
-						mainPane.add(frames.get(tc), JLayeredPane.PALETTE_LAYER);
-				}
-				*/
-				
+								
 				// Build all side splits
-				if(windowTools.get(parent) != null && !windowTools.get(parent).isEmpty()) {
-					JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
-							contentPane, windowTools.get(parent).get(0));
+				JComponent newRoot = contentPane;
+				if(windowTools.get(parent) != null)
+				for(JComponent toolComponent : windowTools.get(parent)) {
+					SideSplitPane tool = frames.get(toolComponent);
+					
+					//toolPane.setMaximumSize(new Dimension(400, mainPane.getHeight()));
+					//contentPane.setMinimumSize(new Dimension(500,0));
+					
+					JSplitPane splitPane = null;
+					switch (tool.side) {
+						case NORTH:
+							splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
+								tool.component, newRoot);
+							break;
+						case EAST:
+							splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
+								newRoot, tool.component);
+							break;
+						case SOUTH:
+							splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
+								newRoot, tool.component);
+							break;
+						case WEST:
+							splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
+								tool.component, newRoot);
+							break;
+					}
 
-					splitPane.setBounds(0, 0, 600, 200);
+					splitPane.setBounds(0, 0, mainPane.getWidth(), mainPane.getHeight());
+					splitPane.setOneTouchExpandable(true);
 
-					mainPane.add(splitPane, JLayeredPane.DEFAULT_LAYER);
-				} else {
-					mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
+					newRoot = splitPane;
 				}
+				
+				mainPane.add(newRoot, JLayeredPane.DEFAULT_LAYER);
 			}
 
 		});
@@ -472,68 +500,27 @@ public class WindowSystem {
 	}
 	
 	/**
-	 * Adds a new `ToolFrame` to the `mainPane` (and the `windowTools` and `frames` structures)
+	 * Adds a new tool pane to the window (or more exactly to the internal data structures)
 	 * @param associatedParent parent with which to associate the new tool window
-	 * @param c the tool window component to add
-	 * @param layout the layout the new `ToolFrame` is supposed to have
+	 * @param p the tool pane to add
 	 */
-	@Deprecated
-	public void addToolWindow(JComponent associatedParent, JComponent c, LayoutSelector layout) {
-		List<JComponent> tcs = windowTools.get(associatedParent);
-		if (tcs == null) {
-			tcs = new ArrayList<JComponent>();
-			windowTools.put(associatedParent, tcs);
+	public void addSideSplit(JComponent associatedParent, SideSplitPane p) {
+		List<JComponent> sspcs = windowTools.get(associatedParent);
+		if (sspcs == null) {
+			sspcs = new ArrayList<JComponent>();
+			windowTools.put(associatedParent, sspcs);
 		}
-		if (!tcs.contains(c)) {
-			tcs.add(c);
-			ToolFrame f = new ToolFrame(c, layout);
-			frames.put(c, f);
-			if (contentPane.getSelectedComponent() == associatedParent) {
-				frames.put(c, f);
-				mainPane.add(f, JLayeredPane.PALETTE_LAYER);
-			}
-		}
-	}
-
-	/**
-	 * Removes window from the `mainPane` (and the `windowTools` structure, but not the `frames` structure)
-	 */
-	@Deprecated
-	public void removeToolWindow(JComponent associatedParent, JComponent c) {
-		List<JComponent> tcs = windowTools.get(associatedParent);
-		if (tcs != null) {
-			tcs.remove(c);
-		}
-		if (contentPane.getSelectedComponent() == associatedParent)
-			mainPane.remove(frames.get(c));
-	}
-
-	/**
-	 * 
-	 * @param associatedParent parent with which to associate the new tool window
-	 * @param c the tool window component to add
-	 * @param side the side at which the inserted pane should be
-	 * @param size its initial width/height in pixels
-	 */
-	public void addSideSplit(JComponent associatedParent, JComponent c, Side side, int size) {
-		System.out.println(c.toString());
-		
-		if (side != Side.EAST)
-			return;
-		
-		List<JComponent> tcs = windowTools.get(associatedParent);
-		if (tcs == null) {
-			tcs = new ArrayList<JComponent>();
-			windowTools.put(associatedParent, tcs);
-		}
-		if (!tcs.contains(c)) {
-			tcs.add(c);
+		if (!sspcs.contains(p.component)) {
+			sspcs.add(p.component);
+			frames.put(p.component, p);
 		}
 	}
 	
-	// TODO
 	public void removeSideSplit(JComponent associatedParent, JComponent c) {
-		
+		List<JComponent> sspcs = windowTools.get(associatedParent);
+		if (sspcs != null) {
+			sspcs.remove(c);
+		}
 	}
 	
 	/**
@@ -591,19 +578,6 @@ public class WindowSystem {
 			JButton b = actionToButton.get(window).get(a);
 			if (b != null)
 				b.setEnabled(true);
-		}
-	}
-
-	/**
-	 * TODO this is literally a no-op, delete?
-	 */
-	public void focusToolWindow(JComponent c) {
-		try {
-			// do nothing
-			// toolPane.setSelectedComponent(c);
-		} catch (IllegalArgumentException e) {
-			// if the component is not in there, then the corresponding
-			// window is not focused, and we ignore the request
 		}
 	}
 	

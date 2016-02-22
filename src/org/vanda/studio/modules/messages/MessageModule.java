@@ -125,7 +125,6 @@ public class MessageModule implements Module {
 		public void notify(Message event) {
 			listModel.add(0, event);
 			messageList.setSelectedIndex(0);
-			app.getWindowSystem().focusToolWindow(scrollPane);
 		}
 
 	}
