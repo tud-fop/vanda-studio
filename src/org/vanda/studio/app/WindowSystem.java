@@ -48,6 +48,7 @@ import javax.swing.event.ChangeListener;
 import org.vanda.studio.core.ButtonTabComponent;
 import org.vanda.studio.core.LayerLayout;
 import org.vanda.studio.core.ToolFrame;
+import org.vanda.studio.modules.workflows.impl.DefaultWorkflowEditorImpl;
 import org.vanda.studio.modules.workflows.tools.AssignmentSwitchToolFactory;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
@@ -66,14 +67,16 @@ public class WindowSystem {
 
 	protected final Application app;
 	protected final JFrame mainWindow;
-	protected JLayeredPane mainPane;
-	protected JTabbedPane contentPane;
+	protected SplitTabbedPane contentPane;
 	protected JMenuBar menuBar;
 	protected JPanel iconToolBar;
 	protected JMenu fileMenu;
 	protected HashMap<UIMode, JRadioButtonMenuItem> modeMenuItems;
 	protected HashMap<JComponent, JMenu> windowMenus;
 	protected HashMap<JComponent, JPanel> iconToolBars;
+	
+	// Note: We still need the damn bookkeeping for rebuilding everything
+	// from scratch in the case of a sidesplit removal!
 	/**
 	 * Maps a window to a list of its tool pane components
 	 * Note: the key `null` maps to tool panes that should be shown for every window
@@ -119,14 +122,140 @@ public class WindowSystem {
 		}
 	}
 	
-	@SuppressWarnings("serial")
-	private static class LayoutTabbedPane extends JTabbedPane implements LayoutSelector {
-
-		@Override
-		public <L> L selectLayout(LayoutAssortment<L> la) {
-			return la.getCenter();
+	private static class SplitTabbedPane extends JTabbedPane {
+		/* TODO
+		 * Idea: store the cores alongside the components!
+		 *       This will make "lookup" trivial
+		 *       ...and eliminate the disgusting hardcoded GraphComponent!
+		 */
+		
+		public void setSelectedCoreComponent(JComponent c) {
+			setSelectedIndex(indexOfCoreComponent(c));
 		}
 
+		public int indexOfCoreComponent(JComponent c) {
+			// The easy case: the core we searched for is on the top level
+			int rootIndex = indexOfComponent(c);
+			if(rootIndex >= 0)
+				return rootIndex;
+			
+			// The hard case: we have to traverse each tab until we reach the core
+			for(int i = getTabCount() - 1; i >= 0; ++i)
+				if (getCoreComponentAt(i) == c)
+					return i;
+			
+			// No luck at all?
+			return -1;
+		}
+
+		/**
+		 * 
+		 * @param i
+		 * @return `null` iff the root component is the core component
+		 */
+		private JSplitPane getInnermostSplitPane(int i) {
+			Component current, left, right;
+			boolean isLeftSplit, isRightSplit;
+			current = getComponentAt(i);
+			
+			// Maybe we haven't split yet!
+			if(!(current instanceof JSplitPane))
+				return null;
+			
+			while(true) {
+				left = ((JSplitPane) current).getLeftComponent();
+				right = ((JSplitPane) current).getRightComponent();
+				isLeftSplit = left instanceof JSplitPane;
+				isRightSplit = right instanceof JSplitPane;
+				
+				if(isLeftSplit && !isRightSplit)
+					current = left;
+				else if(!isLeftSplit && isRightSplit)
+					current = right;
+				else if(!isLeftSplit && !isRightSplit) {
+					return (JSplitPane) current;
+				} else
+					throw new RuntimeException("Non-chain splitting present in a SplitTabbedPane!");
+			}
+		}
+		
+		private Component getCoreComponentAt(int i) {
+			JSplitPane innermostSplit = getInnermostSplitPane(i);
+
+			// Non-split case
+			if(innermostSplit == null)
+				return getComponentAt(i);
+			
+			if (innermostSplit.getLeftComponent() instanceof DefaultWorkflowEditorImpl.MyMxGraphComponent) // TODO change type visibility back to protected!!!
+				return innermostSplit.getLeftComponent();
+			else
+				return innermostSplit.getRightComponent();
+		}
+		
+		public Component getSelectedCoreComponent() {
+			if(getSelectedComponent() == null)
+				return null;
+			else
+				return getCoreComponentAt(getSelectedIndex());
+		}
+		
+		public void addSplitAt(int i, SideSplitPane p) {
+			JSplitPane innermostSplit = getInnermostSplitPane(i);
+			Component coreComponent = getCoreComponentAt(i);
+			
+			// Will be read only after being properly initialized, but java doesn't get that
+			boolean isLeft = false;
+			
+			// If we already have some split, release core from it, because:
+			// "Swing UIs are hierarchical and you can only add a component to the hierarchy once.
+			// If you add a component to more than one container you'll get unpredictable results."
+			// (http://stackoverflow.com/questions/1113799/whats-wrong-with-jsplitpanel-or-jtabbedpane)
+			if(innermostSplit != null) {
+				isLeft = innermostSplit.getLeftComponent() == coreComponent;
+				
+				if(isLeft)
+					innermostSplit.setLeftComponent(null);
+				else
+					innermostSplit.setRightComponent(null);
+			} else { // First split, but release core as well
+				setComponentAt(i, null);
+			}
+			
+			JSplitPane newSplitPane = null;
+			
+			switch (p.side) {
+				case NORTH:
+					newSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
+						p.component, coreComponent);
+					break;
+				case EAST:
+					newSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
+						coreComponent, p.component);
+					break;
+				case SOUTH:
+					newSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
+						coreComponent, p.component);
+					break;
+				case WEST:
+					newSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
+						p.component, coreComponent);
+					break;
+			}
+			
+			newSplitPane.setOneTouchExpandable(true);
+			
+			// TODO size etc
+			
+			// We already had a split to join into
+			if(innermostSplit != null) {
+				if(isLeft)
+					innermostSplit.setLeftComponent(newSplitPane);
+				else
+					innermostSplit.setRightComponent(newSplitPane);
+			} else { // This is the first split
+				setComponentAt(i, newSplitPane);
+			}
+		}
 	}
 
 	/**
@@ -224,17 +353,15 @@ public class WindowSystem {
 		frames = new HashMap<JComponent, SideSplitPane>();
 
 		// Create the central tabbed pane containing the graph...
-		contentPane = new LayoutTabbedPane();
+		contentPane = new SplitTabbedPane();
 		contentPane.addChangeListener(new ChangeListener() {
-
 			/* Switching tabs should change things other than just the contentPane itself:
 			 * the menu, the iconToolBar and the tool windows!
 			 */
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				// Rebuild menu
-				// FIXME do not change tool windows when there is merely a new title for a content window
-				Component parent = contentPane.getSelectedComponent();
+				Component parent = contentPane.getSelectedCoreComponent();
 				JMenu menu = windowMenus.get(parent);
 				if (menuBar.getMenu(1) != menu) {
 					if (menuBar.getMenu(1) != optionsMenu) {
@@ -254,60 +381,14 @@ public class WindowSystem {
 					iconToolBar.add(iconToolBars.get(parent));
 				iconToolBar.revalidate();
 				iconToolBar.repaint();
-				
-				// Rebuild all tool windows 
-				mainPane.removeAll();
-								
-				// Build all side splits
-				JComponent newRoot = contentPane;
-				if(windowTools.get(parent) != null)
-				for(JComponent toolComponent : windowTools.get(parent)) {
-					SideSplitPane tool = frames.get(toolComponent);
-					
-					//toolPane.setMaximumSize(new Dimension(400, mainPane.getHeight()));
-					//contentPane.setMinimumSize(new Dimension(500,0));
-					
-					JSplitPane splitPane = null;
-					switch (tool.side) {
-						case NORTH:
-							splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
-								tool.component, newRoot);
-							break;
-						case EAST:
-							splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
-								newRoot, tool.component);
-							break;
-						case SOUTH:
-							splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
-								newRoot, tool.component);
-							break;
-						case WEST:
-							splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
-								tool.component, newRoot);
-							break;
-					}
-
-					splitPane.setBounds(0, 0, mainPane.getWidth(), mainPane.getHeight());
-					splitPane.setOneTouchExpandable(true);
-
-					newRoot = splitPane;
-				}
-				
-				mainPane.add(newRoot, JLayeredPane.DEFAULT_LAYER);
 			}
 
 		});
-
-		// ... and add it to the main pane
-		mainPane = new JLayeredPane();
-		mainPane.setLayout(new LayerLayout());
-		mainPane.add(contentPane, JLayeredPane.DEFAULT_LAYER);
-
 		
 		// Add bars and panes to the window
 		mainWindow.setJMenuBar(menuBar);
 		mainWindow.getContentPane().setLayout(new BorderLayout());
-		mainWindow.getContentPane().add(mainPane, BorderLayout.CENTER);
+		mainWindow.getContentPane().add(contentPane, BorderLayout.CENTER);
 		mainWindow.getContentPane().add(iconToolBar, BorderLayout.NORTH);
 		
 		// Show window (from UI thread)
@@ -481,10 +562,13 @@ public class WindowSystem {
 			contentPane.setTitleAt(ix, name);
 		} else {
 			contentPane.add(name, c);
-			int idx = contentPane.getTabCount() - 1;
+			int idx = contentPane.indexOfComponent(c);
 			contentPane.setTabComponentAt(idx, new ButtonTabComponent(contentPane, a));
 			contentPane.setToolTipTextAt(idx, c.getName());
 		}
+		
+		// TODO check why this is suddenly necessary
+		c.setVisible(true);
 	}
 
 	/**
@@ -496,7 +580,7 @@ public class WindowSystem {
 	 */
 	public void removeContentWindow(JComponent c) {
 		contentPane.remove(c);
-		windowTools.remove(frames.get(c));
+		//windowTools.remove(frames.get(c));
 	}
 	
 	/**
@@ -514,6 +598,8 @@ public class WindowSystem {
 			sspcs.add(p.component);
 			frames.put(p.component, p);
 		}
+		
+		contentPane.addSplitAt(contentPane.indexOfCoreComponent(associatedParent), p);
 	}
 	
 	public void removeSideSplit(JComponent associatedParent, JComponent c) {
@@ -521,6 +607,56 @@ public class WindowSystem {
 		if (sspcs != null) {
 			sspcs.remove(c);
 		}
+		
+		rebuildSideSplits(associatedParent);
+	}
+
+	// TODO deprecate this and all that bookkeeping shit!
+	private void rebuildSideSplits(JComponent graph) {
+		// Swing UIs are hierarchical and you can only add a component to the hierarchy once.
+		// If you add a component to more than one container you'll get unpredictable results.
+		// (http://stackoverflow.com/questions/1113799/whats-wrong-with-jsplitpanel-or-jtabbedpane)
+		
+		JComponent newRoot = graph;
+		int oldIndex = contentPane.indexOfCoreComponent(graph);
+		contentPane.setComponentAt(oldIndex, null);
+		
+		if(windowTools.get(graph) != null)
+		for(JComponent toolComponent : windowTools.get(graph)) {
+			SideSplitPane tool = frames.get(toolComponent);
+			
+			//toolPane.setMaximumSize(new Dimension(400, mainPane.getHeight()));
+			//contentPane.setMinimumSize(new Dimension(500,0));
+			
+			JSplitPane splitPane = null;
+			
+			//System.err.println(">>>>>>>>> " + tool.side.toString());
+			
+			switch (tool.side) {
+				case NORTH:
+					splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
+						tool.component, newRoot);
+					break;
+				case EAST:
+					splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
+						newRoot, tool.component);
+					break;
+				case SOUTH:
+					splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
+						newRoot, tool.component);
+					break;
+				case WEST:
+					splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
+						tool.component, newRoot);
+					break;
+			}
+			
+			splitPane.setOneTouchExpandable(true);
+			
+			newRoot = splitPane;
+		}
+
+		contentPane.setComponentAt(oldIndex, newRoot);
 	}
 	
 	/**
@@ -585,7 +721,7 @@ public class WindowSystem {
 	 * Selects component `c` and notifies contentPane's ChangeListeners
 	 */
 	public void focusContentWindow(JComponent c) {
-		contentPane.setSelectedComponent(c);
+		contentPane.setSelectedCoreComponent(c);
 		for (ChangeListener cl : contentPane.getChangeListeners())
 			cl.stateChanged(new ChangeEvent(contentPane));
 	}

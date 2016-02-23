@@ -227,7 +227,7 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	}
 
 	@SuppressWarnings("serial")
-	protected static class MyMxGraphComponent extends mxGraphComponent {
+	public static class MyMxGraphComponent extends mxGraphComponent {
 
 		protected mxICell currentCollapsibleCell;
 		protected List<mxICell> collapsedCells;
