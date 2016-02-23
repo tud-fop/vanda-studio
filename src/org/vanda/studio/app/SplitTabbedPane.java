@@ -187,8 +187,6 @@ public class SplitTabbedPane extends JTabbedPane {
 				newSplitPane = null; // can't happen, but java
 		}
 		
-		newSplitPane.setOneTouchExpandable(true);
-		
 		// We already had a split to join into
 		if(innermostSplit != null) {
 			if(isLeft)
@@ -200,6 +198,8 @@ public class SplitTabbedPane extends JTabbedPane {
 		}
 
 		// Now size it properly
+		newSplitPane.setOneTouchExpandable(true);
+		newSplitPane.setResizeWeight(1.0);
 		switch (p.side) {
 			case NORTH:
 				newSplitPane.setDividerLocation(p.size);
