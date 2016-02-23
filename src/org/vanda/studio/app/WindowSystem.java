@@ -276,6 +276,86 @@ public class WindowSystem {
 					break;
 			}
 		}
+
+		public void removeSplit(JComponent associatedParent, JComponent c) {
+			System.err.println("removeSplit: "+c.toString());
+			System.err.flush();
+			
+			int i = indexOfCoreComponent(associatedParent);
+			
+			Component current, left, right; 
+			boolean isLeftSplit, isRightSplit;
+			current = getComponentAt(i);
+			
+			// Maybe we haven't split yet!
+			if(!(current instanceof JSplitPane))
+				throw new RuntimeException("Cannot remove SidePane with component "+c.toString());
+			
+			JSplitPane previous = null;
+			boolean didIGoLeft = false; // is overwritten before first use alongside `previous`
+			
+			while(true) {
+				left = ((JSplitPane) current).getLeftComponent();
+				right = ((JSplitPane) current).getRightComponent();
+				isLeftSplit = left instanceof JSplitPane;
+				isRightSplit = right instanceof JSplitPane;
+				
+				if(isLeftSplit && !isRightSplit) {
+					if(right == c) {
+						if(previous == null)
+							setComponentAt(i, left);
+						return;
+					}
+					previous = (JSplitPane) current;
+					current = left;
+					didIGoLeft = true;
+				} else if(!isLeftSplit && isRightSplit) {
+					if(left == c) {
+						if(previous == null)
+							setComponentAt(i, right);
+						return;
+					}
+					previous = (JSplitPane) current;
+					current = right;
+					didIGoLeft = false;
+				} else if(!isLeftSplit && !isRightSplit) {
+					// Check if its just one SplitPane
+					if(previous == null)
+						if(left == c) {
+							setComponentAt(i, right);
+							return;
+						}
+						else if (right == c) {
+							setComponentAt(i, left);
+							return;
+						}
+					
+					// Otherwise use the predecessor
+					if(didIGoLeft)
+						if(left == c) {
+							previous.setLeftComponent(right);
+							return;
+						}
+						else if (right == c) {
+							previous.setLeftComponent(left);
+							return;
+						}
+					else
+						if(left == c) {
+							previous.setRightComponent(right);
+							return;
+						}
+						else if (right == c) {
+							previous.setRightComponent(left);
+							return;
+						}
+					break;
+				} else
+					throw new RuntimeException("Non-chain splitting present in a SplitTabbedPane!");
+			}
+
+			throw new RuntimeException("Cannot remove SidePane with component "+c.toString());
+		}
 	}
 
 	/**
@@ -628,58 +708,9 @@ public class WindowSystem {
 			sspcs.remove(c);
 		}
 		
-		// TODO
-		//rebuildSideSplits(associatedParent);
+		contentPane.removeSplit(associatedParent, c);
 	}
 
-	// TODO deprecate this and all that bookkeeping shit!
-	private void rebuildSideSplits(JComponent graph) {
-		// Swing UIs are hierarchical and you can only add a component to the hierarchy once.
-		// If you add a component to more than one container you'll get unpredictable results.
-		// (http://stackoverflow.com/questions/1113799/whats-wrong-with-jsplitpanel-or-jtabbedpane)
-		
-		JComponent newRoot = graph;
-		int oldIndex = contentPane.indexOfCoreComponent(graph);
-		contentPane.setComponentAt(oldIndex, null);
-		
-		if(windowTools.get(graph) != null)
-		for(JComponent toolComponent : windowTools.get(graph)) {
-			SideSplitPane tool = frames.get(toolComponent);
-			
-			//toolPane.setMaximumSize(new Dimension(400, mainPane.getHeight()));
-			//contentPane.setMinimumSize(new Dimension(500,0));
-			
-			JSplitPane splitPane = null;
-			
-			//System.err.println(">>>>>>>>> " + tool.side.toString());
-			
-			switch (tool.side) {
-				case NORTH:
-					splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
-						tool.component, newRoot);
-					break;
-				case EAST:
-					splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
-						newRoot, tool.component);
-					break;
-				case SOUTH:
-					splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true,
-						newRoot, tool.component);
-					break;
-				case WEST:
-					splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
-						tool.component, newRoot);
-					break;
-			}
-			
-			splitPane.setOneTouchExpandable(true);
-			
-			newRoot = splitPane;
-		}
-
-		contentPane.setComponentAt(oldIndex, newRoot);
-	}
-	
 	/**
 	 * Traverses the menus of the main window (`null`) to find an entry w/ the given action and enables it.
 	 * Uses `windowMenus` and `actionToButton`.
