@@ -21,6 +21,7 @@ import org.vanda.presentationmodel.PresentationModel;
 import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.mxDropTargetListener;
 import org.vanda.studio.app.Application;
+import org.vanda.studio.app.SplitTabbedPane;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
@@ -323,7 +324,7 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 				removeSideSplit(palette);
 			palette = c;
 			if (palette != null)
-				addSideSplit(palette, WindowSystem.Side.EAST, 300);
+				addSideSplit(palette, SplitTabbedPane.Side.EAST, 300);
 		}
 	}
 

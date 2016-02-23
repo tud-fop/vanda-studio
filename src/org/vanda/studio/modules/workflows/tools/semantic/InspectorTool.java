@@ -11,6 +11,7 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.text.html.HTMLDocument;
 
+import org.vanda.studio.app.SplitTabbedPane;
 
 //import org.vanda.fragment.model.Model;
 
@@ -72,7 +73,7 @@ public class InspectorTool implements SemanticsToolFactory {
 			panNorth = new JPanel(new BorderLayout());
 			editor = null;
 			
-			this.wfe.addSideSplit(contentPane, WindowSystem.Side.SOUTH, 400);
+			this.wfe.addSideSplit(contentPane, SplitTabbedPane.Side.SOUTH, 400);
 
 			final ViewListener<View> listener = new ViewListener<View>() {
 				@Override

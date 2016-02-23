@@ -16,7 +16,7 @@ import javax.swing.ScrollPaneConstants;
 
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.studio.app.Application;
-import org.vanda.studio.app.WindowSystem;
+import org.vanda.studio.app.SplitTabbedPane;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;
 import org.vanda.util.Observer;
@@ -79,8 +79,8 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 	// TODO remove the three following toolwindow-things
 	
 	@Override
-	public void addSideSplit(JComponent c, WindowSystem.Side side, int size) {
-		app.getWindowSystem().addSideSplit(graphComponent, new WindowSystem.SideSplitPane(c, side, size));
+	public void addSideSplit(JComponent c, SplitTabbedPane.Side side, int size) {
+		app.getWindowSystem().addSideSplit(graphComponent, new SplitTabbedPane.SideSplitPane(c, side, size));
 	}
 
 	@Override
