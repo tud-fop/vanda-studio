@@ -6,7 +6,6 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.app.LayoutSelector;
 import org.vanda.studio.app.WindowSystem;
 import org.vanda.util.Action;
 import org.vanda.view.View;
