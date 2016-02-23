@@ -12,6 +12,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -140,7 +142,7 @@ public class WindowSystem {
 				return rootIndex;
 			
 			// The hard case: we have to traverse each tab until we reach the core
-			for(int i = getTabCount() - 1; i >= 0; ++i)
+			for(int i = getTabCount() - 1; i >= 0; --i)
 				if (getCoreComponentAt(i) == c)
 					return i;
 			
@@ -149,8 +151,6 @@ public class WindowSystem {
 		}
 
 		/**
-		 * 
-		 * @param i
 		 * @return `null` iff the root component is the core component
 		 */
 		private JSplitPane getInnermostSplitPane(int i) {
@@ -221,7 +221,7 @@ public class WindowSystem {
 				setComponentAt(i, null);
 			}
 			
-			JSplitPane newSplitPane = null;
+			final JSplitPane newSplitPane;
 			
 			switch (p.side) {
 				case NORTH:
@@ -240,11 +240,11 @@ public class WindowSystem {
 					newSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true,
 						p.component, coreComponent);
 					break;
+				default:
+					newSplitPane = null; // can't happen, but java
 			}
 			
 			newSplitPane.setOneTouchExpandable(true);
-			
-			// TODO size etc
 			
 			// We already had a split to join into
 			if(innermostSplit != null) {
@@ -254,6 +254,26 @@ public class WindowSystem {
 					innermostSplit.setRightComponent(newSplitPane);
 			} else { // This is the first split
 				setComponentAt(i, newSplitPane);
+			}
+
+			// Now size it properly
+			switch (p.side) {
+				case NORTH:
+					newSplitPane.setDividerLocation(p.size);
+					break;
+				case EAST:
+					// We could add a ComponentListener to the newSplitPane
+					// and on resize use newSpliPane.getWidth(), but I prefer this
+					// solution with technically wrong / guessed sizes, but less nasty overhead.
+					newSplitPane.setDividerLocation(this.getWidth() - 18 - p.size);
+					break;
+				case SOUTH:
+					// (Same thing here)
+					newSplitPane.setDividerLocation(this.getHeight() - this.getTabRunCount() * 34 - p.size);
+					break;
+				case WEST:
+					newSplitPane.setDividerLocation(p.size);
+					break;
 			}
 		}
 	}
@@ -608,7 +628,8 @@ public class WindowSystem {
 			sspcs.remove(c);
 		}
 		
-		rebuildSideSplits(associatedParent);
+		// TODO
+		//rebuildSideSplits(associatedParent);
 	}
 
 	// TODO deprecate this and all that bookkeeping shit!

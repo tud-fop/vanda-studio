@@ -146,6 +146,9 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 
 		//setupOutline();
 
+		// addComponent
+		app.getWindowSystem().addContentWindow(null, graphComponent, null);
+		
 		// add inspector
 		ElementEditorFactories eefs = new ElementEditorFactories();
 		LinkedList<SemanticsToolFactory> srep = new LinkedList<SemanticsToolFactory>();
@@ -162,9 +165,6 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 		addAction(new ResetZoomAction(), KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_MASK), 5);
 
 		cancel.disable();
-		
-		// addComponent
-		app.getWindowSystem().addContentWindow(null, graphComponent, null);
 				
 		// focus window
 		app.getWindowSystem().focusContentWindow(graphComponent);

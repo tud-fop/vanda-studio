@@ -324,7 +324,6 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 			palette = c;
 			if (palette != null)
 				addSideSplit(palette, WindowSystem.Side.EAST, 300);
-			// mainpane.setRightComponent(c);
 		}
 	}
 
