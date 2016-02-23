@@ -12,17 +12,13 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
@@ -32,8 +28,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -48,10 +42,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.vanda.studio.core.ButtonTabComponent;
-import org.vanda.studio.core.LayerLayout;
-import org.vanda.studio.core.ToolFrame;
 import org.vanda.studio.modules.workflows.impl.DefaultWorkflowEditorImpl;
-import org.vanda.studio.modules.workflows.tools.AssignmentSwitchToolFactory;
 import org.vanda.util.Action;
 import org.vanda.util.ExceptionMessage;
 import org.vanda.util.Observer;
@@ -76,18 +67,6 @@ public class WindowSystem {
 	protected HashMap<UIMode, JRadioButtonMenuItem> modeMenuItems;
 	protected HashMap<JComponent, JMenu> windowMenus;
 	protected HashMap<JComponent, JPanel> iconToolBars;
-	
-	// Note: We still need the damn bookkeeping for rebuilding everything
-	// from scratch in the case of a sidesplit removal!
-	/**
-	 * Maps a window to a list of its tool pane components
-	 * Note: the key `null` maps to tool panes that should be shown for every window
-	 */
-	protected HashMap<JComponent, List<JComponent>> windowTools;
-	/**
-	 * Maps tool window panes to the (positioned and sized) sidesplits that are created for holding them
-	 */
-	protected HashMap<JComponent, SideSplitPane> frames;
 	
 	protected ButtonGroup modeGroup;
 
@@ -124,6 +103,7 @@ public class WindowSystem {
 		}
 	}
 	
+	@SuppressWarnings("serial")
 	private static class SplitTabbedPane extends JTabbedPane {
 		/* TODO
 		 * Idea: store the cores alongside the components!
@@ -277,11 +257,11 @@ public class WindowSystem {
 			}
 		}
 
-		public void removeSplit(JComponent associatedParent, JComponent c) {
+		public void removeSplit(JComponent associatedGraph, JComponent c) {
 			System.err.println("removeSplit: "+c.toString());
 			System.err.flush();
 			
-			int i = indexOfCoreComponent(associatedParent);
+			int i = indexOfCoreComponent(associatedGraph);
 			
 			Component current, left, right; 
 			boolean isLeftSplit, isRightSplit;
@@ -444,13 +424,11 @@ public class WindowSystem {
 		
 		// Initialize all bookkeeping
 		windowMenus = new HashMap<JComponent, JMenu>();
-		windowTools = new HashMap<JComponent, List<JComponent>>();
 		iconToolBars = new HashMap<JComponent, JPanel>();
 		tools = new HashMap<JPanel, TreeMap<Integer, JComponent>>();
 		tools.put(null, new TreeMap<Integer, JComponent>());
 		actionToButton = new HashMap<JComponent, HashMap<Action, JButton>>();
 		actionToButton.put(null, new HashMap<Action, JButton>());
-		frames = new HashMap<JComponent, SideSplitPane>();
 
 		// Create the central tabbed pane containing the graph...
 		contentPane = new SplitTabbedPane();
@@ -461,8 +439,8 @@ public class WindowSystem {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				// Rebuild menu
-				Component parent = contentPane.getSelectedCoreComponent();
-				JMenu menu = windowMenus.get(parent);
+				Component graph = contentPane.getSelectedCoreComponent();
+				JMenu menu = windowMenus.get(graph);
 				if (menuBar.getMenu(1) != menu) {
 					if (menuBar.getMenu(1) != optionsMenu) {
 						menuBar.remove(1);
@@ -477,8 +455,8 @@ public class WindowSystem {
 				// Rebuild icon toolbar
 				iconToolBar.removeAll();
 				iconToolBar.add(iconToolBars.get(null));
-				if (iconToolBars.get(parent) != null && parent != null)
-					iconToolBar.add(iconToolBars.get(parent));
+				if (iconToolBars.get(graph) != null && graph != null)
+					iconToolBar.add(iconToolBars.get(graph));
 				iconToolBar.revalidate();
 				iconToolBar.repaint();
 			}
@@ -503,33 +481,33 @@ public class WindowSystem {
 	/**
 	 * Adds a panel to the toolbar.
 	 * Will not add a JSeparator at the start or after another JSeparator.
-	 * @param associatedParent the parent to which the new panel "belongs"
+	 * @param associatedGraph the graph to which the new panel "belongs"
 	 * @param panel the panel to add
 	 * @param pos the position in the toolbar
 	 */
-	public void addToolBarPanel(JComponent associatedParent, JComponent panel, int pos) {
-		if (!iconToolBars.containsKey(associatedParent)) {
+	public void addToolBarPanel(JComponent associatedGraph, JComponent panel, int pos) {
+		if (!iconToolBars.containsKey(associatedGraph)) {
 			FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
 			fl.setVgap(1);
-			iconToolBars.put(associatedParent, new JPanel(fl));
-			iconToolBars.get(associatedParent).setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-			tools.put(iconToolBars.get(associatedParent), new TreeMap<Integer, JComponent>());
-			actionToButton.put(associatedParent, new HashMap<Action, JButton>());
+			iconToolBars.put(associatedGraph, new JPanel(fl));
+			iconToolBars.get(associatedGraph).setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+			tools.put(iconToolBars.get(associatedGraph), new TreeMap<Integer, JComponent>());
+			actionToButton.put(associatedGraph, new HashMap<Action, JButton>());
 		}
 		
 		// Check if we are adding a separator in front of the start or another separator
 		if(panel instanceof JSeparator &&
-			(tools.get(iconToolBars.get(associatedParent)).isEmpty()
-				|| tools.get(iconToolBars.get(associatedParent)).lastEntry().getValue() instanceof JSeparator)
+			(tools.get(iconToolBars.get(associatedGraph)).isEmpty()
+				|| tools.get(iconToolBars.get(associatedGraph)).lastEntry().getValue() instanceof JSeparator)
 		)
 			return;
 		
-		tools.get(iconToolBars.get(associatedParent)).put(pos, panel);
-		iconToolBars.get(associatedParent).removeAll();
-		for (Integer i : tools.get(iconToolBars.get(associatedParent)).navigableKeySet()) {
-			iconToolBars.get(associatedParent).add(tools.get(iconToolBars.get(associatedParent)).get(i));
+		tools.get(iconToolBars.get(associatedGraph)).put(pos, panel);
+		iconToolBars.get(associatedGraph).removeAll();
+		for (Integer i : tools.get(iconToolBars.get(associatedGraph)).navigableKeySet()) {
+			iconToolBars.get(associatedGraph).add(tools.get(iconToolBars.get(associatedGraph)).get(i));
 		}
-		if (associatedParent == null)
+		if (associatedGraph == null)
 			for (ChangeListener cl : contentPane.getChangeListeners())
 				cl.stateChanged(new ChangeEvent(contentPane));
 	}
@@ -537,11 +515,9 @@ public class WindowSystem {
 	/**
 	 * Add a new action w/ hotkey to the menu and the icon toolbar of a given window.
 	 * Call this method *before* adding that window as a content window!
-	 * @param associatedParent
-	 * 				is `null` for universally applicable actions,
-	 * 				otherwise the `MyMxGraphComponent` of the `DefaultWorkflowEditorImpl` 
+	 * @param associatedGraph is `null` for universally applicable actions
 	 */
-	public void addAction(JComponent associatedParent, final Action a, String imageName, KeyStroke keyStroke, int pos) {
+	public void addAction(JComponent associatedGraph, final Action a, String imageName, KeyStroke keyStroke, int pos) {
 		URL url = ClassLoader.getSystemClassLoader().getResource(imageName + ".png");
 		JButton b = new JButton();
 		b.addActionListener(new ActionListener() {
@@ -562,21 +538,19 @@ public class WindowSystem {
 			b.setText(a.getName());
 		}
 		
-		addToolBarPanel(associatedParent, b, pos);
-		actionToButton.get(associatedParent).put(a, b);
+		addToolBarPanel(associatedGraph, b, pos);
+		actionToButton.get(associatedGraph).put(a, b);
 		
 		// also add it to the menu!
-		addAction(associatedParent, a, keyStroke, pos);
+		addAction(associatedGraph, a, keyStroke, pos);
 	}
 
 	/**
 	 * Add a new action w/ hotkey to the menu of a given window.
 	 * Call this method *before* adding that window as a content window!
-	 * @param associatedParent
-	 * 				is `null` for universally applicable actions,
-	 * 				otherwise the `MyMxGraphComponent` of the `DefaultWorkflowEditorImpl` 
+	 * @param associatedGraph is `null` for universally applicable actions 
 	 */
-	public void addAction(JComponent associatedParent, final Action a, KeyStroke keyStroke, int pos) {
+	public void addAction(JComponent associatedGraph, final Action a, KeyStroke keyStroke, int pos) {
 		JMenuItem item = new JMenuItem(a.getName());
 		item.addActionListener(new ActionListener() {
 			@Override
@@ -587,12 +561,12 @@ public class WindowSystem {
 		if (keyStroke != null) {
 			item.setAccelerator(keyStroke);
 		}
-		if (associatedParent != null) {
-			JMenu menu = windowMenus.get(associatedParent);
+		if (associatedGraph != null) {
+			JMenu menu = windowMenus.get(associatedGraph);
 			if (menu == null) {
-				menu = new JMenu(associatedParent.getName());
-				windowMenus.put(associatedParent, menu);
-				if (contentPane.getSelectedComponent() == associatedParent)
+				menu = new JMenu(associatedGraph.getName());
+				windowMenus.put(associatedGraph, menu);
+				if (contentPane.getSelectedComponent() == associatedGraph)
 					menuBar.add(menu, 1);
 				items.put(menu, new TreeMap<Integer, JMenuItem>());
 			}
@@ -605,7 +579,7 @@ public class WindowSystem {
 				else
 					menu.insertSeparator(i);
 			}
-		} else { // parent `null` -> FileMenu
+		} else { // graph `null` -> FileMenu
 			items.get(fileMenu).put(pos, item);
 			fileMenu.removeAll();
 			for (Integer i : items.get(fileMenu).navigableKeySet()) {
@@ -623,21 +597,20 @@ public class WindowSystem {
 	 * while making sure that separators never follow each other in the toolbar
 	 * or come at the start of the toolbar.
 	 */
-	public void addSeparator(JComponent associatedParent, int pos) {
+	public void addSeparator(JComponent associatedGraph, int pos) {
 		// Add it to the menu
-		JComponent key = associatedParent == null ? fileMenu : associatedParent;
-		JMenu menu = windowMenus.get(associatedParent);
+		JMenu menu = windowMenus.get(associatedGraph);
 		if (menu == null) {
-			menu = new JMenu(associatedParent.getName());
-			windowMenus.put(associatedParent, menu);
-			if (contentPane.getSelectedComponent() == associatedParent)
+			menu = new JMenu(associatedGraph.getName());
+			windowMenus.put(associatedGraph, menu);
+			if (contentPane.getSelectedComponent() == associatedGraph)
 				menuBar.add(menu, 1);
 			items.put(menu, new TreeMap<Integer, JMenuItem>());
 		}
 		items.get(menu).put(pos, null);
 		
 		// Also insert a spacer in the toolbar
-		addToolBarPanel(associatedParent, new JSeparator(), pos);
+		addToolBarPanel(associatedGraph, new JSeparator(), pos);
 	}
 	
 	/**
@@ -684,31 +657,16 @@ public class WindowSystem {
 	}
 	
 	/**
-	 * Adds a new tool pane to the window (or more exactly to the internal data structures)
-	 * @param associatedParent parent with which to associate the new tool window
+	 * Adds a new tool pane to the window
+	 * @param associatedGraph graph with which to associate the new tool window
 	 * @param p the tool pane to add
 	 */
-	public void addSideSplit(JComponent associatedParent, SideSplitPane p) {
-		List<JComponent> sspcs = windowTools.get(associatedParent);
-		if (sspcs == null) {
-			sspcs = new ArrayList<JComponent>();
-			windowTools.put(associatedParent, sspcs);
-		}
-		if (!sspcs.contains(p.component)) {
-			sspcs.add(p.component);
-			frames.put(p.component, p);
-		}
-		
-		contentPane.addSplitAt(contentPane.indexOfCoreComponent(associatedParent), p);
+	public void addSideSplit(JComponent associatedGraph, SideSplitPane p) {
+		contentPane.addSplitAt(contentPane.indexOfCoreComponent(associatedGraph), p);
 	}
 	
-	public void removeSideSplit(JComponent associatedParent, JComponent c) {
-		List<JComponent> sspcs = windowTools.get(associatedParent);
-		if (sspcs != null) {
-			sspcs.remove(c);
-		}
-		
-		contentPane.removeSplit(associatedParent, c);
+	public void removeSideSplit(JComponent associatedGraph, JComponent c) {
+		contentPane.removeSplit(associatedGraph, c);
 	}
 
 	/**
