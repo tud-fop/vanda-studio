@@ -199,23 +199,29 @@ public class SplitTabbedPane extends JTabbedPane {
 
 		// Now size it properly
 		newSplitPane.setOneTouchExpandable(true);
-		newSplitPane.setResizeWeight(1.0);
 		switch (p.side) {
 			case NORTH:
 				newSplitPane.setDividerLocation(p.size);
+				newSplitPane.setResizeWeight(0.0);
 				break;
 			case EAST:
 				// We could add a ComponentListener to the newSplitPane
 				// and on resize use newSpliPane.getWidth(), but I prefer this
 				// solution with technically wrong / guessed sizes, but less nasty overhead.
+				// EDIT: actually, this is all wrong, because deeply nested panes obviously
+				//       cannot grow as big as the whole SplitTabbedPane!
+				//       So this is a FIXME.
 				newSplitPane.setDividerLocation(this.getWidth() - 18 - p.size);
+				newSplitPane.setResizeWeight(1.0);
 				break;
 			case SOUTH:
 				// (Same thing here)
 				newSplitPane.setDividerLocation(this.getHeight() - this.getTabRunCount() * 34 - p.size);
+				newSplitPane.setResizeWeight(1.0);
 				break;
 			case WEST:
 				newSplitPane.setDividerLocation(p.size);
+				newSplitPane.setResizeWeight(0.0);
 				break;
 		}
 	}
