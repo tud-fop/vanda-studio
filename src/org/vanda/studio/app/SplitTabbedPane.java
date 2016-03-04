@@ -143,6 +143,9 @@ public class SplitTabbedPane extends JTabbedPane {
 	 * @param p pane definition containing side, size and the component to insert
 	 */
 	public void addSplitAt(int i, SideSplitPane p) {
+		if(p.component instanceof JSplitPane)
+			throw new RuntimeException();
+		
 		JSplitPane innermostSplit = getInnermostSplitPane(i);
 		Component coreComponent = getCoreComponentAt(i);
 		
