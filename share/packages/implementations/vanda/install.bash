@@ -10,10 +10,12 @@ install_me () {
 	then
 		git clone "${VANDA}" "$1"
 		cd "$1"
+		cabal sandbox init
 	else
 		cd "$1"
 		git pull origin master
 	fi
+	cabal update
 	cabal install -p --only-dependencies
 	cabal configure
 	cabal build
