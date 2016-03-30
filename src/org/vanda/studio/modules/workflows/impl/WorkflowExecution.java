@@ -10,7 +10,8 @@ import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
 import org.vanda.execution.model.RunStates.RunEvent;
-import org.vanda.execution.model.RunStates.*;
+import org.vanda.execution.model.RunStates.RunEventId;
+import org.vanda.execution.model.RunStates.RunEventListener;
 import org.vanda.fragment.model.Generator;
 import org.vanda.presentationmodel.execution.PresentationModel;
 import org.vanda.studio.app.Application;
@@ -30,9 +31,6 @@ import org.vanda.workflows.data.SemanticAnalysisEx;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
 import org.vanda.workflows.hyper.SyntaxAnalysis;
-import org.vanda.workflows.hyper.TypeCheckingException;
-
-import com.mxgraph.swing.mxGraphComponent;
 
 /**
  * execution environment for experiments
@@ -125,8 +123,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 	private final Object semanticsToolInstance;
 
 
-	public WorkflowExecution(Application app, Pair<MutableWorkflow, Database> phd, Generator prof, RunConfig rc)
-			throws TypeCheckingException {
+	public WorkflowExecution(Application app, Pair<MutableWorkflow, Database> phd, Generator prof, RunConfig rc) {
 		super(app, phd);
 		this.prof = prof;
 
@@ -137,7 +134,7 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 		cancel = new CancelAction();
 
 		// setup component design
-		graphComponent = (mxGraphComponent) pm.getVisualization().getGraphComponent();
+		graphComponent = pm.getVisualization().getGraphComponent();
 		graphComponent = new MyMxGraphComponent(pm.getVisualization().getGraph());
 		graphComponent.setConnectable(false);
 		graphComponent.setDragEnabled(false);

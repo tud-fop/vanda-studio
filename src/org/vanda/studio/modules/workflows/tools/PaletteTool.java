@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +31,8 @@ import org.vanda.workflows.elements.Tool;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.LiteralAdapter;
 import org.vanda.workflows.hyper.ToolAdapter;
+
+import com.mxgraph.swing.mxGraphComponent;
 
 public class PaletteTool implements ToolFactory {
 	// TODO see below: beamer mode and stuff
@@ -151,7 +155,16 @@ public class PaletteTool implements ToolFactory {
 			for (String category : categories) {
 				JXTaskPane categoryPane = new JXTaskPane(category);
 				categoryPane.setAnimated(false);
-				Component graphComp = renderTemplates(catMap.get(category));
+				mxGraphComponent graphComp = renderTemplates(catMap.get(category));
+				graphComp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				graphComp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+				graphComp.addMouseWheelListener(new MouseWheelListener() {
+					
+					@Override
+					public void mouseWheelMoved(MouseWheelEvent e) {
+						taskPaneContainer.dispatchEvent(e);
+					}
+				});
 				categoryPane.add(graphComp);
 				categoryPane.setCollapsed(true);
 				taskPaneContainer.add(categoryPane);
@@ -192,9 +205,9 @@ public class PaletteTool implements ToolFactory {
 
 	}
 
-	protected static Component renderTemplates(List<Job> ts) {
+	protected static mxGraphComponent renderTemplates(List<Job> ts) {
 		PresentationModel pm = new PresentationModel();
-
+		
 		// top left corner of first palette tool, width, height
 		double[] d = { 20, 10, 100, 80 };
 		for (Job template : ts) {

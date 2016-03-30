@@ -33,7 +33,6 @@ import org.vanda.workflows.hyper.Workflows.WorkflowListener;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.swing.mxGraphOutline;
 import com.mxgraph.swing.handler.mxGraphHandler;
 import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxCellState;
@@ -448,8 +447,6 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		graphComponent.setPageVisible(false);
 		graphComponent.setVerticalPageCount(0);
 		graphComponent.setHorizontalPageCount(0);
-		graphComponent.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		graphComponent.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		appObserver = new Observer<Application>() {
 			@Override
 			public void notify(Application a) {

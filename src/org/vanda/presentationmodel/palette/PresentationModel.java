@@ -1,6 +1,5 @@
 package org.vanda.presentationmodel.palette;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +11,8 @@ import org.vanda.render.jgraph.InPortCell;
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.workflows.hyper.Job;
 import org.vanda.workflows.hyper.MutableWorkflow;
+
+import com.mxgraph.swing.mxGraphComponent;
 
 public class PresentationModel implements DataInterface {
 	/**
@@ -26,7 +27,7 @@ public class PresentationModel implements DataInterface {
 	List<JobAdapter> jobs;
 	// LayoutManagerFactoryInterface layoutManager = new JGraphRendering();
 	protected final WorkflowCell workflowCell;
-	Component comp;
+	mxGraphComponent comp;
 
 	/*
 	 * map that holds Layouts for all Job-Types, where String is
@@ -80,7 +81,7 @@ public class PresentationModel implements DataInterface {
 		// do nothing
 	}
 
-	public Component getComponent() {
+	public mxGraphComponent getComponent() {
 		if (comp == null) {
 			comp = graph.getGraphComponent(); 
 		}

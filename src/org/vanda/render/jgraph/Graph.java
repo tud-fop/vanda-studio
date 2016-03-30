@@ -382,7 +382,7 @@ public final class Graph {
 	/**
 	 * @return
 	 */
-	public Component getGraphComponent() {
+	public mxGraphComponent getGraphComponent() {
 		mxGraphComponent c = new mxGraphComponent(getGraph());
 		c.setConnectable(false);
 		c.setDragEnabled(false);
