@@ -198,6 +198,7 @@ public class PaletteTool implements ToolFactory {
 				resultPane.revalidate(); // in particular if
 											// searchResults.isEmpty()
 				resultPane.setCollapsed(false);
+				resultPane.setAnimated(false);
 				resultPane.setVisible(true);
 			} else
 				resultPane.setVisible(false);
