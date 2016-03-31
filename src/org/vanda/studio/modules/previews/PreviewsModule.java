@@ -35,9 +35,8 @@ public class PreviewsModule implements Module {
 				new NegraTreePreviewFactory(app, ".penn"));
 		app.registerPreviewFactory(new CompositeType("log"),
 				new LogPreviewFactory());
-		// app.registerPreviewFactory(new CompositeType("Execution"),
-		// new WorkflowExecutionPreview(app, profile);
-		app.registerPreviewFactory(null, new MonospacePreviewFactory(app));
+		app.registerPreviewFactory(null,
+				new MonospacePreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("StPOStagger"),
 				new MonospacePreviewFactory(app, ".props"));
 		return null;

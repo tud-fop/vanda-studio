@@ -107,7 +107,7 @@ public class MonospacePreviewFactory implements PreviewFactory {
 				try {
 					String line = null; // not declared within while loop
 					int i = 0;
-					while (i < 10 && (line = input.readLine()) != null) {
+					while (i < 100 && (line = input.readLine()) != null) {
 						doc.insertString(doc.getLength(), line, null);
 						doc.insertString(doc.getLength(), System.getProperty("line.separator"), null);
 						i++;

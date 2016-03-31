@@ -47,40 +47,38 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 		private static final long serialVersionUID = 1L;
 		private DefaultListModel model;
 		private Scanner fs;
-		private JButton bMore;
-		private static final int SIZE = 20;
 		private static final String MORE = "[show more rules]";
 
 		public BerkeleyGrammarPreview(String value, String postfix) {
 			super();
 			setCellRenderer(new InsetListCellRenderer());
 			model = new DefaultListModel();
-			setLayoutOrientation(JList.HORIZONTAL_WRAP);
+			setLayoutOrientation(JList.VERTICAL_WRAP);
 			setVisibleRowCount(-1);
 			addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent evt) {
 					if (evt.getClickCount() == 2
 							&& model.get(locationToIndex(evt.getPoint())) == MORE)
-						more();
+						more(100);
 				}
 			});
 			try {
 				fs = new Scanner(new FileInputStream(app.findFile(value
 						+ postfix)));
-				more();
+				more(100);
 			} catch (FileNotFoundException e) {
 				add(new JLabel(value + postfix + " does not exist."));
 			}
 		}
 
-		public void more() {
+		public void more(int count) {
 			if (fs == null)
 				return;
 			model.removeElement(MORE);
 			String[] l;
 			int i = 0;
-			while (i < SIZE && fs.hasNextLine()) {
+			while (i < count && fs.hasNextLine()) {
 				String line = fs.nextLine();
 				if (line.isEmpty())
 					continue;
