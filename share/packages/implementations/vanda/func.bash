@@ -149,66 +149,53 @@ BinarizeLCFRSHybrid2 () {
 }
 
 # Vanda-pcfg-extract
-# Version: 2015-10-06
+# Version: 2016-03-31
 # Contact: Toni.Dietze@tu-dresden.de
 # Category: Language Models::Training
 # IN trees :: PennTreeCorpus
-# OUT pcfg :: VandaBinaryPCFG
+# OUT pcfg :: VandaPCFG
 #
 # Extract a pcfg from treebank.
 Vanda-pcfg-extract () {
-	"${VANDA}/dist/build/Vanda/Vanda" pcfg extract --bout "$3" "$2"
+	"${VANDA}/dist/build/Vanda/Vanda" pcfg extract "$3" "$2"
 }
 
 # Vanda-pcfg-train
-# Version: 2015-10-06
+# Version: 2016-03-31
 # Contact: Toni.Dietze@tu-dresden.de
 # Category: Language Models::Training
-# IN pcfg-in :: VandaBinaryPCFG
+# IN pcfg-in :: VandaPCFG
 # IN sentences :: SentenceCorpus
 # IN em-iterations :: Integer
-# OUT pcfg-out :: VandaBinaryPCFG
+# OUT pcfg-out :: VandaPCFG
 #
 # Estimate the rule probabilities of a pcfg with unsupervised training.
 Vanda-pcfg-train () {
-	"${VANDA}/dist/build/Vanda/Vanda" pcfg train --bin --bout "$2" "$5" "$3" "$4"
+	"${VANDA}/dist/build/Vanda/Vanda" pcfg train "$2" "$5" "$3" "$4"
 }
 
 # Vanda-pcfg-n-best
-# Version: 2015-10-06
+# Version: 2016-03-31
 # Contact: Toni.Dietze@tu-dresden.de
 # Category: Language Models::Generation
-# IN pcfg :: VandaBinaryPCFG
+# IN pcfg :: VandaPCFG
 # IN count :: Integer
 # OUT trees :: PennTreeCorpus
 #
 # Find the most probable parse trees of a pcfg.
 Vanda-pcfg-bests () {
-	"${VANDA}/dist/build/Vanda/Vanda" pcfg bests --bin "$2" "$3" > "$4"
+	"${VANDA}/dist/build/Vanda/Vanda" pcfg bests "$2" "$3" > "$4"
 }
 
 # Vanda-pcfg-intersect
-# Version: 2015-10-06
+# Version: 2016-03-31
 # Contact: Toni.Dietze@tu-dresden.de
 # Category: Language Models::Parsing
-# IN pcfg-in :: VandaBinaryPCFG
+# IN pcfg-in :: VandaPCFG
 # IN sentence :: SingleSentence
-# OUT pcfg-out :: VandaBinaryPCFG
+# OUT pcfg-out :: VandaPCFG
 #
 # Intersect a pcfg with a sentence resulting in a pcfg that allows exactly those derivations that produce the given sentence.
 Vanda-pcfg-intersect () {
-	"${VANDA}/dist/build/Vanda/Vanda" pcfg intersect --bin --bout "$2" "$4" "$(cat "$3")"
-}
-
-# Vanda-pcfg-convert-bin-to-text
-# Version: 2015-10-06
-# Contact: Toni.Dietze@tu-dresden.de
-# Category: Language Models::Conversion
-# IN pcfg-in :: VandaBinaryPCFG
-# OUT pcfg-out :: TextualBerkeleyGrammar
-#
-# Convert a binary representation of a pcfg into human readable text.
-Vanda-pcfg-convert-bin-to-text () {
-	"${VANDA}/dist/build/Vanda/Vanda" pcfg convert --bin "$2" "$3"
-	mv "$3"{,.grammar}
+	"${VANDA}/dist/build/Vanda/Vanda" pcfg intersect "$2" "$4" "$(cat "$3")"
 }
