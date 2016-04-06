@@ -44,6 +44,10 @@ public class VandaPCFGPreviewFactory implements PreviewFactory {
 	}
 
 	private class VandaPCFGPreview extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private Scanner scan;
 		private DefaultListModel<String> initials, rules;
 

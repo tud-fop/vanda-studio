@@ -13,7 +13,6 @@ import java.util.Scanner;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -31,7 +30,7 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 		private static final long serialVersionUID = -1809316485715057696L;
 
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value,
+		public Component getListCellRendererComponent(JList<?> list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
 			JLabel cell = (JLabel) super.getListCellRendererComponent(list,
 					value, index, isSelected, cellHasFocus);
@@ -40,19 +39,19 @@ public class BerkeleyGrammarPreviewFactory implements PreviewFactory {
 		}
 	}
 
-	public class BerkeleyGrammarPreview extends JList {
+	public class BerkeleyGrammarPreview extends JList<Object> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private DefaultListModel model;
+		private DefaultListModel<Object> model;
 		private Scanner fs;
 		private static final String MORE = "[show more rules]";
 
 		public BerkeleyGrammarPreview(String value, String postfix) {
 			super();
 			setCellRenderer(new InsetListCellRenderer());
-			model = new DefaultListModel();
+			model = new DefaultListModel<Object>();
 			setLayoutOrientation(JList.VERTICAL_WRAP);
 			setVisibleRowCount(-1);
 			addMouseListener(new MouseAdapter() {
