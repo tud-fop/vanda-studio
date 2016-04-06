@@ -24,16 +24,16 @@ import org.vanda.studio.modules.previews.Previews.Preview;
 import org.vanda.util.Observer;
 
 public class DefaultPreviewFactory implements PreviewFactory {
-	private final List<WeakReference<Preview>> previews;
-	private final Application app;
+	protected final List<WeakReference<Preview>> previews;
+	protected final Application app;
 	private final String postfix;
-	private Observer<Application> uiModeObserver;
+	protected Observer<Application> uiModeObserver;
 
-	private interface FontSizeSelector {
+	protected interface FontSizeSelector {
 		public Font setFontSize(Font f);
 	}
 
-	private static class NormalFontSelector implements FontSizeSelector {
+	public static class NormalFontSelector implements FontSizeSelector {
 		/**
 		 * The size of the font if the beamer mode is disabled.
 		 */
@@ -51,7 +51,7 @@ public class DefaultPreviewFactory implements PreviewFactory {
 
 	}
 
-	private static class LargeFontSelector implements FontSizeSelector {
+	public static class LargeFontSelector implements FontSizeSelector {
 		/**
 		 * The size of the font if the beamer / tablet mode is enabled.
 		 */
