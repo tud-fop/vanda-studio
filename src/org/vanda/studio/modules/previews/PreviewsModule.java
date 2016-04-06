@@ -2,6 +2,7 @@ package org.vanda.studio.modules.previews;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.Module;
+import org.vanda.studio.core.DefaultPreviewFactory;
 import org.vanda.types.CompositeType;
 
 public class PreviewsModule implements Module {
@@ -35,9 +36,9 @@ public class PreviewsModule implements Module {
 				new LogPreviewFactory());
 		// app.registerPreviewFactory(new CompositeType("Execution"),
 		// new WorkflowExecutionPreview(app, profile);
-		app.registerPreviewFactory(null, new MonospacePreviewFactory(app));
+		app.registerPreviewFactory(null, new DefaultPreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("StPOStagger"),
-				new MonospacePreviewFactory(app, ".props"));
+				new DefaultPreviewFactory(app, ".props"));
 		return null;
 	}
 
