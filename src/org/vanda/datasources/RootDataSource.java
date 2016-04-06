@@ -266,22 +266,22 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 			Insets i = new Insets(2, 2, 2, 2);
 			int anchor = GridBagConstraints.ABOVE_BASELINE_LEADING;
 
-			editor.add(lDataSources, new GridBagConstraints(0, 0, 3, 2, 6, 4,
-					anchor, GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(bNew, new GridBagConstraints(0, 2, 1, 1, 3, 0, anchor,
-					GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(bRemove, new GridBagConstraints(2, 2, 1, 1, 3, 0,
-					anchor, GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(lId, new GridBagConstraints(3, 0, 1, 1, 3, 0, anchor,
-					GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(aId, new GridBagConstraints(4, 0, 1, 1, 3, 0, anchor,
-					GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(innerEditorPanel, new GridBagConstraints(3, 1, 2, 1, 6,
-					3, anchor, GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(bSave, new GridBagConstraints(3, 2, 1, 1, 3, 0, anchor,
-					GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(bCancel, new GridBagConstraints(4, 2, 1, 1, 3, 0,
-					anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(lDataSources, new GridBagConstraints(
+					0, 0, 2, 2, 6, 4, anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(bNew, new GridBagConstraints(
+					0, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(bRemove, new GridBagConstraints(
+					1, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(lId, new GridBagConstraints(
+					2, 0, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(aId, new GridBagConstraints(
+					3, 0, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(innerEditorPanel, new GridBagConstraints(
+					2, 1, 2, 1, 6, 3, anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(bSave, new GridBagConstraints(
+					2, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
+			editor.add(bCancel, new GridBagConstraints(
+					3, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
 		}
 
 		@Override
