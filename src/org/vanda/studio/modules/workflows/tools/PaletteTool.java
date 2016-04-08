@@ -53,7 +53,7 @@ public class PaletteTool implements ToolFactory {
 
 	public static class Palette {
 		protected final WorkflowEditor wfe;
-		protected Component searchGraph;
+		protected mxGraphComponent searchGraph;
 		protected JPanel palette;
 		protected JXTaskPaneContainer taskPaneContainer;
 		protected JTextField textField;
@@ -155,16 +155,8 @@ public class PaletteTool implements ToolFactory {
 			for (String category : categories) {
 				JXTaskPane categoryPane = new JXTaskPane(category);
 				categoryPane.setAnimated(false);
-				mxGraphComponent graphComp = renderTemplates(catMap.get(category));
-				graphComp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-				graphComp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-				graphComp.addMouseWheelListener(new MouseWheelListener() {
-					
-					@Override
-					public void mouseWheelMoved(MouseWheelEvent e) {
-						taskPaneContainer.dispatchEvent(e);
-					}
-				});
+				mxGraphComponent graphComp = renderTemplates(catMap.get(category), taskPaneContainer);
+
 				categoryPane.add(graphComp);
 				categoryPane.setCollapsed(true);
 				taskPaneContainer.add(categoryPane);
@@ -192,7 +184,7 @@ public class PaletteTool implements ToolFactory {
 
 				// create graph with search results and add it to display
 				if (!searchResults.isEmpty()) {
-					searchGraph = renderTemplates(searchResults);
+					searchGraph = renderTemplates(searchResults, taskPaneContainer);
 					resultPane.add(searchGraph);
 				}
 				resultPane.revalidate(); // in particular if
@@ -206,7 +198,7 @@ public class PaletteTool implements ToolFactory {
 
 	}
 
-	protected static mxGraphComponent renderTemplates(List<Job> ts) {
+	protected static mxGraphComponent renderTemplates(List<Job> ts, final Component container) {
 		PresentationModel pm = new PresentationModel();
 		
 		// top left corner of first palette tool, width, height
@@ -216,6 +208,15 @@ public class PaletteTool implements ToolFactory {
 			d[1] += pm.addJobAdapter(template) + 10;
 		}
 
+		pm.getComponent().setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		pm.getComponent().setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		pm.getComponent().addMouseWheelListener(new MouseWheelListener() {
+			
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				container.dispatchEvent(e);
+			}
+		});
 		// mxGraphComponent c = new mxGraphComponent(da.getGraph());
 		return pm.getComponent();
 	}
