@@ -97,7 +97,7 @@ public class DefaultPreviewFactory implements PreviewFactory {
 		
 		public MonospacePreview(String value) {
 			setContentType("text/plain; charset=utf-8");
-			setFont(new Font("Unifont", getFont().getStyle(), getFont().getSize()));
+			setFont(new Font("Monospaced", getFont().getStyle(), getFont().getSize()));
 			setLargeContent(app.getUIMode().isLargeContent());
 			updateSizes();
 			Document doc = getDocument();
@@ -108,7 +108,7 @@ public class DefaultPreviewFactory implements PreviewFactory {
 				try {
 					String line = null; // not declared within while loop
 					int i = 0;
-					while (i < 10 && (line = input.readLine()) != null) {
+					while (i < 100 && (line = input.readLine()) != null) {
 						doc.insertString(doc.getLength(), line, null);
 						doc.insertString(doc.getLength(), System.getProperty("line.separator"), null);
 						i++;
