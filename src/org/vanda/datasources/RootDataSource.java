@@ -4,9 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,7 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -22,6 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -174,18 +180,22 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 	public class RootDataSourceEditor extends DataSourceEditor {
 
-		private JPanel editor;
+		private JSplitPane editor;
+		private JPanel sourceSelectionPanel;
+		private JPanel sourceEditPanel;
 		private DataSourceEditor innerEditor;
 		private JPanel innerEditorPanel;
 		private JTextField aId;
 		private JList lDataSources;
 
 		public RootDataSourceEditor(final Application app) {
-			editor = new JPanel(new GridBagLayout());
+			sourceSelectionPanel = new JPanel(new GridBagLayout());
+			sourceEditPanel = new JPanel(new GridBagLayout());
+			editor = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sourceSelectionPanel, sourceEditPanel);
 			innerEditorPanel = new JPanel(new GridLayout(1, 1));
 			aId = new JTextField();
 			lDataSources = new JList();
-			notifyMe();
+			resetEntry();
 			lDataSources.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent arg0) {
@@ -202,7 +212,24 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 					editor.revalidate();
 				}
 			});
-			JButton bNew = new JButton(new AbstractAction("new") {
+			
+			// Try to use fancy icons for the buttons
+			Icon plusIcon, minusIcon;
+			String plusText="", minusText="";
+			try {
+				Image plusImage, minusImage;
+				plusImage = ImageIO.read(ClassLoader.getSystemClassLoader().getResource("plus.png"));
+				minusImage = ImageIO.read(ClassLoader.getSystemClassLoader().getResource("minus.png"));
+				plusIcon = new ImageIcon(plusImage.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+				minusIcon = new ImageIcon(minusImage.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+			} catch (Exception _) {
+				plusIcon = null;
+				minusIcon = null;
+				plusText = "+";
+				minusText = "-";
+			}
+			
+			JButton bAdd = new JButton(new AbstractAction(plusText, plusIcon) {
 				/**
 				 * 
 				 */
@@ -223,11 +250,11 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 									getItems().toArray()[0]);
 					if (type != null) {
 						mount(id, type.getDataSource());
-						notifyMe(id);
+						resetEntry(id);
 					}
 				}
 			});
-			JButton bRemove = new JButton(new AbstractAction("remove") {
+			JButton bRemove = new JButton(new AbstractAction(minusText, minusIcon) {
 				/**
 				 * 
 				 */
@@ -236,10 +263,10 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					umount((String) lDataSources.getSelectedValue());
-					notifyMe();
+					resetEntry();
 				}
 			});
-			JButton bSave = new JButton(new AbstractAction("save") {
+			JButton bSave = new JButton(new AbstractAction("save source") {
 				/**
 				 * 
 				 */
@@ -250,7 +277,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 					writeChange();
 				}
 			});
-			JButton bCancel = new JButton(new AbstractAction("cancel") {
+			JButton bReset = new JButton(new AbstractAction("reset source") {
 				/**
 				 * 
 				 */
@@ -258,29 +285,30 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					notifyMe();
+					resetEntry();
 				}
 			});
 			JLabel lId = new JLabel("ID");
 
-			Insets i = new Insets(2, 2, 2, 2);
+			Insets i = new Insets(5, 5, 5, 5);
 			int anchor = GridBagConstraints.ABOVE_BASELINE_LEADING;
 
-			editor.add(lDataSources, new GridBagConstraints(
+			sourceSelectionPanel.add(lDataSources, new GridBagConstraints(
 					0, 0, 2, 2, 6, 4, anchor, GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(bNew, new GridBagConstraints(
+			sourceSelectionPanel.add(bAdd, new GridBagConstraints(
 					0, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(bRemove, new GridBagConstraints(
+			sourceSelectionPanel.add(bRemove, new GridBagConstraints(
 					1, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(lId, new GridBagConstraints(
+
+			sourceEditPanel.add(lId, new GridBagConstraints(
 					2, 0, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(aId, new GridBagConstraints(
+			sourceEditPanel.add(aId, new GridBagConstraints(
 					3, 0, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(innerEditorPanel, new GridBagConstraints(
+			sourceEditPanel.add(innerEditorPanel, new GridBagConstraints(
 					2, 1, 2, 1, 6, 3, anchor, GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(bSave, new GridBagConstraints(
+			sourceEditPanel.add(bSave, new GridBagConstraints(
 					2, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
-			editor.add(bCancel, new GridBagConstraints(
+			sourceEditPanel.add(bReset, new GridBagConstraints(
 					3, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
 		}
 
@@ -294,10 +322,10 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 			return innerEditor.getDataSource();
 		}
 
-		private void notifyMe() {
-			notifyMe(lDataSources.getSelectedValue());
+		private void resetEntry() {
+			resetEntry(lDataSources.getSelectedValue());
 		}
-		private void notifyMe(Object id) {
+		private void resetEntry(Object id) {
 			Object[] a = sources.keySet().toArray();
 			Arrays.sort(a);
 			lDataSources.setListData(a);
@@ -318,7 +346,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 				sources.remove(lDataSources.getSelectedValue());
 				sources.put(aId.getText(), innerEditor.getDataSource());
 			}
-			notifyMe(aId.getText());
+			resetEntry(aId.getText());
 		}
 
 	}
