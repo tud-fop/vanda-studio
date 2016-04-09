@@ -4,6 +4,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
@@ -16,9 +20,12 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -134,7 +141,6 @@ public class DirectoryDataSource implements DataSource {
 		private JTextField tFolder;
 		private JTextField tFilter;
 		private JComboBox cType;
-		
 
 		public DirectoryDataSourceEditor(Application app) {
 			pan = new JPanel(new GridBagLayout());
@@ -195,6 +201,36 @@ public class DirectoryDataSource implements DataSource {
 			
 			gbc.gridy = 2;
 			pan.add(cType, gbc);
+			
+			pan.addAncestorListener(new AncestorListener() {
+				
+				@Override
+				public void ancestorRemoved(AncestorEvent arg0) {
+					if (!tFolder.getText().equals(dir.getAbsolutePath())
+							|| !tFilter.getText().equals(filter)
+							|| !cType.getSelectedItem().equals(type)) {
+						int q = JOptionPane.showOptionDialog(pan, "You changed the properties of a data source\n"
+								+ "in the editor, but did not save these changes.\n"
+								+ "Do you want to do so now?", "Save changes?",
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+	
+						if(q == 0)
+							writeChange();
+					}
+				}
+				
+				@Override
+				public void ancestorMoved(AncestorEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void ancestorAdded(AncestorEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
 		}
 
 		@Override

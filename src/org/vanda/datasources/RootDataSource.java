@@ -185,7 +185,6 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 		private JPanel sourceEditPanel;
 		private DataSourceEditor innerEditor;
 		private JPanel innerEditorPanel;
-		private JTextField aId;
 		private JList lDataSources;
 
 		public RootDataSourceEditor(final Application app) {
@@ -193,20 +192,16 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 			sourceEditPanel = new JPanel(new GridBagLayout());
 			editor = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sourceSelectionPanel, sourceEditPanel);
 			innerEditorPanel = new JPanel(new GridLayout(1, 1));
-			aId = new JTextField();
 			lDataSources = new JList();
 			resetEntry();
 			lDataSources.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent arg0) {
 					innerEditorPanel.removeAll();
-					aId.setText("");
 					if (lDataSources.getSelectedIndex() > -1) {
 						innerEditor = sources.get(
-								lDataSources.getSelectedValue()).createEditor(
-								app);
+								lDataSources.getSelectedValue()).createEditor(app);
 						innerEditorPanel.add(innerEditor.getComponent());
-						aId.setText((String) lDataSources.getSelectedValue());
 
 					}
 					editor.revalidate();
@@ -266,6 +261,30 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 					resetEntry();
 				}
 			});
+			JButton bRename = new JButton(new AbstractAction("rename") {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 5152467568739410638L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String s = (String)JOptionPane.showInputDialog(
+		                    editor,
+		                    "Enter the new name:",
+		                    "Rename data source",
+		                    JOptionPane.PLAIN_MESSAGE,
+		                    null,
+		                    null,
+		                    lDataSources.getSelectedValue().toString());
+					if(s != null) {
+						sources.remove(lDataSources.getSelectedValue());
+						sources.put(s, innerEditor.getDataSource());
+						resetEntry(s);
+					}
+				}
+			});
+			
 			JButton bSave = new JButton(new AbstractAction("save source") {
 				/**
 				 * 
@@ -288,22 +307,22 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 					resetEntry();
 				}
 			});
-			JLabel lId = new JLabel("ID");
-
+			
+			
+			
+			
 			Insets i = new Insets(5, 5, 5, 5);
 			int anchor = GridBagConstraints.ABOVE_BASELINE_LEADING;
 
 			sourceSelectionPanel.add(lDataSources, new GridBagConstraints(
-					0, 0, 2, 2, 6, 4, anchor, GridBagConstraints.BOTH, i, 1, 1));
+					0, 0, 3, 1, 6, 4, anchor, GridBagConstraints.BOTH, i, 1, 1));
 			sourceSelectionPanel.add(bAdd, new GridBagConstraints(
-					0, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
+					0, 1, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
 			sourceSelectionPanel.add(bRemove, new GridBagConstraints(
-					1, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
+					1, 1, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
+			sourceSelectionPanel.add(bRename, new GridBagConstraints(
+					2, 1, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
 
-			sourceEditPanel.add(lId, new GridBagConstraints(
-					2, 0, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
-			sourceEditPanel.add(aId, new GridBagConstraints(
-					3, 0, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
 			sourceEditPanel.add(innerEditorPanel, new GridBagConstraints(
 					2, 1, 2, 1, 6, 3, anchor, GridBagConstraints.BOTH, i, 1, 1));
 			sourceEditPanel.add(bSave, new GridBagConstraints(
@@ -344,9 +363,9 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 			if (innerEditor != null) {
 				innerEditor.writeChange();
 				sources.remove(lDataSources.getSelectedValue());
-				sources.put(aId.getText(), innerEditor.getDataSource());
+				sources.put(lDataSources.getSelectedValue().toString(), innerEditor.getDataSource());
 			}
-			resetEntry(aId.getText());
+			resetEntry(lDataSources.getSelectedValue());
 		}
 
 	}

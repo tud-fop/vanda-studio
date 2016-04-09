@@ -140,7 +140,7 @@ public class DoubleDataSource implements DataSource {
 		return TYPE;
 	}
 
-	public class IntegerDataSourceEditor extends DataSourceEditor {
+	public class DoubleDataSourceEditor extends DataSourceEditor {
 
 		@Override
 		public JComponent getComponent() {
@@ -161,6 +161,6 @@ public class DoubleDataSource implements DataSource {
 
 	@Override
 	public DataSourceEditor createEditor(Application app) {
-		return new IntegerDataSourceEditor();
+		return new DoubleDataSourceEditor();
 	}
 }
