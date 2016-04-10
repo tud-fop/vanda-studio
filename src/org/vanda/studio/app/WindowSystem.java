@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -161,8 +162,11 @@ public class WindowSystem {
 		FlowLayout fl = new FlowLayout(FlowLayout.LEFT);
 		fl.setHgap(1);
 		fl.setVgap(1);
-		iconToolBar = new JPanel(fl);
+		JPanel iconToolBarFlower = new JPanel(fl);
+		iconToolBar = new JPanel();
+		iconToolBar.setLayout(new BoxLayout(iconToolBar, BoxLayout.LINE_AXIS));
 		iconToolBar.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		iconToolBarFlower.add(iconToolBar);
 		
 		// Initialize all bookkeeping
 		windowMenus = new HashMap<JComponent, JMenu>();
@@ -209,7 +213,7 @@ public class WindowSystem {
 		mainWindow.setJMenuBar(menuBar);
 		mainWindow.getContentPane().setLayout(new BorderLayout());
 		mainWindow.getContentPane().add(contentPane, BorderLayout.CENTER);
-		mainWindow.getContentPane().add(iconToolBar, BorderLayout.NORTH);
+		mainWindow.getContentPane().add(iconToolBarFlower, BorderLayout.NORTH);
 		
 		// Show window (from UI thread)
 		SwingUtilities.invokeLater(new Runnable() {
