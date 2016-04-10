@@ -220,16 +220,10 @@ public class DirectoryDataSource implements DataSource {
 				}
 				
 				@Override
-				public void ancestorMoved(AncestorEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
+				public void ancestorMoved(AncestorEvent _) {}
 				
 				@Override
-				public void ancestorAdded(AncestorEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
+				public void ancestorAdded(AncestorEvent _) {}
 			});
 		}
 

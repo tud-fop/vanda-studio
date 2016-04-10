@@ -232,11 +232,24 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+					// Auto-generate a name...
 					int num = 1;
 					String prefix = "New DataSource ";
 					while (sources.containsKey(prefix + num))
 						num++;
 					String id = prefix + num;
+					// ...but prefer one chosen by the user
+					id = (String) JOptionPane.showInputDialog(
+							editor,
+							"Enter a name:",
+							"New data source",
+							JOptionPane.PLAIN_MESSAGE,
+							null,
+							null,
+							id);
+					// Canceling the naming dialog shouldn't screw the process up
+					if (id == null)
+						id = prefix + num;
 					DataSourceFactory type = (DataSourceFactory) JOptionPane
 							.showInputDialog(editor.getParent(), "Choose a Class",
 									"Data Source Class",
@@ -269,7 +282,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					String s = (String)JOptionPane.showInputDialog(
+					String s = (String) JOptionPane.showInputDialog(
 		                    editor,
 		                    "Enter the new name:",
 		                    "Rename data source",
@@ -311,7 +324,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 			
 			
 			
-			Insets i = new Insets(5, 5, 5, 5);
+			Insets i = new Insets(3, 3, 3, 3);
 			int anchor = GridBagConstraints.ABOVE_BASELINE_LEADING;
 
 			sourceSelectionPanel.add(lDataSources, new GridBagConstraints(
@@ -324,11 +337,11 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 					2, 1, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
 
 			sourceEditPanel.add(innerEditorPanel, new GridBagConstraints(
-					2, 1, 2, 1, 6, 3, anchor, GridBagConstraints.BOTH, i, 1, 1));
+					0, 0, 2, 1, 6, 3, anchor, GridBagConstraints.BOTH, i, 1, 1));
 			sourceEditPanel.add(bSave, new GridBagConstraints(
-					2, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
+					0, 1, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
 			sourceEditPanel.add(bReset, new GridBagConstraints(
-					3, 2, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
+					1, 1, 1, 1, 3, 0, anchor, GridBagConstraints.BOTH, i, 1, 1));
 		}
 
 		@Override
