@@ -19,11 +19,19 @@ public abstract class DataSourceEditor {
 	
 	public void writeChange(){
 		write();
-		for (Action a : writeActions)
+		//System.out.println("start writing in "+this.getClass().getCanonicalName());
+		for (Action a : writeActions) {
+			//System.out.println("  "+a.getName());
 			a.invoke();
+		}
+		//System.out.println("done writing");
 	}
 	
 	public void addWriteAction(Action storeAction){
 		writeActions.add(storeAction);
+	}
+
+	public boolean wasChanged() {
+		return false;
 	}
 }

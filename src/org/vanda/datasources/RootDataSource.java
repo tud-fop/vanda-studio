@@ -8,7 +8,6 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,12 +22,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -59,7 +56,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 		private List<String> dsList;
 
-		private JComboBox jDSList;
+		private JComboBox<Object> jDSList;
 		private JComponent component;
 		private JPanel selector;
 
@@ -72,7 +69,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 			selector = new JPanel(new GridBagLayout());
 
-			jDSList = new JComboBox(dsList.toArray());
+			jDSList = new JComboBox<Object>(dsList.toArray());
 			jDSList.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -185,18 +182,30 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 		private JPanel sourceEditPanel;
 		private DataSourceEditor innerEditor;
 		private JPanel innerEditorPanel;
-		private JList lDataSources;
+		private JList<Object> lDataSources;
+		private int lastIndex = -1;
+		private boolean switchingBack = false;
 
 		public RootDataSourceEditor(final Application app) {
 			sourceSelectionPanel = new JPanel(new GridBagLayout());
 			sourceEditPanel = new JPanel(new GridBagLayout());
 			editor = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sourceSelectionPanel, sourceEditPanel);
 			innerEditorPanel = new JPanel(new GridLayout(1, 1));
-			lDataSources = new JList();
+			lDataSources = new JList<Object>();
 			resetEntry();
 			lDataSources.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent arg0) {
+					if (switchingBack) {
+						switchingBack = false;
+						return;
+					}
+					if (askToGoBack("switch to another entry")) {
+						switchingBack = true;
+						lDataSources.setSelectedIndex(lastIndex);
+						return;
+					}
+					lastIndex = lDataSources.getSelectedIndex();
 					innerEditorPanel.removeAll();
 					if (lDataSources.getSelectedIndex() > -1) {
 						innerEditor = sources.get(
@@ -217,7 +226,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 				minusImage = ImageIO.read(ClassLoader.getSystemClassLoader().getResource("minus.png"));
 				plusIcon = new ImageIcon(plusImage.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
 				minusIcon = new ImageIcon(minusImage.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
-			} catch (Exception _) {
+			} catch (Exception e) {
 				plusIcon = null;
 				minusIcon = null;
 				plusText = "+";
@@ -232,6 +241,8 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
+					if (askToGoBack("add a new item"))
+						return;
 					// Auto-generate a name...
 					int num = 1;
 					String prefix = "New DataSource ";
@@ -259,6 +270,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 					if (type != null) {
 						mount(id, type.getDataSource());
 						resetEntry(id);
+						writeChange();
 					}
 				}
 			});
@@ -272,6 +284,9 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 				public void actionPerformed(ActionEvent e) {
 					umount((String) lDataSources.getSelectedValue());
 					resetEntry();
+					innerEditorPanel.removeAll();
+					innerEditor = null;
+					writeChange();
 				}
 			});
 			JButton bRename = new JButton(new AbstractAction("rename") {
@@ -282,6 +297,8 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					if (askToGoBack("rename this source"))
+						return;
 					String s = (String) JOptionPane.showInputDialog(
 		                    editor,
 		                    "Enter the new name:",
@@ -317,7 +334,8 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					resetEntry();
+					if (!askToGoBack("reset this source"))
+						resetEntry();
 				}
 			});
 			
@@ -369,6 +387,18 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 				}
 			}
 			lDataSources.setSelectedIndex(idx);
+		}
+
+		public boolean askToGoBack(String whatdo) {
+			if (innerEditor != null && innerEditor.wasChanged()) {
+				int q = JOptionPane.showOptionDialog(editor, "Despite having changed, but not saved the properties\n"
+						+ "of a data source, in the editor, you want to "+whatdo+" .\n"
+						+ "Do you really want to do that?", "Unsaved changes",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+				
+				return q != 0;
+			}
+			return false;
 		}
 
 		@Override

@@ -169,6 +169,7 @@ public class DirectoryDataSource implements DataSource {
 			pan.add(tFolder);
 			pan.add(tFilter);
 			
+			// cType.setEditable(true); // TODO this is where the work continues
 			pan.add(cType);
 
 			GridBagConstraints gbc;
@@ -201,30 +202,6 @@ public class DirectoryDataSource implements DataSource {
 			
 			gbc.gridy = 2;
 			pan.add(cType, gbc);
-			
-			pan.addAncestorListener(new AncestorListener() {
-				
-				@Override
-				public void ancestorRemoved(AncestorEvent arg0) {
-					if (!tFolder.getText().equals(dir.getAbsolutePath())
-							|| !tFilter.getText().equals(filter)
-							|| !cType.getSelectedItem().equals(type)) {
-						int q = JOptionPane.showOptionDialog(pan, "You changed the properties of a data source\n"
-								+ "in the editor, but did not save these changes.\n"
-								+ "Do you want to do so now?", "Save changes?",
-								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
-	
-						if(q == 0)
-							writeChange();
-					}
-				}
-				
-				@Override
-				public void ancestorMoved(AncestorEvent _) {}
-				
-				@Override
-				public void ancestorAdded(AncestorEvent _) {}
-			});
 		}
 
 		@Override
@@ -244,6 +221,12 @@ public class DirectoryDataSource implements DataSource {
 			type = (Type) cType.getSelectedItem();
 		}
 
+		@Override
+		public boolean wasChanged() {
+			return (!tFolder.getText().equals(dir.getAbsolutePath())
+					|| !tFilter.getText().equals(filter)
+					|| !cType.getSelectedItem().equals(type));
+		}
 	}
 
 	@Override

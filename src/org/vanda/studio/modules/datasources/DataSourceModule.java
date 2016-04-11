@@ -19,6 +19,7 @@ import org.vanda.datasources.DirectoryDataSourceFactory;
 import org.vanda.datasources.DoubleDataSource;
 import org.vanda.datasources.IntegerDataSource;
 import org.vanda.datasources.RootDataSource;
+import org.vanda.datasources.RootDataSource.RootDataSourceEditor;
 import org.vanda.datasources.serialization.DataSourceType;
 import org.vanda.datasources.serialization.DirectoryDataSourceType;
 import org.vanda.datasources.serialization.Loader;
@@ -121,16 +122,19 @@ public class DataSourceModule implements Module {
 					}
 				});
 			} else {
-				f = new JFrame("Data Source Editor");
-				f.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-				f.addWindowListener(new WindowAdapter() {
-					@Override
-					public void windowClosed(WindowEvent e) {
-						f = null;
-					}
-				});
 				DataSourceEditor ed = ds.createEditor(a);
 				ed.addWriteAction(new StoreAction(a, st, ds));
+				f = new JFrame("Data Source Editor");
+				f.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+				f.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosing(WindowEvent e) {
+						if(!((RootDataSourceEditor)ed).askToGoBack("close the editor")) {
+							f.dispose();
+							f = null;
+						}
+					}
+				});
 				f.setContentPane(ed.getComponent());
 				f.setSize(new Dimension(500, 400));
 				f.setLocationRelativeTo(a.getWindowSystem().getMainWindow());
