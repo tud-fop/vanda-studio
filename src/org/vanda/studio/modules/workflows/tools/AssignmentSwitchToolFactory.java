@@ -236,8 +236,8 @@ public class AssignmentSwitchToolFactory implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe) {
-		return new EditAssignmentTool(wfe);
+	public void instantiate(WorkflowEditor wfe) {
+		new EditAssignmentTool(wfe);
 	}
 
 }

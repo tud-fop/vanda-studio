@@ -222,8 +222,8 @@ public class PaletteTool implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe) {
-		return new Palette(wfe);
+	public void instantiate(WorkflowEditor wfe) {
+		new Palette(wfe);
 	}
 
 }

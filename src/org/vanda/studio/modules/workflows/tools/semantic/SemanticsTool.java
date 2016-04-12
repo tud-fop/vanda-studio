@@ -112,9 +112,15 @@ public class SemanticsTool implements ToolFactory {
 		return repository;
 	}
 
+	private Tool tool = null;
+	
 	@Override
-	public Object instantiate(WorkflowEditor wfe) {
-		return new Tool(wfe, repository);
+	public void instantiate(WorkflowEditor wfe) {
+		tool = new Tool(wfe, repository);
+	}
+	
+	public Tool getTool() {
+		return tool;
 	}
 
 }

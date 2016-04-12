@@ -167,7 +167,7 @@ public class WorkflowModule implements Module {
 					try {
 						phd = new Loader(app.getToolMetaRepository()
 								.getRepository()).load(filePath);
-						new WorkflowEditorImpl(app, toolFactories, phd);
+						new WorkflowEditorImpl(app, toolFactories, phd).setAssociatedFile(chosenFile);
 					} catch (Exception e) {
 						app.sendMessage(new ExceptionMessage(e));
 					}

@@ -1,5 +1,7 @@
 package org.vanda.studio.modules.workflows.model;
 
+import java.io.File;
+
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
@@ -28,4 +30,7 @@ public interface WorkflowEditor {
 	SemanticAnalysis getSemanticAnalysis();
 	void enableAction(Action a);
 	void disableAction(Action a);
+
+	File getAssociatedFile();
+	void setAssociatedFile(File chosenFile);
 }

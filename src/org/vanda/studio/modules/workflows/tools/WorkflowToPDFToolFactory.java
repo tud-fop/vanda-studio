@@ -83,10 +83,9 @@ public final class WorkflowToPDFToolFactory implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe) {
+	public void instantiate(WorkflowEditor wfe) {
 		Action a = new ExportWorkflowToPDFAction(wfe);
 		wfe.addAction(a, "application-pdf",
 				KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_MASK),20);
-		return a;
 	}
 }

@@ -118,13 +118,15 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 
 	protected final PresentationModel presentationModel;
 
+	protected String associatedFileName = null;
+	
 	protected JComponent palette;
 
 	protected final SyntaxUpdater synUp;
 
 	private final Observer<WorkflowEvent<MutableWorkflow>> mwfObserver;
-
-	private final Collection<Object> tools;
+	
+	private File associatedFile;
 
 	public WorkflowEditorImpl(Application app, List<ToolFactory> toolFactories,
 			Pair<MutableWorkflow, Database> phd) {
@@ -172,9 +174,8 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 		graphComponent.setName(view.getWorkflow().getName());
 		app.getWindowSystem().addContentWindow(null, graphComponent, null);
 
-		tools = new ArrayList<Object>();
 		for (ToolFactory tf : toolFactories) {
-			tools.add(tf.instantiate(this));
+			tf.instantiate(this);
 		}
 
 		// The comments are all added in different files :(
@@ -326,6 +327,15 @@ public class WorkflowEditorImpl extends DefaultWorkflowEditorImpl {
 			if (palette != null)
 				addSideSplit(palette, SplitTabbedPane.Side.EAST, 300);
 		}
+	}
+
+	
+	public File getAssociatedFile() {
+		return associatedFile;
+	}
+	
+	public void setAssociatedFile(File chosenFile) {
+		this.associatedFile = chosenFile;
 	}
 
 }

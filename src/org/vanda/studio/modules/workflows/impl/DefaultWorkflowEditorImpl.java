@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -460,6 +461,16 @@ public class DefaultWorkflowEditorImpl implements WorkflowEditor, WorkflowListen
 		// initialize zoom
 		appObserver.notify(app);
 		
+	}
+
+	@Override
+	public File getAssociatedFile() {
+		return null;
+	}
+	
+	@Override
+	public void setAssociatedFile(File chosenFile) {
+		// no-op
 	}
 	
 	// We will not need it anymore, hopefully.

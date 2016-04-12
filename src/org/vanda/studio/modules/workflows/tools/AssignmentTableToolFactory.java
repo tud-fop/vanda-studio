@@ -904,7 +904,7 @@ public class AssignmentTableToolFactory implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(final WorkflowEditor wfe) {
+	public void instantiate(final WorkflowEditor wfe) {
 		final OpenAssignmentTableAction a = new OpenAssignmentTableAction(wfe);
 		wfe.addAction(a, "application-vnd.sun.xml.calc", KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_MASK), 130);
 		wfe.addSeparator(120);
@@ -944,7 +944,5 @@ public class AssignmentTableToolFactory implements ToolFactory {
 
 		// initialize button
 		listener.dataChange(wfe.getDatabase(), null);
-
-		return a;
 	}
 }

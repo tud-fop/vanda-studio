@@ -151,7 +151,8 @@ public class WorkflowExecution extends DefaultWorkflowEditorImpl implements Obse
 		LinkedList<SemanticsToolFactory> srep = new LinkedList<SemanticsToolFactory>();
 		srep.add(new InspectorTool(eefs));
 		SemanticsTool semanticsTool = new SemanticsTool(srep);
-		semanticsToolInstance = semanticsTool.instantiate(this);
+		semanticsTool.instantiate(this);
+		semanticsToolInstance = semanticsTool.getTool();
 
 		// add Menu-Actions
 		addAction(new CloseWorkflowAction(), KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_MASK), 0);

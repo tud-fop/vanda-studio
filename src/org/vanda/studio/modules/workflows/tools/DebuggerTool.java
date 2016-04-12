@@ -53,8 +53,8 @@ public class DebuggerTool implements ToolFactory {
 	}
 
 	@Override
-	public Object instantiate(WorkflowEditor wfe) {
-		return new Tool(wfe, wfe.getView());
+	public void instantiate(WorkflowEditor wfe) {
+		new Tool(wfe, wfe.getView());
 	}
 
 }
