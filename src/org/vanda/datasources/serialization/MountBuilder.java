@@ -1,6 +1,7 @@
 package org.vanda.datasources.serialization;
 
 import org.vanda.datasources.DataSource;
+import org.vanda.studio.app.Application;
 import org.vanda.xml.ComplexFieldProcessor;
 import org.vanda.xml.Factory;
 import org.vanda.xml.FieldProcessor;
@@ -10,11 +11,16 @@ public class MountBuilder {
 	
 	public static DataSourceProcessor dsp = new DataSourceProcessor();
 
+	private Application app;
 	String prefix;
 	DataSource ds;
 	
-	public static Factory<MountBuilder> createFactory() {
-		return new Fäctory();
+	public MountBuilder(Application app) {
+		this.app = app;
+	}
+
+	public static Factory<MountBuilder> createFactory(Application app) {
+		return new Fäctory(app);
 	}
 	
 	// @SuppressWarnings("unchecked")
@@ -24,9 +30,15 @@ public class MountBuilder {
 	}
 	
 	public static final class Fäctory implements Factory<MountBuilder> {
+		private Application app;
+		
+		private Fäctory(Application app) {
+			this.app = app;
+		}
+		
 		@Override
 		public MountBuilder create() {
-			return new MountBuilder();
+			return new MountBuilder(app);
 		}
 	}
 
@@ -48,7 +60,12 @@ public class MountBuilder {
 		@Override
 		public void process(MountBuilder b1, DataSourceBuilder b2) {
 			b1.ds = b2.build();
+			b1.registerTypeWithApp();
 		}
 	}
-
+	
+	public void registerTypeWithApp() {
+		System.out.println("This is where I found you: " + ds.getType(null));
+		ds.getType(null).getSubTypes(app.getTypes());
+	}
 }

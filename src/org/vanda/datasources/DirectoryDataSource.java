@@ -169,7 +169,6 @@ public class DirectoryDataSource implements DataSource {
 			pan.add(tFolder);
 			pan.add(tFilter);
 			
-			// cType.setEditable(true); // TODO this is where the work continues
 			pan.add(cType);
 
 			GridBagConstraints gbc;

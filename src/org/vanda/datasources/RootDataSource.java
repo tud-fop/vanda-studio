@@ -165,6 +165,8 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 	@Override
 	public Type getType(Element element) {
+		if (element == null)
+			return null;
 		DataSource ds = sources.get(element.getPrefix());
 		return ds != null ? ds.getType(element) : Types.undefined;
 	}

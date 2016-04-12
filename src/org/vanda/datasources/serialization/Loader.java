@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.vanda.datasources.RootDataSource;
+import org.vanda.studio.app.Application;
 import org.vanda.util.Observer;
 import org.vanda.xml.ComplexFieldProcessor;
 import org.vanda.xml.CompositeElementHandlerFactory;
@@ -18,10 +19,12 @@ public class Loader {
 
 	private final RootDataSource rds;
 	private final List<DataSourceType<?>> types;
+	private final Application app;
 
-	public Loader(RootDataSource rds, List<DataSourceType<?>> types) {
+	public Loader(RootDataSource rds, List<DataSourceType<?>> types, final Application app) {
 		this.rds = rds;
 		this.types = types;
+		this.app = app;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -40,7 +43,7 @@ public class Loader {
 			}
 		};
 		return new SimpleElementHandlerFactory<RootDataSource, MountBuilder>("mount", sourceHandler,
-				MountBuilder.createFactory(), xxx, MountBuilder.createProcessor(), null);
+				MountBuilder.createFactory(app), xxx, MountBuilder.createProcessor(), null);
 	}
 
 	private SingleElementHandlerFactory<Observer<RootDataSource>> rootHandler(

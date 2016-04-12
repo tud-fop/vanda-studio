@@ -45,7 +45,7 @@ public class DataSourceModule implements Module {
 		rds.addItem(new DirectoryDataSourceFactory(System.getProperty("user.home") + "/.vanda", ".*", null));
 		List<DataSourceType<?>> dsts = new LinkedList<DataSourceType<?>>();
 		dsts.add(new DirectoryDataSourceType());
-		Loader l = new Loader(rds, dsts);
+		Loader l = new Loader(rds, dsts, a);
 		try {
 			l.load(PROPERTIES_FILE);
 		} catch (Exception e) {
