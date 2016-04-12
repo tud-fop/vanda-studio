@@ -65,7 +65,6 @@ public class MountBuilder {
 	}
 	
 	public void registerTypeWithApp() {
-		System.out.println("This is where I found you: " + ds.getType(null));
 		ds.getType(null).getSubTypes(app.getTypes());
 	}
 }

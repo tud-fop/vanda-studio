@@ -187,6 +187,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 		private JList<Object> lDataSources;
 		private int lastIndex = -1;
 		private boolean switchingBack = false;
+		private boolean switchingSilently = false;
 
 		public RootDataSourceEditor(final Application app) {
 			sourceSelectionPanel = new JPanel(new GridBagLayout());
@@ -202,7 +203,7 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 						switchingBack = false;
 						return;
 					}
-					if (askToGoBack("switch to another entry")) {
+					if (!switchingSilently && askToGoBack("switch to another entry")) {
 						switchingBack = true;
 						lDataSources.setSelectedIndex(lastIndex);
 						return;
@@ -336,8 +337,11 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (!askToGoBack("reset this source"))
+					if (!askToGoBack("reset this source")) {
+						switchingSilently = true;
 						resetEntry();
+						switchingSilently = false;
+					}
 				}
 			});
 			
@@ -393,10 +397,10 @@ public class RootDataSource extends ListRepository<DataSourceFactory> implements
 
 		public boolean askToGoBack(String whatdo) {
 			if (innerEditor != null && innerEditor.wasChanged()) {
-				int q = JOptionPane.showOptionDialog(editor, "Despite having changed, but not saved the properties\n"
-						+ "of a data source, in the editor, you want to "+whatdo+" .\n"
-						+ "Do you really want to do that?", "Unsaved changes",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+				Object[] options = {"Discard", "Cancel"};
+				int q = JOptionPane.showOptionDialog(editor, "Do you really want to "+whatdo+"\n"
+						+ "and discard the changes you made to this source?", "Unsaved changes",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
 				
 				return q != 0;
 			}
