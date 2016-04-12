@@ -8,9 +8,9 @@ import org.vanda.studio.app.Application;
 import org.vanda.studio.core.DefaultPreviewFactory;
 import org.vanda.studio.modules.previews.Previews.Preview;
 
-public class PlainEchoPreviewFactory extends DefaultPreviewFactory {
+public class PlainNumberPreviewFactory extends DefaultPreviewFactory {
 
-	public PlainEchoPreviewFactory(Application app) {
+	public PlainNumberPreviewFactory(Application app) {
 		super(app);
 	}
 
@@ -53,7 +53,7 @@ public class PlainEchoPreviewFactory extends DefaultPreviewFactory {
 	
 	@Override
 	public JComponent createPreview(String value) {
-		PreviewLabel mp = new PreviewLabel("  Value: " + value);
+		PreviewLabel mp = new PreviewLabel("  Value: " + (value == "" ? 0 : value)); // Otherwise 0-ints don't survive the casting to String very well :(
 		previews.add(new WeakReference<Preview>(mp));
 		return mp; 
 	}

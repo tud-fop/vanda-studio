@@ -39,9 +39,9 @@ public class PreviewsModule implements Module {
 		app.registerPreviewFactory(new CompositeType("StPOStagger"),
 				new DefaultPreviewFactory(app, ".props"));
 		app.registerPreviewFactory(new CompositeType("Integer"),
-				new PlainEchoPreviewFactory(app));
+				new PlainNumberPreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("Double"),
-				new PlainEchoPreviewFactory(app));
+				new PlainNumberPreviewFactory(app));
 		app.registerPreviewFactory(null,
 				new DefaultPreviewFactory(app));
 		return null;
