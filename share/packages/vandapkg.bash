@@ -49,6 +49,7 @@ install () {
 # filter packages that are not existing
 	declare -i i=0
 	declare -i interfaces=0
+	mkdir -p $IFACEDIR
 	
 	for pkg in "$@"; do
 		if [ -f "$pkg" ]; then
