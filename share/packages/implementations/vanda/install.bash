@@ -19,7 +19,7 @@ install_me () {
 	cabal install -p --only-dependencies
 	cabal configure
 	cabal build
-	ghc -package-db dist/package.conf.inplace --make "programs/XRSToHypergraph.hs"
-	ghc -package-db dist/package.conf.inplace --make "programs/XRSTranslate.hs"
-	ghc -package-db dist/package.conf.inplace --make "programs/PennToSentenceCorpus.hs"
+	cabal exec -- ghc -package-db dist/package.conf.inplace --make "programs/XRSToHypergraph.hs"
+	cabal exec -- ghc -package-db dist/package.conf.inplace --make "programs/XRSTranslate.hs"
+	cabal exec -- ghc -package-db dist/package.conf.inplace --make "programs/PennToSentenceCorpus.hs"
 }
