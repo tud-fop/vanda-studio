@@ -324,4 +324,63 @@
 		</tool>
 
 	</toolinterface>
+
+	<toolinterface
+		id="lcfrs-parser"
+		name="LCFRS"
+		version="2017-05-03"
+		contact="thomas.ruprecht@tu-dresden.de"
+		category="Language Models::Parsing">
+		
+		<description>Tools for parsing using linear context-free rewriting systems (LCFRS).</description>
+
+		<tool
+			type="Shell"
+			id="lcfrs-parse-cyk"
+			name="CYK Parser"
+			version="2017-08-24"
+			contact="thomas.ruprecht@tu-dresden.de"
+			category="Language Models::Parsing"
+			status="">
+			
+			<description></description>
+			
+			<in name="grammar" type="PLCFRS" />
+			<in name="sentence" type="SingleSentence" />
+			<out name="parse-trees" type="NeGraCorpus" />
+		</tool>
+
+		<tool
+			type="Shell"
+			id="lcfrs-parse-naive"
+			name="Naive Active Parser"
+			version="2017-08-24"
+			contact="thomas.ruprecht@tu-dresden.de"
+			category="Language Models::Parsing"
+			status="">
+			
+			<description></description>
+			
+			<in name="grammar" type="PLCFRS" />
+			<in name="sentence" type="SingleSentence" />
+			<out name="parse-trees" type="NeGraCorpus" />
+		</tool>
+		
+		<tool
+			type="Shell"
+			id="lcfrs-parse-active"
+			name="Active Parser"
+			version="2017-08-24"
+			contact="thomas.ruprecht@tu-dresden.de"
+			category="Language Models::Parsing"
+			status="">
+			
+			<description></description>
+			
+			<in name="grammar" type="PLCFRS" />
+			<in name="sentence" type="SingleSentence" />
+			<out name="parse-trees" type="NeGraCorpus" />
+		</tool>
+
+	</toolinterface>
 </root>

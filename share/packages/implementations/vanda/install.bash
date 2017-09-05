@@ -1,9 +1,9 @@
 id="vanda"
 varname="VANDA"
-version="2015-07-31"
+version="2017-08-30"
 binpath="$id"
 
-VANDA="https://gitlab.tcs.inf.tu-dresden.de/vanda/vanda.git"
+VANDA="https://gitlab.tcs.inf.tu-dresden.de/ruprecht/vanda.git"
 
 install_me () {
 	if [[ ! -d "$1/.git" ]]
@@ -16,7 +16,7 @@ install_me () {
 		git pull origin master
 	fi
 	cabal update
-	cabal install -p --only-dependencies
+	cabal install --only-dependencies --force-reinstalls
 	cabal configure
 	cabal build
 	cabal exec -- ghc -package-db dist/package.conf.inplace --make "programs/XRSToHypergraph.hs"

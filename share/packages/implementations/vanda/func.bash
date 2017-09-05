@@ -199,3 +199,42 @@ Vanda-pcfg-bests () {
 Vanda-pcfg-intersect () {
 	"${VANDA}/dist/build/Vanda/Vanda" pcfg intersect "$2" "$4" "$(cat "$3")"
 }
+
+# lcfrs-parse-cyk
+# Version: 2017-03-05
+# Contact: thomas.ruprecht@tu-dresden.de
+# Category: Language Models::Parsing
+# IN grammar :: PLCFRS
+# IN sentence :: SingleSentence
+# OUT parse-trees :: NeGraCorpus
+#
+# Parse a sentence probabilisticly using an LCFRS.
+lcfrs-parse-cyk () {
+	cat "$3" | "${VANDA}/dist/build/Vanda/Vanda" lcfrs parse --algorithm=CYK --bw=2500 --ts=1 "$2" > "$4"
+}
+
+# lcfrs-parse-naive
+# Version: 2017-03-05
+# Contact: thomas.ruprecht@tu-dresden.de
+# Category: Language Models::Parsing
+# IN grammar :: PLCFRS
+# IN sentence :: SingleSentence
+# OUT parse-trees :: NeGraCorpus
+#
+# Parse a sentence probabilisticly using an LCFRS.
+lcfrs-parse-naive () {
+	cat "$3" | "${VANDA}/dist/build/Vanda/Vanda" lcfrs parse --algorithm=NaiveActive --bw=2500 --ts=1 "$2" > "$4"
+}
+
+# lcfrs-parse-active
+# Version: 2017-03-05
+# Contact: thomas.ruprecht@tu-dresden.de
+# Category: Language Models::Parsing
+# IN grammar :: PLCFRS
+# IN sentence :: SingleSentence
+# OUT parse-trees :: NeGraCorpus
+#
+# Parse a sentence probabilisticly using an LCFRS.
+lcfrs-parse-active () {
+	cat "$3" | "${VANDA}/dist/build/Vanda/Vanda" lcfrs parse --algorithm=Active --bw=2500 --ts=1 "$2" > "$4"
+}
