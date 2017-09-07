@@ -16,10 +16,9 @@ install_me () {
 		git pull origin master
 	fi
 	cabal update
-	cabal install --only-dependencies --force-reinstalls
 	cabal configure
-	cabal build
-	cabal exec -- ghc -package-db dist/package.conf.inplace --make "programs/XRSToHypergraph.hs"
-	cabal exec -- ghc -package-db dist/package.conf.inplace --make "programs/XRSTranslate.hs"
-	cabal exec -- ghc -package-db dist/package.conf.inplace --make "programs/PennToSentenceCorpus.hs"
+	cabal install --force-reinstalls
+	cabal exec -- ghc --make "programs/XRSToHypergraph.hs"
+	cabal exec -- ghc --make "programs/XRSTranslate.hs"
+	cabal exec -- ghc --make "programs/PennToSentenceCorpus.hs"
 }
