@@ -337,7 +337,7 @@
 		<tool
 			type="Shell"
 			id="lcfrs-parse-cyk"
-			name="CYK Parser"
+			name="LCFRS CYK parser"
 			version="2017-08-24"
 			contact="thomas.ruprecht@tu-dresden.de"
 			category="Language Models::Parsing"
@@ -353,7 +353,7 @@
 		<tool
 			type="Shell"
 			id="lcfrs-parse-naive"
-			name="Naive Active Parser"
+			name="LCFRS naive active parser"
 			version="2017-08-24"
 			contact="thomas.ruprecht@tu-dresden.de"
 			category="Language Models::Parsing"
@@ -369,7 +369,7 @@
 		<tool
 			type="Shell"
 			id="lcfrs-parse-active"
-			name="Active Parser"
+			name="LCFRS active parser"
 			version="2017-08-24"
 			contact="thomas.ruprecht@tu-dresden.de"
 			category="Language Models::Parsing"
