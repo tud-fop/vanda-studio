@@ -1,9 +1,9 @@
 id="vanda"
 varname="VANDA"
-version="2017-08-30"
+version="2018-02-21"
 binpath="$id"
 
-VANDA="https://gitlab.tcs.inf.tu-dresden.de/ruprecht/vanda.git"
+VANDA="https://github.com/tud-fop/vanda-haskell"
 
 install_me () {
 	if [[ ! -d "$1/.git" ]]
