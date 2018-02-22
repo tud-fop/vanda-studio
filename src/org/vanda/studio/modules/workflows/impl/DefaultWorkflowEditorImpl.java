@@ -13,8 +13,6 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
-
 import org.vanda.render.jgraph.WorkflowCell;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.SplitTabbedPane;

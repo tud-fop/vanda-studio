@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
@@ -18,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 
-import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
 
 public class VandaPCFGPreviewFactory implements PreviewFactory {

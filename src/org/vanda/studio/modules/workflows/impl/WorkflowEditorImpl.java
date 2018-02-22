@@ -1,13 +1,10 @@
 package org.vanda.studio.modules.workflows.impl;
 
-import java.awt.BorderLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -22,7 +19,6 @@ import org.vanda.render.jgraph.Cell;
 import org.vanda.render.jgraph.mxDropTargetListener;
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.SplitTabbedPane;
-import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;

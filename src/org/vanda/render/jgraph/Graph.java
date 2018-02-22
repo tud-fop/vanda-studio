@@ -1,6 +1,5 @@
 package org.vanda.render.jgraph;
 
-import java.awt.Component;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragSource;
 import java.awt.event.MouseEvent;

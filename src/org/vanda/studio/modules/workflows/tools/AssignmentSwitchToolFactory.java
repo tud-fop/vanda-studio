@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
-import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -24,12 +23,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.GroupLayout.ParallelGroup;
-import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.SwingUtilities;
 
 import org.vanda.studio.app.Application;
-import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.model.ToolFactory;
 import org.vanda.studio.modules.workflows.model.WorkflowEditor;
 import org.vanda.util.Action;

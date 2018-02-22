@@ -9,8 +9,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 
 import javax.swing.InputVerifier;
@@ -18,8 +16,6 @@ import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-
 import org.vanda.datasources.Elements.ElementEvent;
 import org.vanda.datasources.Elements.ElementListener;
 import org.vanda.studio.app.Application;

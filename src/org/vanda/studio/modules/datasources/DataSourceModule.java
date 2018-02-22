@@ -122,14 +122,14 @@ public class DataSourceModule implements Module {
 					}
 				});
 			} else {
-				DataSourceEditor ed = ds.createEditor(a);
+				final DataSourceEditor ed = ds.createEditor(a);
 				ed.addWriteAction(new StoreAction(a, st, ds));
 				f = new JFrame("Data Source Editor");
 				f.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 				f.addWindowListener(new WindowAdapter() {
 					@Override
 					public void windowClosing(WindowEvent e) {
-						if(!((RootDataSourceEditor)ed).askToGoBack("close the editor")) {
+						if(!((RootDataSourceEditor) ed).askToGoBack("close the editor")) {
 							f.dispose();
 							f = null;
 						}

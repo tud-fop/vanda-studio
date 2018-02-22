@@ -15,7 +15,6 @@ import org.vanda.studio.app.SplitTabbedPane;
 
 //import org.vanda.fragment.model.Model;
 
-import org.vanda.studio.app.WindowSystem;
 import org.vanda.studio.modules.workflows.inspector.AbstractEditorFactory;
 import org.vanda.studio.modules.workflows.inspector.AbstractPreviewFactory;
 import org.vanda.studio.modules.workflows.inspector.EditorialVisitor;
