@@ -12,9 +12,8 @@
  - ``./vandapkg.bash install util.tar.gz interfaces/util.xml``
 
 ## Installation of packages
-1. build the package (usually ``from share/packages``)
+1. build the package (usually ``from share/packages/implementations``)
  - ``./vandapkg.bash makepkg <path_to_package>``
- - ``<path_to_package>`` is usually something like ``implementations/berkeley``.
 2. install tool interface (usually from ``share/packages/interfaces``)
  - ``./vandapkg.bash install <path_to_interface_xml>``
 3. install tool implementation
@@ -27,7 +26,7 @@ We will someday provide a repository of stable package versions to simplify the 
 2. tool implementations provide the implementation of tool interfaces.
 3. a tool box can only be executed of a corresponding tool implementation is installed.
 
-| **Tool-Interface** | **Tool-Paket** | **Beschreibung** | build-dep | run-dep | libraries |
+| **Tool interface** | **Tool implementation** | **Description** | build-dep | run-dep | libraries |
 |:-------------------|:---------------|:-----------------|:----------|:--------|:----------|
 | util | util | core functionality  || ``pv``||
 | berkeley | berkeley | Berkeley parser | ``javac`` | ``java`` ||
@@ -65,7 +64,7 @@ Vanda Studio uses the build tool ``ant``. The following commands can be executed
 | ``ant compile`` | compiles the project |
 | ``ant run`` | runs the project |
 
-# Acknowledgements
+## Acknowledgements
 
 * This product includes software developed by the Apache Software Foundation (http://www.apache.org/).
 * This product includes software developed by the Indiana University Extreme! Lab (http://www.extreme.indiana.edu/).
