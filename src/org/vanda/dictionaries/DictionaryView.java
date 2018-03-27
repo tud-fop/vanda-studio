@@ -213,7 +213,6 @@ public class DictionaryView extends JPanel implements ViewTransition {
 					((JLabel) comp).setBorder(BorderFactory.createMatteBorder(2, 2, 3, 3, Color.BLUE));
 				else
 					((JLabel) comp).setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.BLACK));
-				setFont(new Font("Unifont", getFont().getSize(), getFont().getSize()));
 			}
 
 			if (row == 0) {
@@ -352,9 +351,6 @@ public class DictionaryView extends JPanel implements ViewTransition {
 		table.setRowSelectionAllowed(false);
 		table.setColumnSelectionAllowed(false);
 		table.setCellSelectionEnabled(true);
-		table.getTableHeader().setFont(
-				new Font("Unifont", table.getTableHeader().getFont().getStyle(), table.getTableHeader().getFont()
-						.getSize()));
 
 		table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -563,9 +559,7 @@ public class DictionaryView extends JPanel implements ViewTransition {
 	 *         object.
 	 */
 	private String constructBestString() {
-		String fontFamily = "Unifont";
-		StringBuilder str = new StringBuilder("<html><");
-		str.append("body style=\"font-family: " + fontFamily + "\"><");
+		StringBuilder str = new StringBuilder("<html>");
 		int i = 0;
 
 		while (i < model.getNoOfEntries()) {

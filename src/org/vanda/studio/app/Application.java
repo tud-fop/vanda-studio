@@ -17,6 +17,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.swing.UIManager;
+
 import org.vanda.datasources.DataSource;
 import org.vanda.datasources.Element;
 import org.vanda.datasources.RootDataSource;
@@ -115,16 +117,9 @@ public class Application {
 		// converterToolRepository.getAddObservable().addObserver(typeObserver);
 		toolRepository.getAddObservable().addObserver(typeObserver);
 		
-		// Register a Monospace font that can display all unicode-Characters
-		if (gui) {
-			try {
-				URL url = ClassLoader.getSystemClassLoader().getResource(
-						"unifont-5.1.20080907.ttf");
-				
-				Font monospaceFont = Font.createFont(Font.TRUETYPE_FONT, new File(url.getFile()));
-				GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(monospaceFont);
-			} catch (Exception e) {
-			}
+		// Register a user defined font
+		if (gui && properties.contains("font")) {
+			UIManager.getLookAndFeelDefaults().put("defaultFont", new Font(properties.getProperty("font"), Font.PLAIN, 12));
 			
 		}
 	}

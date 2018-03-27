@@ -64,6 +64,10 @@ Vanda Studio uses the build tool ``ant``. The following commands can be executed
 | ``ant compile`` | compiles the project |
 | ``ant run`` | runs the project |
 
+## Fonts
+
+You may set a custom font for the user interface by putting an entry like ``<entry key="font">Droid Sans Mono</entry>`` in the config file (usually at ``~/.vanda/studio.conf``).
+
 ## Acknowledgements
 
 * This product includes software developed by the Apache Software Foundation (http://www.apache.org/).
