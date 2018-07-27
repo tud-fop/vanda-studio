@@ -382,5 +382,21 @@
 			<out name="parse-trees" type="NeGraCorpus" />
 		</tool>
 
+		<tool
+			type="Shell"
+			id="lcfrs-parse-incremental"
+			name="LCFRS incremental parser"
+			version="2017-08-24"
+			contact="thomas.ruprecht@tu-dresden.de"
+			category="Language Models::Parsing"
+			status="">
+			
+			<description></description>
+			
+			<in name="grammar" type="PLCFRS" />
+			<in name="sentence" type="SingleSentence" />
+			<out name="parse-trees" type="NeGraCorpus" />
+		</tool>
+
 	</toolinterface>
 </root>

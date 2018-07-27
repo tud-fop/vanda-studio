@@ -15,10 +15,8 @@ install_me () {
 		cd "$1"
 		git pull origin master
 	fi
+	
 	cabal update
-	cabal configure
-	cabal install --force-reinstalls
-	cabal exec -- ghc --make "programs/XRSToHypergraph.hs"
-	cabal exec -- ghc --make "programs/XRSTranslate.hs"
-	cabal exec -- ghc --make "programs/PennToSentenceCorpus.hs"
+	cabal install
+	cabal install programs/Vanda-Programs.cabal
 }

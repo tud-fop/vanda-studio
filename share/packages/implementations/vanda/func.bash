@@ -8,8 +8,8 @@
 #
 # Generates a Tree Corpus given a GHKM Hypergraph and a Sentence Corpus
 XRSTranslate () {
-	"$VANDA/programs/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
-	"$VANDA/programs/XRSTranslate" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" --complicated < "$3" > "$4"
+	"$VANDA/.cabal-sandbox/bin/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
+	"$VANDA/.cabal-sandbox/bin/XRSTranslate" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" --complicated < "$3" > "$4"
 }
 
 # PennToSentenceCorpus
@@ -21,7 +21,7 @@ XRSTranslate () {
 #
 # Reads of the yield of trees in a PennTreeCorpus.
 PennToSentenceCorpus () {
-	"$VANDA/programs/PennToSentenceCorpus" < "$2" > "$3"
+	"$VANDA/.cabal-sandbox/bin/PennToSentenceCorpus" < "$2" > "$3"
 }
 
 # XRSNGrams
@@ -34,9 +34,9 @@ PennToSentenceCorpus () {
 #
 # Intersects a language model in ARPA format with a GHKM hypergraph.
 XRSNGrams () {
-	"$VANDA/programs/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
-	"$VANDA/dist/build/Vanda/vanda" xrsngrams product --no-backoff "$1/zhg" "$1/map.e" "$1/map.f" "$3"
-	"$VANDA/programs/XRSToHypergraph" b2t -e "$1/map.e" -f "$1/map.f" -z "$1/zhg.new" > "$4"
+	"$VANDA/.cabal-sandbox/bin/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
+	"$VANDA/.cabal-sandbox/bin/vanda" xrsngrams product --no-backoff "$1/zhg" "$1/map.e" "$1/map.f" "$3"
+	"$VANDA/.cabal-sandbox/bin/XRSToHypergraph" b2t -e "$1/map.e" -f "$1/map.f" -z "$1/zhg.new" > "$4"
 }
 
 # XRSNGramsTranslate
@@ -51,11 +51,11 @@ XRSNGrams () {
 #
 # Translates a SentenceCorpus using a GHKM hypergraph and a language model.
 XRSNGramsTranslate () {
-	"$VANDA/programs/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
+	"$VANDA/.cabal-sandbox/bin/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
 	if [ "$4" -eq "0" ]; then
-		"$VANDA/dist/build/Vanda/vanda" xrsngrams translate --no-backoff "$1/zhg" "$1/map.e" "$1/map.f" "$3" < "$5" > "$6"
+		"$VANDA/.cabal-sandbox/bin/vanda" xrsngrams translate --no-backoff "$1/zhg" "$1/map.e" "$1/map.f" "$3" < "$5" > "$6"
 	else
-		"$VANDA/dist/build/Vanda/vanda" xrsngrams translate --prune="$4" "$1/zhg" "$1/map.e" "$1/map.f" "$3" < "$5" > "$6"
+		"$VANDA/.cabal-sandbox/bin/vanda" xrsngrams translate --prune="$4" "$1/zhg" "$1/map.e" "$1/map.f" "$3" < "$5" > "$6"
 	fi
 }
 
@@ -69,7 +69,7 @@ XRSNGramsTranslate () {
 #
 # Evaluates the corpus according to the given model.
 NGrams () {
-	"$VANDA/dist/build/Vanda/vanda" ngrams evaluate "$2" < "$3" > "$4"
+	"$VANDA/.cabal-sandbox/bin/vanda" ngrams evaluate "$2" < "$3" > "$4"
 	echo "$3" > "${4}.meta"
 }
 
@@ -84,7 +84,7 @@ NGrams () {
 #
 # Trains an n-gram model.
 NGramsTrain () {
-	"$VANDA/dist/build/Vanda/vanda" ngrams train --bound="$3" --degree="$2" < "$4" > "$5"
+	"$VANDA/.cabal-sandbox/bin/vanda" ngrams train --bound="$3" --degree="$2" < "$4" > "$5"
 }
 
 # ExtragtPLCFRS
@@ -96,7 +96,7 @@ NGramsTrain () {
 #
 # Extract a probabilistic LCFRS from a corpus (NEGRA export format)
 ExtractPLCFRS () {
-  iconv "--from-code=$(file --brief --mime-encoding "$2")" "--to-code=utf-8" "$2" | "$VANDA/dist/build/Vanda/vanda" lcfrs extract "$3"
+  iconv "--from-code=$(file --brief --mime-encoding "$2")" "--to-code=utf-8" "$2" | "$VANDA/.cabal-sandbox/bin/vanda" lcfrs extract "$3"
 }
 
 # BinarizeLCFRSNaively
@@ -108,7 +108,7 @@ ExtractPLCFRS () {
 #
 # Binarizes a probabilistic LCFRS naively
 BinarizeLCFRSNaively () {
-	"$VANDA/dist/build/Vanda/vanda" lcfrs binarize --naive "$2" "$3"
+	"$VANDA/.cabal-sandbox/bin/vanda" lcfrs binarize --naive "$2" "$3"
 }
 
 # BinarizeLCFRSLowMaxFo
@@ -120,7 +120,7 @@ BinarizeLCFRSNaively () {
 #
 # Binarizes a probabilistic LCFRS optimally (lowest maximal fanout)
 BinarizeLCFRSLowMaxFo () {
-	"$VANDA/dist/build/Vanda/vanda" lcfrs binarize --optimal "$2" "$3"
+	"$VANDA/.cabal-sandbox/bin/vanda" lcfrs binarize --optimal "$2" "$3"
 }
 
 # BinarizeLCFRSHybrid
@@ -132,7 +132,7 @@ BinarizeLCFRSLowMaxFo () {
 #
 # Binarize rules up to rank 5 optimally and the rest naively.
 BinarizeLCFRSHybrid () {
-	"$VANDA/dist/build/Vanda/vanda" lcfrs binarize --hybrid=5 "$2" "$3"
+	"$VANDA/.cabal-sandbox/bin/vanda" lcfrs binarize --hybrid=5 "$2" "$3"
 }
 
 # BinarizeLCFRSHybrid
@@ -145,7 +145,7 @@ BinarizeLCFRSHybrid () {
 #
 # Binarize rules up to rank "bound" optimally and the rest naively.
 BinarizeLCFRSHybrid2 () {
-	"$VANDA/dist/build/Vanda/vanda" lcfrs binarize --hybrid="$2" "$3" "$4"
+	"$VANDA/.cabal-sandbox/bin/vanda" lcfrs binarize --hybrid="$2" "$3" "$4"
 }
 
 # Vanda-pcfg-extract
@@ -157,7 +157,7 @@ BinarizeLCFRSHybrid2 () {
 #
 # Extract a pcfg from treebank.
 Vanda-pcfg-extract () {
-	"${VANDA}/dist/build/Vanda/Vanda" pcfg extract "$3" "$2"
+	"${VANDA}/.cabal-sandbox/bin/vanda" pcfg extract "$3" "$2"
 }
 
 # Vanda-pcfg-train
@@ -171,7 +171,7 @@ Vanda-pcfg-extract () {
 #
 # Estimate the rule probabilities of a pcfg with unsupervised training.
 Vanda-pcfg-train () {
-	"${VANDA}/dist/build/Vanda/Vanda" pcfg train "$2" "$5" "$3" "$4"
+	"${VANDA}/.cabal-sandbox/bin/vanda" pcfg train "$2" "$5" "$3" "$4"
 }
 
 # Vanda-pcfg-n-best
@@ -184,7 +184,7 @@ Vanda-pcfg-train () {
 #
 # Find the most probable parse trees of a pcfg.
 Vanda-pcfg-bests () {
-	"${VANDA}/dist/build/Vanda/Vanda" pcfg bests "$2" "$3" > "$4"
+	"${VANDA}/.cabal-sandbox/bin/vanda" pcfg bests "$2" "$3" > "$4"
 }
 
 # Vanda-pcfg-intersect
@@ -197,7 +197,7 @@ Vanda-pcfg-bests () {
 #
 # Intersect a pcfg with a sentence resulting in a pcfg that allows exactly those derivations that produce the given sentence.
 Vanda-pcfg-intersect () {
-	"${VANDA}/dist/build/Vanda/Vanda" pcfg intersect "$2" "$4" "$(cat "$3")"
+	"${VANDA}/.cabal-sandbox/bin/vanda" pcfg intersect "$2" "$4" "$(cat "$3")"
 }
 
 # lcfrs-parse-cyk
@@ -210,7 +210,7 @@ Vanda-pcfg-intersect () {
 #
 # Parse a sentence probabilisticly using an LCFRS.
 lcfrs-parse-cyk () {
-	cat "$3" | "${VANDA}/dist/build/Vanda/Vanda" lcfrs parse --algorithm=CYK --bw=2500 --ts=1 "$2" > "$4"
+	cat "$3" | "${VANDA}/.cabal-sandbox/bin/vanda" lcfrs parse --algorithm=CYK --bw=2500 --ts=1 "$2" > "$4"
 }
 
 # lcfrs-parse-naive
@@ -223,7 +223,7 @@ lcfrs-parse-cyk () {
 #
 # Parse a sentence probabilisticly using an LCFRS.
 lcfrs-parse-naive () {
-	cat "$3" | "${VANDA}/dist/build/Vanda/Vanda" lcfrs parse --algorithm=NaiveActive --bw=2500 --ts=1 "$2" > "$4"
+	cat "$3" | "${VANDA}/.cabal-sandbox/bin/vanda" lcfrs parse --algorithm=NaiveActive --bw=2500 --ts=1 "$2" > "$4"
 }
 
 # lcfrs-parse-active
@@ -236,5 +236,18 @@ lcfrs-parse-naive () {
 #
 # Parse a sentence probabilisticly using an LCFRS.
 lcfrs-parse-active () {
-	cat "$3" | "${VANDA}/dist/build/Vanda/Vanda" lcfrs parse --algorithm=Active --bw=2500 --ts=1 "$2" > "$4"
+	cat "$3" | "${VANDA}/.cabal-sandbox/bin/vanda" lcfrs parse --algorithm=Active --bw=2500 --ts=1 "$2" > "$4"
+}
+
+# lcfrs-parse-incremental
+# Version: 2017-07-27
+# Contact: thomas.ruprecht@tu-dresden.de
+# Category: Language Models::Parsing
+# IN grammar :: PLCFRS
+# IN sentence :: SingleSentence
+# OUT parse-trees :: NeGraCorpus
+#
+# Parse a sentence probabilisticly using an LCFRS.
+lcfrs-parse-incremental () {
+	cat "$3" | "${VANDA}/.cabal-sandbox/bin/vanda" lcfrs parse --algorithm=Incremental --bw=2500 --ts=1 "$2" > "$4"
 }
