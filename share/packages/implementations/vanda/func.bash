@@ -8,8 +8,8 @@
 #
 # Generates a Tree Corpus given a GHKM Hypergraph and a Sentence Corpus
 XRSTranslate () {
-	"$VANDA/.cabal-sandbox/bin/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
-	"$VANDA/.cabal-sandbox/bin/XRSTranslate" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" --complicated < "$3" > "$4"
+	"$VANDA/.cabal-sandbox/bin/vanda" "xrs-to-hypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
+	"$VANDA/.cabal-sandbox/bin/vanda" "xrs-translate" -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" --complicated < "$3" > "$4"
 }
 
 # PennToSentenceCorpus
@@ -21,7 +21,7 @@ XRSTranslate () {
 #
 # Reads of the yield of trees in a PennTreeCorpus.
 PennToSentenceCorpus () {
-	"$VANDA/.cabal-sandbox/bin/PennToSentenceCorpus" < "$2" > "$3"
+	"$VANDA/.cabal-sandbox/bin/vanda" "penn-to-sentence-corpus" < "$2" > "$3"
 }
 
 # XRSNGrams
@@ -34,9 +34,9 @@ PennToSentenceCorpus () {
 #
 # Intersects a language model in ARPA format with a GHKM hypergraph.
 XRSNGrams () {
-	"$VANDA/.cabal-sandbox/bin/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
+	"$VANDA/.cabal-sandbox/bin/vanda" "xrs-to-hypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
 	"$VANDA/.cabal-sandbox/bin/vanda" xrsngrams product --no-backoff "$1/zhg" "$1/map.e" "$1/map.f" "$3"
-	"$VANDA/.cabal-sandbox/bin/XRSToHypergraph" b2t -e "$1/map.e" -f "$1/map.f" -z "$1/zhg.new" > "$4"
+	"$VANDA/.cabal-sandbox/bin/vanda" "xrs-to-hypergraph" b2t -e "$1/map.e" -f "$1/map.f" -z "$1/zhg.new" > "$4"
 }
 
 # XRSNGramsTranslate
@@ -51,7 +51,7 @@ XRSNGrams () {
 #
 # Translates a SentenceCorpus using a GHKM hypergraph and a language model.
 XRSNGramsTranslate () {
-	"$VANDA/.cabal-sandbox/bin/XRSToHypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
+	"$VANDA/.cabal-sandbox/bin/vanda" "xrs-to-hypergraph" t2b -e "$1/map.e" -f "$1/map.f" -z "$1/zhg" < "$2"
 	if [ "$4" -eq "0" ]; then
 		"$VANDA/.cabal-sandbox/bin/vanda" xrsngrams translate --no-backoff "$1/zhg" "$1/map.e" "$1/map.f" "$3" < "$5" > "$6"
 	else
