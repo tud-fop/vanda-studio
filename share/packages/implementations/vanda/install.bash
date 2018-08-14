@@ -18,5 +18,4 @@ install_me () {
 	
 	cabal update
 	cabal install
-	cabal install programs/Vanda-Programs.cabal
 }
