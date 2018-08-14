@@ -205,7 +205,7 @@ Vanda-pcfg-intersect () {
 # Contact: thomas.ruprecht@tu-dresden.de
 # Category: Language Models::Parsing
 # IN grammar :: PLCFRS
-# IN sentence :: SingleSentence
+# IN sentence :: SentenceCorpus
 # OUT parse-trees :: NeGraCorpus
 #
 # Parse a sentence probabilisticly using an LCFRS.
@@ -218,7 +218,7 @@ lcfrs-parse-cyk () {
 # Contact: thomas.ruprecht@tu-dresden.de
 # Category: Language Models::Parsing
 # IN grammar :: PLCFRS
-# IN sentence :: SingleSentence
+# IN sentence :: SentenceCorpus
 # OUT parse-trees :: NeGraCorpus
 #
 # Parse a sentence probabilisticly using an LCFRS.
@@ -231,7 +231,7 @@ lcfrs-parse-naive () {
 # Contact: thomas.ruprecht@tu-dresden.de
 # Category: Language Models::Parsing
 # IN grammar :: PLCFRS
-# IN sentence :: SingleSentence
+# IN sentence :: SentenceCorpus
 # OUT parse-trees :: NeGraCorpus
 #
 # Parse a sentence probabilisticly using an LCFRS.
@@ -244,7 +244,7 @@ lcfrs-parse-active () {
 # Contact: thomas.ruprecht@tu-dresden.de
 # Category: Language Models::Parsing
 # IN grammar :: PLCFRS
-# IN sentence :: SingleSentence
+# IN sentence :: SentenceCorpus
 # OUT parse-trees :: NeGraCorpus
 #
 # Parse a sentence probabilisticly using an LCFRS.

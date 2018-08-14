@@ -346,7 +346,7 @@
 			<description></description>
 			
 			<in name="grammar" type="PLCFRS" />
-			<in name="sentence" type="SingleSentence" />
+			<in name="sentence" type="SentenceCorpus" />
 			<out name="parse-trees" type="NeGraCorpus" />
 		</tool>
 
@@ -362,7 +362,7 @@
 			<description></description>
 			
 			<in name="grammar" type="PLCFRS" />
-			<in name="sentence" type="SingleSentence" />
+			<in name="sentence" type="SentenceCorpus" />
 			<out name="parse-trees" type="NeGraCorpus" />
 		</tool>
 		
@@ -378,7 +378,7 @@
 			<description></description>
 			
 			<in name="grammar" type="PLCFRS" />
-			<in name="sentence" type="SingleSentence" />
+			<in name="sentence" type="SentenceCorpus" />
 			<out name="parse-trees" type="NeGraCorpus" />
 		</tool>
 
@@ -394,7 +394,7 @@
 			<description></description>
 			
 			<in name="grammar" type="PLCFRS" />
-			<in name="sentence" type="SingleSentence" />
+			<in name="sentence" type="SentenceCorpus" />
 			<out name="parse-trees" type="NeGraCorpus" />
 		</tool>
 
