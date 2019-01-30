@@ -28,5 +28,7 @@ rparseTrain () {
        -doTrain \
        -train "$2" \
        -headFinder negra \
-       -saveModel "$3"
+       -saveModel "$3" \
+       -trainSave "$3" \
+       -trainSaveFormat rcg
 }

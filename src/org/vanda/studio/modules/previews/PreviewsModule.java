@@ -32,6 +32,8 @@ public class PreviewsModule implements Module {
 				new AlignmentsPreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("PLCFRS"),
 				new PLCFRSPreviewFactory(app, ".readable"));
+		app.registerPreviewFactory(new CompositeType("RparseLCFRS"),
+				new RparseLCFRSPreviewFactory(app, "/grammarrcg"));
 		app.registerPreviewFactory(new CompositeType("NegraCorpus"),
 				new NegraTreePreviewFactory(app, ".penn"));
 		app.registerPreviewFactory(new CompositeType("log"),
