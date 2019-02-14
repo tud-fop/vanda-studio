@@ -63,10 +63,6 @@ public class RparseLCFRSPreviewFactory implements PreviewFactory {
 			try {
 				fs = new Scanner(new FileInputStream(app.findFile(value
 						+ postfix)));
-				fs.nextLine();
-				fs.nextLine();
-				fs.nextLine();
-				fs.nextLine();
 				more();
 			} catch (FileNotFoundException e) {
 				add(new JLabel(value + postfix + " does not exist."));
@@ -82,27 +78,24 @@ public class RparseLCFRSPreviewFactory implements PreviewFactory {
 			while (i < SIZE & fs.hasNextLine()) {
 				String txt = "<html>";
 				l = fs.nextLine().split(" ");
+				double prop = 0.0;
 				for (String s : l) {
-					if (s.equals("->"))
+					if (s.indexOf(':') != -1) {
+						if (s.startsWith("S")){
+							prop = Double.parseDouble(s.substring(2));
+						}
+					}else if (s.equals("-->"))
 						txt += " &#10230; ";
-					else if (l[l.length - 1] == s) {
-						if (s.contains("e"))
-							txt += "  [" + cut(s.split("e")[0], 5)
-									+ " &middot; 10<sup>" + s.split("e")[1]
-									+ "</sup>]";
-						else
-							txt += "  ["
-									+ cut(s, 8)
-									+ "]";
-
-					} else if (s.contains("_")) {
+					else if (s.contains("_")) {
 						txt += s.replace("_",
 								"<sub>")
 								+ "</sub> ";
 					}
 					else
 						txt += s + " ";
+					
 				}
+				txt += " [" + String.valueOf(prop) + "]";
 				txt += "</html>";
 				model.addElement(txt);
 				i++;
