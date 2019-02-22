@@ -40,6 +40,8 @@ public class PreviewsModule implements Module {
 				new LogPreviewFactory());
 		app.registerPreviewFactory(new CompositeType("StPOStagger"),
 				new DefaultPreviewFactory(app, ".props"));
+		app.registerPreviewFactory(new CompositeType("TaggedCorpus"),
+				new TaggedPreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("Integer"),
 				new PlainNumberPreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("Double"),
