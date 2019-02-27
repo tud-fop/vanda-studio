@@ -42,6 +42,8 @@ public class PreviewsModule implements Module {
 				new DefaultPreviewFactory(app, ".props"));
 		app.registerPreviewFactory(new CompositeType("TaggedCorpus"),
 				new TaggedPreviewFactory(app));
+		app.registerPreviewFactory(new CompositeType("HiddenMarkovModel"),
+				new HMMPreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("Integer"),
 				new PlainNumberPreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("Double"),
