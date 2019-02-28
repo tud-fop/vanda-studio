@@ -1,20 +1,24 @@
 id="egret"
 varname="EGRET"
-version="2013-03-08"
+version="2019-02-28"
 binpath="$id"
 
-download () {
-	wget http://egret-parser.googlecode.com/files/Egret.zip
-}
+EGRET="https://github.com/neubig/egret.git"
 
 install_me () {
-	unzip Egret.zip
-	cd Egret
+	if [[ ! -d "$1/.git" ]]
+	then
+		rm -rf "$1"
+		git clone "${EGRET}" "$1"
+		cd "$1"
+	else
+		cd "$1"
+		git pull origin master
+	fi
 	sed -i "2 i #include <cstdlib>" Egret/src/Tree.cpp
 	sed -i "3 i #include <cstdlib>" Egret/src/utils.h
-	g++ Egret/src/*.cpp -O2 -o egret
-	cp egret "$1"
+	make
 	mkdir -p "$2/egret_grammars"
-	mv -n -t "$2/egret_grammars" "eng_grammar" "chn_grammar"
+	mv -n -t "$2/egret_grammars" "eng_grammar" "chn_grammar" "jpn_grammar"
 	cd ..
 }
