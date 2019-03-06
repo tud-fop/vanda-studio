@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -86,14 +88,23 @@ public class RparseLCFRSPreviewFactory implements PreviewFactory {
 						}
 					}else if (s.equals("-->"))
 						txt += " &#10230; ";
-					else if (s.contains("_")) {
-						txt += s.replace("_",
-								"<sub>")
-								+ "</sub> ";
-					}
-					else
-						txt += s + " ";
-					
+					else {
+						String curr = s;
+						if (curr.contains("[")) {
+							curr = curr.replace("[",
+									"x<sub>");
+							curr = curr.replace("]",
+									"</sub>");
+						}
+						Pattern numPattern = Pattern.compile("\\D+(\\d+)(\\D*\\()");
+						Matcher m = numPattern.matcher(curr);
+						if (m.find()) {
+							curr = curr.replace(m.group(1)+m.group(2), "<sub>" +m.group(1)+"</sub>"+m.group(2));
+						}else {
+							curr += "n";
+						}
+						txt += curr + " ";
+					} 			
 				}
 				txt += " [" + String.valueOf(prop) + "]";
 				txt += "</html>";
