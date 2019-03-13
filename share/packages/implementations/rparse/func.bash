@@ -29,6 +29,6 @@ rparseTrain () {
        -train "$2" \
        -headFinder negra \
        -saveModel "$3" \
-       -trainSave "$3" \
+       -trainSave "$3.readable" \
        -trainSaveFormat rcg
 }
