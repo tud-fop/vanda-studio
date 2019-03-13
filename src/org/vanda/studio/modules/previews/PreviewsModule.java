@@ -33,7 +33,9 @@ public class PreviewsModule implements Module {
 		app.registerPreviewFactory(new CompositeType("PLCFRS"),
 				new PLCFRSPreviewFactory(app, ".readable"));
 		app.registerPreviewFactory(new CompositeType("RparseLCFRS"),
-				new RparseLCFRSPreviewFactory(app, ".readable/grammarrcg"));
+				new RparseLCFRSPreviewFactory(app, "/grammarrcg"));
+		app.registerPreviewFactory(new CompositeType("EgretGrammar"),
+				new EgretPreviewFactory(app));
 		app.registerPreviewFactory(new CompositeType("NegraCorpus"),
 				new NegraTreePreviewFactory(app, ".penn"));
 		app.registerPreviewFactory(new CompositeType("log"),

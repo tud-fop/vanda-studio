@@ -15,6 +15,7 @@ install_me () {
 		cd "$1"
 		git pull origin master
 	fi
+
 	sed -i "2 i #include <cstdlib>" Egret/src/Tree.cpp
 	sed -i "3 i #include <cstdlib>" Egret/src/utils.h
 	make
