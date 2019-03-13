@@ -48,8 +48,9 @@ public class EgretPreviewFactory implements PreviewFactory {
 		private static final int SIZE = 20;
 		private static final String MORE = "[show more rules]";
 
-		public EgretPreview(String value) {
+		public EgretPreview(String value, String postfix) {
 			super();
+			Pattern levelx = Pattern.compile("level(\\d+)");
 			setCellRenderer(new InsetListCellRenderer());
 			model = new DefaultListModel();
 			setLayoutOrientation(JList.HORIZONTAL_WRAP);
@@ -63,10 +64,23 @@ public class EgretPreviewFactory implements PreviewFactory {
 				}
 			});
 			try {
-				fs = new Scanner(new FileInputStream(app.findFile(value)));
+				File folder = new File(app.findFile(value));
+				int maxlvl = 0;
+				
+				for (File f : folder.listFiles()) {
+					Matcher m = levelx.matcher(f.getName());
+					if (m.find()) {
+						 int currlvl = Integer.parseInt(m.group(1));
+						 if (currlvl > maxlvl) {
+							 maxlvl = currlvl;
+						 }
+					}
+				}
+				System.out.println(app.findFile(value + "/level" + maxlvl + postfix));
+				fs = new Scanner(new FileInputStream(app.findFile(value + "/level" + maxlvl + postfix)));
 				more();
 			} catch (FileNotFoundException e) {
-				add(new JLabel(value + " does not exist."));
+				add(new JLabel(value + "/level0" + postfix + " does not exist."));
 			}
 		}
 
@@ -110,16 +124,18 @@ public class EgretPreviewFactory implements PreviewFactory {
 		}
 	}
 
+	private String postfix;
 	private Application app;
 
-	public EgretPreviewFactory(Application app) {
+	public EgretPreviewFactory(Application app, String postfix) {
 		super();
 		this.app = app;
+		this.postfix = postfix;
 	}
 
 	@Override
 	public JComponent createPreview(String value) {
-		return new JScrollPane(new EgretPreview(value));
+		return new JScrollPane(new EgretPreview(value, postfix));
 	}
 
 	@Override
@@ -142,7 +158,7 @@ public class EgretPreviewFactory implements PreviewFactory {
 
 	@Override
 	public JComponent createSmallPreview(String value) {
-		return new JScrollPane(new EgretPreview(value));
+		return new JScrollPane(new EgretPreview(value, postfix));
 	}
 
 }
