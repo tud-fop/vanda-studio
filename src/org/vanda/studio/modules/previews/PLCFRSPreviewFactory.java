@@ -63,10 +63,6 @@ public class PLCFRSPreviewFactory implements PreviewFactory {
 			try {
 				fs = new Scanner(new FileInputStream(app.findFile(value
 						+ postfix)));
-				fs.nextLine();
-				fs.nextLine();
-				fs.nextLine();
-				fs.nextLine();
 				more();
 			} catch (FileNotFoundException e) {
 				add(new JLabel(value + postfix + " does not exist."));
@@ -81,7 +77,17 @@ public class PLCFRSPreviewFactory implements PreviewFactory {
 			int i = 0;
 			while (i < SIZE & fs.hasNextLine()) {
 				String txt = "<html>";
-				l = fs.nextLine().split(" ");
+				String line = fs.nextLine();
+				
+				if (line.equals("Initial NTs:")) {
+					fs.nextLine();
+					//TODO Initial States anzeigen
+					continue;
+				}
+				if (line.equals("")|| line.startsWith("Rules ")) {
+					continue;
+				}
+				l = line.split(" ");
 				for (String s : l) {
 					if (s.equals("->"))
 						txt += " &#10230; ";
