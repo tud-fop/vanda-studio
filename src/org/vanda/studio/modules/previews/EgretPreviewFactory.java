@@ -96,11 +96,16 @@ public class EgretPreviewFactory implements PreviewFactory {
 				for (String s : l) {
 					if (s.equals("->"))
 						txt += " &#10230; ";
-					else if (s.contains("_")) {
-						txt += s.replace("_",
-								"<sub>")
-								+ "</sub> ";
-					} else txt += s;
+					else {
+						String curr = s;
+						if (curr.contains("_")) {
+							curr = curr.replaceAll("\\_([^\\_\\^]*)", "<sub>$1</sub>");
+						}
+						if (curr.contains("^")) {
+							curr = curr.replaceAll("\\^([^\\^]*?)(?=<sub>|\\^|$)", "<sup>$1</sup>");
+						}
+						txt += curr + " ";
+					}
 				}
 				txt += "</html>";
 				model.addElement(txt);
