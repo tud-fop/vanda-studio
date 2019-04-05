@@ -7,39 +7,83 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.awt.Component;
+import java.util.Scanner;
+import java.awt.Color;
 
+
+import javax.swing.BorderFactory;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JPanel;
 import javax.swing.BoxLayout;
 import javax.swing.Box;
 import java.awt.Dimension;
+import java.awt.BorderLayout;
+import javax.swing.AbstractAction;
 
 import org.vanda.studio.app.Application;
 import org.vanda.studio.app.PreviewFactory;
 import org.vanda.util.ExceptionMessage;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 public class TaggedPreviewFactory implements PreviewFactory {
 
-	private Application app;
-	
-	public TaggedPreviewFactory(Application app) {
-		super();
-		this.app = app;
-	}
-	
-	@Override
-	public JComponent createPreview(String absolutePath) {
-		File taggedCorpus = new File(absolutePath);
-		if (!taggedCorpus.exists())
-			return app.getPreviewFactory(null).createPreview(absolutePath);
-		try(Scanner scanTags = new Scanner(taggedCorpus)) {
-			// read stuff from file
-			List<List<String>> words= new ArrayList<List<String>>();
-			List<List<String>> tags = new ArrayList<List<String>>();
-			while (scanTags.hasNextLine()) {
-				String line = scanTags.nextLine();
+	public class TaggedPreview extends JPanel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Scanner fs;
+		private JButton bMore;
+		private JPanel cTables;
+		private static final int SIZE = 20;
+		private static final String MORE = "show more lines";
+
+		public TaggedPreview(String absolutePath) {
+			super();
+			
+			setLayout(new BorderLayout());
+			
+
+			bMore = new JButton(new AbstractAction(MORE) {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					more();
+				}
+			});
+			add(bMore, BorderLayout.PAGE_END);
+			
+			cTables = new JPanel();
+			cTables.setLayout(new BoxLayout(cTables, BoxLayout.PAGE_AXIS));
+			cTables.setBackground(Color.WHITE); 
+			add(cTables, BorderLayout.CENTER);
+			
+			try {
+				File taggedCorpus = new File(absolutePath);
+
+				fs = new Scanner(taggedCorpus);
+				more();
+			} catch (FileNotFoundException e) {
+				add(new JLabel("File " + absolutePath + " not found"));
+			}
+		}
+
+		public void more() {
+			if (fs == null)
+				return;
+			int i = 0;
+			while (i < SIZE & fs.hasNextLine()) {
+				String line = fs.nextLine();
 				List<String> w = new ArrayList<String>();
 				List<String> t = new ArrayList<String>();
 				for(String occ : line.split(" ")) {
@@ -51,48 +95,72 @@ public class TaggedPreviewFactory implements PreviewFactory {
 						//TODO Throw error???
 					}
 				}
-				words.add(w);
-				tags.add(t);
-			}
-			// write to array
-			JPanel p = new JPanel();
-			p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
-			for(int j = 0; j < words.size(); j++) {
-				String[]head = new String[words.get(j).size()];
-				String[][] data = new String[2][words.get(j).size()];
-				Integer[] width = new Integer[words.get(j).size()];
-				for (int i = 0; i < words.get(j).size(); i++) {
-					head[i] = words.get(j).get(i);
-					data[0][i] = words.get(j).get(i);
-					data[1][i] = tags.get(j).get(i);
-					width[i] = Math.max(data[0][i].length(), data[1][i].length());
+				
+				String[]head = new String[w.size()];
+				String[][] data = new String[2][w.size()];
+				Integer[] width = new Integer[w.size()];
+				for (int j = 0; j < w.size(); j++) {
+					head[j] = w.get(j);
+					data[0][j] = w.get(j);
+					data[1][j] = t.get(j);
+					width[j] = Math.max(data[0][j].length(), data[1][j].length());
 				}
 				// build GUI
 				JTable jTable = new JTable(data, head){
 			        public boolean isCellEditable(int row, int column) {                
 			                return false;               
 			        };
+			        
+			        @Override
+			        public Component prepareRenderer(TableCellRenderer renderer, int row,
+			            int col) {
+			          Component comp = super.prepareRenderer(renderer, row, col);
+			          ((JLabel) comp).setHorizontalAlignment(JLabel.CENTER);
+			          return comp;
+			        }
 			    };
 				int total = 0;
-				for (int i = 0; i < words.get(j).size(); i++) {
-				    jTable.getColumnModel().getColumn(i).setPreferredWidth(10 + width[i]*10);
-				    total += width[i];
+				for (int j = 0; j < w.size(); j++) {
+				    jTable.getColumnModel().getColumn(j).setPreferredWidth(10 + width[j]*10);
+				    total += width[j];
 				}
 				jTable.setMaximumSize(new Dimension(total*10, 50));
 				jTable.setAlignmentX(jTable.LEFT_ALIGNMENT);
 				jTable.setRowSelectionAllowed(false);
 				jTable.setShowHorizontalLines(false);
+				jTable.setShowVerticalLines(false);
+				
 
-				p.add(jTable);
-				p.add(Box.createRigidArea(new Dimension(0,5)));
+
+				cTables.add(jTable);
+				cTables.add(Box.createRigidArea(new Dimension(0,5)));
+				
+				i++;
 			}
+			revalidate();
+			repaint();
 
-			JComponent result = new JScrollPane(p);
-			return result;
-		} catch (FileNotFoundException e) {
-			app.sendMessage(new ExceptionMessage(e));
-			return app.getPreviewFactory(null).createPreview(absolutePath);
 		}
+
+		@Override
+		public void finalize() {
+			fs.close();
+		}
+	}
+	
+	
+	
+
+	private Application app;
+	
+	public TaggedPreviewFactory(Application app) {
+		super();
+		this.app = app;
+	}
+	
+	@Override
+	public JComponent createPreview(String absolutePath) {
+		return new JScrollPane(new TaggedPreview(absolutePath));
 	}
 
 	@Override
